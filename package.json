@@ -1,0 +1,26 @@
+{
+  "name": "tmh-system",
+  "version": "0.1.0",
+  "description": "",
+  "main": "webserver.js",
+  "scripts": {
+    "test": "node webserver.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alutechno/TMH-System"
+  },
+  "author": "alutechno.io",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alutechno/TMH-System/issues"
+  },
+  "homepage": "https://github.com/alutechno/TMH-System",
+  "dependencies": {
+    "express": "4.14.0",
+    "body-parser": "1.15.2",
+    "jwt": "0.2.0",
+    "mysql": "2.11.1",
+    "ejs": "2.5.2"
+  }
+}
