@@ -1,0 +1,137 @@
+<!-- START PAGE COVER -->
+<div class="container-fluid container-fixed-lg ">
+    <ul class="breadcrumb">
+        <li>
+            <a href="">Home</a>
+        </li>
+
+        <li><a href="" class="active">User Management</a>
+        </li>
+    </ul>
+    <!-- END BREADCRUMB -->
+    <h3 class="page-title">User Management</h3>
+</div>
+<div class="container-fluid container-fixed-lg">
+    <!-- YOU CAN REMOVE .container-fixed-lg TO DISABLE THE FEATURE WHERE THE CONTENT
+                 ALIGNS TO THE CENTER WITHOUT STRECTHING UGLY ON 1800PX(1080P & 4/5K MONITORS) UP WORDS SCREEN
+                  -->
+    <!-- CONTENT GOES HERE-->
+        <div class="row">
+        <div class="col-sm-5">
+            <!-- START PANEL -->
+                <div class="panel panel-transparent" >
+                    <div class="panel-heading">
+                        <div class="panel-title">List of User
+                        </div>
+                        <div class="pull-right">
+                            <div class="col-xs-12">
+                                <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter($event)">
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="panel-body" >
+                        <table class="table table-responsive table-hover table-striped b-t b-b" datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
+                        </table>
+                    <!--<table class="table table-responsive table-hover table-striped b-t b-b" ui-jq="dataTable" ui-options="options" id="tableUser">
+                        <thead>
+                            <tr>
+                                <th>User Name</th>
+                                <th>Full Name</th>
+                                <th>Roles</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="val in users">
+                                <td>{{ val.username }}</td>
+                                <td>{{ val.fullname }}</td>
+                                <td>{{ val.roles }}</td>
+                                <td>
+                                <div class="btn-toolbar">
+                                    <div class="btn-group btn-group-horizontal">
+                                        <button type="button" class="btn btn-default" ng-click="update(val.id)" ng-show="buttonUpdate"><i class="fa fa-pencil"></i></button>
+                                        <button type="button" class="btn btn-default" ng-click="delete(val.id,val.username)" ng-show="buttonDelete"><i class="fa fa-trash-o"></i></button>
+                                    </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>-->
+                    </div>
+                </div>
+            <!-- END PANEL -->
+        </div>
+        <div class="col-sm-7">
+            <!-- START PANEL -->
+            <div class="panel panel-transparent">
+                <div class="panel-body">
+                    <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+                        <p>User Information</p>
+                        <div class="form-group-attached">
+                            <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.fullname.$invalid && !user.fullname.$pristine }">
+                                <label>Full name</label>
+                                <input type="text" class="form-control" name="fullname" ng-model="user.fullname" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                            </div>
+                            <div class="row clearfix">
+                                <div class="col-sm-6">
+                                    <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.username.$invalid && !user.username.$pristine }">
+                                        <label>User name</label>
+                                        <input type="text" class="form-control" name="name" ng-model="user.username" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.password.$invalid && !user.password.$pristine }">
+                                        <label>Password</label>
+                                        <input type="text" class="form-control" name="password" ng-model="user.password" validate-attached-form-element required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+
+                        <p>Role Information</p>
+                        <div class="form-group-attached">
+                            <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : role.selected.$invalid && !role.selected.$pristine }">
+                                <label>Roles</label>
+                                <ui-select multiple name="roleName" class="form-control" require-multiple ng-model="role.selected" theme="select2" ng-disabled="disabled" style="width:100%" validate-attached-form-element required>
+                                    <ui-select-match placeholder="Select role...">{{$item.name}}</ui-select-match>
+                                    <ui-select-choices repeat="item in roles | filter: {name: $select.search}" >
+                                        <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                                        <small ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></small>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                        <br>
+
+                        <button class="btn btn-success" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" ng-show="buttonCreate">Submit</button>
+                        <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
+                    </form>
+                </div>
+            </div>
+            <!-- END PANEL -->
+        </div>
+    </div>
+
+</div>
+
+<div>
+<!-- START MODAL CONTENT-->
+<div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{user.name}} ?</h4>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<!-- END MODAL CONTENT-->
