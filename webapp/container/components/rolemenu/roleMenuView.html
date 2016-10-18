@@ -1,0 +1,65 @@
+<!-- START PAGE COVER -->
+<div class="container-fluid container-fixed-lg ">
+    <ul class="breadcrumb">
+        <li>
+            <a href="">Home</a>
+        </li>
+        <li><a href="" class="active">Menu Assignment</a>
+        </li>
+    </ul>
+    <!-- END BREADCRUMB -->
+    <h3 class="page-title">Menu Assignment</h3>
+</div>
+<div class="container-fluid container-fixed-lg">
+    <!-- YOU CAN REMOVE .container-fixed-lg TO DISABLE THE FEATURE WHERE THE CONTENT
+                 ALIGNS TO THE CENTER WITHOUT STRECTHING UGLY ON 1800PX(1080P & 4/5K MONITORS) UP WORDS SCREEN
+                  -->
+    <!-- CONTENT GOES HERE-->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group-attached">
+                <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.fullname.$invalid && !user.fullname.$pristine }">
+                    <label>Role name</label>
+                    <input type="text" class="form-control" name="rolename" ng-model="role.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <!-- START PANEL -->
+                <div class="panel panel-transparent" >
+                    <div class="panel-heading">
+                        <div class="panel-title">List of Menu
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="panel-body" >
+                        <table class="table table-responsive table-hover table-striped b-t b-b" datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
+                        </table>
+                    </div>
+                </div>
+            <!-- END PANEL -->
+        </div>
+    </div>
+</div>
+
+<div>
+<!-- START MODAL CONTENT-->
+<div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{role.name}} ?</h4>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<!-- END MODAL CONTENT-->

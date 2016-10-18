@@ -99,6 +99,44 @@ angular.module('app')
                         }]
                     }
                 })
+                .state('app.menu', {
+                    url: "/menu",
+                    templateUrl: "container/components/menu/menuView.html",
+                    controller: 'MenuCtrl',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                    'dataTables',
+                                    'select'
+                                ], {
+                                    insertBefore: '#lazyload_placeholder'
+                                })
+                                .then(function() {
+                                    return $ocLazyLoad.load('container/components/menu/menuController.js');
+                                });
+
+                        }]
+                    }
+                })
+                .state('app.rolemenu', {
+                    url: "/rolemenu",
+                    templateUrl: "container/components/rolemenu/roleMenuView.html",
+                    controller: 'RoleMenuCtrl',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                    'dataTables',
+                                    'select'
+                                ], {
+                                    insertBefore: '#lazyload_placeholder'
+                                })
+                                .then(function() {
+                                    return $ocLazyLoad.load('container/components/rolemenu/roleMenuController.js');
+                                });
+
+                        }]
+                    }
+                })
                 .state('login', {
                     url: '/login',
                     templateUrl: 'container/components/login/loginView.html',
@@ -182,7 +220,9 @@ angular.module('app').run(['$rootScope', '$state', '$stateParams', 'authorizatio
                               .then(function(status){
                                     console.log('status is:'+status)
                                     if (status == true){
+                                        console.log('got status true')
                                           $rootScope.toState['data'] = principal.getMenuObject($rootScope.toState.name)
+                                          console.log($rootScope.toState.data)
                                           authorization.authorize();
                                           defer.resolve();
                                     }

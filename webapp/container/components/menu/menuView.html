@@ -1,0 +1,93 @@
+<!-- START PAGE COVER -->
+<div class="container-fluid container-fixed-lg ">
+    <ul class="breadcrumb">
+        <li>
+            <a href="">Home</a>
+        </li>
+        <li><a href="" class="active">Menu Management</a>
+        </li>
+    </ul>
+    <!-- END BREADCRUMB -->
+    <h3 class="page-title">Menu Management</h3>
+</div>
+<div class="container-fluid container-fixed-lg">
+    <!-- YOU CAN REMOVE .container-fixed-lg TO DISABLE THE FEATURE WHERE THE CONTENT
+                 ALIGNS TO THE CENTER WITHOUT STRECTHING UGLY ON 1800PX(1080P & 4/5K MONITORS) UP WORDS SCREEN
+                  -->
+    <!-- CONTENT GOES HERE-->
+    <div class="row">
+        <div class="col-sm-5">
+            <!-- START PANEL -->
+                <div class="panel panel-transparent" >
+                    <div class="panel-heading">
+                        <div class="panel-title">List of User
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="panel-body" >
+                        <table class="table table-responsive table-hover table-striped b-t b-b" datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
+                        </table>
+                    </div>
+                </div>
+            <!-- END PANEL -->
+        </div>
+        <div class="col-sm-7">
+            <!-- START PANEL -->
+            <div class="panel panel-transparent">
+                <div class="panel-body">
+                    <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+                        <p>Menu Information</p>
+                        <div class="form-group-attached">
+                            <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : menu.name.$invalid && !menu.name.$pristine }">
+                                <label>Menu name</label>
+                                <input type="text" class="form-control" name="name" ng-model="menu.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                            </div>
+                        </div>
+                        <div class="form-group-attached">
+                            <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : menu.state.$invalid && !menu.state.$pristine }">
+                                <label>State</label>
+                                <input type="text" class="form-control" name="state" ng-model="menu.state" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                            </div>
+                        </div>
+                        <div pg-form-group class="form-group form-group-default form-group-default-select required">
+                            <label class="">Module</label>
+                            <ui-select ng-model="module.selected" theme="bootstrap">
+                                <ui-select-match placeholder="Select or search a module in the list...">{{$select.selected.name}}</ui-select-match>
+                                <ui-select-choices repeat="item in modules | filter: $select.search">
+                                    <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                    <small ng-bind-html="trustAsHtml((item.description | highlight: $select.search))"></small>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+
+                        <br>
+                        <button class="btn btn-success" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" ng-show="buttonCreate">Submit</button>
+                        <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
+                    </form>
+                </div>
+            </div>
+            <!-- END PANEL -->
+        </div>
+    </div>
+
+</div>
+
+<div>
+<!-- START MODAL CONTENT-->
+<div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{menu.name}} ?</h4>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<!-- END MODAL CONTENT-->

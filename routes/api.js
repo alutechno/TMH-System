@@ -87,6 +87,7 @@ module.exports = function(connection,jwt){
                 obj.data['roles'] = arrRoles.filter(onlyUnique);
                 obj.data['menu'] = arrMenu.filter(onlyUnique);
                 obj.data['object'] = arrObject;
+                console.log(obj)
                 res.send(obj)
             }
 
@@ -271,7 +272,111 @@ module.exports = function(connection,jwt){
            });
        });
     	res.send({status:'200'})
+    });
+
+    app.get('/getMenus', function (req, res) {
+        //Handle Request From Angular DataTables
+        console.log(req.query)
+        console.log(req.headers)
+        var dtParam = req.query
+        var where = '';
+        if (req.query.id){
+           where = ' where id='+req.query.id
+        }
+        connection.query('SELECT id,name,state,module from menu'+where, function(err, rows, fields) {
+            if (err) throw err;
+            console.log(rows)
+            dtParam['data'] = rows
+            res.send(dtParam)
+        });
+    });
+
+    app.get('/getMenu', function (req, res) {
+        //Handle Request For Selected Records
+        var where = '';
+        if (req.query.id){
+           where = ' where id='+req.query.id
+        }
+        connection.query('SELECT id,name,state,module,parent,url from menu'+where, function(err, rows, fields) {
+            if (err) throw err;
+            res.send(rows)
+        });
+    });
+
+    app.post('/createMenu', function(req,res){
+    	console.log(req.body);
+        var sqlstr = 'insert into menu SET ?'
+        var sqlparam = {
+            parent: null,
+            name:req.body.name,
+            url: null,
+            state: req.body.state,
+            module: req.body.module
+        }
+
+        connection.query(sqlstr, sqlparam,function(err, result) {
+           if (err) throw err;
+           console.log('Success Insert with IDs:'+result.insertId);
+        });
+
+        res.send({status:'200'})
     })
+
+    app.post('/updateMenu', function(req,res){
+    	console.log(req.body);
+        var sqlstr = 'update menu SET ? WHERE id=' +req.body.id
+        console.log(sqlstr)
+        var sqlparam = {
+            parent: null,
+            name:req.body.name,
+            url: null,
+            state: req.body.state,
+            module: req.body.module
+        }
+
+        connection.query(sqlstr, sqlparam,function(err, result) {
+           if (err) throw err;
+        });
+        res.send({status:'200'})
+    })
+
+    app.post('/deleteMenu', function(req,res){
+    	console.log(req.body);
+        var sqlstr = 'delete from menu where id='+req.body.id
+        console.log(sqlstr)
+
+        connection.query(sqlstr,function(err, result) {
+           if (err) throw err;
+           console.log('Success Delete with Results:'+JSON.stringify(result));
+        });
+        res.send({status:'200'})
+    });
+
+    app.get('/getRoleMenus', function (req, res) {
+        //Handle Request From Angular DataTables
+        console.log(req.query)
+        console.log(req.headers)
+        var dtParam = req.query
+        var where = '';
+        if (req.query.id){
+           where = ' where id='+req.query.id
+        }
+        var sqlstr = 'select a.id, a.name, a.module, b.menu_id, b.role_id '+
+            'from menu a '+
+            'LEFT JOIN role_menu b '+
+            'ON a.id = b.menu_id '+
+            'where a.module= "'+req.query.module + '" '
+            'and b.role_id= '+req.query.role + ' '
+            'group by a.id,a.name,a.module,b.menu_id,b.role_id'
+        console.log(sqlstr)
+        connection.query(sqlstr, function(err, rows, fields) {
+            if (err) throw err;
+            console.log(rows)
+            dtParam['data'] = rows
+            res.send(dtParam)
+        });
+    });
+
     return app;
 
 }

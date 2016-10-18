@@ -286,7 +286,7 @@ angular.module('app')
 
                 $http.post('/api/deleteRole',role)
                 .success(function (data, status, headers, config) {
-                    if (data.success){
+                    if (status == '200'){
                         defer.resolve(data);
                     }
                     else {
@@ -360,7 +360,81 @@ angular.module('app')
 
                 $http.post('/api/deleteUser',user)
                 .success(function (data, status, headers, config) {
-                    if (data.success){
+                    if (status == '200'){
+                        defer.resolve(data);
+                    }
+                    else {
+                        defer.reject(data);
+                    }
+                })
+                .error(function (data, status, header, config) {
+                    defer.reject(data);
+                });
+
+                return defer.promise;
+            },
+        }
+    }
+])
+.factory('menuService', ['$q', '$http', '$timeout', '$localStorage',
+    function($q, $http, $timeout, $localStorage) {
+        return {
+            getMenu: function(vid) {
+                var defer = $q.defer();
+                var url= "/api/getMenu";
+                if (vid){
+                    url +=  "?id="+vid
+                }
+
+                //$http.get("http://localhost:3000/getRoles")
+                $http.get(url)
+                .then(function(response){
+                    defer.resolve(response)
+                })
+                return defer.promise;
+            },
+            createMenu: function(role) {
+                var defer = $q.defer();
+
+                $http.post('/api/createMenu', role)
+                .success(function (data, status, headers, config) {
+                    if (status == '200'){
+                        defer.resolve(data);
+                    }
+                    else {
+                        defer.reject(data);
+                    }
+                })
+                .error(function (data, status, header, config) {
+                    defer.reject(data);
+                });
+
+                return defer.promise;
+            },
+            updateMenu: function(role) {
+                var defer = $q.defer();
+
+                $http.post('/api/updateMenu',role)
+                .success(function (data, status, headers, config) {
+                    if (status == '200'){
+                        defer.resolve(data);
+                    }
+                    else {
+                        defer.reject(data);
+                    }
+                })
+                .error(function (data, status, header, config) {
+                    defer.reject(data);
+                });
+
+                return defer.promise;
+            },
+            deleteMenu: function(role) {
+                var defer = $q.defer();
+
+                $http.post('/api/deleteMenu',role)
+                .success(function (data, status, headers, config) {
+                    if (status == '200'){
                         defer.resolve(data);
                     }
                     else {
