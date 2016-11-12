@@ -2,8 +2,8 @@
 var roleController = angular.module('app', []);
 roleController
 .controller('RoleCtrl',
-    function($scope, $state, $sce, roleService,
-        DTOptionsBuilder, DTColumnBuilder, $compile, $localStorage) {
+function($scope, $state, $sce, roleService,
+    DTOptionsBuilder, DTColumnBuilder, $compile, $localStorage) {
 
         $scope.id = '';
         $scope.role = {
@@ -26,12 +26,23 @@ roleController
         $scope.dtInstance = {} //Use for reloadData
         $scope.actionsHtml = function(data, type, full, meta) {
             $scope.roles[data.id] = data;
-            return '<button class="btn btn-warning" ng-click="update(roles[' + data.id + '])">' +
-                '   <i class="fa fa-edit"></i>' +
-                '</button>&nbsp;' +
-                '<button class="btn btn-danger" ng-click="delete(roles[' + data.id + '])" )"="">' +
-                '   <i class="fa fa-trash-o"></i>' +
-                '</button>';
+            var html = ''
+            if ($scope.el.length>0){
+                html = '<div class="btn-group btn-group-xs">'
+                if ($scope.el.indexOf('buttonUpdate')>-1){
+                    html +=
+                    '<button class="btn btn-default" ng-click="update(roles[' + data.id + '])">' +
+                    '   <i class="fa fa-edit"></i>' +
+                    '</button>&nbsp;' ;
+                }
+                if ($scope.el.indexOf('buttonDelete')>-1){
+                    html+='<button class="btn btn-default" ng-click="delete(roles[' + data.id + '])" )"="">' +
+                    '   <i class="fa fa-trash-o"></i>' +
+                    '</button>';
+                }
+                html += '</div>'
+                return html
+            }
         }
 
         $scope.createdRow = function(row, data, dataIndex) {
@@ -40,24 +51,36 @@ roleController
         }
 
         $scope.dtOptions = DTOptionsBuilder.newOptions()
-            .withOption('ajax', {
-             url: '/api/getRoles',
-             type: 'GET',
-             headers: {
+        .withOption('ajax', {
+            url: '/api/getRoles',
+            type: 'GET',
+            headers: {
                 "authorization":  'Basic ' + $localStorage.mediaToken
             }
-         })
-         .withDataProp('data')
-            .withOption('processing', true)
-            .withOption('serverSide', true)
-            .withPaginationType('full_numbers')
-            .withOption('createdRow', $scope.createdRow);
+        })
+        .withDataProp('data')
+        .withOption('processing', true)
+        .withOption('serverSide', true)
+        .withPaginationType('full_numbers')
+        .withOption('createdRow', $scope.createdRow);
         $scope.dtColumns = [
-            DTColumnBuilder.newColumn('name').withTitle('Role Name'),
-            DTColumnBuilder.newColumn(null).withTitle('Action').notSortable()
-                .renderWith($scope.actionsHtml)
+            DTColumnBuilder.newColumn('name').withTitle('Role Name')
+
         ];
+        if ($scope.el.length>0){
+            $scope.dtColumns.push(
+                DTColumnBuilder.newColumn(null).withTitle('Action').notSortable()
+                .renderWith($scope.actionsHtml)
+            )
+        }
         /*END AD ServerSide*/
+
+        $scope.openQuickView = function(state){
+            if (state == 'add'){
+                $scope.clear()
+            }
+            $('#form-input').addClass('open');
+        }
 
         $scope.trustAsHtml = function(value) {
             return $sce.trustAsHtml(value);
@@ -66,12 +89,9 @@ roleController
         $scope.submit = function(){
             if ($scope.role.id.length==0){
                 //exec creation
-                console.log('Start Create')
-                console.log($scope.role)
                 roleService.createRole($scope.role)
                 .then(function (result){
                     if (result.status = "200"){
-                        console.log('Success Insert')
                         $scope.dtInstance.reloadData(function(obj){
                             console.log(obj)
                         }, false)
@@ -99,7 +119,7 @@ roleController
         }
 
         $scope.update = function(obj){
-            console.log('exec Update:'+JSON.stringify(obj))
+            $('#form-input').addClass('open');
             roleService.getRole(obj.id)
             .then(function(result){
                 console.log(JSON.stringify(result))
@@ -108,15 +128,12 @@ roleController
         }
 
         $scope.delete = function(obj){
-            console.log(obj)
             $scope.role.id = obj.id;
             $scope.role.name = obj.name;
             $('#modalDelete').modal('show')
         }
 
         $scope.execDelete = function(){
-            console.log($scope.role.id)
-
             roleService.deleteRole($scope.role)
             .then(function (result){
                 if (result.status = "200"){
@@ -134,6 +151,13 @@ roleController
                     console.log('Failed Update')
                 }
             })
+        }
+
+        $scope.clear = function(){
+            $scope.role = {
+                id: '',
+                name: ''
+            }
         }
     }
 )

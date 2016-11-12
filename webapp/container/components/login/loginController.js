@@ -13,17 +13,17 @@ angular.module('app')
             .then(function(data){
                 console.log('LoginCtrl:'+JSON.stringify(data))
                 //Handle empty token
-                $state.go('app.dashboard')
+                $state.go(data.default_menu.state)
             },
             function(error){
                 //Reject Promise for invalid user
                 //Go To login page
-                console.log(error)    
+                console.log(error)
             });
-            
+
             //if ($scope.returnToState) $state.go($scope.returnToState.name, $scope.returnToStateParams);
             //else $state.go('app.dashboard');
         };
-        
+
     }
 ])

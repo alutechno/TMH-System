@@ -1,47 +1,20 @@
-angular.module('app', [])
+
+var roleController = angular.module('app', []);
+roleController
 .controller('MenuCtrl',
     function($scope, $state, $sce, menuService,
         DTOptionsBuilder, DTColumnBuilder, $compile, $localStorage) {
 
         $scope.id = '';
-        $scope.menu = {
-            id: '',
-            name: ''
+        $scope.menuData = {
+            id: ''
         }
         $scope.menus = {}
-
-        $scope.modules = [
-        {
-            name: 'GENERAL',
-            description: 'General Module'
-        },
-        {
-            name: 'USERMGT',
-            description: 'User and Role Management'
-        },
-        {
-            name: 'FO',
-            description: 'Front Office'
-        },
-        {
-            name: 'INV',
-            description: 'Inventory'
-        },
-        {
-            name: 'ACC',
-            description: 'Finance and Accounting'
-        }]
-
-        $scope.module = {
-            selected: {
-                name: '',
-                description: ''
-            }
-        }
 
         /*Authorize Element*/
         $scope.el = [];
         $scope.el = $state.current.data;
+        console.log($scope.el)
         $scope.buttonCreate = false;
         $scope.buttonUpdate = false;
         $scope.buttonDelete = false;
@@ -49,16 +22,78 @@ angular.module('app', [])
             $scope[$scope.el[i]] = true;
         }
 
+        $scope.modules = []
+        $scope.groups = []
+        $scope.parents = []
+        $scope.menus = []
+        $scope.module = {
+            selected: ''
+        }
+        $scope.group = {
+            selected: ''
+        }
+        $scope.parent = {
+            selected: ''
+        }
+        $scope.menu = {
+            selected: ''
+        }
+
+
+        menuService.getMenuModule()
+        .then(function(data){
+            $scope.modules = data.data
+        })
+
+        $scope.getGroupModule = function(selectItem){
+            console.log('getGroupModule')
+            console.log(selectItem)
+            menuService.getMenuGroup(selectItem.id)
+            .then(function(data){
+                $scope.groups = data.data
+            })
+        }
+        $scope.getParent = function(selectItem){
+            console.log('getParent')
+            console.log(selectItem)
+            menuService.getMenu(undefined,selectItem.id,undefined)
+            .then(function(data){
+                $scope.parents = data.data
+                $scope.menus = data.data
+            })
+
+        }
+
         /*START AD ServerSide*/
         $scope.dtInstance = {} //Use for reloadData
         $scope.actionsHtml = function(data, type, full, meta) {
-            $scope.menus[data.id] = data;
-            return '<button class="btn btn-warning" ng-click="update(menus[' + data.id + '])">' +
+            console.log($scope.el)
+            console.log(data)
+            $scope.menuData[data.id] = data;
+            var html = ''
+            if ($scope.el.length>0){
+                html = '<div class="btn-group btn-group-xs">'
+                if ($scope.el.indexOf('buttonUpdate')>-1){
+                    html +=
+                        '<button class="btn btn-default" ng-click="update(roles[' + data.id + '])">' +
+                        '   <i class="fa fa-edit"></i>' +
+                        '</button>&nbsp;' ;
+                }
+                if ($scope.el.indexOf('buttonDelete')>-1){
+                    html+='<button class="btn btn-default" ng-click="delete(roles[' + data.id + '])" )"="">' +
+                    '   <i class="fa fa-trash-o"></i>' +
+                    '</button>';
+                }
+                html += '</div>'
+                return html
+            }
+            /*$scope.roles[data.id] = data;
+            return '<button class="btn btn-warning" ng-click="update(roles[' + data.id + '])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' +
-                '<button class="btn btn-danger" ng-click="delete(menus[' + data.id + '])" )"="">' +
+                '<button class="btn btn-danger" ng-click="delete(roles[' + data.id + '])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
-                '</button>';
+                '</button>';*/
         }
 
         $scope.createdRow = function(row, data, dataIndex) {
@@ -80,26 +115,44 @@ angular.module('app', [])
             .withPaginationType('full_numbers')
             .withOption('createdRow', $scope.createdRow);
         $scope.dtColumns = [
+            DTColumnBuilder.newColumn('module').withTitle('Module'),
+            DTColumnBuilder.newColumn('group_name').withTitle('Group'),
+            DTColumnBuilder.newColumn('parent').withTitle('Parent'),
             DTColumnBuilder.newColumn('name').withTitle('Name'),
             DTColumnBuilder.newColumn('state').withTitle('State'),
-            DTColumnBuilder.newColumn('module').withTitle('Module'),
+            DTColumnBuilder.newColumn('sequence').withTitle('Seq')
+
+        ];
+        if ($scope.el.length>0){
+            $scope.dtColumns.push(
             DTColumnBuilder.newColumn(null).withTitle('Action').notSortable()
                 .renderWith($scope.actionsHtml)
-        ];
+            )
+        }
         /*END AD ServerSide*/
+
+        $scope.openQuickView = function(state){
+            if (state == 'add'){
+                $scope.clear()
+            }
+            $('#form-input').addClass('open');
+        }
 
         $scope.trustAsHtml = function(value) {
             return $sce.trustAsHtml(value);
         };
 
         $scope.submit = function(){
-            if ($scope.menu.id.length==0){
+            if ($scope.menuData.id.length==0){
                 //exec creation
                 console.log('Start Create')
-                console.log($scope.menu)
-                console.log($scope.modules)
-                console.log($scope.module)
-                menuService.createMenu($scope.menu)
+
+                var obj = $scope.menuData;
+                obj['group'] = $scope.group.selected.id;
+                obj['parent'] = $scope.parent.selected.id;
+                obj['menu'] = $scope.menu.selected.id;
+                console.log(obj)
+                /*roleService.createRole($scope.role)
                 .then(function (result){
                     if (result.status = "200"){
                         console.log('Success Insert')
@@ -110,12 +163,13 @@ angular.module('app', [])
                     else {
                         console.log('Failed Insert')
                     }
-                })
+                })*/
             }
             else {
                 //exec update
-                $scope.menu.module = $scope.module.selected['name']
-                menuService.updateMenu($scope.menu)
+                console.log('Update')
+                console.log($scope.menuData)
+                /*roleService.updateRole($scope.role)
                 .then(function (result){
                     if (result.status = "200"){
                         console.log('Success Update')
@@ -126,48 +180,38 @@ angular.module('app', [])
                     else {
                         console.log('Failed Update')
                     }
-                })
+                })*/
             }
         }
 
         $scope.update = function(obj){
             console.log('exec Update:'+JSON.stringify(obj))
-            $scope.module.selected = {}
-            menuService.getMenu(obj.id)
+            $('#form-input').addClass('open');
+            /*menuService.getMenu(obj.id)
             .then(function(result){
                 console.log(JSON.stringify(result))
-                console.log(result.data[0].module)
-                $scope.menu = result.data[0]
-                $scope.module.selected['name'] = result.data[0].module
-                for (var i=0;i<$scope.modules.length;i++){
-                    if ($scope.modules[i].name == result.data[0].module){
-                        $scope.module.selected['description'] = $scope.modules[i].description
-                    }
-                }
-
-            })
+                $scope.menuData = result.data[0]
+            })*/
         }
 
         $scope.delete = function(obj){
             console.log(obj)
-            $scope.menu.id = obj.id;
-            $scope.menu.name = obj.name;
+            $scope.menuData.id = obj.id;
+            $scope.menuData.name = obj.name;
             $('#modalDelete').modal('show')
         }
 
         $scope.execDelete = function(){
-            console.log($scope.menu.id)
+            console.log($scope.role.id)
 
-            menuService.deleteMenu($scope.menu)
+            roleService.deleteRole($scope.role)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Delete')
                     //Re-init $scope.role
-                    $scope.menu = {
+                    $scope.role = {
                         id: '',
-                        name: '',
-                        state: '',
-                        module: ''
+                        name: ''
                     }
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
@@ -177,6 +221,25 @@ angular.module('app', [])
                     console.log('Failed Update')
                 }
             })
+        }
+
+        $scope.clear = function(){
+            $scope.menuData = {
+                id: '',
+                name: ''
+            }
+            $scope.module = {
+                selected: ''
+            }
+            $scope.group = {
+                selected: ''
+            }
+            $scope.parent = {
+                selected: ''
+            }
+            $scope.menu = {
+                selected: ''
+            }
         }
     }
 )

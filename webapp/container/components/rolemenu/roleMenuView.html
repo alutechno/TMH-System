@@ -1,50 +1,161 @@
-<!-- START PAGE COVER -->
-<div class="container-fluid container-fixed-lg ">
-    <ul class="breadcrumb">
-        <li>
-            <a href="">Home</a>
+<!--<nav class="secondary-sidebar padding-30 ">
+    <p class="menu-title">MAIN</p>
+    <ul class="main-menu">
+        <li class="active">
+            <a href="#">Available</a>
         </li>
-        <li><a href="" class="active">Menu Assignment</a>
+        <li class="">
+            <a href="#">On Hand</a>
+        </li>
+        <li class="">
+            <a href="#">Revenue</a>
+        </li>
+        <li class="">
+            <a href="#">Rate</a>
+        </li>
+        <li class="">
+            <a href="#">Detail</a>
+        </li>
+        <li class="">
+            <a href="#">Block</a>
+        </li>
+        <li class="">
+            <a href="#">MICE</a>
         </li>
     </ul>
-    <!-- END BREADCRUMB -->
-    <h3 class="page-title">Menu Assignment</h3>
-</div>
-<div class="container-fluid container-fixed-lg">
-    <!-- YOU CAN REMOVE .container-fixed-lg TO DISABLE THE FEATURE WHERE THE CONTENT
-                 ALIGNS TO THE CENTER WITHOUT STRECTHING UGLY ON 1800PX(1080P & 4/5K MONITORS) UP WORDS SCREEN
-                  -->
-    <!-- CONTENT GOES HERE-->
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="form-group-attached">
-                <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.fullname.$invalid && !user.fullname.$pristine }">
-                    <label>Role name</label>
-                    <input type="text" class="form-control" name="rolename" ng-model="role.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+
+    <p class="menu-title m-t-40">ACTION</p>
+    <ul class="main-menu">
+        <li class="">
+            <a href="#">Today</a>
+        </li>
+        <li class="">
+            <a href="#">Refresh</a>
+        </li>
+        <li class="">
+            <a href="#">Previous (-)</a>
+        </li>
+        <li class="">
+            <a href="#">Next (+)</a>
+        </li>
+        <li class="">
+            <a href="#">Exit</a>
+        </li>
+    </ul>
+</nav>-->
+<div class=" full-height m-t-40">
+    <!-- TABLES VIEW -->
+    <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">Assign Menu to Role
+                </div>
+                <div class="pull-right">
+                    <div class="col-xs-12">
+                        <button id="show-modal" class="btn btn-primary btn-cons" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Role
+                        </button>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="tools">
+                    <a class="collapse" href="javascript:;"></a>
+                    <a class="config" data-toggle="modal" href="#grid-config"></a>
+                    <a class="reload" href="javascript:;"></a>
+                    <a class="remove" href="javascript:;"></a>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-12">
-            <!-- START PANEL -->
-                <div class="panel panel-transparent" >
-                    <div class="panel-heading">
-                        <div class="panel-title">List of Menu
+            <div class="panel-body">
+                <div class="clearfix">
+                    <div class="col-sm-3">
+                        <div class="form-group ">
+                            <ui-select ng-model="role.selected" theme="bootstrap">
+                                <ui-select-match placeholder="Select Role..">{{$select.selected.name}}</ui-select-match>
+                                <ui-select-choices repeat="item in roles | filter: $select.search">
+                                    <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                                </ui-select-choices>
+                            </ui-select>
                         </div>
-                        <div class="clearfix"></div>
                     </div>
-                    <div class="panel-body" >
-                        <table class="table table-responsive table-hover table-striped b-t b-b" datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
-                        </table>
+                    <div class="col-sm-3">
+                        <div class="form-group ">
+                            <ui-select ng-model="module.selected" theme="bootstrap">
+                                <ui-select-match placeholder="Select Module..">{{$select.selected.name}}</ui-select-match>
+                                <ui-select-choices repeat="item in modules | filter: $select.search">
+                                    <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group ">
+                            <button class="btn btn-success" ng-click="searchRoleMenu()" >Go</button>
+                            <button class="btn btn-success" ng-click="save()" >Save</button>
+                        </div>
                     </div>
                 </div>
-            <!-- END PANEL -->
+                <div class="table-responsive" ng-if="tb.isShow">
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
+                    </table>
+                </div>
         </div>
     </div>
+    <!-- END PANEL -->
 </div>
 
-<div>
+<!--START FORM INPUT-->
+<div class="quickview-wrapper calendar-event input-slide-small" id="form-input">
+  <div class="view-port clearfix" id="eventFormController">
+    <div class="view bg-white">
+      <div class="scrollable">
+        <div class="p-l-30 p-r-30 p-t-50">
+          <a class="pg-close text-master link pull-right" data-toggle="quickview" data-toggle-element="#form-input"></a>
+          <h4 id="event-date">Role Information</h4>
+          <!--<div class="m-b-20">
+            input user management data
+        </div>-->
+        </div>
+        <div class="p-t-15">
+            <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+                <p>Role Information</p>
+                <div class="form-group-attached">
+                    <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.fullname.$invalid && !user.fullname.$pristine }">
+                        <label>Role name</label>
+                        <input type="text" class="form-control" name="rolename" ng-model="role.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                    </div>
+                </div>
+
+                <br>
+
+            </form>
+        </div>
+        <div class="p-l-30 p-r-30 p-t-30">
+            <button class="btn btn-success" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
+            <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
+        </div>
+      </div>
+    </div>
+    <div class="view bg-white">
+      <div class="navbar navbar-default navbar-sm">
+        <div class="navbar-inner">
+          <a href="javascript:;" class="inline action p-l-10 link text-master" data-navigate="view" data-view-port="#eventFormController" data-view-animation="push-parrallax">
+            <i class="pg-arrow_left"></i>
+          </a>
+          <div class="view-heading">
+            <span class="font-montserrat text-uppercase fs-13">Alerts</span>
+          </div>
+          <a href="#" class="inline action p-r-10 pull-right link text-master">
+            <i class="pg-search"></i>
+          </a>
+        </div>
+      </div>
+      <p class="p-l-30 p-r-30 p-t-30"> This is a Demo</p>
+    </div>
+  </div>
+</div>
+
+<!--END FORM INPUT-->
+
 <!-- START MODAL CONTENT-->
 <div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="false">
     <div class="modal-dialog modal-sm">
