@@ -22,8 +22,17 @@
     <link href="assets/plugins/jquery-scrollbar/jquery.scrollbar.css" rel="stylesheet" type="text/css" media="screen" />
     <link id="lazyload_placeholder">
     <!-- BEGIN Pages CSS-->
+    <link href="assets/plugins/pace/pace-theme-flash.css" rel="stylesheet" type="text/css" />
+    <link href="assets/plugins/boostrapv3/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/plugins/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css" />
+    <link href="assets/plugins/jquery-scrollbar/jquery.scrollbar.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="assets/plugins/bootstrap-select2/select2.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="assets/plugins/switchery/css/switchery.min.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="assets/plugins/jquery-datatable/media/css/dataTables.bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/plugins/jquery-datatable/extensions/FixedColumns/css/dataTables.fixedColumns.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/plugins/datatables-responsive/css/datatables.responsive.css" rel="stylesheet" type="text/css" media="screen" />
     <link href="pages/css/pages-icons.css" rel="stylesheet" type="text/css">
-    <link class="main-stylesheet" ng-href="{{app.layout.theme}}" rel="stylesheet" type="text/css" />
+    <link class="main-stylesheet" href="pages/css/pages.css" rel="stylesheet" type="text/css" /><!--<link class="main-stylesheet" ng-href="{{app.layout.theme}}" rel="stylesheet" type="text/css" />-->
     <!--[if lte IE 9]>
         <link href="pages/css/ie9.css" rel="stylesheet" type="text/css" />
     <![endif]-->
@@ -39,15 +48,7 @@
     </script>
 </head>
 
-<body class="fixed-header" ng-class="{
-'bg-master-lighter': is('app.extra.timeline'),
-'no-header': is('app.social') || is('app.calendar') || is('app.maps.vector') || is('app.maps.google'),
-'menu-pin' : app.layout.menuPin || is('boxed'),
-'menu-behind' : app.layout.menuBehind,
-'box-layout' : is('boxed'),
-'horizontal-menu': is('app.layouts.horizontal'),
-'rtl' : is('app.layouts.rtl')
- }">
+<body class="fixed-header horizontal-menu" >
     <div class="full-height" ui-view></div>
     <!-- BEGIN VENDOR JS -->
     <!-- JQUERY -->
@@ -94,14 +95,17 @@
     <script src="container/directives/pg-portlet.js" type="text/javascript"></script>
     <script src="container/directives/pg-tab.js" type="text/javascript"></script>
     <script src="container/directives/pg-search.js" type="text/javascript"></script>
+    <script src="container/controllers/search.js" type="text/javascript"></script>
     <script src="container/directives/pg-quickview.js" type="text/javascript"></script>
     <script src="container/directives/pg-notification-center.js" type="text/javascript"></script>
     <script src="container/directives/pg-horizontal-menu.js" type="text/javascript"></script>
     <script src="container/directives/pg-tab-dropdownfx.js" type="text/javascript"></script>
     <script src="container/directives/skycons.js" type="text/javascript"></script>
     <script src="container/directives/validation.js" type="text/javascript"></script>
-    <script src="container/controllers/search.js" type="text/javascript"></script>
-
+    <script src="container/directives/cs-topmenu.js" type="text/javascript"></script>
+    <script src="container/controllers/top_menu.js" type="text/javascript"></script>
+    <script src="container/directives/ui-module.js" type="text/javascript"></script>
+    
 
 
     <!-- END CORE TEMPLATE JS -->
