@@ -1,49 +1,15 @@
-<!--<nav class="secondary-sidebar padding-30 ">
+<nav class="secondary-sidebar padding-30 ">
     <p class="menu-title">MAIN</p>
     <ul class="main-menu">
-        <li class="active">
-            <a href="#">Available</a>
+        <li class="" ng-class="{'active':sideMenu.main === true}">
+            <a href="javascript:void(0)" ng-click="setMenu('main')">Set Menu</a>
         </li>
-        <li class="">
-            <a href="#">On Hand</a>
-        </li>
-        <li class="">
-            <a href="#">Revenue</a>
-        </li>
-        <li class="">
-            <a href="#">Rate</a>
-        </li>
-        <li class="">
-            <a href="#">Detail</a>
-        </li>
-        <li class="">
-            <a href="#">Block</a>
-        </li>
-        <li class="">
-            <a href="#">MICE</a>
+        <li class="" ng-class="{'active':sideMenu.detail === true}">
+            <a href="javascript:void(0)" ng-click="setMenu('detail')">Add Detail</a>
         </li>
     </ul>
-
-    <p class="menu-title m-t-40">ACTION</p>
-    <ul class="main-menu">
-        <li class="">
-            <a href="#">Today</a>
-        </li>
-        <li class="">
-            <a href="#">Refresh</a>
-        </li>
-        <li class="">
-            <a href="#">Previous (-)</a>
-        </li>
-        <li class="">
-            <a href="#">Next (+)</a>
-        </li>
-        <li class="">
-            <a href="#">Exit</a>
-        </li>
-    </ul>
-</nav>-->
-<div class=" full-height m-t-40">
+</nav>
+<div class="inner-content full-height m-t-40" ng-show="sideMenu.main">
     <!-- TABLES VIEW -->
     <div class="container-fluid container-fixed-lg">
         <!-- START PANEL -->
@@ -69,8 +35,24 @@
                 <div class="table-responsive">
                     <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
                     </table>
+                </div>
             </div>
         </div>
+    <!-- END PANEL -->
+    </div>
+</div>
+<div class="inner-content full-height m-t-40" ng-show="sideMenu.detail">
+    <!-- TABLES VIEW -->
+    <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">Detail Menu
+                </div>
+
+            </div>
+
+    </div>
     </div>
     <!-- END PANEL -->
 </div>
@@ -86,7 +68,6 @@
         </div>
         <div class="p-t-15">
             <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
-
                 <div class="form-group-attached">
                     <div class="row clearfix">
                         <div class="col-sm-12">
@@ -126,12 +107,7 @@
                         <div class="col-sm-12">
                             <div pg-form-group class="form-group form-group-default form-group-default-select required">
                                 <label class="">Menu</label>
-                                <ui-select ng-model="menu.selected" theme="bootstrap">
-                                    <ui-select-match placeholder="Select Menu">{{$select.selected.name}}</ui-select-match>
-                                    <ui-select-choices repeat="item in menus | filter: $select.search">
-                                        <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                    </ui-select-choices>
-                                </ui-select>
+                                <input type="text" class="form-control" name="menu" ng-model="menuData.menu" validate-attached-form-element required>
                             </div>
                         </div>
                         <div class="col-sm-8">
@@ -186,7 +162,7 @@
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h4 class="no-margin p-b-10">Are you sure want to delete {{role.name}} ?</h4>
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{menuData.name}} ?</h4>
                     <div >
                         <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>

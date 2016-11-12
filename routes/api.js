@@ -439,7 +439,7 @@ module.exports = function(connection,jwt){
         if (req.query.id){
            where = ' where id='+req.query.id
         }
-        var sqlstr = 'select c.name as module,b.name as group_name, a.id, a.parent as parent_id,d.name as parent,a.name, a.state, b.id as group_id,c.id as module_id, a.sequence '+
+        var sqlstr = 'select c.name as module,c.description as module_desc,b.name as group_name, a.id, a.parent as parent_id,d.name as parent,a.name, a.state, b.id as group_id,c.id as module_id, a.sequence '+
             'from menu a, group_menu b, module c, menu d '+
             'where a.group_id = b.id '+
             'and b.module_id = c.id '+
@@ -477,36 +477,41 @@ module.exports = function(connection,jwt){
     	console.log(req.body);
         var sqlstr = 'insert into menu SET ?'
         var sqlparam = {
-            parent: null,
-            name:req.body.name,
+            parent: (req.body.parent?req.body.parent:0),
+            name:req.body.menu,
             url: null,
             state: req.body.state,
-            module: req.body.module
+            group_id: req.body.group,
+            sequence: parseInt(req.body.sequence)
         }
+        console.log(sqlstr)
+        console.log(sqlparam)
 
         connection.query(sqlstr, sqlparam,function(err, result) {
            if (err) throw err;
            console.log('Success Insert with IDs:'+result.insertId);
-        });
+       });
 
         res.send({status:'200'})
     })
 
     app.post('/updateMenu', function(req,res){
+        console.log('updateMenu')
     	console.log(req.body);
         var sqlstr = 'update menu SET ? WHERE id=' +req.body.id
         console.log(sqlstr)
         var sqlparam = {
-            parent: null,
-            name:req.body.name,
+            parent: (req.body.parent_id?req.body.parent_id:0),
+            name:req.body.menu,
             url: null,
             state: req.body.state,
-            module: req.body.module
+            group_id: req.body.group_id,
+            sequence: parseInt(req.body.sequence)
         }
 
         connection.query(sqlstr, sqlparam,function(err, result) {
            if (err) throw err;
-        });
+       });
         res.send({status:'200'})
     })
 
@@ -518,7 +523,7 @@ module.exports = function(connection,jwt){
         connection.query(sqlstr,function(err, result) {
            if (err) throw err;
            console.log('Success Delete with Results:'+JSON.stringify(result));
-        });
+       });
         res.send({status:'200'})
     });
 

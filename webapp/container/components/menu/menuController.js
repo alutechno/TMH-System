@@ -5,10 +5,21 @@ roleController
     function($scope, $state, $sce, menuService,
         DTOptionsBuilder, DTColumnBuilder, $compile, $localStorage) {
 
+        $scope.sideMenu = {
+            main: true,
+            detail: false
+        }
+        $scope.setMenu = function(m){
+            $scope.sideMenu = {
+                main: (m=='main'?true:false),
+                detail: (m=='detail'?true:false)
+            }
+        }
         $scope.id = '';
         $scope.menuData = {
             id: ''
         }
+        $scope.menuDatas = []
         $scope.menus = {}
 
         /*Authorize Element*/
@@ -69,18 +80,18 @@ roleController
         $scope.actionsHtml = function(data, type, full, meta) {
             console.log($scope.el)
             console.log(data)
-            $scope.menuData[data.id] = data;
+            $scope.menuDatas[data.id] = data;
             var html = ''
             if ($scope.el.length>0){
                 html = '<div class="btn-group btn-group-xs">'
                 if ($scope.el.indexOf('buttonUpdate')>-1){
                     html +=
-                        '<button class="btn btn-default" ng-click="update(roles[' + data.id + '])">' +
+                        '<button class="btn btn-default" ng-click="update(menuDatas[' + data.id + '])">' +
                         '   <i class="fa fa-edit"></i>' +
                         '</button>&nbsp;' ;
                 }
                 if ($scope.el.indexOf('buttonDelete')>-1){
-                    html+='<button class="btn btn-default" ng-click="delete(roles[' + data.id + '])" )"="">' +
+                    html+='<button class="btn btn-default" ng-click="delete(menuDatas[' + data.id + '])" )"="">' +
                     '   <i class="fa fa-trash-o"></i>' +
                     '</button>';
                 }
@@ -146,13 +157,17 @@ roleController
             if ($scope.menuData.id.length==0){
                 //exec creation
                 console.log('Start Create')
+                console.log($scope.module.selected)
+                console.log($scope.group.selected)
+                console.log($scope.parent.selected)
+
 
                 var obj = $scope.menuData;
                 obj['group'] = $scope.group.selected.id;
                 obj['parent'] = $scope.parent.selected.id;
-                obj['menu'] = $scope.menu.selected.id;
+                //obj['menu'] = $scope.menu.selected.id;
                 console.log(obj)
-                /*roleService.createRole($scope.role)
+                menuService.createMenu(obj)
                 .then(function (result){
                     if (result.status = "200"){
                         console.log('Success Insert')
@@ -163,13 +178,13 @@ roleController
                     else {
                         console.log('Failed Insert')
                     }
-                })*/
+                })
             }
             else {
                 //exec update
                 console.log('Update')
                 console.log($scope.menuData)
-                /*roleService.updateRole($scope.role)
+                menuService.updateMenu($scope.menuData)
                 .then(function (result){
                     if (result.status = "200"){
                         console.log('Success Update')
@@ -180,18 +195,29 @@ roleController
                     else {
                         console.log('Failed Update')
                     }
-                })*/
+                })
             }
         }
 
         $scope.update = function(obj){
             console.log('exec Update:'+JSON.stringify(obj))
+            console.log($scope.module.selected)
             $('#form-input').addClass('open');
-            /*menuService.getMenu(obj.id)
-            .then(function(result){
-                console.log(JSON.stringify(result))
-                $scope.menuData = result.data[0]
-            })*/
+            $scope.menuData = obj
+            $scope.menuData['menu'] = obj.name
+            $scope.module.selected = {
+                id: obj.module_id,
+                name: obj.module,
+                description: obj.module_desc
+            }
+            $scope.group.selected = {
+                id: obj.group_id,
+                name: obj.group_name
+            }
+            $scope.parent.selected = {
+                id: obj.parent_id,
+                name: obj.parent
+            }
         }
 
         $scope.delete = function(obj){
@@ -202,16 +228,18 @@ roleController
         }
 
         $scope.execDelete = function(){
-            console.log($scope.role.id)
+            console.log($scope.menuData.id)
 
-            roleService.deleteRole($scope.role)
+            menuService.deleteMenu($scope.menuData)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Delete')
                     //Re-init $scope.role
-                    $scope.role = {
+                    $scope.menuData = {
                         id: '',
-                        name: ''
+                        name: '',
+                        state: '',
+                        sequence: ''
                     }
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
