@@ -3,17 +3,27 @@ module.exports = function(connection,jwt){
     var app = express.Router();
 
     app.use(function (req, res, next) {
+        console.log('accessing middleware')
         console.log('Accessing:'+req.path)
         console.log('Headers:'+JSON.stringify(req.headers))
         if (req.path == 'authenticate'){
             //Handle menu reload by browser
+            console.log('re-authenticate')
             next();
         }
         else {
             //Handle button click
+            console.log('authorization checking')
             var user = jwt.verify(req.headers['authorization'].split(' ')[1], 'smrai.inc');
             console.log('authorization:'+JSON.stringify(user))
-            var sqlstr = 'select a.name as username, a.password, a.token, c.name as rolename, e.name as menuname, e.module, e.state, f.object, f.custom '+
+            var sqlstr = 'select count(1) '+
+                'from user a, role_user b,role_menu c, menu d '+
+                'where a.id = b.user_id and b.role_id = c.role_id '+
+                'and c.menu_id = d.id '+
+                'and a.name = "'+user.username+'" '+
+                'and a.password = "'+user.password+'" '+
+                'and d.state = "'+req.headers.state+'"';
+            /*var sqlstr = 'select a.name as username, a.password, a.token, c.name as rolename, e.name as menuname, e.module, e.state, f.object, f.custom '+
                 'from user a, role_user b, role c, role_menu d, menu e, menu_detail f '+
                 'where a.id = b.user_id '+
                 'and b.role_id = c.id '+
@@ -21,9 +31,10 @@ module.exports = function(connection,jwt){
                 'and d.menu_id = e.id '+
                 'and d.menu_detail_id = f.id '+
                 'and a.name="'+user.username+'" '+
-                'and a.password="'+user.password+'" ';
+                'and a.password="'+user.password+'" ';*/
 
             connection.query(sqlstr, function(err, rows, fields) {
+                console.log('middleware res:'+JSON.stringify(rows))
                 if (err){
                     res.status(500).send({error:'unavailable'})
                 }
@@ -32,26 +43,30 @@ module.exports = function(connection,jwt){
                 }
                 else {
                     console.log('Success authenticate')
+                    req.username = user.username
                     next();
                 }
             });
         }
     });
 
-    app.post('/authenticate', function (req, res) {
+    app.post('/authenticate_old', function (req, res) {
         /*
         Using Token Based authentication,
         https://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543
         */
         console.log(req.body)
         //var sqlstr = 'SELECT name,password,token,role_id as roles from user where name="'+req.body.username+'" and password="'+req.body.password+'"';
-        var sqlstr = 'select a.name as username, a.password, a.token, c.name as rolename, e.name as menuname, e.module, e.state, f.object, f.custom '+
-            'from user a, role_user b, role c, role_menu d, menu e, menu_detail f '+
+        var sqlstr = 'select a.name as username, a.password, a.token, c.name as rolename, e.name as menuname, e.module, e.state, f.object, f.custom, a.default_module '+
+            'from user a, role_user b, role c, role_menu d, menu e, menu_detail f,group_menu g,module h '+
             'where a.id = b.user_id '+
             'and b.role_id = c.id '+
             'and c.id = d.role_id '+
             'and d.menu_id = e.id '+
             'and d.menu_detail_id = f.id '+
+            'and a.default_module = h.id '+
+            'and e.group_id = g.id '+
+            'and g.module_id = h.id ' +
             'and a.name="'+req.body.username+'" '+
             'and a.password="'+req.body.password+'" ';
 
@@ -88,6 +103,146 @@ module.exports = function(connection,jwt){
                 obj.data['menu'] = arrMenu.filter(onlyUnique);
                 obj.data['object'] = arrObject;
                 console.log(obj)
+                res.send(obj)
+            }
+
+        });
+
+    });
+
+    app.post('/authorize', function (req, res) {
+        var where = ''
+        console.log(req.body)
+        var sqlstr = 'select group_concat(object) as object from menu a, menu_detail b '+
+            'where a.id = b.menu_id '+
+            'and a.state = "'+req.body.state+'"';
+        connection.query(sqlstr, function(err, rows, fields) {
+            if (err) throw err;
+            if (rows.length>0){
+                res.send(rows.length==0?[]:rows[0].object.split(','))
+            }
+            else{
+                res.send([])
+            }
+        });
+    });
+
+    app.post('/authenticate', function (req, res) {
+        /*
+        Using Token Based authentication,
+        https://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543
+        */
+        console.log(req.body)
+        //var sqlstr = 'SELECT name,password,token,role_id as roles from user where name="'+req.body.username+'" and password="'+req.body.password+'"';
+        var sqlstr = 'select a.name as username, a.password, a.token, g.name as gname, e.l1 as menuname, e.l2 as submenuname, h.name as module, e.l2state, '+
+            'group_concat(f.object), f.custom, i.name as default_module, e.l2id,j.name as default_menu, j.state as default_state '+
+            'from user a, role_user b, role c, role_menu d, '+
+            '(SELECT t1.group_id,t1.name AS l1, t2.name as l2, t1.state as l1state, t2.state as l2state, t2.id as l2id,t2.sequence '+
+			 'FROM menu AS t1 '+
+			 'LEFT JOIN menu AS t2 ON t2.parent = t1.id '+
+			 'where t2.name is not null '+
+			 'order by t1.group_id, t1.id) e, menu_detail f,group_menu g,module h,module i,menu j '+
+            'where a.id = b.user_id  '+
+            //'and b.role_id = c.id  '+
+            'and b.role_id = d.role_id  '+
+            'and d.menu_id = e.l2id  '+
+            'and d.menu_detail_id = f.id  '+
+            //'and a.default_module = h.id  '+
+            'and e.group_id = g.id  '+
+            'and g.module_id = h.id  '+
+            'and a.default_module = i.id '+
+            'and a.default_menu = j.id '+
+            'and a.name="'+req.username+'" '+
+            'group by submenuname '+
+            'order by menuname,e.sequence, submenuname ';
+
+            //'and a.password="'+req.body.password+'" ';
+        console.log(sqlstr)
+
+
+        connection.query(sqlstr, function(err, rows, fields) {
+            console.log(err)
+            //console.log(rows)
+            var obj = {
+                isAuthenticated: false,
+                data: {}
+            };
+            if (err) throw err;
+            if (rows.length==0){
+                res.send(obj)
+            }
+            else {
+                obj.isAuthenticated = true;
+                objModule = {}
+                obj.data['menu'] = [];
+                for (var i=0;i<rows.length;i++){
+                    obj.data['menu'].push(rows[i].l2state)
+                    if (objModule[rows[i].module]){
+                        if (objModule[rows[i].module][rows[i].gname]){
+                            if (objModule[rows[i].module][rows[i].gname][rows[i].menuname]){
+                                objModule[rows[i].module][rows[i].gname][rows[i].menuname][rows[i].submenuname] = {
+                                    name: rows[i].submenuname,
+                                    state: rows[i].l2state
+                                }
+                            }
+                            else {
+                                objModule[rows[i].module][rows[i].gname][rows[i].menuname] = {}
+                                objModule[rows[i].module][rows[i].gname][rows[i].menuname][rows[i].submenuname] = {
+                                    name: rows[i].submenuname,
+                                    state: rows[i].l2state
+                                }
+                            }
+                        }
+                        else {
+                            objModule[rows[i].module][rows[i].gname] = {}
+                            objModule[rows[i].module][rows[i].gname][rows[i].menuname] = {}
+                            objModule[rows[i].module][rows[i].gname][rows[i].menuname][rows[i].submenuname] = {
+                                name: rows[i].submenuname,
+                                state: rows[i].l2state
+                            }
+
+                        }
+
+                    }
+                    else {
+                        objModule[rows[i].module] = {}
+                        objModule[rows[i].module][rows[i].gname] = {}
+                        objModule[rows[i].module][rows[i].gname][rows[i].menuname] = {}
+                        objModule[rows[i].module][rows[i].gname][rows[i].menuname][rows[i].submenuname] = {
+                            name: rows[i].submenuname,
+                            state: rows[i].l2state
+                        }
+                    }
+                }
+                console.log(JSON.stringify(objModule,null,2))
+                obj.data['token'] = rows[0].token;
+                obj.data['default_module'] = rows[0].default_module;
+                obj.data['default_menu'] = {
+                    name:rows[0].default_menu,
+                    state: rows[0].default_state
+                };
+                obj.data['module'] = objModule;
+                /*obj.isAuthenticated = true;
+                var arrMenu = [];
+                var arrRoles = [];
+                var arrObject = {};
+                for (var i=0;i<rows.length;i++){
+                    arrMenu.push(rows[i].state);
+                    arrRoles.push(rows[i].rolename);
+                    if (arrObject[rows[i].state]){
+                        arrObject[rows[i].state].push(rows[i].object)
+                    }
+                    else {
+                        arrObject[rows[i].state] = [rows[i].object]
+                    }
+
+                }
+
+                obj.data = rows[0]
+                obj.data['roles'] = arrRoles.filter(onlyUnique);
+                obj.data['menu'] = arrMenu.filter(onlyUnique);
+                obj.data['object'] = arrObject;
+                console.log(obj)*/
                 res.send(obj)
             }
 
@@ -169,18 +324,19 @@ module.exports = function(connection,jwt){
        //res.send('Hello World!');
        console.log(req.path)
        console.log(req.headers)
-       console.log(req.body)
+       console.log(req.query)
        var dtParam = req.query
        var where = '';
        if (req.query.id){
-          where = ' where id='+req.query.id
+          where = ' and a.id='+req.query.id
        }
        var order = '';
        var sqlstr = 'select a.password,a.name as username, full_name as fullname, GROUP_CONCAT(b.name) as roles, a.id , GROUP_CONCAT(b.id) as rolesid '+
            'from user a, role b, role_user c '+
            'where a.id = c.user_id '+
            'and b.id = c.role_id '+ where +
-           'group by a.name '+ order
+           ' group by a.name '+ order
+        console.log(sqlstr)
        connection.query(sqlstr, function(err, rows, fields) {
            if (err) throw err;
            console.log(rows)
@@ -283,7 +439,13 @@ module.exports = function(connection,jwt){
         if (req.query.id){
            where = ' where id='+req.query.id
         }
-        connection.query('SELECT id,name,state,module from menu'+where, function(err, rows, fields) {
+        var sqlstr = 'select c.name as module,b.name as group_name, a.id, a.parent as parent_id,d.name as parent,a.name, a.state, b.id as group_id,c.id as module_id, a.sequence '+
+            'from menu a, group_menu b, module c, menu d '+
+            'where a.group_id = b.id '+
+            'and b.module_id = c.id '+
+            'and a.parent = d.id '+
+            'order by parent,sequence';
+        connection.query(sqlstr, function(err, rows, fields) {
             if (err) throw err;
             console.log(rows)
             dtParam['data'] = rows
@@ -293,10 +455,18 @@ module.exports = function(connection,jwt){
 
     app.get('/getMenu', function (req, res) {
         //Handle Request For Selected Records
+        console.log('get menu coy')
+        console.log(req.query)
         var where = '';
         if (req.query.id){
            where = ' where id='+req.query.id
         }
+        if (req.query.groupId){
+            where = ' where group_id='+req.query.groupId
+        }
+        //where = (req.query.groupId?' where group_id='+req.query.groupId:'');
+        //where = (req.query.parentId?' where parent='+req.query.parentId:'');
+        console.log(where)
         connection.query('SELECT id,name,state,module,parent,url from menu'+where, function(err, rows, fields) {
             if (err) throw err;
             res.send(rows)
@@ -352,7 +522,7 @@ module.exports = function(connection,jwt){
         res.send({status:'200'})
     });
 
-    app.get('/getRoleMenus', function (req, res) {
+    app.get('/getRoleMenus2', function (req, res) {
         //Handle Request From Angular DataTables
         console.log(req.query)
         console.log(req.headers)
@@ -376,6 +546,144 @@ module.exports = function(connection,jwt){
             res.send(dtParam)
         });
     });
+
+    app.get('/getRoleMenus', function (req, res) {
+        //Handle Request From Angular DataTables
+        var dtParam = req.query
+        var where = '';
+        if (req.query.id){
+           where = ' where id='+req.query.id
+        }
+        var whereModule = req.query.module?' and c.id = '+req.query.module:'';
+        var sqlstr = 'select a.*,b.label,b.menu_detail_id,GROUP_CONCAT(b.role_id) as roles from ( '+
+            'select a.id, a.parent as parent_id,d.name as parent,a.name, a.state, b.id as group_id,b.name as group_name, c.id as module_id,c.name as module , a.sequence '+
+            'from menu a, group_menu b, module c, menu d '+
+            'where a.group_id = b.id '+
+            'and b.module_id = c.id '+
+            ' and a.parent = d.id '+whereModule+
+            ' order by parent, sequence '+
+            ') a LEFT OUTER JOIN  '+
+            '( '+
+            'select a.*,b.label '+
+            'from role_menu a,menu_detail b '+
+            'where a.menu_detail_id = b.id) b '+
+            'ON a.id = b.menu_id '+
+            'group by a.id,b.menu_detail_id'
+        console.log(sqlstr)
+        connection.query(sqlstr, function(err, rows, fields) {
+            if (err) throw err;
+            console.log(rows)
+            var resObj = {}
+            for (var i=0;i<rows.length;i++){
+                if (!resObj.hasOwnProperty(rows[i].id)){
+                    resObj[rows[i].id] = {
+                        id: rows[i].id,
+                        parent_id: rows[i].parent_id,
+                        parent: rows[i].parent,
+                        name: rows[i].name,
+                        state: rows[i].state,
+                        group_id: rows[i].group_id,
+                        group_name: rows[i].group_name,
+                        module_id: rows[i].module_id,
+                        module: rows[i].module,
+                        detail: [{
+                            sequence: rows[i].sequence,
+                            label: rows[i].label,
+                            menu_detail_id: rows[i].menu_detail_id,
+                            roles: rows[i].roles
+                        }]
+
+                    }
+                }
+                else {
+                    resObj[rows[i].id].detail.push({
+                        sequence: rows[i].sequence,
+                        label: rows[i].label,
+                        menu_detail_id: rows[i].menu_detail_id,
+                        roles: rows[i].roles
+                    })
+                }
+            }
+            //console.log(resObj)
+            //console.log(JSON.stringify(rows))
+            var result = []
+            for (var key in resObj){
+                result.push(resObj[key])
+            }
+            //console.log(JSON.stringify(result,null,2))
+            dtParam['data'] = result
+            res.send(dtParam)
+        });
+    });
+
+    app.get('/getModule', function (req, res) {
+        //Handle Request For Selected Records
+        var where = '';
+        console.log('asdasdasd')
+        console.log(req.username)
+        console.log(req.headers)
+        if (req.query.id){
+           where = ' where id='+req.query.id
+        }
+        var sqlstr = 'select f.name, f.description '+
+            'from user a, role_user b, role_menu c, menu d, group_menu e, module f '+
+            'where a.id = b.user_id '+
+            'and b.role_id = c.role_id '+
+            'and c.menu_id = d.id '+
+            'and d.group_id = e.id '+
+            'and e.module_id = f.id '+
+            'and a.name = "'+req.username+ '" '+
+            'group by name, description'
+        connection.query(sqlstr, function(err, rows, fields) {
+            if (err) throw err;
+            res.send(rows)
+        });
+    });
+
+    app.get('/getMenuModule', function (req, res) {
+        //Handle Request For Selected Records
+        var where = '';
+
+        connection.query('SELECT id,name,description from module', function(err, rows, fields) {
+            if (err) throw err;
+            res.send(rows)
+        });
+    });
+    app.get('/getMenuGroup', function (req, res) {
+        //Handle Request For Selected Records
+        var where = ' where module_id = '+req.query.id;
+
+        connection.query('SELECT id,name from group_menu'+where, function(err, rows, fields) {
+            if (err) throw err;
+            res.send(rows)
+        });
+    });
+
+    app.post('/assignMenu', function(req,res){
+    	console.log(req.body);
+        var sqlstr = 'select id from menu where group_id in('+req.body.group.toString()+') '
+        console.log(sqlstr)
+        var listMenu = []
+        connection.query(sqlstr,function(err, rows,field) {
+           if (err) throw err;
+           for (var i=0;i<rows.length;i++){
+               listMenu.push(rows[i].id)
+           }
+           console.log('selectData:'+listMenu.toString())
+           var sqlDelete = 'delete from role_menu where role_id = '+req.body.role+' AND menu_id in('+listMenu.toString()+')'
+           connection.query(sqlDelete,function(err2, result2) {
+              if (err2) throw err2;
+              console.log('delete:'+JSON.stringify(result2))
+              var sqlInsert = "INSERT INTO role_menu (role_id, menu_id, menu_detail_id) VALUES ?";
+
+                connection.query(sqlInsert,[req.body.insert],function(err3, result3) {
+                   if (err3) throw err3;
+                   console.log('insert:'+JSON.stringify(result3))
+               });
+            });
+        });
+        res.send({status:'200'})
+    })
 
     return app;
 
