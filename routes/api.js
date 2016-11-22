@@ -6,9 +6,11 @@ module.exports = function(connection,jwt){
         console.log('accessing middleware')
         console.log('Accessing:'+req.path)
         console.log('Headers:'+JSON.stringify(req.headers))
-        if (req.path == 'authenticate'){
+        if (req.path == '/authenticate'){
             //Handle menu reload by browser
             console.log('re-authenticate')
+            console.log(req.body)
+            req.username = req.body.username
             next();
         }
         else {
@@ -255,6 +257,8 @@ module.exports = function(connection,jwt){
         }
         connection.query('SELECT id,name from role'+where, function(err, rows, fields) {
             if (err) throw err;
+            console.log('getRole')
+            console.log(rows)
             res.send(rows)
         });
     });
@@ -302,27 +306,81 @@ module.exports = function(connection,jwt){
 
     app.get('/getUsers', function (req, res) {
         //res.send('Hello World!');
+        console.log('detail /getUsers')
         console.log(req.path)
         console.log(req.headers)
         console.log(req.query)
         var dtParam = req.query
         var where = '';
         if (req.query.id){
-            where = ' and a.id='+req.query.id
+            where += ' and a.id='+req.query.id
         }
+        if (req.query.customSearch.length>0){
+            where += ' and a.name="'+req.query.customSearch + '" '
+        }
+
+        if (req.query.customRole.length>0){
+            where += ' and b.id='+req.query.customRole
+        }
+
+        var limit = ' limit '+req.query.start+','+req.query.length
         var order = '';
+        order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
+
         var sqlstr = 'select a.password,a.name as username, full_name as fullname, GROUP_CONCAT(b.name) as roles, a.id , GROUP_CONCAT(b.id) as rolesid '+
         'from user a, role b, role_user c '+
         'where a.id = c.user_id '+
         'and b.id = c.role_id '+ where +
-        ' group by a.name '+ order
+        ' group by a.name '
+
         console.log(sqlstr)
-        connection.query(sqlstr, function(err, rows, fields) {
-            if (err) throw err;
-            console.log(rows)
-            dtParam['data'] = rows
-            res.send(dtParam)
+
+        connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
+            if (!err){
+                console.log('rowsCnt')
+                console.log(rows)
+                dtParam['recordsFiltered'] = rows[0].cnt
+                connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                    if (!err2){
+                        dtParam['recordsTotal'] = rows2.length
+
+                        dtParam['data'] = rows2
+                        res.send(dtParam)
+                    }
+                });
+            }
         });
+
+    });
+
+    app.get('/getUser', function (req, res) {
+        //res.send('Hello World!');
+        console.log('detail /getUser')
+        console.log(req.path)
+        console.log(req.headers)
+        console.log(req.query)
+        var dtParam = req.query
+        var where = '';
+        if (req.query.id){
+            where += ' and a.id='+req.query.id
+        }
+
+        var sqlstr = 'select a.password,a.name as username, full_name as fullname, GROUP_CONCAT(b.name) as roles, a.id , GROUP_CONCAT(b.id) as rolesid '+
+        'from user a, role b, role_user c '+
+        'where a.id = c.user_id '+
+        'and b.id = c.role_id '+ where +
+        ' group by a.name '
+
+        console.log(sqlstr)
+
+        connection.query(sqlstr , function(err2, rows2, fields2) {
+            if (!err2){
+
+                dtParam['data'] = rows2
+                res.send(dtParam)
+            }
+        });
+
     });
 
     app.post('/createUser', function(req,res){
@@ -669,6 +727,25 @@ module.exports = function(connection,jwt){
         });
         res.send({status:'200'})
     })
+
+    app.get('/getRoles', function (req, res) {
+        //Handle Request From Angular DataTables
+        console.log(req.query)
+        console.log(req.headers)
+        var dtParam = req.query
+        var where = '';
+        if (req.query.id){
+            where = ' where id='+req.query.id
+        }
+        connection.query('SELECT id,name from role'+where, function(err, rows, fields) {
+            if (err) throw err;
+            console.log(rows)
+            dtParam['data'] = rows
+            res.send(dtParam)
+        });
+    });
+
+    
 
     return app;
 

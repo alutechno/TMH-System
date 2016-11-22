@@ -10,6 +10,8 @@ function($q, $http, $timeout, $localStorage, $rootScope) {
         isIdentityResolved: function() {
             var deferred1 = $q.defer();
             if (angular.isDefined(_identity)==true){ //Check In Memory
+                console.log('top_m:')
+                console.log('top_m:'+$rootScope.currentModule)
                 $rootScope.currentModule = _currentModule
                 deferred1.resolve(true);
             }
@@ -49,7 +51,8 @@ function($q, $http, $timeout, $localStorage, $rootScope) {
                 _identity['module'] = module
                 _identity['menu'] = menu
                 _identity['default'] = $localStorage.mediaDefault
-                $rootScope.currentModule = $localStorage.mediaDefault.module
+                console.log('top_m:'+$localStorage.mediaDefault.module)
+                //$rootScope.currentModule = $localStorage.mediaDefault.module
                 return user;
             }
             else {
@@ -109,6 +112,8 @@ function($q, $http, $timeout, $localStorage, $rootScope) {
         },
         setModule: function(module) {
             _currentModule = module
+            console.log(module)
+            $localStorage.mediaDefault.module = module
             $rootScope['currentModule'] = module
             $rootScope.$apply()
         },
@@ -373,6 +378,20 @@ function($q, $http, $timeout, $localStorage) {
             })
             return defer.promise;
         },
+        getUser: function(vid) {
+            var defer = $q.defer();
+            //var url= "http://localhost:3000/getUsers";
+            var url= "/api/getUser";
+            if (vid){
+                url +=  "?id="+vid
+            }
+
+            $http.get(url)
+            .then(function(response){
+                defer.resolve(response)
+            })
+            return defer.promise;
+        },
         createUser: function(user) {
             var defer = $q.defer();
 
@@ -569,6 +588,80 @@ function($q, $http, $timeout, $localStorage) {
 
             return defer.promise;
         }
+    }
+}
+])
+.factory('customerService', ['$q', '$http', '$timeout', '$localStorage',
+function($q, $http, $timeout, $localStorage) {
+    return {
+        get: function(vid) {
+            var defer = $q.defer();
+            var url= "/apifo/getCustomer";
+            if (vid){
+                url +=  "?id="+vid
+            }
+
+            //$http.get("http://localhost:3000/getRoles")
+            $http.get(url)
+            .then(function(response){
+                defer.resolve(response)
+            })
+            return defer.promise;
+        },
+        create: function(role) {
+            var defer = $q.defer();
+
+            $http.post('/apifo/createCustomer', role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+
+            return defer.promise;
+        },
+        update: function(role) {
+            var defer = $q.defer();
+
+            $http.post('/apifo/updateCustomer',role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+
+            return defer.promise;
+        },
+        delete: function(role) {
+            var defer = $q.defer();
+
+            $http.post('/apifo/deleteCustomer',role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+
+            return defer.promise;
+        },
     }
 }
 ])

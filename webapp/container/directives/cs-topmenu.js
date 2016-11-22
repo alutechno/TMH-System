@@ -28,7 +28,7 @@ angular.module('app')
                         '<div class="sub-menu-heading bold"> '+k2+'</div>'+
                         '<ul class="sub-menu">';
                         for (var k3 in menu[x][key][k2]){
-                            console.log('csTopMenu k3:'+JSON.stringify(menu[x][key][k2][k3]))
+                            //console.log('csTopMenu k3:'+JSON.stringify(menu[x][key][k2][k3]))
                             t1 += '<li> <a ui-sref="'+menu[x][key][k2][k3].state+'"> '+k3+' </a> </li>'
                         }
                         t1 += '</ul>'+
@@ -40,7 +40,7 @@ angular.module('app')
                     '</li>'
                 }
             }
-            //console.log(t1)
+            console.log(t1)
             var template =
             '<li class="mega">'+
             '<a href="javascript:;">'+

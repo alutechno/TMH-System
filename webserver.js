@@ -31,12 +31,31 @@ var connection = mysql.createConnection({
 connection.connect();
 
 var apiRoutes = require('./routes/api')(connection,jwt);
+var apiFoRoutes = require('./routes/apifo')(connection,jwt);
 app.use('/api', apiRoutes);
+app.use('/apifo', apiFoRoutes);
 
 //connection.end();
 
 app.get('/', function (req, res) {
     res.render('index');
+});
+
+app.get('/testProc', function (req, res) {
+    var procName = req.query.proc
+    var paramR = []
+    var paramL = []
+    if (req.query.param.length>0){
+        for(var i=0;i<req.query.param.split(',').length;i++){
+            paramR.push(req.query.param.split(',')[i])
+            paramL.push('?')
+        }
+    }
+    var command = 'call '+procName+'('+paramL.toString()+')'
+    connection.query(command, paramR,function(err, result) {
+        if (err) res.send(err)
+        else res.send(result)
+    });
 });
 
 app.post('/authorize', function (req, res) {

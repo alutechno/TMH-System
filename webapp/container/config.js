@@ -64,7 +64,6 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider)
                 .then(function() {
                     return $ocLazyLoad.load('container/components/user/userController.js');
                 });
-
             }]
         }
     })
@@ -120,6 +119,124 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider)
                 })
                 .then(function() {
                     return $ocLazyLoad.load('container/components/rolemenu/roleMenuController.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fo', {
+        url: '/fo',
+        template: '<div ui-view></div>'
+    })
+    .state('app.fo.customer', {
+        url: "/customer",
+        templateUrl: "container/components/foCustomer/view.html",
+        controller: 'FoCustomerCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/foCustomer/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fo.customerContract', {
+        url: "/customerContract",
+        templateUrl: "container/components/foCustomerContract/view.html",
+        controller: 'FoCustomerContractCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/foCustomerContract/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.foRoom', {
+        url: "/foRoom",
+        templateUrl: "container/components/foRoom/view.html",
+        controller: 'FoRoomCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/foRoom/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.foRoomType', {
+        url: "/foRoomType",
+        templateUrl: "container/components/foRoomType/view.html",
+        controller: 'FoRoomTypeCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/foRoomType/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.foRoomRate', {
+        url: "/foRoomRate",
+        templateUrl: "container/components/foRoomRate/view.html",
+        controller: 'FoRoomRateCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/foRoomRate/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.foRoomTypeRate', {
+        url: "/foRoomTypeRate",
+        templateUrl: "container/components/foRoomTypeRate/view.html",
+        controller: 'FoRoomTypeRateCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/foRoomTypeRate/controller.js');
                 });
 
             }]
@@ -183,6 +300,7 @@ function($rootScope, $state, $stateParams, authorization, principal){
     function(event, toState, toStateParams){
         //Set state that dont need authentication
         var bypass = ['login','access.500','access.404']
+        console.log($rootScope.toState)
         // track the state the user wants to go to;
         // authorization service needs this
 

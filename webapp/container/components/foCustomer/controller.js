@@ -1,8 +1,8 @@
 
 var userController = angular.module('app', []);
 userController
-.controller('UserCtrl',
-function($scope, $state, $sce, roleService, userService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope) {
+.controller('FoCustomerCtrl',
+function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -18,36 +18,31 @@ function($scope, $state, $sce, roleService, userService, DTOptionsBuilder, DTCol
         selected: []
     };
 
-    $scope.roles = []
-    $scope.users = []
-    $scope.rolesFilter = []
+    $scope.customers = []
     $scope.id = '';
-    $scope.user = {
-        id: '',
-        username: '',
-        fullname: '',
-        password: '',
-        roles: ''
+    $scope.customer = {
+        code: '',
+        name: '',
+        type: '',
+        address: '',
+        city: '',
+        postal: '',
+        country: '',
+        state: '',
+        website: '',
+        email: '',
+        mobile: '',
+        phone: '',
+        fax: '',
+        tax: '',
+        active: ''
     }
     $scope.filterVal = {
-        search: '',
-        role: {
-            selected: { id: '', name: 'Select Role..'}
-        }
+        search: ''
     }
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
     };
-
-    roleService.getRole()
-    .then(function(data){
-        $scope.roles = data.data
-        $scope.rolesFilter = data.data
-    })
-
-    $scope.setRolesFilter = function(a){
-        $scope.filter.role = a
-    }
 
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
@@ -58,12 +53,12 @@ function($scope, $state, $sce, roleService, userService, DTOptionsBuilder, DTCol
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(users[' + data.id + '])">' +
+                '<button class="btn btn-default" ng-click="update(customers[' + data.id + '])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(users[' + data.id + '])" )"="">' +
+                html+='<button class="btn btn-default" ng-click="delete(customers[' + data.id + '])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
@@ -79,14 +74,13 @@ function($scope, $state, $sce, roleService, userService, DTOptionsBuilder, DTCol
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: '/api/getUsers',
+        url: '/apifo/getCustomers',
         type: 'GET',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
             data.customSearch = $scope.filterVal.search;
-            data.customRole = $scope.filterVal.role.selected['id'];
         }
     })
     .withDataProp('data')
@@ -101,19 +95,17 @@ function($scope, $state, $sce, roleService, userService, DTOptionsBuilder, DTCol
 
     $scope.dtColumns = [];
     if ($scope.el.length>0){
-        $scope.dtColumns.push(DTColumnBuilder.newColumn('username').withTitle('Action').notSortable()
+        $scope.dtColumns.push(DTColumnBuilder.newColumn('code').withTitle('Action').notSortable()
         .renderWith($scope.actionsHtml).withOption('width', '10%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('username').withTitle('User Name'),
-        DTColumnBuilder.newColumn('fullname').withTitle('Full Name'),
-        DTColumnBuilder.newColumn('roles').withTitle('Roles')
+        DTColumnBuilder.newColumn('name').withTitle('Customer Name'),
+        DTColumnBuilder.newColumn('type').withTitle('Type'),
+        DTColumnBuilder.newColumn('address').withTitle('Address'),
+        DTColumnBuilder.newColumn('phone').withTitle('Phone'),
+        DTColumnBuilder.newColumn('mobile').withTitle('Mobile'),
+        DTColumnBuilder.newColumn('active').withTitle('Is Active')
     );
-
-
-    $scope.dtParam = function(aoData){
-        aoData.push({name: "includeUsuallyIgnored", value: "includeUsuallyIgnored"});
-    }
 
     $scope.filter = function(type,event) {
         if (type == 'search'){
@@ -140,18 +132,11 @@ function($scope, $state, $sce, roleService, userService, DTOptionsBuilder, DTCol
     }
 
     $scope.submit = function(){
-        if ($scope.user.id.length==0){
+        if ($scope.customer.id.length==0){
             //exec creation
-            $scope.user.roles = ''
-            var r = []
-            for (var i=0;i<$scope.role.selected.length;i++){
-                r.push($scope.role.selected[i].id)
-            }
-            $scope.user.roles = r.toString()
-            userService.createUser($scope.user)
+            customerService.create($scope.customer)
             .then(function (result){
                 if (result.status = "200"){
-                    console.log('Success Insert')
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
@@ -164,12 +149,7 @@ function($scope, $state, $sce, roleService, userService, DTOptionsBuilder, DTCol
         }
         else {
             //exec update
-            var arrRole = []
-            for (var i=0;i<$scope.role.selected.length;i++){
-                arrRole.push($scope.role.selected[i].id)
-            }
-            $scope.user.rolesid = arrRole.toString()
-            userService.updateUser($scope.user)
+            customerService.update($scope.customer)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Update')
@@ -187,48 +167,41 @@ function($scope, $state, $sce, roleService, userService, DTOptionsBuilder, DTCol
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
-        userService.getUser(obj.id)
+        customerService.get(obj.id)
         .then(function(result){
-            $scope.user = result.data.data[0]
-            $scope.role.selected = []
-            $scope.roles = []
-            roleService.getRole()
-            .then(function(data){
-                $scope.roles = data.data
-                var xx = []
-                for (var i=0;i<result.data.data[0].roles.split(',').length;i++){
-                    xx.push({
-                        id:result.data.data[0].rolesid.split(',')[i],
-                        name:result.data.data[0].roles.split(',')[i]
-                    })
-                }
-                console.log(xx)
-                $scope.role.selected = xx
-            })
-
+            $scope.customer = result.data.data[0]
         })
     }
 
     $scope.delete = function(obj){
-        $scope.user.id = obj.id;
-        $scope.user.name = obj.username;
+        $scope.customer.id = obj.id;
+        $scope.customer.name = obj.name;
         $('#modalDelete').modal('show')
     }
 
     $scope.execDelete = function(){
-        userService.deleteUser($scope.user)
+        customerService.delete($scope.customer)
         .then(function (result){
             if (result.status = "200"){
                 console.log('Success Delete')
                 //Re-init $scope.user
-                $scope.user = {
-                    id: '',
-                    username: '',
-                    fullname: '',
-                    password: '',
-                    roles: ''
+                $scope.customer = {
+                    code: '',
+                    name: '',
+                    type: '',
+                    address: '',
+                    city: '',
+                    postal: '',
+                    country: '',
+                    state: '',
+                    website: '',
+                    email: '',
+                    mobile: '',
+                    phone: '',
+                    fax: '',
+                    tax: '',
+                    active: ''
                 }
-                $scope.role.selected = []
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
                 }, false)
@@ -240,14 +213,23 @@ function($scope, $state, $sce, roleService, userService, DTOptionsBuilder, DTCol
     }
 
     $scope.clear = function(){
-        $scope.user = {
-            id: '',
-            username: '',
-            fullname: '',
-            password: '',
-            roles: ''
+        $scope.customer = {
+            code: '',
+            name: '',
+            type: '',
+            address: '',
+            city: '',
+            postal: '',
+            country: '',
+            state: '',
+            website: '',
+            email: '',
+            mobile: '',
+            phone: '',
+            fax: '',
+            tax: '',
+            active: ''
         }
-        $scope.role.selected = ''
     }
 
 
