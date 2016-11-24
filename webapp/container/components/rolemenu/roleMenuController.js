@@ -47,6 +47,7 @@ function($scope, $state, $sce, roleService, menuService, roleMenuService,
 
             $scope.actionsHtml = function(data, type, full, meta) {
                 console.log(data)
+                console.log(JSON.stringify(data.detail))
                 $scope.roles[data.id] = data;
                 var html = ''
                 var checked = ''

@@ -3,7 +3,7 @@ var roleController = angular.module('app', []);
 roleController
 .controller('MenuCtrl',
     function($scope, $state, $sce, menuService,
-        DTOptionsBuilder, DTColumnBuilder, $compile, $localStorage) {
+        DTOptionsBuilder, DTColumnBuilder, $compile, $localStorage, API_URL) {
 
         $scope.sideMenu = {
             main: true,
@@ -107,7 +107,7 @@ roleController
 
         $scope.dtOptions = DTOptionsBuilder.newOptions()
             .withOption('ajax', {
-             url: '/api/getMenus',
+             url: API_URL+'/api/getMenus',
              type: 'GET',
              headers: {
                 "authorization":  'Basic ' + $localStorage.mediaToken
@@ -139,7 +139,7 @@ roleController
             if (state == 'add'){
                 $scope.clear()
             }
-            $('#form-input').addClass('open');
+            $('#form-input').modal('show')
         }
 
         $scope.trustAsHtml = function(value) {
@@ -162,24 +162,27 @@ roleController
                 console.log(obj)
                 menuService.createMenu(obj)
                 .then(function (result){
-                    if (result.status = "200"){
-                        console.log('Success Insert')
+                        $('#form-input').modal('hide')
                         $scope.dtInstance.reloadData(function(obj){
                             console.log(obj)
-
-                        }, false);
-                        $('#form-input').removeClass('open');
+                        }, false)
                         $('body').pgNotification({
-                            style: 'bar',
-                            message: 'Menu Successfully Created',
-                            position: 'top',
+                            style: 'flip',
+                            message: 'Success Insert '+$scope.menuData.menu,
+                            position: 'top-right',
                             timeout: 2000,
                             type: 'success'
                         }).show();
-                    }
-                    else {
-                        console.log('Failed Insert')
-                    }
+
+                },
+                function (err){
+                    $('#form-input').pgNotification({
+                        style: 'flip',
+                        message: 'Error Insert: '+err.desc.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'danger'
+                    }).show();
                 })
             }
             else {
@@ -188,15 +191,27 @@ roleController
                 console.log($scope.menuData)
                 menuService.updateMenu($scope.menuData)
                 .then(function (result){
-                    if (result.status = "200"){
-                        console.log('Success Update')
+                        $('#form-input').modal('hide')
                         $scope.dtInstance.reloadData(function(obj){
                             console.log(obj)
                         }, false)
-                    }
-                    else {
-                        console.log('Failed Update')
-                    }
+                        $('body').pgNotification({
+                            style: 'flip',
+                            message: 'Success Update '+$scope.menuData.menu,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'success'
+                        }).show();
+
+                },
+                function (err){
+                    $('#form-input').pgNotification({
+                        style: 'flip',
+                        message: 'Error Insert: '+err.desc.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'danger'
+                    }).show();
                 })
             }
         }
@@ -204,7 +219,7 @@ roleController
         $scope.update = function(obj){
             console.log('exec Update:'+JSON.stringify(obj))
             console.log($scope.module.selected)
-            $('#form-input').addClass('open');
+            $('#form-input').modal('show')
             $scope.menuData = obj
             $scope.menuData['menu'] = obj.name
             $scope.module.selected = {
@@ -234,23 +249,35 @@ roleController
 
             menuService.deleteMenu($scope.menuData)
             .then(function (result){
-                if (result.status = "200"){
-                    console.log('Success Delete')
-                    //Re-init $scope.role
-                    $scope.menuData = {
-                        id: '',
-                        name: '',
-                        state: '',
-                        sequence: ''
-                    }
-                    $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
-                    }, false)
+                $('#form-input').modal('hide')
+                $scope.dtInstance.reloadData(function(obj){
+                    console.log(obj)
+                }, false)
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Success Delete '+$scope.menuData.menu,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+                $scope.menuData = {
+                    id: '',
+                    name: '',
+                    state: '',
+                    sequence: ''
                 }
-                else {
-                    console.log('Failed Update')
-                }
+
+            },
+            function (err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert: '+err.desc.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
             })
+
         }
 
         $scope.clear = function(){
@@ -275,7 +302,7 @@ roleController
 )
 .controller('MenuDetailCtrl',
     function($scope, $state, $sce, menuService,
-        DTOptionsBuilder, DTColumnBuilder, $compile, $localStorage) {
+        DTOptionsBuilder, DTColumnBuilder, $compile, $localStorage,API_URL) {
 
         $scope.sideMenu = {
             main: true,
@@ -379,7 +406,7 @@ roleController
 
         $scope.dtOptions = DTOptionsBuilder.newOptions()
             .withOption('ajax', {
-             url: '/api/getMenus',
+             url: API_URL+'/api/getMenus',
              type: 'GET',
              headers: {
                 "authorization":  'Basic ' + $localStorage.mediaToken

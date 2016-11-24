@@ -249,7 +249,7 @@ module.exports = function(connection,jwt){
 
     app.post('/updateCustomerContract', function(req,res){
         console.log(req.body);
-        var sqlstr = 'update customer_contract SET ? WHERE cust_contract_id=' +req.body.id
+        var sqlstr = 'update customer_contract SET ? WHERE cust_contract_id="' +req.body.id +'"'
         console.log(sqlstr)
         var sqlparam = {
             customer_id:req.body.customerId,
@@ -269,6 +269,127 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/deleteCustomerContract', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'delete from customer_contract where cust_contract_id="'+req.body.id+'"'
+        console.log(sqlstr)
+
+        connection.query(sqlstr,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    });
+
+    app.get('/getRooms', function (req, res) {
+        //Handle Request From Angular DataTables
+        console.log(req.query)
+        console.log(req.headers)
+
+        var dtParam = req.query
+        var where = '';
+        if (req.query.id){
+            where += ' and a.id='+req.query.id
+        }
+        if (req.query.customSearch.length>0){
+            where += ' and a.name="'+req.query.customSearch + '" '
+        }
+
+        var limit = ' limit '+req.query.start+','+req.query.length
+        var order = '';
+        order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
+
+        var sqlstr = 'select b.cust_contract_id as id,b.cust_contract_id as code,b.customer_id as customerId,a.customer_name as customerName,b.cust_contract_from as startDate,b.cust_contract_to as endDate '+
+            ' from customer a, customer_contract b '+
+            ' where a.customer_id = b.customer_id '+where
+
+        console.log(sqlstr)
+
+        connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
+            if (!err){
+                console.log('rowsCnt')
+                console.log(rows)
+                dtParam['recordsFiltered'] = rows[0].cnt
+                connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                    if (!err2){
+                        dtParam['recordsTotal'] = rows2.length
+
+                        dtParam['data'] = rows2
+                        res.send(dtParam)
+                    }
+                });
+            }
+        });
+    });
+
+    app.get('/getRoom', function (req, res) {
+        //Handle Request For Selected Records
+        var where = '';
+        if (req.query.id){
+            where = ' where a.customer_id='+req.query.id
+        }
+        var sqlstr = 'select b.cust_contract_id,b.customer_id,a.customer_name,b.cust_contract_from,b.cust_contract_to '+
+            ' from customer a, customer_contract b '+
+            ' where a.customer_id = b.customer_id ' +where
+        connection.query(sqlstr, function(err, rows, fields) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(rows)
+        });
+    });
+
+    app.post('/createRoom', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'insert into customer_contract SET ?'
+        var sqlparam = {
+            cust_contract_id:req.body.code,
+            customer_id:req.body.customerId,
+            cust_contract_from:req.body.startDate,
+            cust_contract_to: req.body.endDate
+        }
+
+        connection.query(sqlstr, sqlparam,function(err, result) {
+            console.log(err)
+            console.log(result)
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    })
+
+    app.post('/updateRoom', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'update customer_contract SET ? WHERE cust_contract_id="' +req.body.id +'"'
+        console.log(sqlstr)
+        var sqlparam = {
+            customer_id:req.body.customerId,
+            cust_contract_from:req.body.startDate,
+            cust_contract_to: req.body.endDate
+        }
+
+        connection.query(sqlstr, sqlparam,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    })
+
+    app.post('/deleteRoom', function(req,res){
         console.log(req.body);
         var sqlstr = 'delete from customer_contract where cust_contract_id="'+req.body.id+'"'
         console.log(sqlstr)

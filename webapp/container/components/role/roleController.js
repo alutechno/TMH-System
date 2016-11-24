@@ -3,7 +3,7 @@ var roleController = angular.module('app', []);
 roleController
 .controller('RoleCtrl',
 function($scope, $state, $sce, roleService,
-    DTOptionsBuilder, DTColumnBuilder, $compile, $localStorage) {
+    DTOptionsBuilder, DTColumnBuilder, $compile, $localStorage, API_URL) {
 
         $scope.id = '';
         $scope.role = {
@@ -52,7 +52,7 @@ function($scope, $state, $sce, roleService,
 
         $scope.dtOptions = DTOptionsBuilder.newOptions()
         .withOption('ajax', {
-            url: '/api/getRoles',
+            url: API_URL+'/api/getRoles',
             type: 'GET',
             headers: {
                 "authorization":  'Basic ' + $localStorage.mediaToken
@@ -61,7 +61,10 @@ function($scope, $state, $sce, roleService,
         .withDataProp('data')
         .withOption('processing', true)
         .withOption('serverSide', true)
+        .withOption('bLengthChange', false)
+        .withOption('bFilter', false)
         .withPaginationType('full_numbers')
+        .withDisplayLength(10)
         .withOption('createdRow', $scope.createdRow);
         $scope.dtColumns = [
             DTColumnBuilder.newColumn('name').withTitle('Role Name')
@@ -79,7 +82,7 @@ function($scope, $state, $sce, roleService,
             if (state == 'add'){
                 $scope.clear()
             }
-            $('#form-input').addClass('open');
+            $('#form-input').modal('show')
         }
 
         $scope.trustAsHtml = function(value) {
@@ -91,35 +94,60 @@ function($scope, $state, $sce, roleService,
                 //exec creation
                 roleService.createRole($scope.role)
                 .then(function (result){
-                    if (result.status = "200"){
+                        $('#form-input').modal('hide')
                         $scope.dtInstance.reloadData(function(obj){
                             console.log(obj)
                         }, false)
-                    }
-                    else {
-                        console.log('Failed Insert')
-                    }
+                        $('body').pgNotification({
+                            style: 'flip',
+                            message: 'Success Insert '+$scope.role.name,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'success'
+                        }).show();
+
+                },
+                function (err){
+                    $('#form-input').pgNotification({
+                        style: 'flip',
+                        message: 'Error Insert: '+err.desc.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'danger'
+                    }).show();
                 })
             }
             else {
                 //exec update
                 roleService.updateRole($scope.role)
                 .then(function (result){
-                    if (result.status = "200"){
-                        console.log('Success Update')
+                        $('#form-input').modal('hide')
                         $scope.dtInstance.reloadData(function(obj){
                             console.log(obj)
                         }, false)
-                    }
-                    else {
-                        console.log('Failed Update')
-                    }
+                        $('body').pgNotification({
+                            style: 'flip',
+                            message: 'Success Update '+$scope.role.name,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'success'
+                        }).show();
+
+                },
+                function (err){
+                    $('#form-input').pgNotification({
+                        style: 'flip',
+                        message: 'Error Insert: '+err.desc.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'danger'
+                    }).show();
                 })
             }
         }
 
         $scope.update = function(obj){
-            $('#form-input').addClass('open');
+            $('#form-input').modal('show')
             roleService.getRole(obj.id)
             .then(function(result){
                 console.log(JSON.stringify(result))
@@ -136,20 +164,31 @@ function($scope, $state, $sce, roleService,
         $scope.execDelete = function(){
             roleService.deleteRole($scope.role)
             .then(function (result){
-                if (result.status = "200"){
-                    console.log('Success Delete')
-                    //Re-init $scope.role
+                    $('#form-input').modal('hide')
+                    $scope.dtInstance.reloadData(function(obj){
+                        console.log(obj)
+                    }, false)
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Delete '+$scope.role.name,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
                     $scope.role = {
                         id: '',
                         name: ''
                     }
-                    $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
-                    }, false)
-                }
-                else {
-                    console.log('Failed Update')
-                }
+
+            },
+            function (err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert: '+err.desc.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
             })
         }
 

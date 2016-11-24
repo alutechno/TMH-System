@@ -1,48 +1,3 @@
-<!--<nav class="secondary-sidebar padding-30 ">
-    <p class="menu-title">MAIN</p>
-    <ul class="main-menu">
-        <li class="active">
-            <a href="#">Available</a>
-        </li>
-        <li class="">
-            <a href="#">On Hand</a>
-        </li>
-        <li class="">
-            <a href="#">Revenue</a>
-        </li>
-        <li class="">
-            <a href="#">Rate</a>
-        </li>
-        <li class="">
-            <a href="#">Detail</a>
-        </li>
-        <li class="">
-            <a href="#">Block</a>
-        </li>
-        <li class="">
-            <a href="#">MICE</a>
-        </li>
-    </ul>
-
-    <p class="menu-title m-t-40">ACTION</p>
-    <ul class="main-menu">
-        <li class="">
-            <a href="#">Today</a>
-        </li>
-        <li class="">
-            <a href="#">Refresh</a>
-        </li>
-        <li class="">
-            <a href="#">Previous (-)</a>
-        </li>
-        <li class="">
-            <a href="#">Next (+)</a>
-        </li>
-        <li class="">
-            <a href="#">Exit</a>
-        </li>
-    </ul>
-</nav>-->
 <div class=" full-height m-t-40">
     <!-- TABLES VIEW -->
     <div class="container-fluid container-fixed-lg">
@@ -76,54 +31,46 @@
 </div>
 
 <!--START FORM INPUT-->
-<div class="quickview-wrapper calendar-event input-slide-small" id="form-input">
-  <div class="view-port clearfix" id="eventFormController">
-    <div class="view bg-white">
-      <div class="scrollable">
-        <div class="p-l-30 p-r-30 p-t-50">
-          <a class="pg-close text-master link pull-right" data-toggle="quickview" data-toggle-element="#form-input"></a>
-          <h4 id="event-date">Role Information</h4>
-          <!--<div class="m-b-20">
-            input user management data
-        </div>-->
-        </div>
-        <div class="p-t-15">
-            <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
-                <p>Role Information</p>
-                <div class="form-group-attached">
+<div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content-wrapper">
+      <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
+      <div class="panel-heading">
+       <div class="panel-title">Role Information</div>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
+        </button>
+       </div>
+        <div class="container-xs-height full-height">
+          <div class="row-xs-height">
+            <div class="modal-body col-xs-height col-top">
+
+      <!-- START FORM -->
+      <div class="panel panel-transparent m-t-20">
+          <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+              <div class="row clearfix">
+                <div class="col-sm-12">
                     <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.fullname.$invalid && !user.fullname.$pristine }">
                         <label>Role name</label>
                         <input type="text" class="form-control" name="rolename" ng-model="role.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                     </div>
                 </div>
-
-                <br>
-
-            </form>
-        </div>
-        <div class="p-l-30 p-r-30 p-t-30">
-            <button class="btn btn-success" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
-            <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
-        </div>
+              </div>
+              <br>
+              <div class="clearfix"></div>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
+              <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
+          </form>
       </div>
-    </div>
-    <div class="view bg-white">
-      <div class="navbar navbar-default navbar-sm">
-        <div class="navbar-inner">
-          <a href="javascript:;" class="inline action p-l-10 link text-master" data-navigate="view" data-view-port="#eventFormController" data-view-animation="push-parrallax">
-            <i class="pg-arrow_left"></i>
-          </a>
-          <div class="view-heading">
-            <span class="font-montserrat text-uppercase fs-13">Alerts</span>
+      <!-- END FORM -->
+
+            </div>
           </div>
-          <a href="#" class="inline action p-r-10 pull-right link text-master">
-            <i class="pg-search"></i>
-          </a>
         </div>
       </div>
-      <p class="p-l-30 p-r-30 p-t-30"> This is a Demo</p>
     </div>
+    <!-- /.modal-content -->
   </div>
+  <!-- /.modal-dialog -->
 </div>
 
 <!--END FORM INPUT-->
