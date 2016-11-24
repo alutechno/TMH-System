@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FoCustomerCtrl',
-function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope) {
+function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -18,9 +18,37 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
         selected: []
     };
 
-    $scope.customers = []
+    $scope.customers = {}
     $scope.id = '';
+
+    $scope.selected = {
+        active: {},
+        isCustomer: {},
+        isSupplier: {}
+    }
+    $scope.arrActive = [
+        {
+            id: 0,
+            name: 'Inactive'
+        },
+        {
+            id: 1,
+            name: 'Active'
+        }
+    ]
+    $scope.arrType = [
+        {
+            id: 0,
+            name: 'N'
+        },
+        {
+            id: 1,
+            name: 'Y'
+        }
+    ]
+
     $scope.customer = {
+        id: '',
         code: '',
         name: '',
         type: '',
@@ -35,7 +63,9 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
         phone: '',
         fax: '',
         tax: '',
-        active: ''
+        active: 0,
+        isCustomer: 0,
+        isSupplier: 0
     }
     $scope.filterVal = {
         search: ''
@@ -47,18 +77,21 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        $scope.users[data.id] = data;
+        console.log(data)
+        $scope.customers[data.code] = data;
+        console.log(data)
+        console.log($scope.customers)
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(customers[' + data.id + '])">' +
+                '<button class="btn btn-default" ng-click="update(customers[' + data.code + '])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(customers[' + data.id + '])" )"="">' +
+                html+='<button class="btn btn-default" ng-click="delete(customers[' + data.code + '])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
@@ -74,7 +107,7 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: '/apifo/getCustomers',
+        url: API_URL+'/apifo/getCustomers',
         type: 'GET',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
@@ -132,19 +165,38 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
     }
 
     $scope.submit = function(){
+        console.log($scope.customer)
         if ($scope.customer.id.length==0){
             //exec creation
+
+            console.log($scope.selected)
+            $scope.customer.active = $scope.selected.active.selected.id;
+            $scope.customer.isCustomer = $scope.selected.isCustomer.selected.id;
+            $scope.customer.isSupplier = $scope.selected.isSupplier.selected.id;
+            console.log($scope.customer)
             customerService.create($scope.customer)
             .then(function (result){
-                if (result.status = "200"){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
                     }, false)
-                }
-                else {
-                    console.log('Failed Insert')
-                }
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Insert '+$scope.customer.name,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
+
+            },
+            function (err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert: '+err.desc.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
             })
         }
         else {
@@ -157,6 +209,7 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
                     }, false)
+
                 }
                 else {
                     console.log('Failed Update')
@@ -169,14 +222,32 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
         $('#form-input').modal('show');
         customerService.get(obj.id)
         .then(function(result){
-            $scope.customer = result.data.data[0]
+            $scope.customer = result.data[0]
+            for (var i=0;i<$scope.arrActive.length;i++){
+                if ($scope.arrActive[i].id == result.data[0].active){
+                    $scope.selected.active['selected'] = $scope.arrActive[i]
+                    break;
+                }
+            }
+            for (var i=0;i<$scope.arrType.length;i++){
+                if ($scope.arrType[i].id == result.data[0].isCustomer){
+                    $scope.selected.isCustomer.selected = $scope.arrType[i]
+                }
+                if ($scope.arrType[i].id == result.data[0].isSupplier){
+                    $scope.selected.isSupplier.selected = $scope.arrType[i]
+                }
+            }
         })
     }
 
     $scope.delete = function(obj){
         $scope.customer.id = obj.id;
-        $scope.customer.name = obj.name;
-        $('#modalDelete').modal('show')
+        //$scope.customer.name = obj.name;
+        customerService.get(obj.id)
+        .then(function(result){
+            $scope.customer.name = result.data[0].name;
+            $('#modalDelete').modal('show')
+        })
     }
 
     $scope.execDelete = function(){
@@ -214,6 +285,7 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
 
     $scope.clear = function(){
         $scope.customer = {
+            id: '',
             code: '',
             name: '',
             type: '',

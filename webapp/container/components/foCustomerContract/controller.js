@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FoCustomerContractCtrl',
-function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope) {
+function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope,API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -59,9 +59,10 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
         $compile(angular.element(row).contents())($scope);
     }
 
+
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: '/apifo/getCustomers',
+        url: API_URL+'/apifo/getCustomers',
         type: 'GET',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken

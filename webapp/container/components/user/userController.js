@@ -1,8 +1,8 @@
 
-var userController = angular.module('app', []);
+var userController = angular.module('app', ['ui.select']);
 userController
 .controller('UserCtrl',
-function($scope, $state, $sce, roleService, userService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope) {
+function($scope, $state, $sce, roleService, userService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -35,9 +35,7 @@ function($scope, $state, $sce, roleService, userService, DTOptionsBuilder, DTCol
             selected: { id: '', name: 'Select Role..'}
         }
     }
-    $scope.trustAsHtml = function(value) {
-        return $sce.trustAsHtml(value);
-    };
+
 
     roleService.getRole()
     .then(function(data){
@@ -79,7 +77,7 @@ function($scope, $state, $sce, roleService, userService, DTOptionsBuilder, DTCol
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: '/api/getUsers',
+        url: API_URL+'/api/getUsers',
         type: 'GET',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
@@ -138,6 +136,9 @@ function($scope, $state, $sce, roleService, userService, DTOptionsBuilder, DTCol
         }
         $('#form-input').modal('show')
     }
+    $scope.trustAsHtml = function(value) {
+        return $sce.trustAsHtml(value);
+    };
 
     $scope.submit = function(){
         if ($scope.user.id.length==0){
