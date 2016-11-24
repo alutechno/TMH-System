@@ -4,19 +4,27 @@
 * ============================================================ */
 
 angular.module('app')
-.config(['$stateProvider', '$urlRouterProvider', '$ocLazyLoadProvider','$httpProvider',
-function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider) {
-    $httpProvider.interceptors.push(['$q', '$location', '$localStorage',function($q, $location, $localStorage) {
+.config(['$stateProvider', '$urlRouterProvider', '$ocLazyLoadProvider','$httpProvider', 'APP_URL',
+function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider, APP_URL) {
+    $httpProvider.interceptors.push(['$q', '$location', '$localStorage','$templateCache',function($q, $location, $localStorage,$templateCache) {
         return {
             'request': function (config) {
                 config.headers = config.headers || {};
-                //config.headers['state'] = $rootScope.toState.name
-                if ($localStorage.mediaToken) {
-                    config.headers.Authorization = 'Basic ' + $localStorage.mediaToken;
+                
+                if (!$templateCache.get(config.url)){
+                    //config.headers['state'] = $rootScope.toState.name
+                    if ($localStorage.mediaToken) {
+                        config.headers.Authorization = 'Basic ' + $localStorage.mediaToken;
+                    }
+                    if (config.url.indexOf('api')==-1){
+                        //config.url = APP_URL+'/'+config.url;
+                        config.url = '/'+config.url;
+
+                    }
                 }
-                if (config.url.indexOf('api')>-1){
-                    config.url = 'http://localhost:3000'+config.url;
-                }
+
+
+                console.log(config)
                 return config;
             },
             'responseError': function(response) {

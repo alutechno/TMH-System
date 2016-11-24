@@ -3,7 +3,7 @@ module.exports = function(connection,jwt){
     var app = express.Router();
 
     app.use(function (req, res, next) {
-        console.log('accessing middleware')
+        console.log('accessing middleware /apifo')
         console.log('Accessing:'+req.path)
         console.log('Headers:'+JSON.stringify(req.headers))
         if (req.path == '/authenticate'){
@@ -16,39 +16,44 @@ module.exports = function(connection,jwt){
         else {
             //Handle button click
             console.log('authorization checking')
-            var user = jwt.verify(req.headers['authorization'].split(' ')[1], 'smrai.inc');
-            console.log('authorization:'+JSON.stringify(user))
-            var sqlstr = 'select count(1) '+
-            'from user a, role_user b,role_menu c, menu d '+
-            'where a.id = b.user_id and b.role_id = c.role_id '+
-            'and c.menu_id = d.id '+
-            'and a.name = "'+user.username+'" '+
-            'and a.password = "'+user.password+'" '+
-            'and d.state = "'+req.headers.state+'"';
-            /*var sqlstr = 'select a.name as username, a.password, a.token, c.name as rolename, e.name as menuname, e.module, e.state, f.object, f.custom '+
-            'from user a, role_user b, role c, role_menu d, menu e, menu_detail f '+
-            'where a.id = b.user_id '+
-            'and b.role_id = c.id '+
-            'and c.id = d.role_id '+
-            'and d.menu_id = e.id '+
-            'and d.menu_detail_id = f.id '+
-            'and a.name="'+user.username+'" '+
-            'and a.password="'+user.password+'" ';*/
+            if (req.headers['authorization']){
+                try{
+                    console.log(req.headers.authorization)
+                    var user = jwt.verify(req.headers['authorization'].split(' ')[1], 'smrai.inc');
+                    console.log('authorization:'+JSON.stringify(user))
+                    var sqlstr = 'select count(1) '+
+                    'from user a, role_user b,role_menu c, menu d '+
+                    'where a.id = b.user_id and b.role_id = c.role_id '+
+                    'and c.menu_id = d.id '+
+                    'and a.name = "'+user.username+'" '+
+                    'and a.password = "'+user.password+'" '+
+                    'and d.state = "'+req.headers.state+'"';
 
-            connection.query(sqlstr, function(err, rows, fields) {
-                console.log('middleware res:'+JSON.stringify(rows))
-                if (err){
-                    res.status(500).send({error:'unavailable'})
+                    connection.query(sqlstr, function(err, rows, fields) {
+                        console.log('middleware res:'+JSON.stringify(rows))
+                        if (err){
+                            res.status(500).send({error:'unavailable'})
+                        }
+                        else if(rows.length==0){
+                            res.status(404).send({error:'failed authentication'})
+                        }
+                        else {
+                            console.log('Success authenticate')
+                            req.username = user.username
+                            next();
+                        }
+                    });
                 }
-                else if(rows.length==0){
-                    res.status(404).send({error:'failed authentication'})
+                catch(e){
+                    console.log(e)
+                    res.status(500).send({status:500,desc:'Invalid Access'})
                 }
-                else {
-                    console.log('Success authenticate')
-                    req.username = user.username
-                    next();
-                }
-            });
+
+            }
+            else{
+                res.status(500).send({status:500,desc:'Forbidden'})
+            }
+
         }
     });
 
@@ -246,7 +251,7 @@ module.exports = function(connection,jwt){
             where += ' and a.name="'+req.query.customSearch + '" '
         }
 
-        
+
 
         var limit = ' limit '+req.query.start+','+req.query.length
         var order = '';
@@ -282,55 +287,111 @@ module.exports = function(connection,jwt){
         //Handle Request For Selected Records
         var where = '';
         if (req.query.id){
-            where = ' where id='+req.query.id
+            where = ' where customer_id='+req.query.id
         }
-        connection.query('SELECT id,name from role'+where, function(err, rows, fields) {
-            if (err) throw err;
-            console.log('getRole')
-            console.log(rows)
-            res.send(rows)
+        var sqlstr = 'select customer_id as code, customer_name as name, customer_type as type, customer_address as address, customer_city as city, '+
+            ' customer_postal_code as postal, customer_state as state, customer_country as country, customer_website as website, customer_phone as phone, '+
+            ' customer_mobile as mobile, customer_fax as fax, customer_email as email, customer_tax_id as tax, customer_active as active,'+
+            ' customer_is_customer as isCustomer, customer_is_supplier as isSupplier '+
+            ' from customer where customer_is_customer = 1 '+where
+        connection.query(sqlstr, function(err, rows, fields) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(rows)
         });
     });
 
     app.post('/createCustomer', function(req,res){
         console.log(req.body);
-        var sqlstr = 'insert into role SET ?'
+        'select customer_id as code, customer_name as name, customer_type as type, customer_address as address, customer_city as city, '+
+            ' customer_postal_code as postal, customer_state as state, customer_country as country, customer_website as website, customer_phone as phone, '+
+            ' customer_mobile as mobile, customer_fax as fax, customer_email as email, customer_tax_id as tax, customer_active as active'
+        var sqlstr = 'insert into customer SET ?'
         var sqlparam = {
-            name:req.body.name
+            customer_id:req.body.code,
+            customer_name:req.body.name,
+            customer_type:req.body.type,
+            customer_address: req.body.address,
+            customer_city: req.body.city,
+            customer_postal_code: req.body.postal,
+            customer_state: req.body.state,
+            customer_country: req.body.country,
+            customer_website: req.body.website,
+            customer_phone: req.body.phone,
+            customer_mobile: req.body.mobile,
+            customer_fax: req.body.fax,
+            customer_email: req.body.email,
+            customer_tax_id: req.body.tax,
+            customer_active: req.body.active,
+            customer_is_customer: req.body.isCustomer,
+            customer_is_supplier: req.body.isSupplier
         }
 
         connection.query(sqlstr, sqlparam,function(err, result) {
-            if (err) throw err;
-            console.log('Success Insert with IDs:'+result.insertId);
+            console.log(err)
+            console.log(result)
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
         });
-
-        res.send({status:'200'})
     })
 
     app.post('/updateCustomer', function(req,res){
         console.log(req.body);
-        var sqlstr = 'update role SET ? WHERE id=' +req.body.id
+        var sqlstr = 'update customer SET ? WHERE customer_id=' +req.body.id
         console.log(sqlstr)
         var sqlparam = {
-            name:req.body.name
+            customer_name:req.body.name,
+            customer_type:req.body.type,
+            customer_address: req.body.address,
+            customer_city: req.body.city,
+            customer_postal_code: req.body.postal,
+            customer_state: req.body.state,
+            customer_country: req.body.country,
+            customer_website: req.body.website,
+            customer_phone: req.body.phone,
+            customer_mobile: req.body.mobile,
+            customer_fax: req.body.fax,
+            customer_email: req.body.email,
+            customer_tax_id: req.body.tax,
+            customer_active: req.body.active,
+            customer_is_customer: req.body.isCustomer,
+            customer_is_supplier: req.body.isSupplier
         }
 
         connection.query(sqlstr, sqlparam,function(err, result) {
-            if (err) throw err;
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
         });
-        res.send({status:'200'})
     })
 
     app.post('/deleteCustomer', function(req,res){
         console.log(req.body);
-        var sqlstr = 'delete from role where id='+req.body.id
+        var sqlstr = 'delete from customer where customer_id="'+req.body.id+'"'
         console.log(sqlstr)
 
         connection.query(sqlstr,function(err, result) {
-            if (err) throw err;
-            console.log('Success Delete with Results:'+JSON.stringify(result));
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
         });
-        res.send({status:'200'})
     });
 
     return app;

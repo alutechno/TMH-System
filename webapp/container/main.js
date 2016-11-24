@@ -1,8 +1,9 @@
 /* ============================================================
  * File: main.js
- * Main Controller to set global scope variables. 
+ * Main Controller to set global scope variables.
  * ============================================================ */
-
+angular.module('app').constant('API_URL','http://103.43.47.115:3001')
+angular.module('app').constant('APP_URL','http://localhost:3000')
 angular.module('app')
     .controller('AppCtrl', ['$scope', '$rootScope', '$state', function($scope, $rootScope, $state) {
 
@@ -39,10 +40,10 @@ angular.module('app')
 
 angular.module('app')
     /*
-        Use this directive together with ng-include to include a 
+        Use this directive together with ng-include to include a
         template file by replacing the placeholder element
     */
-    
+
     .directive('includeReplace', function() {
         return {
             require: 'ngInclude',

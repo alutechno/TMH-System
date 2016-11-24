@@ -3,7 +3,7 @@ module.exports = function(connection,jwt){
     var app = express.Router();
 
     app.use(function (req, res, next) {
-        console.log('accessing middleware')
+        console.log('accessing middleware /api')
         console.log('Accessing:'+req.path)
         console.log('Headers:'+JSON.stringify(req.headers))
         if (req.path == '/authenticate'){
@@ -745,7 +745,7 @@ module.exports = function(connection,jwt){
         });
     });
 
-    
+
 
     return app;
 
