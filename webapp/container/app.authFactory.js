@@ -10,9 +10,10 @@ function($q, $http, $timeout, $localStorage, $rootScope, API_URL) {
         isIdentityResolved: function() {
             var deferred1 = $q.defer();
             if (angular.isDefined(_identity)==true){ //Check In Memory
-                console.log('top_m:')
-                console.log('top_m:'+$rootScope.currentModule)
-                $rootScope.currentModule = _currentModule
+
+                if (_currentModule.length == 0 ) $rootScope.currentModule = $localStorage.mediaDefault.module
+                else $rootScope.currentModule = _currentModule
+                //$rootScope.apply()
                 deferred1.resolve(true);
             }
             else if(this.getUserFromToken()){ //Check in Local Storage, rewrite by hit authentication module
@@ -51,7 +52,6 @@ function($q, $http, $timeout, $localStorage, $rootScope, API_URL) {
                 _identity['module'] = module
                 _identity['menu'] = menu
                 _identity['default'] = $localStorage.mediaDefault
-                console.log('top_m:'+$localStorage.mediaDefault.module)
                 //$rootScope.currentModule = $localStorage.mediaDefault.module
                 return user;
             }
@@ -112,7 +112,6 @@ function($q, $http, $timeout, $localStorage, $rootScope, API_URL) {
         },
         setModule: function(module) {
             _currentModule = module
-            console.log(module)
             $localStorage.mediaDefault.module = module
             $rootScope['currentModule'] = module
             $rootScope.$apply()
@@ -134,9 +133,8 @@ function($q, $http, $timeout, $localStorage, $rootScope, API_URL) {
                     'Content-Type': 'application/json'
                 }
             }
-            console.log(API_URL+'/api/authenticate')
 
-            $http.post(API_URL+'/api/authenticate',data,config)
+            $http.post(API_URL+'/authenticate',data,config)
             .success(function (data, status, headers, config) {
                 if (data.isAuthenticated){
                     _identity = data.data;
@@ -188,7 +186,7 @@ function($q, $http, $timeout, $localStorage, $rootScope, API_URL) {
             "state": stateName
         };
 
-        $http.post(API_URL+'/api/authorize',data)
+        $http.post(API_URL+'/authorize',data)
         .success(function (data, status, headers, config) {
             deferred.resolve(data)
             /*if (data.isAuthenticated){
@@ -206,6 +204,7 @@ function($q, $http, $timeout, $localStorage, $rootScope, API_URL) {
     }*/
 })
 .error(function (data, status, header, config) {
+
     //_identity = null;
     //_authenticated = false;
     deferred.reject(data);
@@ -247,11 +246,13 @@ return deferred.promise;
 };
 }
 ])
-.factory('authorization', ['$rootScope', '$state', 'principal',
-function($rootScope, $state, principal) {
+.factory('authorization', ['$rootScope', '$state', 'principal','$q',
+function($rootScope, $state, principal,$q) {
     return {
         authorize: function(stateName) {
-            return principal.identity(stateName)
+            var deferred = $q.defer();
+
+            principal.identity(stateName)
             .then(function(data) {
                 $rootScope.toState['data'] = data
                 var isAuthenticated = principal.isAuthenticated();
@@ -283,7 +284,10 @@ function($rootScope, $state, principal) {
                     = $rootScope.toStateParams;
                     $state.go('access.500');
                 }
+                deferred.resolve(true)
+
             });
+            return deferred.promise;
         }
     };
 }

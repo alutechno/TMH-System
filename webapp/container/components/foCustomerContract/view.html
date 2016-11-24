@@ -70,7 +70,8 @@
                 <div class="col-sm-12">
                     <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.date.$invalid && !contract.date.$pristine }">
                         <label>Contract Date</label>
-                        <input type="text" class="form-control" name="custname" ng-model="contract.date" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                        <input date-range-picker class="form-control date-picker" type="text" ng-model="contract.date" />
+                        <!--<input type="text" class="form-control" name="custname" ng-model="contract.date" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>-->
                     </div>
                 </div>
               </div>

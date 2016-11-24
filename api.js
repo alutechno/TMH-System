@@ -29,8 +29,11 @@ var connection = mysql.createConnection({
 });
 
 connection.connect();
-app.use(function(req,res,next){
-    /*if (req.path == '/authenticate'){
+app.use(function (req, res, next) {
+    console.log('accessing middleware /apifo')
+    console.log('Accessing:'+req.path)
+    console.log('Headers:'+JSON.stringify(req.headers))
+    if (req.path == '/authenticate'){
         //Handle menu reload by browser
         console.log('re-authenticate')
         console.log(req.body)
@@ -40,34 +43,46 @@ app.use(function(req,res,next){
     else {
         //Handle button click
         console.log('authorization checking')
-        var user = jwt.verify(req.headers['authorization'].split(' ')[1], 'smrai.inc');
-        console.log('authorization:'+JSON.stringify(user))
-        var sqlstr = 'select count(1) '+
-        'from user a, role_user b,role_menu c, menu d '+
-        'where a.id = b.user_id and b.role_id = c.role_id '+
-        'and c.menu_id = d.id '+
-        'and a.name = "'+user.username+'" '+
-        'and a.password = "'+user.password+'" '+
-        'and d.state = "'+req.headers.state+'"';
+        if (req.headers['authorization']){
+            try{
+                console.log(req.headers.authorization)
+                var user = jwt.verify(req.headers['authorization'].split(' ')[1], 'smrai.inc');
+                console.log('authorization:'+JSON.stringify(user))
+                var sqlstr = 'select count(1) '+
+                'from user a, role_user b,role_menu c, menu d '+
+                'where a.id = b.user_id and b.role_id = c.role_id '+
+                'and c.menu_id = d.id '+
+                'and a.name = "'+user.username+'" '+
+                'and a.password = "'+user.password+'" '+
+                'and d.state = "'+req.headers.state+'"';
 
+                connection.query(sqlstr, function(err, rows, fields) {
+                    console.log('middleware res:'+JSON.stringify(rows))
+                    if (err){
+                        res.status(500).send({error:'unavailable'})
+                    }
+                    else if(rows.length==0){
+                        res.status(404).send({error:'failed authentication'})
+                    }
+                    else {
+                        console.log('Success authenticate')
+                        req.username = user.username
+                        next();
+                    }
+                });
+            }
+            catch(e){
+                console.log(e)
+                res.status(500).send({status:500,desc:'Invalid Access'})
+            }
 
-        connection.query(sqlstr, function(err, rows, fields) {
-            console.log('middleware res:'+JSON.stringify(rows))
-            if (err){
-                res.status(500).send({error:'unavailable'})
-            }
-            else if(rows.length==0){
-                res.status(404).send({error:'failed authentication'})
-            }
-            else {
-                console.log('Success authenticate')
-                req.username = user.username
-                next();
-            }
-        });
-    }*/
-    next();
-})
+        }
+        else{
+            res.status(500).send({status:500,desc:'Forbidden'})
+        }
+
+    }
+});
 
 var apiRoutes = require('./routes/api')(connection,jwt);
 var apiFoRoutes = require('./routes/apifo')(connection,jwt);
@@ -76,6 +91,67 @@ app.use('/apifo', apiFoRoutes);
 
 app.get('/', function (req, res) {
     res.send('alive')
+});
+
+
+app.post('/authenticate_old', function (req, res) {
+    /*
+    Using Token Based authentication,
+    https://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543
+    */
+    console.log(req.body)
+    //var sqlstr = 'SELECT name,password,token,role_id as roles from user where name="'+req.body.username+'" and password="'+req.body.password+'"';
+    var sqlstr = 'select a.name as username, a.password, a.token, c.name as rolename, e.name as menuname, e.module, e.state, f.object, f.custom, a.default_module '+
+    'from user a, role_user b, role c, role_menu d, menu e, menu_detail f,group_menu g,module h '+
+    'where a.id = b.user_id '+
+    'and b.role_id = c.id '+
+    'and c.id = d.role_id '+
+    'and d.menu_id = e.id '+
+    'and d.menu_detail_id = f.id '+
+    'and a.default_module = h.id '+
+    'and e.group_id = g.id '+
+    'and g.module_id = h.id ' +
+    'and a.name="'+req.body.username+'" '+
+    'and a.password="'+req.body.password+'" ';
+
+
+    connection.query(sqlstr, function(err, rows, fields) {
+        console.log(err)
+        var obj = {
+            isAuthenticated: false,
+            data: {}
+        };
+        if (err) throw err;
+        if (rows.length==0){
+            res.send(obj)
+        }
+        else {
+            obj.isAuthenticated = true;
+            var arrMenu = [];
+            var arrRoles = [];
+            var arrObject = {};
+            for (var i=0;i<rows.length;i++){
+                arrMenu.push(rows[i].state);
+                arrRoles.push(rows[i].rolename);
+                if (arrObject[rows[i].state]){
+                    arrObject[rows[i].state].push(rows[i].object)
+                }
+                else {
+                    arrObject[rows[i].state] = [rows[i].object]
+                }
+
+            }
+
+            obj.data = rows[0]
+            obj.data['roles'] = arrRoles.filter(onlyUnique);
+            obj.data['menu'] = arrMenu.filter(onlyUnique);
+            obj.data['object'] = arrObject;
+            console.log(obj)
+            res.send(obj)
+        }
+
+    });
+
 });
 
 app.post('/authorize', function (req, res) {
@@ -191,66 +267,6 @@ app.post('/authenticate', function (req, res) {
             };
             obj.data['module'] = objModule;
 
-            res.send(obj)
-        }
-
-    });
-
-});
-
-app.post('/authenticate_old', function (req, res) {
-    /*
-    Using Token Based authentication,
-    https://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543
-    */
-    console.log(req.body)
-    //var sqlstr = 'SELECT name,password,token,role_id as roles from user where name="'+req.body.username+'" and password="'+req.body.password+'"';
-    var sqlstr = 'select a.name as username, a.password, a.token, c.name as rolename, e.name as menuname, e.module, e.state, f.object, f.custom, a.default_module '+
-    'from user a, role_user b, role c, role_menu d, menu e, menu_detail f,group_menu g,module h '+
-    'where a.id = b.user_id '+
-    'and b.role_id = c.id '+
-    'and c.id = d.role_id '+
-    'and d.menu_id = e.id '+
-    'and d.menu_detail_id = f.id '+
-    'and a.default_module = h.id '+
-    'and e.group_id = g.id '+
-    'and g.module_id = h.id ' +
-    'and a.name="'+req.body.username+'" '+
-    'and a.password="'+req.body.password+'" ';
-
-
-    connection.query(sqlstr, function(err, rows, fields) {
-        console.log(err)
-        var obj = {
-            isAuthenticated: false,
-            data: {}
-        };
-        if (err) throw err;
-        if (rows.length==0){
-            res.send(obj)
-        }
-        else {
-            obj.isAuthenticated = true;
-            var arrMenu = [];
-            var arrRoles = [];
-            var arrObject = {};
-            for (var i=0;i<rows.length;i++){
-                arrMenu.push(rows[i].state);
-                arrRoles.push(rows[i].rolename);
-                if (arrObject[rows[i].state]){
-                    arrObject[rows[i].state].push(rows[i].object)
-                }
-                else {
-                    arrObject[rows[i].state] = [rows[i].object]
-                }
-
-            }
-
-            obj.data = rows[0]
-            obj.data['roles'] = arrRoles.filter(onlyUnique);
-            obj.data['menu'] = arrMenu.filter(onlyUnique);
-            obj.data['object'] = arrObject;
-            console.log(obj)
             res.send(obj)
         }
 

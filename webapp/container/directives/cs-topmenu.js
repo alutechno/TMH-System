@@ -40,7 +40,6 @@ angular.module('app')
                     '</li>'
                 }
             }
-            console.log(t1)
             var template =
             '<li class="mega">'+
             '<a href="javascript:;">'+

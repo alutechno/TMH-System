@@ -3,7 +3,7 @@ var roleController = angular.module('app', []);
 roleController
 .controller('RoleMenuCtrl',
 function($scope, $state, $sce, roleService, menuService, roleMenuService,
-    DTOptionsBuilder, DTColumnBuilder, $compile, $localStorage) {
+    DTOptionsBuilder, DTColumnBuilder, $compile, $localStorage, API_URL) {
         $scope.id = '';
         /*Authorize Element*/
         $scope.el = [];
@@ -46,6 +46,7 @@ function($scope, $state, $sce, roleService, menuService, roleMenuService,
             $scope.dtInstance = {} //Use for reloadData
 
             $scope.actionsHtml = function(data, type, full, meta) {
+                console.log(data)
                 $scope.roles[data.id] = data;
                 var html = ''
                 var checked = ''
@@ -69,6 +70,7 @@ function($scope, $state, $sce, roleService, menuService, roleMenuService,
                 return html
             }
             $scope.actionsHtmlAccess = function(data, type, full, meta) {
+                console.log(data)
                 $scope.roles[data.id] = data;
                 var html = '<div class="btn-group btn-group-xs">'
                 for (var i=0;i<data.detail.length;i++){
@@ -99,7 +101,7 @@ function($scope, $state, $sce, roleService, menuService, roleMenuService,
 
             $scope.dtOptions = DTOptionsBuilder.newOptions()
             .withOption('ajax', {
-                url: '/api/getRoleMenus?module='+$scope.module.selected.id+'&role='+$scope.role.selected.id,
+                url: API_URL+'/api/getRoleMenus?module='+$scope.module.selected.id+'&role='+$scope.role.selected.id,
                 type: 'GET',
                 headers: {
                     "authorization":  'Basic ' + $localStorage.mediaToken

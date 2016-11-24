@@ -10,13 +10,14 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
         return {
             'request': function (config) {
                 config.headers = config.headers || {};
-                
+
                 if (!$templateCache.get(config.url)){
                     //config.headers['state'] = $rootScope.toState.name
                     if ($localStorage.mediaToken) {
                         config.headers.Authorization = 'Basic ' + $localStorage.mediaToken;
                     }
-                    if (config.url.indexOf('api')==-1){
+                    //if (config.url.indexOf('api')==-1){
+                    if (config.url.indexOf('api')==-1 && config.url.indexOf('authenticate')==-1 && config.url.indexOf('authorize')==-1){
                         //config.url = APP_URL+'/'+config.url;
                         config.url = '/'+config.url;
 
@@ -24,7 +25,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                 }
 
 
-                console.log(config)
+                //console.log(config)
                 return config;
             },
             'responseError': function(response) {
@@ -308,7 +309,6 @@ function($rootScope, $state, $stateParams, authorization, principal){
     function(event, toState, toStateParams){
         //Set state that dont need authentication
         var bypass = ['login','access.500','access.404']
-        console.log($rootScope.toState)
         // track the state the user wants to go to;
         // authorization service needs this
 
@@ -330,15 +330,23 @@ function($rootScope, $state, $stateParams, authorization, principal){
                     .then(function(status){
                         if (status == true){
                             //Start Authorizing access to Menu
-                            var a = authorization.authorize($rootScope.toState.name);
-                            defer.resolve();
+                            authorization.authorize($rootScope.toState.name)
+                            .then(function(){
+                                defer.resolve();
+                            });
+
                         }
                         else {
                             //Invalid User Access / Invalid Token
                             $state.go('access.500')
                             defer.resolve();
                         }
-                    });
+                    },
+                    function(err){
+                        console.log(err)
+
+                    })
+
                     return defer.promise;
                 }
             ]

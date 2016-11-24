@@ -13,7 +13,6 @@ angular.module('app')
             var listModule = principal.getModule();
 
             for (var i=0;i<Math.ceil(listModule.length/2);i++){
-                console.log('trace:'+i+';'+Math.ceil(listModule.length/2))
                 var r = '<div class="row">'
 
                 if (listModule[(((i+1)*2)-2)]){
