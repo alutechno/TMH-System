@@ -381,3 +381,80 @@ function($q, $http, $timeout, $localStorage, API_URL) {
     }
 }
 ])
+.factory('customerContractService', ['$q', '$http', '$timeout', '$localStorage', 'API_URL',
+function($q, $http, $timeout, $localStorage, API_URL) {
+    return {
+        get: function(vid) {
+            var defer = $q.defer();
+            var url= API_URL+"/apifo/getCustomerContract";
+            if (vid){
+                url +=  "?id="+vid
+            }
+
+            //$http.get("http://localhost:3000/getRoles")
+            $http.get(url)
+            .then(function(response){
+                defer.resolve(response)
+            })
+            return defer.promise;
+        },
+        create: function(role) {
+            var defer = $q.defer();
+
+            $http.post(API_URL+'/apifo/createCustomerContract', role)
+            .success(function (data, status, headers, config) {
+                console.log(status)
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                console.log('reject')
+                console.log(data)
+                defer.reject(data);
+            });
+
+            return defer.promise;
+        },
+        update: function(role) {
+            var defer = $q.defer();
+
+            $http.post(API_URL+'/apifo/updateCustomerContract',role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+
+            return defer.promise;
+        },
+        delete: function(role) {
+            var defer = $q.defer();
+
+            $http.post(API_URL+'/apifo/deleteCustomerContract',role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+
+            return defer.promise;
+        },
+    }
+}
+])

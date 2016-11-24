@@ -52,9 +52,14 @@
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
                 <div class="col-sm-12">
-                    <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : customer.name.$invalid && !customer.name.$pristine }">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : contract.customerName.$invalid && !contract.customerName.$pristine }">
                         <label>Customer Name</label>
-                        <input type="text" class="form-control" name="custname" ng-model="customer.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                        <ui-select ng-model="selected.customer.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="Select Customer">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in customers | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
                     </div>
                 </div>
               </div>
@@ -67,13 +72,20 @@
                   </div>
               </div>
               <div class="row clearfix">
-                <div class="col-sm-12">
-                    <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.date.$invalid && !contract.date.$pristine }">
-                        <label>Contract Date</label>
-                        <input date-range-picker class="form-control date-picker" type="text" ng-model="contract.date" />
-                        <!--<input type="text" class="form-control" name="custname" ng-model="contract.date" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>-->
-                    </div>
-                </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.startDate.$invalid && !contract.startDate.$pristine }">
+                          <label>Start Contract Date</label>
+                          <input type="text" class="form-control" name="startDate" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" >
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.endDate.$invalid && !contract.endDate.$pristine }">
+                          <label>End Contract Date</label>
+                          <input type="text" class="form-control" name="endDate" placeholder="Pick a date" id="endDate" ui-jq="datepicker" ng-model="contract.endDate" >
+                      </div>
+                  </div>
               </div>
 
               <br>

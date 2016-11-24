@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FoCustomerContractCtrl',
-function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope,API_URL) {
+function($scope, $state, $sce, customerService, customerContractService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope,API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -18,11 +18,14 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
         selected: []
     };
 
-    $scope.customers = []
+    $scope.contracts = []
     $scope.id = '';
     $scope.contract = {
+        id: '',
+        customerName: '',
         code: '',
-        date: ''
+        startDate: '',
+        endDate: ''
     }
     $scope.filterVal = {
         search: ''
@@ -30,22 +33,33 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
     };
+    $scope.selected = {
+        customer: {}
+    }
+
+    $scope.customers = []
+    customerService.get()
+    .then(function(data){
+        console.log(data)
+        $scope.customers = data.data
+
+    })
 
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        $scope.users[data.id] = data;
+        $scope.contracts[data.id] = data;
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(customers[' + data.id + '])">' +
+                '<button class="btn btn-default" ng-click="update(contracts[' + data.id + '])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(customers[' + data.id + '])" )"="">' +
+                html+='<button class="btn btn-default" ng-click="delete(contracts[' + data.id + '])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
@@ -62,7 +76,7 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: API_URL+'/apifo/getCustomers',
+        url: API_URL+'/apifo/getCustomerContracts',
         type: 'GET',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
@@ -87,12 +101,10 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
         .renderWith($scope.actionsHtml).withOption('width', '10%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('name').withTitle('Customer Name'),
-        DTColumnBuilder.newColumn('type').withTitle('Type'),
-        DTColumnBuilder.newColumn('address').withTitle('Address'),
-        DTColumnBuilder.newColumn('phone').withTitle('Phone'),
-        DTColumnBuilder.newColumn('mobile').withTitle('Mobile'),
-        DTColumnBuilder.newColumn('active').withTitle('Is Active')
+        DTColumnBuilder.newColumn('code').withTitle('Contract Code'),
+        DTColumnBuilder.newColumn('customerName').withTitle('Customer'),
+        DTColumnBuilder.newColumn('startDate').withTitle('Start Contract'),
+        DTColumnBuilder.newColumn('endDate').withTitle('End Contract')
     );
 
     $scope.filter = function(type,event) {
@@ -134,8 +146,8 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
     }
 
     $scope.delete = function(obj){
-        $scope.customer.id = obj.id;
-        $scope.customer.name = obj.name;
+        $scope.contract.id = obj.id;
+
         $('#modalDelete').modal('show')
     }
 
@@ -144,8 +156,11 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
 
     $scope.clear = function(){
         $scope.contract = {
+            id: '',
+            customerName: '',
             code: '',
-            date: ''
+            startDate: '',
+            endDate: ''
         }
     }
 
