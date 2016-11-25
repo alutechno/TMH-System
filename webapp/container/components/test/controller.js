@@ -37,7 +37,7 @@ function($scope, $state, $sce, customerService, customerContractService, DTOptio
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: API_URL+'/apifo/getRoomTypes',
+        url: API_URL+'/apifo/getRooms',
         type: 'GET',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
@@ -57,11 +57,13 @@ function($scope, $state, $sce, customerService, customerContractService, DTOptio
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
-    $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
+    $scope.dtColumns.push(DTColumnBuilder.newColumn('code').withTitle('Action').notSortable()
         .renderWith($scope.actionsHtml).withOption('width', '10%'))
 
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('name').withTitle('Room Type Name'),
+        DTColumnBuilder.newColumn('code').withTitle('Room Code'),
+        DTColumnBuilder.newColumn('name').withTitle('Room Name'),
+        DTColumnBuilder.newColumn('typeName').withTitle('Room Type'),
         DTColumnBuilder.newColumn('active').withTitle('Is Active')
     );
 

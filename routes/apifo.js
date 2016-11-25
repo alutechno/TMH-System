@@ -394,6 +394,123 @@ module.exports = function(connection,jwt){
         });
     });
 
+    app.get('/getRooms', function (req, res) {
+        //Handle Request From Angular DataTables
+        console.log(req.query)
+        console.log(req.headers)
+
+        var dtParam = req.query
+        var where = '';
+        if (req.query.customSearch.length>0){
+            where += ' and room_name like "%'+req.query.customSearch + '%" '
+        }
+
+        var limit = ' limit '+req.query.start+','+req.query.length
+        var order = '';
+        order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
+
+        var sqlstr = 'select a.room_id as id,a.room_id as code, a.room_name as name, a.room_type_id as typeId, a.room_active as active, b.room_type_name as typeName '+
+            'from room a, room_type b '+
+            'where a.room_type_id = b.room_type_id '+where
+        console.log(sqlstr)
+
+        connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
+            if (!err){
+                console.log('rowsCnt')
+                console.log(rows)
+                dtParam['recordsFiltered'] = rows[0].cnt
+                connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                    if (!err2){
+                        dtParam['recordsTotal'] = rows2.length
+
+                        dtParam['data'] = rows2
+                        res.send(dtParam)
+                    }
+                });
+            }
+        });
+    });
+
+    app.get('/getRoom', function (req, res) {
+        //Handle Request For Selected Records
+        var where = '';
+        if (req.query.id){
+            where = ' and room_id="'+req.query.id+'"'
+        }
+        var sqlstr = 'select a.room_id as id,a.room_id as code, a.room_name as name, a.room_type_id as typeId, a.room_active as active, b.room_type_name as typeName '+
+            'from room a, room_type b '+
+            'where a.room_type_id = b.room_type_id '+where
+        connection.query(sqlstr, function(err, rows, fields) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(rows)
+        });
+    });
+
+    app.post('/createRoom', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'insert into room SET ?'
+        var sqlparam = {
+            room_id:req.body.code,
+            room_name:req.body.name,
+            room_type_id: req.body.typeId,
+            room_active: req.body.active
+        }
+
+        connection.query(sqlstr, sqlparam,function(err, result) {
+            console.log(err)
+            console.log(result)
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    })
+
+    app.post('/updateRoom', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'update room SET ? WHERE room_id="' +req.body.code + '"'
+        console.log(sqlstr)
+        var sqlparam = {
+            room_name:req.body.name,
+            room_type_id: req.body.typeId,
+            room_active: req.body.active
+        }
+
+        connection.query(sqlstr, sqlparam,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    })
+
+    app.post('/deleteRoom', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'delete from room where room_id="'+req.body.id + '"'
+        console.log(sqlstr)
+
+        connection.query(sqlstr,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    });
+
     return app;
 
 }

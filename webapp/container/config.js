@@ -211,7 +211,6 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                 .then(function() {
                     return $ocLazyLoad.load('container/components/foRoom/controller.js');
                 });
-
             }]
         }
     })
@@ -234,8 +233,8 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
-    .state('app.foRoomRate', {
-        url: "/foRoomRate",
+    .state('app.fo.roomRate', {
+        url: "/roomRate",
         templateUrl: "container/components/foRoomRate/view.html",
         controller: 'FoRoomRateCtrl',
         resolve: {
@@ -253,9 +252,9 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
-    .state('app.foRoomTypeRate', {
-        url: "/foRoomTypeRate",
-        templateUrl: "container/components/foRoomTypeRate/view.html",
+    .state('app.fo.roomStatus', {
+        url: "/roomStatus",
+        templateUrl: "container/components/foRoomStatus/view.html",
         controller: 'FoRoomTypeRateCtrl',
         resolve: {
             deps: ['$ocLazyLoad', function($ocLazyLoad) {
@@ -266,7 +265,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                     insertBefore: '#lazyload_placeholder'
                 })
                 .then(function() {
-                    return $ocLazyLoad.load('container/components/foRoomTypeRate/controller.js');
+                    return $ocLazyLoad.load('container/components/foRoomStatus/controller.js');
                 });
 
             }]
