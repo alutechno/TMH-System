@@ -151,6 +151,23 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('login', {
+        url: '/login',
+        templateUrl: 'container/components/login/loginView.html',
+        data: {
+            roles: []
+        },
+        controller: 'LoginCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'container/components/login/loginController.js'
+                ]);
+            }]
+        }
+    })
+
+    //Front Office Module
     .state('app.fo', {
         url: '/fo',
         template: '<div ui-view></div>'
@@ -271,18 +288,45 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
-    .state('login', {
-        url: '/login',
-        templateUrl: 'container/components/login/loginView.html',
-        data: {
-            roles: []
-        },
-        controller: 'LoginCtrl',
+
+    //Inventory Module
+    .state('app.inv', {
+        url: '/inv',
+        template: '<div ui-view></div>'
+    })
+    .state('app.inv.productcat', {
+        url: "/productcat",
+        templateUrl: "container/components/invProductCat/view.html",
+        controller: 'InvProductCatCtrl',
         resolve: {
             deps: ['$ocLazyLoad', function($ocLazyLoad) {
                 return $ocLazyLoad.load([
-                    'container/components/login/loginController.js'
-                ]);
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invProductCat/controller.js');
+                });
+            }]
+        }
+    })
+    .state('app.inv.uomcat', {
+        url: "/uomcat",
+        templateUrl: "container/components/invUomCat/view.html",
+        controller: 'InvUomCatCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invUomCat/controller.js');
+                });
             }]
         }
     })
