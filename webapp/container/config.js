@@ -133,6 +133,24 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.test', {
+        url: "/test",
+        templateUrl: "container/components/test/view.html",
+        controller: 'TestCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/test/controller.js');
+                });
+
+            }]
+        }
+    })
     .state('app.fo', {
         url: '/fo',
         template: '<div ui-view></div>'
@@ -178,8 +196,8 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
-    .state('app.foRoom', {
-        url: "/foRoom",
+    .state('app.fo.room', {
+        url: "/room",
         templateUrl: "container/components/foRoom/view.html",
         controller: 'FoRoomCtrl',
         resolve: {
@@ -197,8 +215,8 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
-    .state('app.foRoomType', {
-        url: "/foRoomType",
+    .state('app.fo.roomType', {
+        url: "/roomType",
         templateUrl: "container/components/foRoomType/view.html",
         controller: 'FoRoomTypeCtrl',
         resolve: {

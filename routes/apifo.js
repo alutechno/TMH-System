@@ -56,7 +56,7 @@ module.exports = function(connection,jwt){
         //Handle Request For Selected Records
         var where = '';
         if (req.query.id){
-            where = ' where customer_id='+req.query.id
+            where = ' and customer_id="'+req.query.id+'"'
         }
         var sqlstr = 'select customer_id as code, customer_name as name, customer_type as type, customer_address as address, customer_city as city, '+
             ' customer_postal_code as postal, customer_state as state, customer_country as country, customer_website as website, customer_phone as phone, '+
@@ -208,7 +208,7 @@ module.exports = function(connection,jwt){
         //Handle Request For Selected Records
         var where = '';
         if (req.query.id){
-            where = ' where a.customer_id='+req.query.id
+            where = ' and b.cust_contract_id="'+req.query.id+'"'
         }
         var sqlstr = 'select b.cust_contract_id,b.customer_id,a.customer_name,b.cust_contract_from,b.cust_contract_to '+
             ' from customer a, customer_contract b '+
@@ -284,28 +284,22 @@ module.exports = function(connection,jwt){
         });
     });
 
-    app.get('/getRooms', function (req, res) {
+    app.get('/getRoomTypes', function (req, res) {
         //Handle Request From Angular DataTables
         console.log(req.query)
         console.log(req.headers)
 
         var dtParam = req.query
         var where = '';
-        if (req.query.id){
-            where += ' and a.id='+req.query.id
-        }
         if (req.query.customSearch.length>0){
-            where += ' and a.name="'+req.query.customSearch + '" '
+            where += ' where room_type_name like "%'+req.query.customSearch + '%" '
         }
 
         var limit = ' limit '+req.query.start+','+req.query.length
         var order = '';
         order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
 
-        var sqlstr = 'select b.cust_contract_id as id,b.cust_contract_id as code,b.customer_id as customerId,a.customer_name as customerName,b.cust_contract_from as startDate,b.cust_contract_to as endDate '+
-            ' from customer a, customer_contract b '+
-            ' where a.customer_id = b.customer_id '+where
-
+        var sqlstr = 'select room_type_id as id,room_type_name as name,room_type_active as active from room_type '+where
         console.log(sqlstr)
 
         connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
@@ -325,15 +319,13 @@ module.exports = function(connection,jwt){
         });
     });
 
-    app.get('/getRoom', function (req, res) {
+    app.get('/getRoomType', function (req, res) {
         //Handle Request For Selected Records
         var where = '';
         if (req.query.id){
-            where = ' where a.customer_id='+req.query.id
+            where = ' where room_type_id='+req.query.id
         }
-        var sqlstr = 'select b.cust_contract_id,b.customer_id,a.customer_name,b.cust_contract_from,b.cust_contract_to '+
-            ' from customer a, customer_contract b '+
-            ' where a.customer_id = b.customer_id ' +where
+        var sqlstr = 'select room_type_id,room_type_name,room_type_active from room_type '+where
         connection.query(sqlstr, function(err, rows, fields) {
             if (err){
                 res.status('404').send({
@@ -345,14 +337,12 @@ module.exports = function(connection,jwt){
         });
     });
 
-    app.post('/createRoom', function(req,res){
+    app.post('/createRoomType', function(req,res){
         console.log(req.body);
-        var sqlstr = 'insert into customer_contract SET ?'
+        var sqlstr = 'insert into room_type SET ?'
         var sqlparam = {
-            cust_contract_id:req.body.code,
-            customer_id:req.body.customerId,
-            cust_contract_from:req.body.startDate,
-            cust_contract_to: req.body.endDate
+            room_type_name:req.body.name,
+            room_type_active:req.body.active
         }
 
         connection.query(sqlstr, sqlparam,function(err, result) {
@@ -368,14 +358,13 @@ module.exports = function(connection,jwt){
         });
     })
 
-    app.post('/updateRoom', function(req,res){
+    app.post('/updateRoomType', function(req,res){
         console.log(req.body);
-        var sqlstr = 'update customer_contract SET ? WHERE cust_contract_id="' +req.body.id +'"'
+        var sqlstr = 'update room_type SET ? WHERE room_type_id=' +req.body.id
         console.log(sqlstr)
         var sqlparam = {
-            customer_id:req.body.customerId,
-            cust_contract_from:req.body.startDate,
-            cust_contract_to: req.body.endDate
+            room_type_name:req.body.name,
+            room_type_active:req.body.active
         }
 
         connection.query(sqlstr, sqlparam,function(err, result) {
@@ -389,9 +378,9 @@ module.exports = function(connection,jwt){
         });
     })
 
-    app.post('/deleteRoom', function(req,res){
+    app.post('/deleteRoomType', function(req,res){
         console.log(req.body);
-        var sqlstr = 'delete from customer_contract where cust_contract_id="'+req.body.id+'"'
+        var sqlstr = 'delete from room_type where room_type_id='+req.body.id
         console.log(sqlstr)
 
         connection.query(sqlstr,function(err, result) {
