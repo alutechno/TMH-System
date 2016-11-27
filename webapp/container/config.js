@@ -284,7 +284,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
     .state('app.fo.roomStatus', {
         url: "/roomStatus",
         templateUrl: "container/components/foRoomStatus/view.html",
-        controller: 'FoRoomTypeRateCtrl',
+        controller: 'FoRoomStatusCtrl',
         resolve: {
             deps: ['$ocLazyLoad', function($ocLazyLoad) {
                 return $ocLazyLoad.load([
@@ -295,6 +295,44 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                 })
                 .then(function() {
                     return $ocLazyLoad.load('container/components/foRoomStatus/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fo.paymentMethod', {
+        url: "/paymentMethod",
+        templateUrl: "container/components/foPaymentMethod/view.html",
+        controller: 'FoPaymentMethodCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/foPaymentMethod/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fo.reservation', {
+        url: "/reservation",
+        templateUrl: "container/components/foReservation/view.html",
+        controller: 'FoReservationCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/foReservation/controller.js');
                 });
 
             }]

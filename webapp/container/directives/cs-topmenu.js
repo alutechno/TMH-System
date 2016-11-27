@@ -12,6 +12,7 @@ angular.module('app')
             var menu = (principal.getAllMenu(undefined));
             var t1 = ''
             for (var x in menu){
+                console.log(menu[x])
                 for (var key in menu[x]){
                     t1 +=
                     '<li class="mega" ng-show="showMenu.'+x+'">'+
