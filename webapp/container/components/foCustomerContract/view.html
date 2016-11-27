@@ -8,7 +8,7 @@
                 <div class="panel-title">Customer Contract
                 </div>
                 <div class="pull-right" style="width: 60%;">
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Customer</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Contract</button>
 
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
@@ -67,7 +67,7 @@
                   <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.code.$invalid && !contract.code.$pristine }">
                           <label>Code</label>
-                          <input type="text" class="form-control" name="code" ng-model="contract.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" id="contract_code" class="form-control" name="code" ng-model="contract.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
               </div>
@@ -75,7 +75,7 @@
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.startDate.$invalid && !contract.startDate.$pristine }">
                           <label>Start Contract Date</label>
-                          <input type="text" class="form-control" name="startDate" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" >
+                          <input type="text" class="form-control" name="startDate" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd">
                       </div>
                   </div>
               </div>
@@ -83,7 +83,7 @@
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.endDate.$invalid && !contract.endDate.$pristine }">
                           <label>End Contract Date</label>
-                          <input type="text" class="form-control" name="endDate" placeholder="Pick a date" id="endDate" ui-jq="datepicker" ng-model="contract.endDate" >
+                          <input type="text" class="form-control" name="endDate" placeholder="Pick a date" id="endDate" ui-jq="datepicker" ng-model="contract.endDate" data-date-format="yyyy-mm-dd">
                       </div>
                   </div>
               </div>
