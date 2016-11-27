@@ -12,6 +12,7 @@ function($scope, $state, $sce, customerService, customerContractService, DTOptio
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
+        console.log(data)
         $scope.datas[data.id] = data;
         var html = ''
 
@@ -26,7 +27,7 @@ function($scope, $state, $sce, customerService, customerContractService, DTOptio
                 '</button>';
             html += '</div>'
 
-        return html
+        return html 
     }
 
     $scope.createdRow = function(row, data, dataIndex) {
@@ -37,7 +38,7 @@ function($scope, $state, $sce, customerService, customerContractService, DTOptio
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: API_URL+'/apifo/getRooms',
+        url: API_URL+'/apifo/getRoomTypes',
         type: 'GET',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
@@ -57,13 +58,12 @@ function($scope, $state, $sce, customerService, customerContractService, DTOptio
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
-    $scope.dtColumns.push(DTColumnBuilder.newColumn('code').withTitle('Action').notSortable()
+    $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
         .renderWith($scope.actionsHtml).withOption('width', '10%'))
 
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('code').withTitle('Room Code'),
+        DTColumnBuilder.newColumn('id').withTitle('ID'),
         DTColumnBuilder.newColumn('name').withTitle('Room Name'),
-        DTColumnBuilder.newColumn('typeName').withTitle('Room Type'),
         DTColumnBuilder.newColumn('active').withTitle('Is Active')
     );
 
