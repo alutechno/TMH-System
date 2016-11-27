@@ -27,7 +27,7 @@ function($scope, $state, $sce, customerService, customerContractService, DTOptio
                 '</button>';
             html += '</div>'
 
-        return html
+        return html 
     }
 
     $scope.createdRow = function(row, data, dataIndex) {
