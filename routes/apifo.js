@@ -297,7 +297,7 @@ module.exports = function(connection,jwt){
 
         var limit = ' limit '+req.query.start+','+req.query.length
         var order = '';
-        order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
+        //order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
 
         var sqlstr = 'select room_type_id as id,room_type_name as name,room_type_active as active from room_type '+where
         console.log(sqlstr)
@@ -308,6 +308,7 @@ module.exports = function(connection,jwt){
                 console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
                 connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                    console.log(err2)
                     if (!err2){
                         dtParam['recordsTotal'] = rows2.length
 
@@ -407,7 +408,7 @@ module.exports = function(connection,jwt){
 
         var limit = ' limit '+req.query.start+','+req.query.length
         var order = '';
-        order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
+        //order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
 
         var sqlstr = 'select a.room_id as id,a.room_id as code, a.room_name as name, a.room_type_id as typeId, a.room_active as active, b.room_type_name as typeName '+
             'from room a, room_type b '+
