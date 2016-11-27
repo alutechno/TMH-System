@@ -119,10 +119,6 @@ function($q, $http, $timeout, $localStorage, $rootScope, API_URL) {
         clear: function() {
             if($rootScope['currentModule']) delete $rootScope['currentModule']
             if($rootScope['currentMenu']) delete $rootScope['currentMenu']
-            //if($rootScope['toState']) delete $rootScope['toState']
-            //if($rootScope['toStateParams']) delete $rootScope['toStateParams']
-            //$rootScope.$apply();
-            console.log($rootScope);
         },
         authenticate: function(identity) {
             /*

@@ -1,14 +1,8 @@
 angular.module('app')
-.controller('LogoutCtrl', ['$scope', '$rootScope', 'principal', '$localStorage','$state','$window','$location','$templateCache',
-function($scope, $rootScope, principal, $localStorage,$state,$window,$location,$templateCache) {
-    console.log($localStorage)
+.controller('LogoutCtrl', ['$scope', '$rootScope', 'principal', '$localStorage','$state','$window',
+function($scope, $rootScope, principal, $localStorage,$state,$window) {
     $localStorage.$reset();
-
     principal.clear();
-    console.log('logout')
     $window.location.replace('/')
-    
-
-
 }
 ])
