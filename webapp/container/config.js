@@ -166,6 +166,18 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('logout', {
+        url: '/logout',
+        templateUrl: '',
+        controller: 'LogoutCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'container/controllers/logout.js'
+                ]);
+            }]
+        }
+    })
 
     //Front Office Module
     .state('app.fo', {
@@ -372,7 +384,7 @@ function($rootScope, $state, $stateParams, authorization, principal){
     $rootScope.$on('$stateChangeStart',
     function(event, toState, toStateParams){
         //Set state that dont need authentication
-        var bypass = ['login','access.500','access.404']
+        var bypass = ['login','access.500','access.404','logout']
         // track the state the user wants to go to;
         // authorization service needs this
 
