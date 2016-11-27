@@ -78,20 +78,20 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
         console.log(data)
-        $scope.customers[data.code] = data;
-        console.log(data)
+        $scope.customers[data] = {id:data};
+        //console.log(data)
         console.log($scope.customers)
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(customers[' + data.code + '])">' +
+                '<button class="btn btn-default" ng-click="update(customers[\'' + data + '\'])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(customers[' + data.code + '])" )"="">' +
+                html+='<button class="btn btn-default" ng-click="delete(customers[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
@@ -220,6 +220,7 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
+        console.log(obj)
         customerService.get(obj.id)
         .then(function(result){
             $scope.customer = result.data[0]
