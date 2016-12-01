@@ -405,6 +405,44 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.fin.dept', {
+        url: "/department",
+        templateUrl: "container/components/finDepartment/view.html",
+        controller: 'FinDepartmentCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finDepartment/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.coa', {
+        url: "/coa",
+        templateUrl: "container/components/finCoa/view.html",
+        controller: 'FinCoaCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finCoa/controller.js');
+                });
+
+            }]
+        }
+    })
 
     // Extra - Others
     .state('access', {
