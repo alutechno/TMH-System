@@ -73,6 +73,26 @@ function($scope, $state, $sce, roomTypeService, DTOptionsBuilder, DTColumnBuilde
         return html
     }
 
+    $scope.activeField = function(data, type, full, meta) {
+        console.log(data)
+        if ($scope.el.length>0){
+            html = '<div class="btn-group btn-group-xs">'
+            if ($scope.el.indexOf('buttonUpdate')>-1){
+                html +=
+                '<button class="btn btn-default" ng-click="update(roomtypes[\'' + data + '\'])">' +
+                '   <i class="fa fa-edit"></i>' +
+                '</button>&nbsp;' ;
+            }
+            if ($scope.el.indexOf('buttonDelete')>-1){
+                html+='<button class="btn btn-default" ng-click="delete(roomtypes[\'' + data + '\'])" )"="">' +
+                '   <i class="fa fa-trash-o"></i>' +
+                '</button>';
+            }
+            html += '</div>'
+        }
+        return html
+    }
+
     $scope.createdRow = function(row, data, dataIndex) {
         // Recompiling so we can bind Angular directive to the DT
         $compile(angular.element(row).contents())($scope);

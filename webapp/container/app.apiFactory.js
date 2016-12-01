@@ -535,3 +535,80 @@ function($q, $http, $timeout, $localStorage, API_URL) {
     }
 }
 ])
+.factory('roomService', ['$q', '$http', '$timeout', '$localStorage', 'API_URL',
+function($q, $http, $timeout, $localStorage, API_URL) {
+    return {
+        get: function(vid) {
+            var defer = $q.defer();
+            var url= API_URL+"/apifo/getRoom";
+            if (vid){
+                url +=  "?id="+vid
+            }
+
+            //$http.get("http://localhost:3000/getRoles")
+            $http.get(url)
+            .then(function(response){
+                defer.resolve(response)
+            })
+            return defer.promise;
+        },
+        create: function(role) {
+            var defer = $q.defer();
+
+            $http.post(API_URL+'/apifo/createRoom', role)
+            .success(function (data, status, headers, config) {
+                console.log(status)
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                console.log('reject')
+                console.log(data)
+                defer.reject(data);
+            });
+
+            return defer.promise;
+        },
+        update: function(role) {
+            var defer = $q.defer();
+
+            $http.post(API_URL+'/apifo/updateRoom',role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+
+            return defer.promise;
+        },
+        delete: function(role) {
+            var defer = $q.defer();
+
+            $http.post(API_URL+'/apifo/deleteRoom',role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+
+            return defer.promise;
+        },
+    }
+}
+])
