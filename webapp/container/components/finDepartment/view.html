@@ -5,10 +5,10 @@
         <!-- START PANEL -->
         <div class="panel panel-transparent">
             <div class="panel-heading">
-                <div class="panel-title">Departement / Cost Center
+                <div class="panel-title">Department / Cost Center
                 </div>
                 <div class="pull-right" style="width: 60%;">
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Customer</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Department</button>
 
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
@@ -39,7 +39,7 @@
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Departement Information</div>
+       <div class="panel-title">Department Information</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -50,6 +50,44 @@
       <!-- START FORM -->
       <div class="panel panel-transparent m-t-20">
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : department.code.$invalid && !department.code.$pristine }">
+                          <label>Code</label>
+                          <input type="text" class="form-control" name="code" id="dept_code" ng-model="department.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : department.name.$invalid && !department.name.$pristine }">
+                          <label>Name</label>
+                          <input type="text" class="form-control" ng-model="department.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : department.short_name.$invalid && !department.short_name.$pristine }">
+                          <label>Short Name</label>
+                          <input type="text" class="form-control" ng-model="department.short_name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default " ng-class="{ 'has-error' : department.description.$invalid && !department.description.$pristine }">
+                          <label>Description</label>
+                          <input type="text" class="form-control" ng-model="department.description" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : department.status.$invalid && !department.status.$pristine }">
+                        <label>Is Active</label>
+                        <ui-select ng-model="selected.dep.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arrActive | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                  </div>
+              </div>
+              
               <br>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
@@ -75,7 +113,7 @@
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h4 class="no-margin p-b-10">Are you sure want to delete {{dep.name}} ?</h4>
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{department.code}} ?</h4>
                     <div >
                         <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>

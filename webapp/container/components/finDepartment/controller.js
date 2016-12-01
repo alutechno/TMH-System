@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinDepartmentCtrl',
-function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -20,6 +20,29 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
 
     $scope.deps = {}
     $scope.id = '';
+    $scope.department = {
+        id: '',
+        code: '',
+        name: '',
+        short_name: '',
+        description: '',
+        status: ''
+    }
+
+    $scope.selected = {
+        dep: {}
+    }
+
+    $scope.arrActive = [
+        {
+            id: 1,
+            name: 'Yes'
+        },
+        {
+            id: 0,
+            name: 'No'
+        }
+    ]
 
     $scope.filterVal = {
         search: ''
@@ -115,35 +138,122 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
             $scope.clear()
         }
         $('#form-input').modal('show')
+        $('#dept_code').prop('disabled', false);
     }
 
     $scope.submit = function(){
-        console.log('submit')
+        // console.log($scope.contract)
+        if ($scope.department.id.length==0){
+            //exec creation
+
+            $scope.department.code = $scope.department.code;
+            $scope.department.name = $scope.department.name;
+            $scope.department.short_name = $scope.department.short_name;
+            $scope.department.description = $scope.department.description;
+            $scope.department.status = $scope.selected.dep.selected.id;
+
+            departmentService.create($scope.department)
+            .then(function (result){
+                    $('#form-input').modal('hide')
+                    $scope.dtInstance.reloadData(function(obj){
+                        console.log(obj)
+                    }, false)
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Insert '+$scope.department.name,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
+
+            },
+            function (err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert: '+err.desc.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
+
+        }
+        else {
+            //exec update
+            $scope.department.name = $scope.department.name;
+            $scope.department.short_name = $scope.department.short_name;
+            $scope.department.description = $scope.department.description;
+            $scope.department.status = $scope.selected.dep.selected.id;
+
+            departmentService.update($scope.department)
+            .then(function (result){
+                if (result.status = "200"){
+                    console.log('Success Update')
+                    $('#form-input').modal('hide')
+                    $scope.dtInstance.reloadData(function(obj){
+                        console.log(obj)
+                    }, false)
+                }
+                else {
+                    console.log('Failed Update')
+                }
+            })
+        }
     }
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
+        $('#dept_code').prop('disabled', true);
+
+        departmentService.get(obj.id)
+        .then(function(result){
+        // console.log(result)
+            $scope.department.id = result.data[0].id
+            $scope.department.code = result.data[0].code
+            $scope.department.name = result.data[0].name
+            $scope.department.short_name = result.data[0].short_name
+            $scope.department.description = result.data[0].description
+            $scope.department.status = result.data[0].status
+            $scope.selected.dep.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
+
+        })
 
     }
 
     $scope.delete = function(obj){
-        $scope.customer.id = obj.id;
-        //$scope.customer.name = obj.name;
-        customerService.get(obj.id)
+        $scope.department.id = obj.id;
+        departmentService.get(obj.id)
         .then(function(result){
-            $scope.customer.name = result.data[0].name;
+            $scope.department.code = result.data[0].code;
             $('#modalDelete').modal('show')
         })
     }
 
     $scope.execDelete = function(){
-
+        departmentService.delete($scope.department)
+        .then(function (result){
+            if (result.status = "200"){
+                // console.log('Success Update')
+                $('#form-input').modal('hide')
+                $scope.dtInstance.reloadData(function(obj){
+                    // console.log(obj)
+                }, false)
+            }
+            else {
+                // console.log('Failed Update')
+            }
+        })
     }
 
     $scope.clear = function(){
-
+        $scope.department = {
+            id: '',
+            code: '',
+            name: '',
+            short_name: '',
+            description: '',
+            status: ''
+        }
     }
-
-
 
 })
