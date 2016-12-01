@@ -8,7 +8,7 @@
                 <div class="panel-title">Account Type
                 </div>
                 <div class="pull-right" style="width: 60%;">
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Customer</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Account Type</button>
 
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
@@ -50,6 +50,38 @@
       <!-- START FORM -->
       <div class="panel panel-transparent m-t-20">
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : accountType.code.$invalid && !accountType.code.$pristine }">
+                          <label>Code</label>
+                          <input type="text" class="form-control" name="code" id="acc_code" ng-model="accountType.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : accountType.name.$invalid && !accountType.name.$pristine }">
+                          <label>Name</label>
+                          <input type="text" class="form-control" name="name" ng-model="accountType.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : accountType.description.$invalid && !accountType.description.$pristine }">
+                          <label>Desc</label>
+                          <input type="text" class="form-control" name="name" ng-model="accountType.description" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" >
+                      </div>
+                  </div>
+                <div class="col-sm-12">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : accountType.status.$invalid && !accountType.status.$pristine }">
+                        <label>Is Active</label>
+                        <ui-select ng-model="selected.accountType.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arrActive | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+              </div>
+
               <br>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
@@ -75,7 +107,7 @@
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h4 class="no-margin p-b-10">Are you sure want to delete {{acc.name}} ?</h4>
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{accountType.name}} ?</h4>
                     <div >
                         <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>

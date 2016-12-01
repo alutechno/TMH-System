@@ -172,6 +172,7 @@ function($scope, $state, $sce, roomService, roomTypeService, DTOptionsBuilder, D
             $scope.clear()
         }
         $('#form-input').modal('show')
+        $('#room_code').prop('disabled', true)
     }
 
     $scope.submit = function(){

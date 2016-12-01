@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinAccTypeCtrl',
-function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -18,12 +18,36 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
         selected: []
     };
 
-    $scope.accs = {}
     $scope.id = '';
+    $scope.accountType = {
+        id: '',
+        code: '',
+        name: '',
+        description: '',
+        status: ''
+    }
+
+    $scope.accountTypes = {}
+
+    $scope.selected = {
+        accountType: {}
+    }
 
     $scope.filterVal = {
         search: ''
     }
+
+    $scope.arrActive = [
+        {
+            id: 1,
+            name: 'Yes'
+        },
+        {
+            id: 0,
+            name: 'No'
+        }
+    ]
+
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
     };
@@ -31,21 +55,18 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        console.log(data)
-        $scope.accs[data] = {id:data};
-        //console.log(data)
-        console.log($scope.accs)
+        $scope.accountTypes[data] = {id:data};
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(accs[\'' + data + '\'])">' +
+                '<button class="btn btn-default" ng-click="update(accountTypes[\'' + data + '\'])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(accs[\'' + data + '\'])" )"="">' +
+                html+='<button class="btn btn-default" ng-click="delete(accountTypes[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
@@ -114,35 +135,118 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
             $scope.clear()
         }
         $('#form-input').modal('show')
+        $('#acc_code').prop('disabled', false)
+
     }
 
     $scope.submit = function(){
-        console.log('submit')
+        if ($scope.accountType.id.length==0){
+            //exec creation
+
+            $scope.accountType.code = $scope.accountType.code;
+            $scope.accountType.name = $scope.accountType.name;
+            $scope.accountType.description = $scope.accountType.description;
+            $scope.accountType.status = $scope.selected.accountType.selected.id;
+
+            accountTypeService.create($scope.accountType)
+            .then(function (result){
+                    $('#form-input').modal('hide')
+                    $scope.dtInstance.reloadData(function(obj){
+                        // console.log(obj)
+                    }, false)
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Insert '+$scope.accountType.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
+
+            },
+            function (err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert: '+err.desc.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
+
+        }
+        else {
+            //exec update
+            $scope.accountType.name = $scope.accountType.name;
+            $scope.accountType.description = $scope.accountType.description;
+            $scope.accountType.status = $scope.selected.accountType.selected.id;
+
+            accountTypeService.update($scope.accountType)
+            .then(function (result){
+                if (result.status = "200"){
+                    // console.log('Success Update')
+                    $('#form-input').modal('hide')
+                    $scope.dtInstance.reloadData(function(obj){
+                        // console.log(obj)
+                    }, false)
+                }
+                else {
+                    // console.log('Failed Update')
+                }
+            })
+        }
     }
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
+        $('#acc_code').prop('disabled', true);
+
+        accountTypeService.get(obj.id)
+        .then(function(result){
+        console.log(result)
+            $scope.accountType.id = result.data[0].id
+            $scope.accountType.code = result.data[0].code
+            $scope.accountType.name = result.data[0].name
+            $scope.accountType.description = result.data[0].description
+            $scope.accountType.status = result.data[0].status
+            $scope.selected.accountType.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
+        })
 
     }
 
     $scope.delete = function(obj){
-        $scope.customer.id = obj.id;
+        $scope.accountType.id = obj.id;
         //$scope.customer.name = obj.name;
-        customerService.get(obj.id)
+        accountTypeService.get(obj.id)
         .then(function(result){
-            $scope.customer.name = result.data[0].name;
+            $scope.accountType.name = result.data[0].name;
             $('#modalDelete').modal('show')
         })
     }
 
     $scope.execDelete = function(){
-
+        accountTypeService.delete($scope.accountType)
+        .then(function (result){
+            if (result.status = "200"){
+                // console.log('Success Update')
+                $('#form-input').modal('hide')
+                $scope.dtInstance.reloadData(function(obj){
+                    // console.log(obj)
+                }, false)
+            }
+            else {
+                // console.log('Failed Update')
+            }
+        })
     }
 
     $scope.clear = function(){
-
+        $scope.accountType = {
+            id: '',
+            code: '',
+            name: '',
+            description: '',
+            status: ''
+        }
     }
-
-
 
 })
