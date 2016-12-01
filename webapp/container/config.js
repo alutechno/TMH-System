@@ -381,6 +381,31 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
         }
     })
 
+    //Finance and Accounting Module
+    .state('app.fin', {
+        url: '/fin',
+        template: '<div ui-view></div>'
+    })
+    .state('app.fin.accType', {
+        url: "/acctype",
+        templateUrl: "container/components/finAccType/view.html",
+        controller: 'FinAccTypeCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finAccType/controller.js');
+                });
+
+            }]
+        }
+    })
+
     // Extra - Others
     .state('access', {
         url: '/access',
