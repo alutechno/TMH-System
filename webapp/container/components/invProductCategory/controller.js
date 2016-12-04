@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvProductCategoryCtrl',
-function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -20,6 +20,27 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
 
     $scope.cats = {}
     $scope.id = '';
+    $scope.cat = {
+        id: '',
+        name: '',
+        description: '',
+        status: ''
+    }
+
+    $scope.selected = {
+        status: {}
+    }
+
+    $scope.arrActive = [
+        {
+            id: 1,
+            name: 'Yes'
+        },
+        {
+            id: 0,
+            name: 'No'
+        }
+    ]
 
     $scope.filterVal = {
         search: ''
@@ -31,10 +52,7 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        console.log(data)
         $scope.cats[data] = {id:data};
-        //console.log(data)
-        console.log($scope.cats)
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
@@ -116,32 +134,103 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
     }
 
     $scope.submit = function(){
-        console.log('submit')
+        if ($scope.cat.id.length==0){
+            //exec creation
+            $scope.cat.status = $scope.selected.status.selected.id;
+
+            productCategoryService.create($scope.cat)
+            .then(function (result){
+                    $('#form-input').modal('hide')
+                    $scope.dtInstance.reloadData(function(obj){
+                        // console.log(obj)
+                    }, false)
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Insert '+$scope.cat.name,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
+            },
+            function (err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert: '+err.desc.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
+
+        }
+        else {
+            //exec update
+            $scope.cat.status = $scope.selected.status.selected.id;
+
+            productCategoryService.update($scope.cat)
+            .then(function (result){
+                if (result.status = "200"){
+                    console.log('Success Update')
+                    $('#form-input').modal('hide')
+                    $scope.dtInstance.reloadData(function(obj){
+                        // console.log(obj)
+                    }, false)
+                }
+                else {
+                    console.log('Failed Update')
+                }
+            })
+        }
     }
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
+        $scope.cat.id = obj.id
 
+        productCategoryService.get(obj.id)
+        .then(function(result){
+
+            $scope.cat.name = result.data[0].name
+            $scope.cat.description = result.data[0].description
+            $scope.cat.status = result.data[0].status
+            $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
+
+        })
     }
 
     $scope.delete = function(obj){
-        $scope.customer.id = obj.id;
+        $scope.cat.id = obj.id;
         //$scope.customer.name = obj.name;
-        customerService.get(obj.id)
+        productCategoryService.get(obj.id)
         .then(function(result){
-            $scope.customer.name = result.data[0].name;
+            $scope.cat.name = result.data[0].name;
             $('#modalDelete').modal('show')
         })
     }
 
     $scope.execDelete = function(){
-
+        productCategoryService.delete($scope.cat)
+        .then(function (result){
+            if (result.status = "200"){
+                console.log('Success Delete')
+                $('#form-input').modal('hide')
+                $scope.dtInstance.reloadData(function(obj){
+                    // console.log(obj)
+                }, false)
+            }
+            else {
+                console.log('Delete Failed')
+            }
+        })
     }
 
     $scope.clear = function(){
-
+        $scope.cat = {
+            id: '',
+            name: '',
+            description: '',
+            status: ''
+        }
     }
-
-
 
 })
