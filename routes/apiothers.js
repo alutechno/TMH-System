@@ -122,6 +122,28 @@ module.exports = function(connection,jwt){
         });
     });
 
+    app.get('/getTableRef', function (req, res) {
+        var where = '';
+        var whereArr = []
+        if (req.query.table) whereArr.push('table_name="'+req.query.table+'"')
+        if (req.query.column) whereArr.push('column_name="'+req.query.column+'"')
+
+        if (whereArr.length>0) where = 'where '+whereArr.join(' and ')
+
+        var sqlstr = 'select value,name,description '+
+            ' from table_ref '+where
+            console.log(sqlstr)
+        connection.query(sqlstr, function(err, rows, fields) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(rows)
+        });
+    });
+
 
     return app;
 

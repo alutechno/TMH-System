@@ -6,13 +6,14 @@
 angular.module('app')
 .config(['$stateProvider', '$urlRouterProvider', '$ocLazyLoadProvider','$httpProvider', 'APP_URL',
 function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider, APP_URL) {
-    $httpProvider.interceptors.push(['$q', '$location', '$localStorage','$templateCache',function($q, $location, $localStorage,$templateCache) {
+    $httpProvider.interceptors.push(['$q', '$location', '$localStorage','$templateCache','$rootScope',
+    function($q, $location, $localStorage,$templateCache,$rootScope) {
         return {
             'request': function (config) {
                 config.headers = config.headers || {};
 
                 if (!$templateCache.get(config.url)){
-                    //config.headers['state'] = $rootScope.toState.name
+                    config.headers['state'] = $rootScope.toState.name
                     if ($localStorage.mediaToken) {
                         config.headers.Authorization = 'Basic ' + $localStorage.mediaToken;
                     }
@@ -412,6 +413,24 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                 })
                 .then(function() {
                     return $ocLazyLoad.load('container/components/invProduct/controller.js');
+                });
+            }]
+        }
+    })
+    .state('app.inv.contract', {
+        url: "/contract",
+        templateUrl: "container/components/invContract/view.html",
+        controller: 'InvContractCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invContract/controller.js');
                 });
             }]
         }

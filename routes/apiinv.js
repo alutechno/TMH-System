@@ -577,6 +577,169 @@ module.exports = function(connection,jwt){
         });
     });
 
+    app.get('/getContracts', function (req, res) {
+        //Handle Request From Angular DataTables
+        console.log(req.query)
+        console.log(req.headers)
+
+        var dtParam = req.query
+        var where = '';
+        var whereArr = []
+        if (req.query.id){
+            //where += ' where id='+req.query.id
+            whereArr.push('id='+req.query.id)
+        }
+        if (req.query.customSearch.length>0){
+            whereArr.push('a.name="'+req.query.customSearch + '" ')
+            //where += ' where a.name="'+req.query.customSearch + '" '
+        }
+        if (whereArr.length>0) where = 'and '+whereArr.join(' and ')
+
+        var limit = ' limit '+req.query.start+','+req.query.length
+        var order = '';
+        order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
+
+        var sqlstr = 'select a.id,a.code, '+
+              'a.supplier_id, c.code as supplier_code, c.name as supplier_name, '+
+              'a.product_id, b.name as product_name, '+
+              'a.description,  '+
+              'a.contract_status, d.name as contract_status_name, '+
+             'a.contract_start_date, a.contract_end_date, a.price, a.previous_price,  '+
+             'a.default_supplier_flag, e.name as contract_supp_flag '+
+            'from inv_prod_price_contract a, mst_product b, mst_supplier c, '+
+             '(select value,name,description from table_ref where table_name=\'inv_prod_price_contract\' and column_name=\'contract_status\') d, '+
+             '(select value,name,description from table_ref where table_name=\'inv_prod_price_contract\' and column_name=\'default_supplier_flag\') e '+
+            'where a.product_id = b.id '+
+            'and a.supplier_id = c.id '+
+            'and a.contract_status = d.value '+
+            'and a.default_supplier_flag = e.value '+where
+
+        console.log(sqlstr)
+
+        connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
+            if (!err){
+                console.log('rowsCnt')
+                console.log(rows)
+                dtParam['recordsFiltered'] = rows[0].cnt
+                connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                    if (!err2){
+                        dtParam['recordsTotal'] = rows2.length
+
+                        dtParam['data'] = rows2
+                        res.send(dtParam)
+                    }
+                });
+            }
+        });
+
+
+    });
+
+    app.get('/getContract', function (req, res) {
+        //Handle Request For Selected Records
+        var where = '';
+        if (req.query.id){
+            where = ' and a.id='+req.query.id
+        }
+        var sqlstr = 'select a.id,a.code, '+
+              'a.supplier_id, c.code as supplier_code, c.name as supplier_name, '+
+              'a.product_id, b.name as product_name, '+
+              'a.description,  '+
+              'a.contract_status, d.name as contract_status_name, '+
+             'a.contract_start_date, a.contract_end_date, a.price, a.previous_price,  '+
+             'a.default_supplier_flag, e.name as contract_supp_flag '+
+            'from inv_prod_price_contract a, mst_product b, mst_supplier c, '+
+             '(select value,name,description from table_ref where table_name=\'inv_prod_price_contract\' and column_name=\'contract_status\') d, '+
+             '(select value,name,description from table_ref where table_name=\'inv_prod_price_contract\' and column_name=\'default_supplier_flag\') e '+
+            'where a.product_id = b.id '+
+            'and a.supplier_id = c.id '+
+            'and a.contract_status = d.value '+
+            'and a.default_supplier_flag = e.value '+where
+        connection.query(sqlstr, function(err, rows, fields) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(rows)
+        });
+    });
+
+    app.post('/createContract', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'insert into inv_prod_price_contract SET ?'
+        var sqlparam = {
+            code:req.body.code,
+            supplier_id:req.body.supplier_id,
+            product_id:req.body.product_id,
+            description:req.body.description,
+            contract_status: req.body.contract_status,
+            contract_start_date: req.body.contract_start_date,
+            contract_end_date: req.body.contract_end_date,
+            price: req.body.price,
+            previous_price: req.body.previous_price,
+            default_supplier_flag: req.body.default_supplier_flag
+        }
+
+        connection.query(sqlstr, sqlparam,function(err, result) {
+            console.log(err)
+            console.log(result)
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    })
+
+    app.post('/updateContract', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'update inv_prod_price_contract SET ? WHERE id=' +req.body.id
+        console.log(sqlstr)
+        var sqlparam = {
+            code:req.body.code,
+            supplier_id:req.body.supplier_id,
+            product_id:req.body.product_id,
+            description:req.body.description,
+            contract_status: req.body.contract_status,
+            contract_start_date: req.body.contract_start_date,
+            contract_end_date: req.body.contract_end_date,
+            price: req.body.price,
+            previous_price: req.body.previous_price,
+            default_supplier_flag: req.body.default_supplier_flag
+        }
+
+
+        connection.query(sqlstr, sqlparam,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    })
+
+    app.post('/deleteContract', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'delete from inv_prod_price_contract where id='+req.body.id
+        console.log(sqlstr)
+
+        connection.query(sqlstr,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    });
+
 
     return app;
 
