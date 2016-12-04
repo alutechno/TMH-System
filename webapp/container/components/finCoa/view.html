@@ -8,7 +8,7 @@
                 <div class="panel-title">Chart of Accounts
                 </div>
                 <div class="pull-right" style="width: 60%;">
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Customer</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Chart of Accounts</button>
 
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
@@ -50,6 +50,91 @@
       <!-- START FORM -->
       <div class="panel panel-transparent m-t-20">
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.code.$invalid && !coa.code.$pristine }">
+                          <label>Code</label>
+                          <input type="text" class="form-control" name="code" id="coa_code" maxlength="3" ng-model="coa.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.name.$invalid && !coa.name.$pristine }">
+                          <label>Short Name</label>
+                          <input type="text" class="form-control" name="name" ng-model="coa.short_name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.name.$invalid && !coa.name.$pristine }">
+                          <label>Name</label>
+                          <input type="text" class="form-control" name="name" ng-model="coa.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : coa.report_level.$invalid && !coa.report_level.$pristine }">
+                          <label>Report Level</label>
+                          <ui-select ng-model="selected.report_level.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select level">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in arrReportLevel | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : coa.account_type_id.$invalid && !coa.account_type_id.$pristine }">
+                          <label>Account Type</label>
+                          <ui-select ng-model="selected.account_type.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="Select Account Type">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in account_types | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : coa.dept_id.$invalid && !coa.dept_id.$pristine }">
+                          <label>Department</label>
+                          <ui-select ng-model="selected.dept.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="Select Department">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in departments | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : coa.cost_center_id.$invalid && !coa.cost_center_id.$pristine }">
+                          <label>Cost Center</label>
+                          <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="Select Cost Center">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in departments | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.description.$invalid && !coa.description.$pristine }">
+                          <label>Desc</label>
+                          <input type="text" class="form-control" name="name" ng-model="coa.description" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" >
+                      </div>
+                  </div>
+
+                <div class="col-sm-12">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : coa.status.$invalid && !coa.status.$pristine }">
+                        <label>Is Active</label>
+                        <ui-select ng-model="selected.status.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arrActive | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+              </div>
+
               <br>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
