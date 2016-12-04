@@ -877,3 +877,69 @@ function($q, $http, $timeout, $localStorage, API_URL) {
     }
 }
 ])
+.factory('productUnitService', ['$q', '$http', '$timeout', '$localStorage', 'API_URL',
+function($q, $http, $timeout, $localStorage, API_URL) {
+    return {
+        get: function(vid) {
+            var defer = $q.defer();
+            var url= API_URL+"/apiinv/getProductUnit";
+            if (vid){
+                url +=  "?id="+vid
+            }
+            $http.get(url)
+            .then(function(response){
+                defer.resolve(response)
+            })
+            return defer.promise;
+        },
+        create: function(role) {
+            var defer = $q.defer();
+            $http.post(API_URL+'/apiinv/createProductUnit', role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+            return defer.promise;
+        },
+        update: function(role) {
+            var defer = $q.defer();
+            $http.post(API_URL+'/apiinv/updateProductUnit',role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+            return defer.promise;
+        },
+        delete: function(role) {
+            var defer = $q.defer();
+            $http.post(API_URL+'/apiinv/deleteProductUnit',role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+            return defer.promise;
+        },
+    }
+}
+])
