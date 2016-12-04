@@ -380,10 +380,10 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
-    .state('app.inv.uomcat', {
-        url: "/uomcat",
-        templateUrl: "container/components/invUomCat/view.html",
-        controller: 'InvUomCatCtrl',
+    .state('app.inv.supplier', {
+        url: "/supplier",
+        templateUrl: "container/components/invSupplier/view.html",
+        controller: 'InvSupplierCtrl',
         resolve: {
             deps: ['$ocLazyLoad', function($ocLazyLoad) {
                 return $ocLazyLoad.load([
@@ -393,7 +393,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                     insertBefore: '#lazyload_placeholder'
                 })
                 .then(function() {
-                    return $ocLazyLoad.load('container/components/invUomCat/controller.js');
+                    return $ocLazyLoad.load('container/components/invSupplier/controller.js');
                 });
             }]
         }
