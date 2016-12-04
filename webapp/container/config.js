@@ -344,10 +344,10 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
         url: '/inv',
         template: '<div ui-view></div>'
     })
-    .state('app.inv.productcat', {
-        url: "/productcat",
-        templateUrl: "container/components/invProductCat/view.html",
-        controller: 'InvProductCatCtrl',
+    .state('app.inv.productCategory', {
+        url: "/productCategory",
+        templateUrl: "container/components/invProductCategory/view.html",
+        controller: 'InvProductCategoryCtrl',
         resolve: {
             deps: ['$ocLazyLoad', function($ocLazyLoad) {
                 return $ocLazyLoad.load([
@@ -357,15 +357,15 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                     insertBefore: '#lazyload_placeholder'
                 })
                 .then(function() {
-                    return $ocLazyLoad.load('container/components/invProductCat/controller.js');
+                    return $ocLazyLoad.load('container/components/invProductCategory/controller.js');
                 });
             }]
         }
     })
-    .state('app.inv.uomcat', {
-        url: "/uomcat",
-        templateUrl: "container/components/invUomCat/view.html",
-        controller: 'InvUomCatCtrl',
+    .state('app.inv.productUnit', {
+        url: "/productUnit",
+        templateUrl: "container/components/invProductUnit/view.html",
+        controller: 'InvProductUnitCtrl',
         resolve: {
             deps: ['$ocLazyLoad', function($ocLazyLoad) {
                 return $ocLazyLoad.load([
@@ -375,7 +375,43 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                     insertBefore: '#lazyload_placeholder'
                 })
                 .then(function() {
-                    return $ocLazyLoad.load('container/components/invUomCat/controller.js');
+                    return $ocLazyLoad.load('container/components/invProductUnit/controller.js');
+                });
+            }]
+        }
+    })
+    .state('app.inv.supplier', {
+        url: "/supplier",
+        templateUrl: "container/components/invSupplier/view.html",
+        controller: 'InvSupplierCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invSupplier/controller.js');
+                });
+            }]
+        }
+    })
+    .state('app.inv.product', {
+        url: "/product",
+        templateUrl: "container/components/invProduct/view.html",
+        controller: 'InvProductCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invProduct/controller.js');
                 });
             }]
         }

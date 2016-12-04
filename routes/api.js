@@ -155,7 +155,7 @@ module.exports = function(connection,jwt){
         'and a.default_module = i.id '+
         'and a.default_menu = j.id '+
         'and a.name="'+req.username+'" '+
-        'group by submenuname '+
+        'group by menuname,submenuname '+
         'order by menuname,e.sequence, submenuname ';
 
         //'and a.password="'+req.body.password+'" ';

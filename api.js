@@ -117,11 +117,13 @@ var apiFoRoutes = require('./routes/apifo')(connection,jwt);
 var apiInvRoutes = require('./routes/apiinv')(connection,jwt);
 var apiFinRoutes = require('./routes/apifin')(connection,jwt);
 var apiPosRoutes = require('./routes/apipos')(connection,jwt);
+var apiOthers = require('./routes/apiothers')(connection,jwt);
 app.use('/api', apiRoutes);
 app.use('/apifo', apiFoRoutes);
 app.use('/apiinv', apiInvRoutes);
 app.use('/apifin', apiFinRoutes);
 app.use('/apipos', apiPosRoutes);
+app.use('/apioth', apiOthers);
 
 app.get('/', function (req, res) {
     res.send('alive')
