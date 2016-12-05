@@ -50,6 +50,101 @@
       <!-- START FORM -->
       <div class="panel panel-transparent m-t-20">
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : product.code.$invalid && !product.code.$pristine }">
+                          <label>Code</label>
+                          <input type="text" class="form-control" name="code" id="product_code" ng-model="product.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : product.barcode.$invalid && !product.barcode.$pristine }">
+                          <label>Barcode</label>
+                          <input type="text" class="form-control" name="barcode" id="barcode" ng-model="product.barcode" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : product.name.$invalid && !product.name.$pristine }">
+                          <label>Name</label>
+                          <input type="text" class="form-control" name="name" ng-model="product.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : product.description.$invalid && !product.description.$pristine }">
+                          <label>Description</label>
+                          <input type="text" class="form-control" name="description" ng-model="product.description" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.status.$invalid && !product.status.$pristine }">
+                          <label>Is Active</label>
+                          <ui-select ng-model="selected.status.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in arrActive | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.is_pr.$invalid && !product.is_pr.$pristine }">
+                          <label>Listed in PR</label>
+                          <ui-select ng-model="selected.pr.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in arrActive | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.is_ml.$invalid && !product.is_ml.$pristine }">
+                          <label>Listed in ML</label>
+                          <ui-select ng-model="selected.ml.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in arrActive | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.category_id.$invalid && !product.category_id.$pristine }">
+                          <label>Category</label>
+                          <ui-select ng-model="selected.cat.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="Select Account Type">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in categories | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.unit_type_id.$invalid && !product.unit_type_id.$pristine }">
+                          <label>Unit</label>
+                          <ui-select ng-model="selected.unit.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="Select Department">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in units | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : product.available_stock.$invalid && !product.available_stock.$pristine }">
+                          <label>Available Stock</label>
+                          <input type="text" class="form-control" name="stock" ng-model="product.available_stock" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+
+
+              </div>
+
               <br>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
@@ -75,7 +170,7 @@
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h4 class="no-margin p-b-10">Are you sure want to delete {{coa.name}} ?</h4>
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{product.name}} ?</h4>
                     <div >
                         <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
