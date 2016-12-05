@@ -253,8 +253,6 @@ function($scope, $state, $sce, productService, productCategoryService, productUn
 
         })
 
-
-
     }
 
     $scope.delete = function(obj){

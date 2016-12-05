@@ -1009,3 +1009,151 @@ function($q, $http, $timeout, $localStorage, API_URL) {
     }
 }
 ])
+.factory('supplierService', ['$q', '$http', '$timeout', '$localStorage', 'API_URL',
+function($q, $http, $timeout, $localStorage, API_URL) {
+    return {
+        get: function(vid) {
+            var defer = $q.defer();
+            var url= API_URL+"/apiinv/getSupplier";
+            if (vid){
+                url +=  "?id="+vid
+            }
+            $http.get(url)
+            .then(function(response){
+                defer.resolve(response)
+            })
+            return defer.promise;
+        },
+        create: function(role) {
+            var defer = $q.defer();
+            $http.post(API_URL+'/apiinv/createSupplier', role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+            return defer.promise;
+        },
+        update: function(role) {
+            var defer = $q.defer();
+            $http.post(API_URL+'/apiinv/updateSupplier',role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+            return defer.promise;
+        },
+        delete: function(role) {
+            var defer = $q.defer();
+            $http.post(API_URL+'/apiinv/deleteSupplier',role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+            return defer.promise;
+        },
+    }
+}
+])
+.factory('otherService', ['$q', '$http', '$timeout', '$localStorage', 'API_URL',
+function($q, $http, $timeout, $localStorage, API_URL) {
+    return {
+        getCountry: function(vid) {
+            var defer = $q.defer();
+            var url= API_URL+"/apioth/getCountry";
+            if (vid){
+                url +=  "?id="+vid
+            }
+            $http.get(url)
+            .then(function(response){
+                defer.resolve(response)
+            })
+            return defer.promise;
+        },
+        getProvince: function(vid,con_id) {
+            var defer = $q.defer();
+            var url= API_URL+"/apioth/getProvince";
+            url +=  "?1=1"
+            if (vid){
+                url +=  "&id="+vid
+            }
+            if (con_id){
+                url +=  "&country_id="+con_id
+            }
+            $http.get(url)
+            .then(function(response){
+                defer.resolve(response)
+            })
+            return defer.promise;
+        },
+        getKabupaten: function(vid,prov_id) {
+            var defer = $q.defer();
+            var url= API_URL+"/apioth/getKabupaten";
+            url +=  "?1=1"
+            if (vid){
+                url +=  "&id="+vid
+            }
+            if (prov_id){
+                url +=  "&prov_id="+prov_id
+            }
+            $http.get(url)
+            .then(function(response){
+                defer.resolve(response)
+            })
+            return defer.promise;
+        },
+        getKecamatan: function(vid,kab_id) {
+            var defer = $q.defer();
+            var url= API_URL+"/apioth/getKecamatan";
+            url +=  "?1=1"
+            if (vid){
+                url +=  "&id="+vid
+            }
+            if (kab_id){
+                url +=  "&kab_id="+kab_id
+            }
+            $http.get(url)
+            .then(function(response){
+                defer.resolve(response)
+            })
+            return defer.promise;
+        },
+        getKelurahan: function(vid,kec_id) {
+            var defer = $q.defer();
+            var url= API_URL+"/apioth/getKelurahan";
+            url +=  "?1=1"
+            if (vid){
+                url +=  "&id="+vid
+            }
+            if (kec_id){
+                url +=  "&kec_id="+kec_id
+            }
+            $http.get(url)
+            .then(function(response){
+                defer.resolve(response)
+            })
+            return defer.promise;
+        }
+    }
+}
+])
