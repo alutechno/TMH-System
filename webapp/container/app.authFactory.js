@@ -152,6 +152,9 @@ function($q, $http, $timeout, $localStorage, $rootScope, API_URL) {
                     $localStorage.mediaToken = data.data.token;
                     $localStorage.mediaModule = data.data.module;
                     $localStorage.mediaMenu = data.data.menu;
+                    $localStorage.currentUser = {
+                        name: data.data.currentUser
+                    }
                     $localStorage.mediaDefault = {
                         menu: data.data.default_menu,
                         module: data.data.default_module

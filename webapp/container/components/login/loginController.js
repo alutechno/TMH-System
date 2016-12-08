@@ -6,6 +6,7 @@ angular.module('app')
             password: '',
             keepSignedIn: false
         };
+        $scope.errLogin = false;
         $scope.signin = function() {
             // call authentication factory
             console.log('LoginCtrl:'+JSON.stringify($scope.user))
@@ -18,11 +19,12 @@ angular.module('app')
             function(error){
                 //Reject Promise for invalid user
                 //Go To login page
-                console.log(error)
+                $scope.errLogin = true;
+                $scope.errMessage = 'Invalid username or password'
+
             });
 
-            //if ($scope.returnToState) $state.go($scope.returnToState.name, $scope.returnToStateParams);
-            //else $state.go('app.dashboard');
+
         };
 
     }

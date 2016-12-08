@@ -41,6 +41,8 @@
               </div>
           </div>
           <label class="error" for="password" ng-show="login.password.$invalid && !login.password.$pristine">This field is required.</label>
+
+          <label class="error" ng-show="errLogin"><span ng-bind="errMessage"></span></label>
           <!-- START Form Control-->
           <div class="row">
               <div class="col-md-6 no-padding">

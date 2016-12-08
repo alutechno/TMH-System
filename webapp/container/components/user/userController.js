@@ -100,7 +100,7 @@ function($scope, $state, $sce, roleService, userService, DTOptionsBuilder, DTCol
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('username').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml).withOption('width', '15%'))
     }
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('username').withTitle('User Name'),

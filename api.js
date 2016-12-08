@@ -9,9 +9,9 @@ app.use(bodyParser.json()); // support json encoded bodies
 allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With','State');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, State');
     if ('OPTIONS' === req.method) {
-        res.send(200);
+        res.status(200).send('200');
     }
     else {
         next();
@@ -214,7 +214,7 @@ app.post('/authenticate', function (req, res) {
     */
     console.log(req.body)
     //var sqlstr = 'SELECT name,password,token,role_id as roles from user where name="'+req.body.username+'" and password="'+req.body.password+'"';
-    var sqlstr = 'select a.name as username, a.password, a.token, g.name as gname, e.l1 as menuname, e.l2 as submenuname, h.name as module, e.l2state, '+
+    var sqlstr = 'select a.name as username, a.full_name,a.password, a.token, g.name as gname, e.l1 as menuname, e.l2 as submenuname, h.name as module, e.l2state, '+
     'group_concat(f.object), f.custom, i.name as default_module, e.l2id,j.name as default_menu, j.state as default_state '+
     'from user a, role_user b, role c, role_menu d, '+
     '(SELECT t1.group_id,t1.name AS l1, t2.name as l2, t1.state as l1state, t2.state as l2state, t2.id as l2id,t2.sequence '+
@@ -301,6 +301,10 @@ app.post('/authenticate', function (req, res) {
                 name:rows[0].default_menu,
                 state: rows[0].default_state
             };
+            obj.data['currentUser'] = {
+                name: rows[0].username,
+                full_name: rows[0].full_name
+            }
             obj.data['module'] = objModule;
 
             res.send(obj)
