@@ -363,6 +363,24 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.inv.productSubcategory', {
+        url: "/productSubcategory",
+        templateUrl: "container/components/invProductSubcategory/view.html",
+        controller: 'InvProductSubcategoryCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invProductSubcategory/controller.js');
+                });
+            }]
+        }
+    })
     .state('app.inv.productUnit', {
         url: "/productUnit",
         templateUrl: "container/components/invProductUnit/view.html",
@@ -474,6 +492,44 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                 })
                 .then(function() {
                     return $ocLazyLoad.load('container/components/finDepartment/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.costcenter', {
+        url: "/costcenter",
+        templateUrl: "container/components/finCostCenter/view.html",
+        controller: 'FinCostCenterCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finCostCenter/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.costcenterType', {
+        url: "/costcenterType",
+        templateUrl: "container/components/finCostCenterType/view.html",
+        controller: 'FinCostCenterTypeCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finCostCenterType/controller.js');
                 });
 
             }]

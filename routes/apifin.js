@@ -265,6 +265,260 @@ module.exports = function(connection,jwt){
         });
     });
 
+    app.get('/getCcTypes', function (req, res) {
+        //Handle Request From Angular DataTables
+        console.log(req.query)
+        console.log(req.headers)
+
+        var dtParam = req.query
+        var where = '';
+        if (req.query.id){
+            where += ' where id='+req.query.id
+        }
+        if (req.query.customSearch.length>0){
+            where += ' where name="'+req.query.customSearch + '" '
+        }
+
+
+
+        var limit = ' limit '+req.query.start+','+req.query.length
+        var order = '';
+        order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
+
+        var sqlstr = 'select id,code,name,description,status '+
+            ' from ref_cost_center_type '+where
+
+        console.log(sqlstr)
+
+        connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
+            if (!err){
+                console.log('rowsCnt')
+                console.log(rows)
+                dtParam['recordsFiltered'] = rows[0].cnt
+                connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                    if (!err2){
+                        dtParam['recordsTotal'] = rows2.length
+
+                        dtParam['data'] = rows2
+                        res.send(dtParam)
+                    }
+                });
+            }
+        });
+
+
+    });
+
+    app.get('/getCcType', function (req, res) {
+        //Handle Request For Selected Records
+        var where = '';
+        if (req.query.id){
+            where = ' where id='+req.query.id
+        }
+        var sqlstr = 'select id,code,name,description,status '+
+            ' from ref_cost_center_type '+where
+        connection.query(sqlstr, function(err, rows, fields) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(rows)
+        });
+    });
+
+    app.post('/createCcType', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'insert into ref_cost_center_type SET ?'
+        var sqlparam = {
+            code:req.body.code,
+            name:req.body.name,
+            description:req.body.description,
+            status: req.body.status
+        }
+
+        connection.query(sqlstr, sqlparam,function(err, result) {
+            console.log(err)
+            console.log(result)
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    })
+
+    app.post('/updateCcType', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'update ref_cost_center_type SET ? WHERE id=' +req.body.id
+        console.log(sqlstr)
+        var sqlparam = {
+            code:req.body.code,
+            name:req.body.name,
+            description:req.body.description,
+            status: req.body.status
+        }
+
+
+        connection.query(sqlstr, sqlparam,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    })
+
+    app.post('/deleteCcType', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'delete from ref_cost_center_type where id='+req.body.id
+        console.log(sqlstr)
+
+        connection.query(sqlstr,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    });
+
+    app.get('/getCostCenters', function (req, res) {
+        //Handle Request From Angular DataTables
+        console.log(req.query)
+        console.log(req.headers)
+
+        var dtParam = req.query
+        var where = '';
+        if (req.query.id){
+            where += ' where id='+req.query.id
+        }
+        if (req.query.customSearch.length>0){
+            where += ' and a.name="'+req.query.customSearch + '" '
+        }
+
+
+
+        var limit = ' limit '+req.query.start+','+req.query.length
+        var order = '';
+        order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
+
+        var sqlstr = 'select a.id,a.code,a.name,a.description,a.status,a.category_id,b.name as category_name '+
+            'from mst_cost_center a, ref_cost_center_type b '+
+            'where a.category_id = b.id '+where
+
+        console.log(sqlstr)
+
+        connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
+            if (!err){
+                console.log('rowsCnt')
+                console.log(rows)
+                dtParam['recordsFiltered'] = rows[0].cnt
+                connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                    if (!err2){
+                        dtParam['recordsTotal'] = rows2.length
+
+                        dtParam['data'] = rows2
+                        res.send(dtParam)
+                    }
+                });
+            }
+        });
+
+
+    });
+
+    app.get('/getCostCenter', function (req, res) {
+        //Handle Request For Selected Records
+        var where = '';
+        if (req.query.id){
+            where = ' and a.id='+req.query.id
+        }
+        var sqlstr = 'select a.id,a.code,a.name,a.description,a.status,a.category_id,b.name as category_name '+
+            'from mst_cost_center a, ref_cost_center_type b '+
+            'where a.category_id = b.id '+where
+        connection.query(sqlstr, function(err, rows, fields) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(rows)
+        });
+    });
+
+    app.post('/createCostCenter', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'insert into mst_cost_center SET ?'
+        var sqlparam = {
+            code:req.body.code,
+            name:req.body.name,
+            description:req.body.description,
+            status: req.body.status,
+            category_id: req.body.category_id
+        }
+
+        connection.query(sqlstr, sqlparam,function(err, result) {
+            console.log(err)
+            console.log(result)
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    })
+
+    app.post('/updateCostCenter', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'update mst_cost_center SET ? WHERE id=' +req.body.id
+        console.log(sqlstr)
+        var sqlparam = {
+            code:req.body.code,
+            name:req.body.name,
+            description:req.body.description,
+            status: req.body.status,
+            category_id: req.body.category_id
+        }
+
+
+        connection.query(sqlstr, sqlparam,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    })
+
+    app.post('/deleteCostCenter', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'delete from mst_cost_center where id='+req.body.id
+        console.log(sqlstr)
+
+        connection.query(sqlstr,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    });
+
     app.get('/getCoas', function (req, res) {
         //Handle Request From Angular DataTables
         console.log(req.query)
