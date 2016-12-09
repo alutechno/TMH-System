@@ -25,7 +25,7 @@ module.exports = function(connection,jwt){
 
         var sqlstr = 'select id,code,name,status '+
             ' from ref_country '+where
-        connection.query(sqlstr, function(err, rows, fields) {
+        connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -48,7 +48,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'select id,code,name,country_id '+
             ' from ref_province '+where
 
-        connection.query(sqlstr, function(err, rows, fields) {
+        connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -69,7 +69,7 @@ module.exports = function(connection,jwt){
 
         var sqlstr = 'select id,code,name,prov_id,status '+
             ' from ref_kabupaten '+where
-        connection.query(sqlstr, function(err, rows, fields) {
+        connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -90,7 +90,7 @@ module.exports = function(connection,jwt){
 
         var sqlstr = 'select id,code,name,kab_id,status '+
             ' from ref_kecamatan '+where
-        connection.query(sqlstr, function(err, rows, fields) {
+        connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -111,7 +111,7 @@ module.exports = function(connection,jwt){
 
         var sqlstr = 'select id,code,name,kec_id,status '+
             ' from ref_kelurahan '+where
-        connection.query(sqlstr, function(err, rows, fields) {
+        connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -133,7 +133,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'select value,name,description '+
             ' from table_ref '+where
             console.log(sqlstr)
-        connection.query(sqlstr, function(err, rows, fields) {
+        connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
                     status: '404',

@@ -38,12 +38,12 @@ module.exports = function(connection,jwt){
 
         console.log(sqlstr)
 
-        connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
+        connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
             if (!err){
                 console.log('rowsCnt')
                 console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
-                connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                connection(sqlstr + order + limit,undefined, function(err2, rows2, fields2) {
                     if (!err2){
                         dtParam['recordsTotal'] = rows2.length
 
@@ -65,7 +65,7 @@ module.exports = function(connection,jwt){
         }
         var sqlstr = 'select id,name,code,description,status '+
             ' from ref_ledger_account_type '+where
-        connection.query(sqlstr, function(err, rows, fields) {
+        connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -86,7 +86,7 @@ module.exports = function(connection,jwt){
             status: req.body.status
         }
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             console.log(err)
             console.log(result)
             if (err){
@@ -111,7 +111,7 @@ module.exports = function(connection,jwt){
         }
 
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -127,7 +127,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'delete from ref_ledger_account_type where id='+req.body.id
         console.log(sqlstr)
 
-        connection.query(sqlstr,function(err, result) {
+        connection(sqlstr,undefined,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -163,12 +163,12 @@ module.exports = function(connection,jwt){
 
         console.log(sqlstr)
 
-        connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
+        connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
             if (!err){
                 console.log('rowsCnt')
                 console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
-                connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
                     if (!err2){
                         dtParam['recordsTotal'] = rows2.length
 
@@ -190,7 +190,7 @@ module.exports = function(connection,jwt){
         }
         var sqlstr = 'select id,code,name,short_name,description,status '+
             ' from mst_department '+where
-        connection.query(sqlstr, function(err, rows, fields) {
+        connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -212,7 +212,7 @@ module.exports = function(connection,jwt){
             status: req.body.status
         }
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             console.log(err)
             console.log(result)
             if (err){
@@ -238,7 +238,7 @@ module.exports = function(connection,jwt){
         }
 
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -254,7 +254,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'delete from mst_department where id='+req.body.id
         console.log(sqlstr)
 
-        connection.query(sqlstr,function(err, result) {
+        connection(sqlstr,undefined,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -290,12 +290,12 @@ module.exports = function(connection,jwt){
 
         console.log(sqlstr)
 
-        connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
+        connection('select count(1) as cnt from('+sqlstr+') a', undefined,function(err, rows, fields) {
             if (!err){
                 console.log('rowsCnt')
                 console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
-                connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
                     if (!err2){
                         dtParam['recordsTotal'] = rows2.length
 
@@ -317,7 +317,7 @@ module.exports = function(connection,jwt){
         }
         var sqlstr = 'select id,code,name,description,status '+
             ' from ref_cost_center_type '+where
-        connection.query(sqlstr, function(err, rows, fields) {
+        connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -338,7 +338,7 @@ module.exports = function(connection,jwt){
             status: req.body.status
         }
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             console.log(err)
             console.log(result)
             if (err){
@@ -363,7 +363,7 @@ module.exports = function(connection,jwt){
         }
 
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -379,7 +379,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'delete from ref_cost_center_type where id='+req.body.id
         console.log(sqlstr)
 
-        connection.query(sqlstr,function(err, result) {
+        connection(sqlstr,undefined,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -416,12 +416,12 @@ module.exports = function(connection,jwt){
 
         console.log(sqlstr)
 
-        connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
+        connection('select count(1) as cnt from('+sqlstr+') a', undefined,function(err, rows, fields) {
             if (!err){
                 console.log('rowsCnt')
                 console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
-                connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
                     if (!err2){
                         dtParam['recordsTotal'] = rows2.length
 
@@ -444,7 +444,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'select a.id,a.code,a.name,a.description,a.status,a.category_id,b.name as category_name '+
             'from mst_cost_center a, ref_cost_center_type b '+
             'where a.category_id = b.id '+where
-        connection.query(sqlstr, function(err, rows, fields) {
+        connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -466,7 +466,7 @@ module.exports = function(connection,jwt){
             category_id: req.body.category_id
         }
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             console.log(err)
             console.log(result)
             if (err){
@@ -492,7 +492,7 @@ module.exports = function(connection,jwt){
         }
 
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -508,7 +508,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'delete from mst_cost_center where id='+req.body.id
         console.log(sqlstr)
 
-        connection.query(sqlstr,function(err, result) {
+        connection(sqlstr,undefined,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -548,12 +548,12 @@ module.exports = function(connection,jwt){
 
         console.log(sqlstr)
 
-        connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
+        connection('select count(1) as cnt from('+sqlstr+') a', undefined,function(err, rows, fields) {
             if (!err){
                 console.log('rowsCnt')
                 console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
-                connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
                     if (!err2){
                         dtParam['recordsTotal'] = rows2.length
 
@@ -579,7 +579,7 @@ module.exports = function(connection,jwt){
             'where a.dept_id = b.id '+
             'and a.cost_center_id = c.id '+
             'and a.account_type_id = d.id '+where
-        connection.query(sqlstr, function(err, rows, fields) {
+        connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -605,7 +605,7 @@ module.exports = function(connection,jwt){
             account_type_id: req.body.account_type_id
         }
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             console.log(err)
             console.log(result)
             if (err){
@@ -635,7 +635,7 @@ module.exports = function(connection,jwt){
         }
 
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -651,7 +651,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'delete from mst_ledger_account where id='+req.body.id
         console.log(sqlstr)
 
-        connection.query(sqlstr,function(err, result) {
+        connection(sqlstr,undefined,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',

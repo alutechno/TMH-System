@@ -33,12 +33,12 @@ module.exports = function(connection,jwt){
 
         console.log(sqlstr)
 
-        connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
+        connection('select count(1) as cnt from('+sqlstr+') a', undefined,function(err, rows, fields) {
             if (!err){
                 console.log('rowsCnt')
                 console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
-                connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
                     if (!err2){
                         dtParam['recordsTotal'] = rows2.length
 
@@ -63,7 +63,7 @@ module.exports = function(connection,jwt){
             ' customer_mobile as mobile, customer_fax as fax, customer_email as email, customer_tax_id as tax, customer_active as active,'+
             ' customer_is_customer as isCustomer, customer_is_supplier as isSupplier '+
             ' from customer where customer_is_customer = 1 '+where
-        connection.query(sqlstr, function(err, rows, fields) {
+        connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -100,7 +100,7 @@ module.exports = function(connection,jwt){
             customer_is_supplier: req.body.isSupplier
         }
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             console.log(err)
             console.log(result)
             if (err){
@@ -136,7 +136,7 @@ module.exports = function(connection,jwt){
             customer_is_supplier: req.body.isSupplier
         }
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -152,7 +152,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'delete from customer where customer_id="'+req.body.id+'"'
         console.log(sqlstr)
 
-        connection.query(sqlstr,function(err, result) {
+        connection(sqlstr,undefined,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -187,12 +187,12 @@ module.exports = function(connection,jwt){
 
         console.log(sqlstr)
 
-        connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
+        connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
             if (!err){
                 console.log('rowsCnt')
                 console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
-                connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
                     if (!err2){
                         dtParam['recordsTotal'] = rows2.length
 
@@ -213,7 +213,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'select b.cust_contract_id,b.customer_id,a.customer_name,b.cust_contract_from,b.cust_contract_to '+
             ' from customer a, customer_contract b '+
             ' where a.customer_id = b.customer_id ' +where
-        connection.query(sqlstr, function(err, rows, fields) {
+        connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -234,7 +234,7 @@ module.exports = function(connection,jwt){
             cust_contract_to: req.body.endDate
         }
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             console.log(err)
             console.log(result)
             if (err){
@@ -257,7 +257,7 @@ module.exports = function(connection,jwt){
             cust_contract_to: req.body.endDate
         }
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -273,7 +273,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'delete from customer_contract where cust_contract_id="'+req.body.id+'"'
         console.log(sqlstr)
 
-        connection.query(sqlstr,function(err, result) {
+        connection(sqlstr,undefined,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -302,12 +302,12 @@ module.exports = function(connection,jwt){
         var sqlstr = 'select room_type_id as id,room_type_name as name,room_type_active as active from room_type '+where
         console.log(sqlstr)
 
-        connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
+        connection('select count(1) as cnt from('+sqlstr+') a', undefined,function(err, rows, fields) {
             if (!err){
                 console.log('rowsCnt')
                 console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
-                connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
                     console.log(err2)
                     if (!err2){
                         dtParam['recordsTotal'] = rows2.length
@@ -327,7 +327,7 @@ module.exports = function(connection,jwt){
             where = ' where room_type_id='+req.query.id
         }
         var sqlstr = 'select room_type_id,room_type_name,room_type_active from room_type '+where
-        connection.query(sqlstr, function(err, rows, fields) {
+        connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -346,7 +346,7 @@ module.exports = function(connection,jwt){
             room_type_active:req.body.active
         }
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             console.log(err)
             console.log(result)
             if (err){
@@ -368,7 +368,7 @@ module.exports = function(connection,jwt){
             room_type_active:req.body.active
         }
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -384,7 +384,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'delete from room_type where room_type_id='+req.body.id
         console.log(sqlstr)
 
-        connection.query(sqlstr,function(err, result) {
+        connection(sqlstr,undefined,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -415,12 +415,12 @@ module.exports = function(connection,jwt){
             'where a.room_type_id = b.room_type_id '+where
         console.log(sqlstr)
 
-        connection.query('select count(1) as cnt from('+sqlstr+') a', function(err, rows, fields) {
+        connection('select count(1) as cnt from('+sqlstr+') a', undefined,function(err, rows, fields) {
             if (!err){
                 console.log('rowsCnt')
                 console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
-                connection.query(sqlstr + order + limit, function(err2, rows2, fields2) {
+                connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
                     if (!err2){
                         dtParam['recordsTotal'] = rows2.length
 
@@ -441,7 +441,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'select a.room_id as id,a.room_id as code, a.room_name as name, a.room_type_id as typeId, a.room_active as active, b.room_type_name as typeName '+
             'from room a, room_type b '+
             'where a.room_type_id = b.room_type_id '+where
-        connection.query(sqlstr, function(err, rows, fields) {
+        connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -462,7 +462,7 @@ module.exports = function(connection,jwt){
             room_active: req.body.active
         }
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             console.log(err)
             console.log(result)
             if (err){
@@ -485,7 +485,7 @@ module.exports = function(connection,jwt){
             room_active: req.body.active
         }
 
-        connection.query(sqlstr, sqlparam,function(err, result) {
+        connection(sqlstr, sqlparam,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -501,7 +501,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'delete from room where room_id="'+req.body.id + '"'
         console.log(sqlstr)
 
-        connection.query(sqlstr,function(err, result) {
+        connection(sqlstr,undefined,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',
