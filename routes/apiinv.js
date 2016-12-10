@@ -27,9 +27,6 @@ module.exports = function(connection,jwt){
             where += ' where name="'+req.query.customSearch + '" '
         }
 
-
-
-
         var limit = ' limit '+req.query.start+','+req.query.length
         var order = '';
         order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
@@ -857,6 +854,128 @@ module.exports = function(connection,jwt){
         console.log(sqlstr)
 
         connection(sqlstr,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    });
+
+    app.get('/getWarehouses', function (req, res) {
+        //Handle Request From Angular DataTables
+        console.log(req.query)
+        console.log(req.headers)
+
+        var dtParam = req.query
+        var where = '';
+        if (req.query.id){
+            where += ' where id='+req.query.id
+        }
+        if (req.query.customSearch.length>0){
+            where += ' where name="'+req.query.customSearch + '" '
+        }
+
+        var limit = ' limit '+req.query.start+','+req.query.length
+        var order = '';
+        order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
+
+        var sqlstr = 'select id,code,name,description,status '+
+            ' from mst_warehouse '+where
+
+        console.log(sqlstr)
+        connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
+            if (!err){
+                console.log('rowsCnt')
+                console.log(rows)
+                dtParam['recordsFiltered'] = rows[0].cnt
+                connection(sqlstr + order + limit,undefined, function(err2, rows2, fields2) {
+                    if (!err2){
+                        dtParam['recordsTotal'] = rows2.length
+                        dtParam['data'] = rows2
+                        res.send(dtParam)
+                    }
+                });
+            }
+        });
+
+
+    });
+
+    app.get('/getWarehouse', function (req, res) {
+        //Handle Request For Selected Records
+        var where = '';
+        if (req.query.id){
+            where = ' where id='+req.query.id
+        }
+        var sqlstr = 'select id,code,name,description,status '+
+            ' from mst_warehouse '+where
+
+        connection(sqlstr,undefined, function(err, rows, fields) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(rows)
+        });
+    });
+
+    app.post('/createWarehouse', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'insert into mst_warehouse SET ?'
+        var sqlparam = {
+            name:req.body.name,
+            code:req.body.code,
+            description:req.body.description,
+            status: req.body.status
+        }
+
+        connection(sqlstr,sqlparam, function(err, result) {
+            console.log(err)
+            console.log(result)
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    })
+
+    app.post('/updateWarehouse', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'update mst_warehouse SET ? WHERE id=' +req.body.id
+        console.log(sqlstr)
+        var sqlparam = {
+            name:req.body.name,
+            code:req.body.code,
+            description:req.body.description,
+            status: req.body.status
+        }
+
+
+        connection(sqlstr, sqlparam,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    })
+
+    app.post('/deleteWarehouse', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'delete from mst_warehouse where id='+req.body.id
+        console.log(sqlstr)
+
+        connection(sqlstr,undefined,function(err, result) {
             if (err){
                 res.status('404').send({
                     status: '404',

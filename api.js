@@ -8,6 +8,14 @@ var pool  = mysql.createPool({
 	database		: 'media',
 	port			: 3306
 });
+/*var pool  = mysql.createPool({
+    connectionLimit : 50,
+    host            : 'localhost',
+    user            : 'root',
+    password        : 'root',
+	database		: 'media',
+	port			: 8889
+});*/
 if (cluster.isMaster) {
     for (var i = 0; i < 4; i++) {
         cluster.fork();
