@@ -62,22 +62,22 @@ function($scope, $state, $sce, supplierService, otherService, DTOptionsBuilder, 
     })
 
     $scope.kabupaten = []
-    otherService.getKabupaten('',2)
-    .then(function(data){
-        $scope.kabupaten = data.data
-    })
+    // otherService.getKabupaten()
+    // .then(function(data){
+    //     $scope.kabupaten = data.data
+    // })
 
     $scope.kecamatan = []
-    otherService.getKecamatan()
-    .then(function(data){
-        $scope.kecamatan = data.data
-    })
+    // otherService.getKecamatan()
+    // .then(function(data){
+    //     $scope.kecamatan = data.data
+    // })
 
     $scope.kelurahan = []
-    otherService.getKelurahan()
-    .then(function(data){
-        $scope.kelurahan = data.data
-    })
+    // otherService.getKelurahan()
+    // .then(function(data){
+    //     $scope.kelurahan = data.data
+    // })
 
     $scope.filterVal = {
         search: ''
@@ -324,6 +324,30 @@ function($scope, $state, $sce, supplierService, otherService, DTOptionsBuilder, 
             kec_id: '',
             kel_id: ''
         }
+    }
+
+    $scope.getKabupaten = function(selectItem){
+        // console.log(selectItem)
+        otherService.getKabupaten('',selectItem.id)
+        .then(function(data){
+            $scope.kabupaten = data.data
+        })
+    }
+
+    $scope.getKecamatan = function(selectItem){
+        // console.log(selectItem)
+        otherService.getKecamatan('',selectItem.id)
+        .then(function(data){
+            $scope.kecamatan = data.data
+        })
+    }
+
+    $scope.getKelurahan = function(selectItem){
+        // console.log(selectItem)
+        otherService.getKelurahan('',selectItem.id)
+        .then(function(data){
+            $scope.kelurahan = data.data
+        })
     }
 
 })

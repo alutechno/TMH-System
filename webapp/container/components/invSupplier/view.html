@@ -98,7 +98,7 @@
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : supplier.prov_id.$invalid && !supplier.prov_id.$pristine }">
                           <label>Province</label>
-                          <ui-select ng-model="selected.prov.selected" theme="bootstrap" >
+                          <ui-select ng-model="selected.prov.selected" theme="bootstrap" on-select="getKabupaten($item)">
                               <ui-select-match placeholder="select province">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in province | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -110,7 +110,7 @@
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : supplier.kab_id.$invalid && !supplier.kab_id.$pristine }">
                           <label>Kabupaten</label>
-                          <ui-select ng-model="selected.kab.selected" theme="bootstrap" >
+                          <ui-select ng-model="selected.kab.selected" theme="bootstrap"  on-select="getKecamatan($item)">
                               <ui-select-match placeholder="select kabupaten">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in kabupaten | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -122,7 +122,7 @@
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : supplier.kec_id.$invalid && !supplier.kec_id.$pristine }">
                           <label>Kecamatan</label>
-                          <ui-select ng-model="selected.kec.selected" theme="bootstrap" >
+                          <ui-select ng-model="selected.kec.selected" theme="bootstrap"  on-select="getKelurahan($item)">
                               <ui-select-match placeholder="select kecamatan">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in kecamatan | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
