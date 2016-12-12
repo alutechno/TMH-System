@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinCostCenterTypeCtrl',
-function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, costCenterTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -18,19 +18,18 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
         selected: []
     };
 
-    $scope.deps = {}
+    $scope.cctypes = {}
     $scope.id = '';
-    $scope.department = {
+    $scope.cctype = {
         id: '',
         code: '',
         name: '',
-        short_name: '',
         description: '',
         status: ''
     }
 
     $scope.selected = {
-        dep: {}
+        status: {}
     }
 
     $scope.arrActive = [
@@ -54,21 +53,18 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        console.log(data)
-        $scope.deps[data] = {id:data};
-        //console.log(data)
-        console.log($scope.deps)
+        $scope.cctypes[data] = {id:data};
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(deps[\'' + data + '\'])">' +
+                '<button class="btn btn-default" ng-click="update(cctypes[\'' + data + '\'])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(deps[\'' + data + '\'])" )"="">' +
+                html+='<button class="btn btn-default" ng-click="delete(cctypes[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
@@ -137,21 +133,17 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
             $scope.clear()
         }
         $('#form-input').modal('show')
-        $('#dept_code').prop('disabled', false);
+        $('#cctype_code').prop('disabled', false);
     }
 
     $scope.submit = function(){
         // console.log($scope.contract)
-        if ($scope.department.id.length==0){
+        if ($scope.cctype.id.length==0){
             //exec creation
 
-            $scope.department.code = $scope.department.code;
-            $scope.department.name = $scope.department.name;
-            $scope.department.short_name = $scope.department.short_name;
-            $scope.department.description = $scope.department.description;
-            $scope.department.status = $scope.selected.dep.selected.id;
+            $scope.cctype.status = $scope.selected.status.selected.id;
 
-            departmentService.create($scope.department)
+            costCenterTypeService.create($scope.cctype)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -159,7 +151,7 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
-                        message: 'Success Insert '+$scope.department.name,
+                        message: 'Success Insert '+$scope.cctype.name,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'success'
@@ -179,12 +171,9 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
         }
         else {
             //exec update
-            $scope.department.name = $scope.department.name;
-            $scope.department.short_name = $scope.department.short_name;
-            $scope.department.description = $scope.department.description;
-            $scope.department.status = $scope.selected.dep.selected.id;
+            $scope.cctype.status = $scope.selected.status.selected.id;
 
-            departmentService.update($scope.department)
+            costCenterTypeService.update($scope.cctype)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Update')
@@ -202,34 +191,33 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
-        $('#dept_code').prop('disabled', true);
+        $('#cctype_code').prop('disabled', true);
 
-        departmentService.get(obj.id)
+        costCenterTypeService.get(obj.id)
         .then(function(result){
         // console.log(result)
-            $scope.department.id = result.data[0].id
-            $scope.department.code = result.data[0].code
-            $scope.department.name = result.data[0].name
-            $scope.department.short_name = result.data[0].short_name
-            $scope.department.description = result.data[0].description
-            $scope.department.status = result.data[0].status
-            $scope.selected.dep.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
+            $scope.cctype.id = result.data[0].id
+            $scope.cctype.code = result.data[0].code
+            $scope.cctype.name = result.data[0].name
+            $scope.cctype.description = result.data[0].description
+            $scope.cctype.status = result.data[0].status
+            $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
 
         })
 
     }
 
     $scope.delete = function(obj){
-        $scope.department.id = obj.id;
-        departmentService.get(obj.id)
+        $scope.cctype.id = obj.id;
+        costCenterTypeService.get(obj.id)
         .then(function(result){
-            $scope.department.code = result.data[0].code;
+            $scope.cctype.code = result.data[0].code;
             $('#modalDelete').modal('show')
         })
     }
 
     $scope.execDelete = function(){
-        departmentService.delete($scope.department)
+        costCenterTypeService.delete($scope.cctype)
         .then(function (result){
             if (result.status = "200"){
                 // console.log('Success Update')
@@ -249,7 +237,6 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
             id: '',
             code: '',
             name: '',
-            short_name: '',
             description: '',
             status: ''
         }
