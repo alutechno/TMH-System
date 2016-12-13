@@ -598,7 +598,7 @@ module.exports = function(connection,jwt){
             where = ' where id='+req.query.id
         }
         var whereModule = req.query.module?' and c.id = '+req.query.module:'';
-        var sqlstr = 'select a.*,b.label,b.menu_detail_id,GROUP_CONCAT(b.role_id) as roles from ( '+
+        var sqlstr = 'select a.*,b.label,b.menu_detail_id,GROUP_CONCAT(CAST(b.role_id as CHAR)) as roles from ( '+
         'select a.id, a.parent as parent_id,d.name as parent,a.name, a.state, b.id as group_id,b.name as group_name, c.id as module_id,c.name as module , a.sequence '+
         'from menu a, group_menu b, module c, menu d '+
         'where a.group_id = b.id '+
@@ -615,9 +615,10 @@ module.exports = function(connection,jwt){
         console.log(sqlstr)
         connection(sqlstr, undefined,function(err, rows, fields) {
             if (err) throw err;
-            console.log(rows)
+            console.log(rows.length)
             var resObj = {}
             for (var i=0;i<rows.length;i++){
+                console.log(JSON.stringify(rows[i]))
                 if (!resObj.hasOwnProperty(rows[i].id)){
                     resObj[rows[i].id] = {
                         id: rows[i].id,

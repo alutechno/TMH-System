@@ -986,6 +986,345 @@ module.exports = function(connection,jwt){
         });
     });
 
+    app.get('/getPrs', function (req, res) {
+        //Handle Request From Angular DataTables
+        console.log(req.query)
+        console.log(req.headers)
+
+        var dtParam = req.query
+        var where = '';
+        if (req.query.id){
+            where += ' where id='+req.query.id
+        }
+        if (req.query.customSearch.length>0){
+            where += ' where name="'+req.query.customSearch + '" '
+        }
+
+        var limit = ' limit '+req.query.start+','+req.query.length
+        var order = '';
+        order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
+
+        var sqlstr = 'select a.id,a.code,a.purchase_notes, '+
+        	'a.doc_status_id,d.name as doc_status_name, '+
+            'DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date, department_id,c.name as department_name,revision_counter '+
+        'from inv_purchase_request a,mst_department c, ref_pr_document_status d '+
+        'where a.department_id = c.id '+
+        'and a.doc_status_id = d.id '+where
+
+        console.log(sqlstr)
+        connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
+            if (!err){
+                console.log('rowsCnt')
+                console.log(rows)
+                dtParam['recordsFiltered'] = rows[0].cnt
+                connection(sqlstr + order + limit,undefined, function(err2, rows2, fields2) {
+                    if (!err2){
+                        dtParam['recordsTotal'] = rows2.length
+                        dtParam['data'] = rows2
+                        res.send(dtParam)
+                    }
+                });
+            }
+        });
+
+
+    });
+
+    app.get('/getPr', function (req, res) {
+        //Handle Request For Selected Records
+        var where = '';
+        if (req.query.id){
+            where = ' and a.id='+req.query.id
+        }
+        var sqlstr = 'select a.id,a.code,a.purchase_notes, '+
+        	'a.doc_status_id,d.name as doc_status_name, '+
+            'DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date, department_id,c.name as department_name,revision_counter '+
+        'from inv_purchase_request a,mst_department c, ref_pr_document_status d '+
+        'where a.department_id = c.id '+
+        'and a.doc_status_id = d.id '+where
+
+        connection(sqlstr,undefined, function(err, rows, fields) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(rows)
+        });
+    });
+
+    app.post('/createPr', function(req,res){
+        console.log(req.body);
+        console.log(req.username)
+        connection('select department_id from user where name=\''+req.username.username+'\'',undefined, function(err, result) {
+            console.log(err)
+            console.log(result)
+            if (err || result.length==0){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else {
+                var sqlstr = 'insert into inv_purchase_request SET ?'
+                var sqlparam = {
+                    code:req.body.code,
+                    purchase_notes:req.body.purchase_notes,
+                    doc_status_id:1,
+                    delivery_date: req.body.delivery_date,
+                    department_id: result[0].department_id,
+                    revision_counter: 0
+                }
+
+                connection(sqlstr,sqlparam, function(err2, result2) {
+                    console.log(err2)
+                    console.log(result2)
+                    if (err2){
+                        res.status('404').send({
+                            status: '404',
+                            desc: err2
+                        });
+                    }
+                    else {
+                        var sqlstr2 = 'insert into inv_pr_doc_state SET ?'
+                        var sqlparam2 = {
+                            pr_id:result2.insertId,
+                            doc_status_id:1,
+                            approval_notes:'',
+                            denial_notes:'',
+                            created_by: req.username
+                        }
+
+                        connection(sqlstr2,sqlparam2, function(err3, result3) {
+                            console.log(err3)
+                            console.log(result3)
+                            if (err3){
+                                res.status('404').send({
+                                    status: '404',
+                                    desc: err3
+                                });
+                            }
+                            else res.status(200).send(result3)
+                        });
+                    }
+                });
+            }
+        });
+
+    })
+
+    app.post('/updatePr', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'update inv_purchase_request SET ? WHERE id=' +req.body.id
+        console.log(sqlstr)
+        var sqlparam = {
+            code:req.body.code,
+            purchase_notes:req.body.purchase_notes,
+            doc_status_id:req.body.doc_status_id,
+            delivery_date: req.body.delivery_date,
+            department_id: req.body.department_id,
+            revision_counter: (parseInt(req.body.revision_counter)+1)
+        }
+
+
+        connection(sqlstr, sqlparam,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    })
+
+    app.post('/deletePr', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'delete from inv_purchase_request where id='+req.body.id
+        console.log(sqlstr)
+
+        connection(sqlstr,undefined,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    });
+
+    app.get('/getPrItems', function (req, res) {
+        //Handle Request From Angular DataTables
+        console.log('====================================================================')
+        console.log(req.query)
+        console.log(req.headers)
+
+        var dtParam = req.query
+        var where = '';
+        if (req.query.id){
+            where += ' where id='+req.query.id
+        }
+        /*if (req.query.customSearch.length>0){
+            where += ' where name="'+req.query.customSearch + '" '
+        }*/
+
+        var limit = ' limit '+req.query.start+','+req.query.length
+        var order = '';
+        order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
+
+        var sqlstr = 'select a.id as p_id, a.pr_id, a.order_qty,a.delivery_type, '+
+            	'a.product_id,c.name, a.warehouse_id, d.name as warehouse_name '+
+            'from inv_pr_line_item a, inv_purchase_request b, mst_product c, mst_warehouse d '+
+            'where a.pr_id = b.id '+
+            'and a.product_id = c.id '+
+            'and a.warehouse_id = d.id '+where
+
+        console.log(sqlstr)
+        connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
+            if (!err){
+                console.log('rowsCnt')
+                console.log(rows)
+                dtParam['recordsFiltered'] = rows[0].cnt
+                connection(sqlstr + order + limit,undefined, function(err2, rows2, fields2) {
+                    if (!err2){
+                        dtParam['recordsTotal'] = rows2.length
+                        dtParam['data'] = rows2
+                        res.send(dtParam)
+                    }
+                });
+            }
+        });
+
+
+    });
+
+    app.get('/getPrItem', function (req, res) {
+        //Handle Request For Selected Records
+        var where = '';
+        if (req.query.id){
+            where = ' and a.id='+req.query.id
+        }
+        var sqlstr = 'select a.id, a.pr_id, a.order_qty,a.delivery_type, '+
+            	'a.product_id,c.name, a.warehouse_id, d.name '+
+            'from inv_pr_line_item a, inv_purchase_request b, mst_product c, mst_warehouse d '+
+            'where a.pr_id = b.id '+
+            'and a.product_id = c.id '+
+            'and a.warehouse_id = d.id '+where
+
+        connection(sqlstr,undefined, function(err, rows, fields) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(rows)
+        });
+    });
+
+    app.post('/createPrItem', function(req,res){
+        console.log(req.body);
+        console.log(req.username)
+        connection('select department_id from user where name=\''+req.username.username+'\'',undefined, function(err, result) {
+            console.log(err)
+            console.log(result)
+            if (err || result.length==0){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else {
+                var sqlstr = 'insert into inv_purchase_request SET ?'
+                var sqlparam = {
+                    code:req.body.code,
+                    purchase_notes:req.body.purchase_notes,
+                    doc_status_id:1,
+                    delivery_date: req.body.delivery_date,
+                    department_id: result[0].department_id,
+                    revision_counter: 0
+                }
+
+                connection(sqlstr,sqlparam, function(err2, result2) {
+                    console.log(err2)
+                    console.log(result2)
+                    if (err2){
+                        res.status('404').send({
+                            status: '404',
+                            desc: err2
+                        });
+                    }
+                    else {
+                        var sqlstr2 = 'insert into inv_pr_doc_state SET ?'
+                        var sqlparam2 = {
+                            pr_id:result2.insertId,
+                            doc_status_id:1,
+                            approval_notes:'',
+                            denial_notes:'',
+                            created_by: req.username
+                        }
+
+                        connection(sqlstr2,sqlparam2, function(err3, result3) {
+                            console.log(err3)
+                            console.log(result3)
+                            if (err3){
+                                res.status('404').send({
+                                    status: '404',
+                                    desc: err3
+                                });
+                            }
+                            else res.status(200).send(result3)
+                        });
+                    }
+                });
+            }
+        });
+
+    })
+
+    app.post('/updatePrItem', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'update inv_purchase_request SET ? WHERE id=' +req.body.id
+        console.log(sqlstr)
+        var sqlparam = {
+            code:req.body.code,
+            purchase_notes:req.body.purchase_notes,
+            doc_status_id:req.body.doc_status_id,
+            delivery_date: req.body.delivery_date,
+            department_id: req.body.department_id,
+            revision_counter: (parseInt(req.body.revision_counter)+1)
+        }
+
+
+        connection(sqlstr, sqlparam,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    })
+
+    app.post('/deletePrItem', function(req,res){
+        console.log(req.body);
+        var sqlstr = 'delete from inv_purchase_request where id='+req.body.id
+        console.log(sqlstr)
+
+        connection(sqlstr,undefined,function(err, result) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(result)
+        });
+    });
+
 
     return app;
 

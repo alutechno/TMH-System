@@ -1,0 +1,184 @@
+
+<div class="full-height m-t-40">
+    <!-- TABLES VIEW -->
+    <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">Purchase Request
+                </div>
+                <div class="pull-right" style="width: 60%;">
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-if="show.prTable" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Request</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickViewItem('add')" ng-if="show.itemTable" ng-show="addItem"><i class="fa fa-plus"></i> Add Item</button>
+                    <div class="input-group date col-sm-4 pull-right m-r-10">
+                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
+                    </div>
+
+                </div>
+                <div class="clearfix"></div>
+                <div class="tools">
+                    <a class="collapse" href="javascript:;"></a>
+                    <a class="config" data-toggle="modal" href="#grid-config"></a>
+                    <a class="reload" href="javascript:;"></a>
+                    <a class="remove" href="javascript:;"></a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div ng-if="show.prTable" id="divPr" >
+                    <table class="table table-hover table-condensed " id="prTable" name="prTable" datatable dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
+                    </table>
+                </div>
+                <div class="col-sm-12" ng-show="show.itemTable">
+                    <label>PR Code: <span name="itemPrCode" ng-bind="pr.code"></span></label><br/>
+                    <label>Approval Status: <span ng-bind="pr.doc_status_name"></span></label><br/>
+                    <label>Department: <span ng-bind="pr.department_name"></span></label><br/>
+                </div>
+
+                <div ng-if="show.itemTable" id="divItem" >
+                    <table class="table table-hover table-condensed " id="itemTable" name="itemTable" datatable dt-options="dtOptionsItem" dt-columns="dtColumns" dt-instance="dtInstanceItem">
+                    </table>
+                </div>
+            </div>
+        </div>
+    <!-- END PANEL -->
+    </div>
+
+<!--START FORM INPUT-->
+<div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content-wrapper">
+      <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
+      <div class="panel-heading">
+       <div class="panel-title">Request Information</div>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
+        </button>
+       </div>
+        <div class="container-xs-height full-height">
+          <div class="row-xs-height">
+            <div class="modal-body col-xs-height col-top">
+
+      <!-- START FORM -->
+      <div class="panel panel-transparent m-t-20">
+          <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.code.$invalid && !pr.code.$pristine }">
+                          <label>Code</label>
+                          <input type="text" class="form-control" name="code" ng-model="pr.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.purchase_notes.$invalid && !pr.purchase_notes.$pristine }">
+                          <label>Notes</label>
+                          <input type="text" class="form-control" name="purchase_notes" ng-model="pr.purchase_notes" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.delivery_date.$invalid && !pr.delivery_date.$pristine }">
+                          <label>Expected Arrival Date</label>
+                          <input type="text" class="form-control" ng-model="pr.delivery_date" name="delivery_date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd">
+                      </div>
+                  </div>
+
+
+              </div>
+
+              <br>
+              <div class="clearfix"></div>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
+              <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
+          </form>
+      </div>
+      <!-- END FORM -->
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!--END FORM INPUT-->
+
+<!-- START INPUT PRODUCT-->
+<div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content-wrapper">
+      <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
+      <div class="panel-heading">
+       <div class="panel-title">Item Information</div>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
+        </button>
+       </div>
+        <div class="container-xs-height full-height">
+          <div class="row-xs-height">
+            <div class="modal-body col-xs-height col-top">
+
+      <!-- START FORM -->
+      <div class="panel panel-transparent m-t-20">
+          <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.code.$invalid && !pr.code.$pristine }">
+                          <label>Code</label>
+                          <input type="text" class="form-control" name="code" ng-model="pr.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.purchase_notes.$invalid && !pr.purchase_notes.$pristine }">
+                          <label>Notes</label>
+                          <input type="text" class="form-control" name="purchase_notes" ng-model="pr.purchase_notes" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.delivery_date.$invalid && !pr.delivery_date.$pristine }">
+                          <label>Expected Arrival Date</label>
+                          <input type="text" class="form-control" ng-model="pr.delivery_date" name="delivery_date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd">
+                      </div>
+                  </div>
+
+
+              </div>
+
+              <br>
+              <div class="clearfix"></div>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
+              <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
+          </form>
+      </div>
+      <!-- END FORM -->
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!--END INPUT PRODUCT -->
+
+
+<!-- START MODAL CONTENT-->
+<div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{pr.code}} ?</h4>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<!-- END MODAL CONTENT-->
