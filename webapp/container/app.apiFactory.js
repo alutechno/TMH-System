@@ -1141,6 +1141,72 @@ function($q, $http, $timeout, $localStorage, API_URL) {
     }
 }
 ])
+.factory('costCenterService', ['$q', '$http', '$timeout', '$localStorage', 'API_URL',
+function($q, $http, $timeout, $localStorage, API_URL) {
+    return {
+        get: function(vid) {
+            var defer = $q.defer();
+            var url= API_URL+"/apifin/getCostCenter";
+            if (vid){
+                url +=  "?id="+vid
+            }
+            $http.get(url)
+            .then(function(response){
+                defer.resolve(response)
+            })
+            return defer.promise;
+        },
+        create: function(role) {
+            var defer = $q.defer();
+            $http.post(API_URL+'/apifin/createCostCenter', role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+            return defer.promise;
+        },
+        update: function(role) {
+            var defer = $q.defer();
+            $http.post(API_URL+'/apifin/updateCostCenter',role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+            return defer.promise;
+        },
+        delete: function(role) {
+            var defer = $q.defer();
+            $http.post(API_URL+'/apifin/deleteCostCenter',role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+            return defer.promise;
+        },
+    }
+}
+])
 .factory('otherService', ['$q', '$http', '$timeout', '$localStorage', 'API_URL',
 function($q, $http, $timeout, $localStorage, API_URL) {
     return {

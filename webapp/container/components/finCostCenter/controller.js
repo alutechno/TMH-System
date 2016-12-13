@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinCostCenterCtrl',
-function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, costCenterService, costCenterTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -18,19 +18,20 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
         selected: []
     };
 
-    $scope.deps = {}
+    $scope.ccs = {}
     $scope.id = '';
-    $scope.department = {
+    $scope.cc = {
         id: '',
         code: '',
         name: '',
-        short_name: '',
+        category_id: '',
         description: '',
         status: ''
     }
 
     $scope.selected = {
-        dep: {}
+        status: {},
+        category: {}
     }
 
     $scope.arrActive = [
@@ -44,6 +45,12 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
         }
     ]
 
+    $scope.ccTypes = []
+    costCenterTypeService.get()
+    .then(function(data){
+        $scope.ccTypes = data.data
+    })
+
     $scope.filterVal = {
         search: ''
     }
@@ -54,21 +61,18 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        console.log(data)
-        $scope.deps[data] = {id:data};
-        //console.log(data)
-        console.log($scope.deps)
+        $scope.ccs[data] = {id:data};
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(deps[\'' + data + '\'])">' +
+                '<button class="btn btn-default" ng-click="update(ccs[\'' + data + '\'])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(deps[\'' + data + '\'])" )"="">' +
+                html+='<button class="btn btn-default" ng-click="delete(ccs[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
@@ -138,21 +142,17 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
             $scope.clear()
         }
         $('#form-input').modal('show')
-        $('#dept_code').prop('disabled', false);
     }
 
     $scope.submit = function(){
         // console.log($scope.contract)
-        if ($scope.department.id.length==0){
+        if ($scope.cc.id.length==0){
             //exec creation
 
-            $scope.department.code = $scope.department.code;
-            $scope.department.name = $scope.department.name;
-            $scope.department.short_name = $scope.department.short_name;
-            $scope.department.description = $scope.department.description;
-            $scope.department.status = $scope.selected.dep.selected.id;
+            $scope.cc.category_id = $scope.selected.category.selected.id;
+            $scope.cc.status = $scope.selected.status.selected.id;
 
-            departmentService.create($scope.department)
+            costCenterService.create($scope.cc)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -160,7 +160,7 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
-                        message: 'Success Insert '+$scope.department.name,
+                        message: 'Success Insert '+$scope.cc.name,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'success'
@@ -180,12 +180,10 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
         }
         else {
             //exec update
-            $scope.department.name = $scope.department.name;
-            $scope.department.short_name = $scope.department.short_name;
-            $scope.department.description = $scope.department.description;
-            $scope.department.status = $scope.selected.dep.selected.id;
+            $scope.cc.category_id = $scope.selected.category.selected.id;
+            $scope.cc.status = $scope.selected.status.selected.id;
 
-            departmentService.update($scope.department)
+            costCenterService.update($scope.cc)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Update')
@@ -203,34 +201,39 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
-        $('#dept_code').prop('disabled', true);
 
-        departmentService.get(obj.id)
+        costCenterService.get(obj.id)
         .then(function(result){
-        // console.log(result)
-            $scope.department.id = result.data[0].id
-            $scope.department.code = result.data[0].code
-            $scope.department.name = result.data[0].name
-            $scope.department.short_name = result.data[0].short_name
-            $scope.department.description = result.data[0].description
-            $scope.department.status = result.data[0].status
-            $scope.selected.dep.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
+
+            $scope.cc.id = result.data[0].id
+            $scope.cc.code = result.data[0].code
+            $scope.cc.name = result.data[0].name
+            $scope.cc.description = result.data[0].description
+            $scope.cc.status = result.data[0].status
+            $scope.cc.category_id = result.data[0].category_id
+            $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
+
+            for (var i = $scope.ccTypes.length - 1; i >= 0; i--) {
+                if ($scope.ccTypes[i].id == result.data[0].category_id){
+                    $scope.selected.category.selected = {name: $scope.ccTypes[i].name, id: $scope.ccTypes[i].id}
+                }
+            };
 
         })
 
     }
 
     $scope.delete = function(obj){
-        $scope.department.id = obj.id;
-        departmentService.get(obj.id)
+        $scope.cc.id = obj.id;
+        costCenterService.get(obj.id)
         .then(function(result){
-            $scope.department.code = result.data[0].code;
+            $scope.cc.code = result.data[0].code;
             $('#modalDelete').modal('show')
         })
     }
 
     $scope.execDelete = function(){
-        departmentService.delete($scope.department)
+        costCenterService.delete($scope.cc)
         .then(function (result){
             if (result.status = "200"){
                 // console.log('Success Update')
@@ -246,11 +249,11 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
     }
 
     $scope.clear = function(){
-        $scope.department = {
+        $scope.cc = {
             id: '',
             code: '',
             name: '',
-            short_name: '',
+            category_id: '',
             description: '',
             status: ''
         }
