@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvWarehouseCtrl',
-function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, warehouseService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -18,10 +18,11 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
         selected: []
     };
 
-    $scope.cats = {}
+    $scope.warehouses = {}
     $scope.id = '';
-    $scope.cat = {
+    $scope.warehouse = {
         id: '',
+        code: '',
         name: '',
         description: '',
         status: ''
@@ -52,18 +53,18 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        $scope.cats[data] = {id:data};
+        $scope.warehouses[data] = {id:data};
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(cats[\'' + data + '\'])">' +
+                '<button class="btn btn-default" ng-click="update(warehouses[\'' + data + '\'])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
+                html+='<button class="btn btn-default" ng-click="delete(warehouses[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
@@ -135,11 +136,11 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
     }
 
     $scope.submit = function(){
-        if ($scope.cat.id.length==0){
+        if ($scope.warehouse.id.length==0){
             //exec creation
-            $scope.cat.status = $scope.selected.status.selected.id;
+            $scope.warehouse.status = $scope.selected.status.selected.id;
 
-            productCategoryService.create($scope.cat)
+            warehouseService.create($scope.warehouse)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -147,7 +148,7 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
-                        message: 'Success Insert '+$scope.cat.name,
+                        message: 'Success Insert '+$scope.warehouse.name,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'success'
@@ -166,9 +167,9 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
         }
         else {
             //exec update
-            $scope.cat.status = $scope.selected.status.selected.id;
+            $scope.warehouse.status = $scope.selected.status.selected.id;
 
-            productCategoryService.update($scope.cat)
+            warehouseService.update($scope.warehouse)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Update')
@@ -186,31 +187,32 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
-        $scope.cat.id = obj.id
+        $scope.warehouse.id = obj.id
 
-        productCategoryService.get(obj.id)
+        warehouseService.get(obj.id)
         .then(function(result){
 
-            $scope.cat.name = result.data[0].name
-            $scope.cat.description = result.data[0].description
-            $scope.cat.status = result.data[0].status
+            $scope.warehouse.name = result.data[0].name
+            $scope.warehouse.code = result.data[0].code
+            $scope.warehouse.description = result.data[0].description
+            $scope.warehouse.status = result.data[0].status
             $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
 
         })
     }
 
     $scope.delete = function(obj){
-        $scope.cat.id = obj.id;
+        $scope.warehouse.id = obj.id;
         //$scope.customer.name = obj.name;
-        productCategoryService.get(obj.id)
+        warehouseService.get(obj.id)
         .then(function(result){
-            $scope.cat.name = result.data[0].name;
+            $scope.warehouse.name = result.data[0].name;
             $('#modalDelete').modal('show')
         })
     }
 
     $scope.execDelete = function(){
-        productCategoryService.delete($scope.cat)
+        warehouseService.delete($scope.warehouse)
         .then(function (result){
             if (result.status = "200"){
                 console.log('Success Delete')
@@ -229,6 +231,7 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
         $scope.cat = {
             id: '',
             name: '',
+            code: '',
             description: '',
             status: ''
         }
