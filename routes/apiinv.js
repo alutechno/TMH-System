@@ -154,7 +154,7 @@ module.exports = function(connection,jwt){
         var order = '';
         order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
 
-        var sqlstr = 'select a.id,a.name,a.description,a.status,a.category_id,b.name '+
+        var sqlstr = 'select a.id,a.name,a.description,a.status,a.category_id,b.name as category_name '+
             'from ref_product_subcategory a, ref_product_category b '+
             'where a.category_id = b.id '+where
 
@@ -185,7 +185,7 @@ module.exports = function(connection,jwt){
         if (req.query.id){
             where = ' and a.id='+req.query.id
         }
-        var sqlstr = 'select a.id,a.name,a.description,a.status,a.category_id,b.name '+
+        var sqlstr = 'select a.id,a.name,a.description,a.status,a.category_id,b.name as category_name '+
             'from ref_product_subcategory a, ref_product_category b '+
             'where a.category_id = b.id '+where
         connection(sqlstr, undefined,function(err, rows, fields) {
