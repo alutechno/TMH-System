@@ -6,7 +6,8 @@ var pool  = mysql.createPool({
     user            : 'media',
     password        : 'media',
 	database		: 'media',
-	port			: 3306
+	port			: 3306,
+	multipleStatements : true
 });
 /*var pool  = mysql.createPool({
     connectionLimit : 50,
