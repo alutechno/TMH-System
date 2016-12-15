@@ -104,10 +104,10 @@
 <!--END FORM INPUT-->
 
 <!-- START INPUT PRODUCT-->
-<div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade slide-right" id="form-input-item" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content-wrapper">
-      <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
+      
       <div class="panel-heading">
        <div class="panel-title">Item Information</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
@@ -119,34 +119,54 @@
 
       <!-- START FORM -->
       <div class="panel panel-transparent m-t-20">
-          <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+          <form id="form-user" role="form" autocomplete="off" name="form-items" novalidate>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.code.$invalid && !pr.code.$pristine }">
-                          <label>Code</label>
-                          <input type="text" class="form-control" name="code" ng-model="pr.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      <div pg-form-group class="form-group form-group-default form-group-default-select required">
+                          <label class="">Product</label>
+                          <ui-select ng-model="selected.product.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="Select Product">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in products | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
                       </div>
                   </div>
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.purchase_notes.$invalid && !pr.purchase_notes.$pristine }">
-                          <label>Notes</label>
-                          <input type="text" class="form-control" name="purchase_notes" ng-model="pr.purchase_notes" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : item.order_qty.$invalid && !item.order_qty.$pristine }">
+                          <label>Quantity</label>
+                          <input type="text" class="form-control" name="order_qty" ng-model="item.order_qty" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
 
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.delivery_date.$invalid && !pr.delivery_date.$pristine }">
-                          <label>Expected Arrival Date</label>
-                          <input type="text" class="form-control" ng-model="pr.delivery_date" name="delivery_date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select ">
+                          <label class="">Warehouse</label>
+                          <ui-select ng-model="selected.warehouse.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="Select Warehouse">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in warehouses | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
                       </div>
                   </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select ">
+                          <label class="">Delivery Type</label>
+                          <ui-select ng-model="selected.delivery_type.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="Select Type">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in delivery_types | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
 
 
               </div>
 
               <br>
               <div class="clearfix"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="form-items.$invalid" ng-click="submit()" >Save</button>
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>
       </div>

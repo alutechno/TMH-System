@@ -2,7 +2,8 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvPurchaseRequestCtrl',
-function($scope, $state, $sce, prService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, prService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL,
+    productService, warehouseService) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -33,9 +34,25 @@ function($scope, $state, $sce, prService, DTOptionsBuilder, DTColumnBuilder, $lo
         delivery_date: ''
     }
 
+    $scope.delivery_types = [
+        {
+            id: 'FD',
+            name: 'Fully Delivery'
+        },
+        {
+            id: 'PD',
+            name: 'Partial Delivery'
+        }
+    ]
+
     $scope.selected = {
-        status: {}
+        status: {},
+        product: {},
+        warehouse: {},
+        delivery_type: {}
     }
+    $scope.products = []
+    $scope.warehouses = []
 
     $scope.filterVal = {
         search: ''
@@ -43,6 +60,15 @@ function($scope, $state, $sce, prService, DTOptionsBuilder, DTColumnBuilder, $lo
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
     };
+
+    productService.get()
+    .then(function(data){
+        $scope.products = data.data
+    })
+    warehouseService.get()
+    .then(function(data){
+        $scope.warehouses = data.data
+    })
 
     /*START AD ServerSide*/
 
@@ -138,7 +164,8 @@ function($scope, $state, $sce, prService, DTOptionsBuilder, DTColumnBuilder, $lo
         $('#form-input').modal('show')
     }
     $scope.openQuickViewItem = function(state){
-        $scope.addDetail(1);
+        //$scope.addDetail(1);
+        $('#form-input-item').modal('show')
     }
 
     $scope.submit = function(){
