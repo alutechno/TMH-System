@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvProductCategoryCtrl',
-function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -13,6 +13,9 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
+    var qstring = 'select id,name,description,status '+
+        ' from ref_product_category '
+    var qwhere = ''
 
     $scope.role = {
         selected: []
@@ -79,13 +82,13 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: API_URL+'/apiinv/getProductCategories',
+        url: API_URL+'/apisql/datatable',
         type: 'GET',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.customSearch = $scope.filterVal.search;
+            data.query = qstring + qwhere;
         }
     })
     .withDataProp('data')
@@ -112,6 +115,8 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
+                if ($scope.filterVal.search.length>0) qwhere += ' where name="'+$scope.filterVal.search+'"'
+                else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
                 }, false)
@@ -137,8 +142,9 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
         if ($scope.cat.id.length==0){
             //exec creation
             $scope.cat.status = $scope.selected.status.selected.id;
+            delete $scope.cat.id
 
-            productCategoryService.create($scope.cat)
+            queryService.post('insert into ref_product_category SET ?',$scope.cat)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -155,7 +161,7 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
             function (err){
                 $('#form-input').pgNotification({
                     style: 'flip',
-                    message: 'Error Insert: '+err.desc.code,
+                    message: 'Error Insert: '+err.code,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'danger'
@@ -166,35 +172,50 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
         else {
             //exec update
             $scope.cat.status = $scope.selected.status.selected.id;
-
-            productCategoryService.update($scope.cat)
+            console.log($scope.cat)
+            queryService.post('update ref_product_category SET ? WHERE id='+$scope.cat.id ,$scope.cat)
             .then(function (result){
-                if (result.status = "200"){
-                    console.log('Success Update')
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
                     }, false)
-                }
-                else {
-                    console.log('Failed Update')
-                }
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Update '+$scope.cat.name,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
+            },
+            function (err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Update: '+err.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
             })
         }
     }
 
     $scope.update = function(obj){
-        $('#form-input').modal('show');
-        $scope.cat.id = obj.id
-
-        productCategoryService.get(obj.id)
+        queryService.get(qstring+ ' where id='+obj.id,undefined)
         .then(function(result){
-
+            $('#form-input').modal('show');
+            $scope.cat.id = obj.id
             $scope.cat.name = result.data[0].name
             $scope.cat.description = result.data[0].description
             $scope.cat.status = result.data[0].status
             $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
-
+        },function(err){
+            $('body').pgNotification({
+                style: 'flip',
+                message: 'Failed Fetch Data: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
         })
     }
 
@@ -209,18 +230,28 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
     }
 
     $scope.execDelete = function(){
-        productCategoryService.delete($scope.cat)
+        queryService.post('delete from ref_product_category where id='+$scope.cat.id,undefined)
         .then(function (result){
-            if (result.status = "200"){
-                console.log('Success Delete')
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
                 }, false)
-            }
-            else {
-                console.log('Delete Failed')
-            }
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Success Delete '+$scope.cat.name,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+        },
+        function (err){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Delete: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
         })
     }
 
