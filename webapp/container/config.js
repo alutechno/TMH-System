@@ -417,6 +417,24 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.inv.supplierType', {
+        url: "/supplierType",
+        templateUrl: "container/components/invSupplierType/view.html",
+        controller: 'InvSupplierTypeCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invSupplierType/controller.js');
+                });
+            }]
+        }
+    })
     .state('app.inv.product', {
         url: "/product",
         templateUrl: "container/components/invProduct/view.html",
