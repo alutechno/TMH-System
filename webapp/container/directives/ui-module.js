@@ -17,13 +17,15 @@ angular.module('app')
 
                 if (listModule[(((i+1)*2)-2)]){
                     r += '<div class="col-xs-6 no-padding">'+
-                    '<a href="" class="p-l-20 dodol" ><img src="assets/img/modul/'+listModule[(((i+1)*2)-2)]+'.svg" alt="socail" >'+listModule[(((i+1)*2)-2)]+
+                    '<a href="" class="p-l-20 dodol" ><img src="container/img/app/'+listModule[(((i+1)*2)-2)]+'.svg" alt="socail" >'+
+                    //listModule[(((i+1)*2)-2)]+
                     '</a>'+
                     '</div>';
                 }
                 if (listModule[(((i+1)*2)-1)]){
                     r += '<div class="col-xs-6 no-padding">'+
-                    '<a href="" class="p-l-20 dodol" ><img src="assets/img/modul/'+listModule[(((i+1)*2)-1)]+'.svg" alt="socail" >'+listModule[(((i+1)*2)-1)]+
+                    '<a href="" class="p-l-20 dodol" ><img src="container/img/app/'+listModule[(((i+1)*2)-1)]+'.svg" alt="socail" >'+
+                    //listModule[(((i+1)*2)-1)]+
                     '</a>'+
                     '</div>';
                 }
