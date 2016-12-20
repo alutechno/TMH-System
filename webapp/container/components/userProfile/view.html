@@ -1,0 +1,112 @@
+
+<div class="full-height m-t-40">
+    <!-- TABLES VIEW -->
+    <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">User profile
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-3">
+
+                    <div class="thumbnail-wrapper d100 circular bordered b-white m-t-30 m-l-10 " >
+                          <img ng-dropzone dropzone="dropzoneImage" dropzone-config="dropzoneConfigImage" event-handlers="dzCallbacks" name="image" width="100" height="100" ng-src="{{user.image}}" onerror="this.src='container/img/profile/_default2x.jpg'" id="dzid" />
+                    </div>
+                    <br />
+                    <span><i>click on image to change your avatar</i></span>
+
+                </div>
+                <div class="col-md-9">
+                    <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+                        <div class="row clearfix">
+                            <div class="col-sm-4">
+                                <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.name.$invalid && !user.name.$pristine }">
+                                    <label>User Name</label>
+                                    <input type="text" class="form-control" name="username" ng-model="user.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                                </div>
+                            </div>
+                            <div class="col-sm-8">
+                                <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.full_name.$invalid && !user.full_name.$pristine }">
+                                    <label>Full Name</label>
+                                    <input type="text" class="form-control" name="fullname" ng-model="user.full_name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row clearfix">
+                            <div class="col-sm-4">
+                                <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.password.$invalid && !user.password.$pristine }">
+                                    <label>Password</label>
+                                    <input type="text" class="form-control" name="password" ng-model="user.password" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : user.department_id.$invalid && !user.department_id.$pristine }">
+                                    <label>Department</label>
+                                    <ui-select ng-model="selected.department.selected" theme="bootstrap" >
+                                        <ui-select-match placeholder="Select Department">{{$select.selected.name}}</ui-select-match>
+                                        <ui-select-choices repeat="item in departments | filter: $select.search">
+                                            <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row clearfix">
+                            <div class="col-sm-4">
+                                <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : user.default_module.$invalid && !user.default_module.$pristine }">
+                                    <label>Default Module</label>
+                                    <ui-select ng-model="selected.module.selected" theme="bootstrap" on-select="getMenu($item.id,undefined)">
+                                        <ui-select-match placeholder="Select Default Module">{{$select.selected.name}}</ui-select-match>
+                                        <ui-select-choices repeat="item in modules | filter: $select.search">
+                                            <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : user.default_menu.$invalid && !user.default_menu.$pristine }">
+                                    <label>Default Menu</label>
+                                    <ui-select ng-model="selected.menu.selected" theme="bootstrap" >
+                                        <ui-select-match placeholder="Select Default Menu">{{$select.selected.name}}</ui-select-match>
+                                        <ui-select-choices repeat="item in menus | filter: $select.search">
+                                            <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row clearfix">
+                            <div class="col-sm-4">
+                                <div pg-form-group class="form-group form-group-default " >
+                                    <label>Mobile Number</label>
+                                    <input type="text" class="form-control" name="mobile" ng-model="user.mobile">
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div pg-form-group class="form-group form-group-default " >
+                                    <label>Email</label>
+                                    <input type="email" class="form-control" name="email" ng-model="user.email">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row clearfix m-t-20">
+                            <div class="col-sm-4">
+                                <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save Changes</button>
+                            </div>
+                        </div>
+
+
+
+
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    <!-- END PANEL -->
+    </div>
+</div>

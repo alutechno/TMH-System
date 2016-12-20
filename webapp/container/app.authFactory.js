@@ -265,11 +265,13 @@ function($rootScope, $state, principal,$q) {
                 var isAuthenticated = principal.isAuthenticated();
                 if ($rootScope.toState.roles && $rootScope.toState.roles.length > 0 ) {
                     if (isAuthenticated) {
+                        console.log('auth1')
                         // user is signed in but not
                         // authorized for desired state
                         $state.go('access.404');
                     }
                     else {
+                        console.log('auth2')
                         // user is not authenticated. Stow
                         // the state they wanted before you
                         // send them to the sign-in state, so
@@ -285,6 +287,7 @@ function($rootScope, $state, principal,$q) {
                     }
                 }
                 else if(!principal.isAuthorized($rootScope.toState.name)){
+                    console.log('auth3')
                     $rootScope.returnToState
                     = $rootScope.toState;
                     $rootScope.returnToStateParams

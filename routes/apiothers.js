@@ -144,6 +144,37 @@ module.exports = function(connection,jwt){
         });
     });
 
+    app.post('/saveProfile', function (req, res) {
+        var fs = require('fs');
+        if (req.body.image.indexOf('container/img/tmp')>-1){
+            var baseDir = req.body.image.split('/')[0]+'/'+req.body.image.split('/')[1]+ '/'
+            try{
+                fs.renameSync(__dirname+'/../webapp/'+req.body.image,__dirname+'/../webapp/'+baseDir+'profile/'+req.body.name)
+            }
+            catch(e){
+                fs.writeFileSync(__dirname+'/../webapp/'+baseDir+'profile/'+req.body.name, fs.readFileSync(__dirname+'/../webapp/'+baseDir+'profile/_default2x.jpg'));
+                //renameSync(__dirname+'/../webapp/'+baseDir+'profile/_default2x.jpg',__dirname+'/../webapp/'+baseDir+'profile/'+req.body.name)
+            }
+
+            req.body.image = baseDir+'profile/'+req.body.name
+        }
+        delete req.body.department_name;
+        delete req.body.module_name;
+        delete req.body.menu_name;
+
+        var sqlstr = 'update user set ? where id='+req.body.id
+            console.log(sqlstr)
+        connection(sqlstr, req.body,function(err, rows, fields) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(rows)
+        });
+    });
+
 
     return app;
 

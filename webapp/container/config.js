@@ -179,6 +179,25 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.profile', {
+        url: "/profile",
+        templateUrl: "container/components/userProfile/view.html",
+        controller: 'UserProfileCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'select',
+                    'dropzone'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/userProfile/controller.js');
+                });
+
+            }]
+        }
+    })
 
     //Front Office Module
     .state('app.fo', {

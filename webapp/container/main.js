@@ -71,8 +71,6 @@ angular.module('app')
         var mn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
         var n = weekday[d.getDay()];
-        console.log(d.getDate().toString().length)
-        console.log(d.getDate()<10?'0'+d.getDate():d.getDate())
         $scope.timest = (d.getDate()<10?'0'+d.getDate():d.getDate()) +
             '-' + mn[d.getMonth()] + '-' + d.getFullYear() + ' ('+weekday[d.getDay()]+') '
 
