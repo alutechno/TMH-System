@@ -29,8 +29,6 @@ angular.module('app')
                     '</a>'+
                     '</div>';
                 }
-
-
                 r += '</div>'
                 t+=r
             }
