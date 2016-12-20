@@ -59,6 +59,7 @@ angular.module('app')
     .controller('CurrUserCtrl',
     function($scope, $state, $sce, $localStorage, $compile, $rootScope) {
         $scope.name = $localStorage.currentUser.name.full_name
+        $scope.sname = $localStorage.currentUser.name.name
         var d = new Date()
         var weekday = new Array(7);
         weekday[0]=  "Sunday";

@@ -1,0 +1,59 @@
+<!-- BEGIN SIDEBAR -->
+<div ng-include src=" 'template/blocks/sidebar.html' " include-replace>
+</div>
+<!-- END SIDEBAR -->
+<!-- START PAGE-CONTAINER -->
+<div class="page-container" ng-class="{'bg-white':is('app.calendar')}">
+    <!-- START PAGE HEADER WRAPPER -->
+    <div ng-hide="is('app.calendar')" ng-include=" 'template/blocks/header.html' ">
+    </div>
+    <!-- END PAGE HEADER WRAPPER -->
+    <div ng-if="is('app.calendar')" ng-include=" 'template/apps/calendar/mobile_controls.html' ">
+    </div>
+    <!-- START PAGE CONTENT WRAPPER -->
+    <div class="page-content-wrapper" ng-class="{'full-height': includes('app.email') || includes('app.calendar') }" ng-hide="is('app.builder')">
+        <!-- START PAGE CONTENT -->
+        <div class="content full-height" ng-class="{
+        'overlay-footer top-left bottom-right': is('app.maps.google') || is('app.maps.vector'),
+        'full-height' : includes('app.email')
+    }">
+            <div class="bar">
+                <div class="pull-right">
+                    <a href="#" class="text-black padding-10 visible-xs-inline visible-sm-inline pull-right m-t-10 m-b-10 m-r-10 on" data-pages="horizontal-menu-toggle">
+                        <i class=" pg-close_line"></i>
+                    </a>
+                </div>
+
+                <div class="bar-inner">
+                    <ul ng-controller="TopMenuCtrl" top-menu>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="no-margin no-padding" ui-view>
+            </div>
+        </div>
+        <!-- END PAGE CONTENT -->
+        <div ng-if="!(includes('app.email') || includes('app.calendar') || includes('app.social') || includes('app.layouts') )" ng-include=" 'template/blocks/footer.html'">
+        </div>
+    </div>
+    <!-- END PAGE CONTENT WRAPPER -->
+    <div class="full-height" ng-if="is('app.builder')" ng-include=" 'template/blocks/builder_content.html' "></div>
+</div>
+<!-- END PAGE CONTAINER -->
+<!--START QUICKVIEW -->
+<div ng-include src=" 'template/blocks/quick_view.html' " include-replace>
+</div>
+<!-- END QUICKVIEW-->
+
+<div ng-if="includes('app.builder')" ng-include=" 'template/blocks/builder_options.html'">
+</div>
+
+<!-- START OVERLAY -->
+<div ng-include src=" 'template/blocks/quick_search.html' " include-replace>
+</div>
+<!-- END OVERLAY -->
+<!-- START MODALS -->
+<div ng-if="includes('app.ui.modals')" ng-include src=" 'template/blocks/modals.html' " include-replace>
+</div>
+<!-- END MODALS -->
