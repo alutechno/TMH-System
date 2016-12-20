@@ -1,6 +1,5 @@
 ignore/
 webapp/assets/
 webapp/pages/
-webapp/template/
 webapp/tpl/
 node_modules/
