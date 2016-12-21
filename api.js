@@ -236,7 +236,7 @@ if (cluster.isMaster) {
 
 	app.post('/authenticate', function (req, res) {
 	    console.log(req.body)
-	    var sqlstr = 'select a.name as username, a.full_name,a.password, a.token, g.name as gname, e.l1 as menuname, e.l2 as submenuname, h.name as module, e.l2state, '+
+	    var sqlstr = 'select a.id,a.name as username, a.full_name,a.password, a.token, g.name as gname, e.l1 as menuname, e.l2 as submenuname, h.name as module, e.l2state, '+
 	    'group_concat(f.object), f.custom, i.name as default_module, e.l2id,j.name as default_menu, j.state as default_state '+
 	    'from user a, role_user b, role c, role_menu d, '+
 	    '(SELECT t1.group_id,t1.name AS l1, t2.name as l2, t1.state as l1state, t2.state as l2state, t2.id as l2id,t2.sequence '+
@@ -319,6 +319,7 @@ if (cluster.isMaster) {
 	                state: rows[0].default_state
 	            };
                 obj.data['currentUser'] = {
+                    id: rows[0].id,
                     name: rows[0].username,
                     full_name: rows[0].full_name
                 }
