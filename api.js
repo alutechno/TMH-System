@@ -2,9 +2,10 @@ var cluster = require('cluster');
 var mysql = require('mysql');
 var pool  = mysql.createPool({
     connectionLimit : 50,
-    host            : '103.43.47.115',
-    user            : 'media',
-    password        : 'media',
+    // host            : '103.43.47.115',
+    host            : 'localhost',
+    user            : 'root',
+    password        : 'root',
 	database		: 'media',
 	port			: 3306,
 	multipleStatements : true

@@ -1273,6 +1273,72 @@ function($q, $http, $timeout, $localStorage, API_URL) {
     }
 }
 ])
+.factory('supplierContractService', ['$q', '$http', '$timeout', '$localStorage', 'API_URL',
+function($q, $http, $timeout, $localStorage, API_URL) {
+    return {
+        get: function(vid) {
+            var defer = $q.defer();
+            var url= API_URL+"/apiinv/getContract";
+            if (vid){
+                url +=  "?id="+vid
+            }
+            $http.get(url)
+            .then(function(response){
+                defer.resolve(response)
+            })
+            return defer.promise;
+        },
+        create: function(role) {
+            var defer = $q.defer();
+            $http.post(API_URL+'/apiinv/createContract', role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+            return defer.promise;
+        },
+        update: function(role) {
+            var defer = $q.defer();
+            $http.post(API_URL+'/apiinv/updateContract',role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+            return defer.promise;
+        },
+        delete: function(role) {
+            var defer = $q.defer();
+            $http.post(API_URL+'/apiinv/deleteContract',role)
+            .success(function (data, status, headers, config) {
+                if (status == '200'){
+                    defer.resolve(data);
+                }
+                else {
+                    defer.reject(data);
+                }
+            })
+            .error(function (data, status, header, config) {
+                defer.reject(data);
+            });
+            return defer.promise;
+        },
+    }
+}
+])
 .factory('otherService', ['$q', '$http', '$timeout', '$localStorage', 'API_URL',
 function($q, $http, $timeout, $localStorage, API_URL) {
     return {
@@ -1345,6 +1411,22 @@ function($q, $http, $timeout, $localStorage, API_URL) {
             }
             if (kec_id){
                 url +=  "&kec_id="+kec_id
+            }
+            $http.get(url)
+            .then(function(response){
+                defer.resolve(response)
+            })
+            return defer.promise;
+        },
+        getTableRef: function(table,column) {
+            var defer = $q.defer();
+            var url= API_URL+"/apioth/getTableRef";
+            url +=  "?1=1"
+            if (table){
+                url +=  "&table="+table
+            }
+            if (column){
+                url +=  "&column="+column
             }
             $http.get(url)
             .then(function(response){

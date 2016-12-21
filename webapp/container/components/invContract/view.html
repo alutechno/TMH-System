@@ -52,13 +52,94 @@
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
                   <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : customer.code.$invalid && !customer.code.$pristine }">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.code.$invalid && !contract.code.$pristine }">
                           <label>Code</label>
-                          <input type="text" class="form-control" name="code" ng-model="customer.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" class="form-control" name="code" id="contract_code" ng-model="contract.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
               </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.supplier_id.$invalid && !contract.supplier_id.$pristine }">
+                          <label>Supplier</label>
+                          <ui-select ng-model="selected.supplier.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select supplier">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in suppliers | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.product_id.$invalid && !contract.product_id.$pristine }">
+                          <label>Product</label>
+                          <ui-select ng-model="selected.product.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select product">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in products | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+              </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.description.$invalid && !contract.description.$pristine }">
+                          <label>Description</label>
+                          <input type="text" class="form-control" name="description" ng-model="contract.description" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.product_id.$invalid && !contract.product_id.$pristine }">
+                          <label>Status</label>
+                          <ui-select ng-model="selected.contract_status.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in contract_status | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.contract_start_date.$ && !contract.contract_start_date.$pristine }">
+                          <label>Contract Start Date</label>
+                          <input type="text" class="form-control" name="startDate" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.contract_start_date" data-date-format="yyyy-mm-dd">
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.contract_end_date.$invalid && !contract.contract_end_date.$pristine }">
+                          <label>End Contract Date</label>
+                          <input type="text" class="form-control" name="endDate" placeholder="Pick a date" id="endDate" ui-jq="datepicker" ng-model="contract.contract_end_date" data-date-format="yyyy-mm-dd">
+                      </div>
+                  </div>
 
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.price.$invalid && !contract.price.$pristine }">
+                          <label>Price</label>
+                          <input type="text" class="form-control" name="price" ng-model="contract.price" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.previous_price.$invalid && !contract.previous_price.$pristine }">
+                          <label>Previous Price</label>
+                          <input type="text" class="form-control" name="previous_price" ng-model="contract.previous_price" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : supplier.country_id.$invalid && !supplier.country_id.$pristine }">
+                          <label>Default Supplier Flag</label>
+                          <ui-select ng-model="selected.supplier_flag.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select default flag">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in supplier_flags | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+
+              </div>
               <br>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
@@ -84,7 +165,7 @@
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h4 class="no-margin p-b-10">Are you sure want to delete {{customer.name}} ?</h4>
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{contract.code}} ?</h4>
                     <div >
                         <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
