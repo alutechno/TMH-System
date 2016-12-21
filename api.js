@@ -335,5 +335,5 @@ if (cluster.isMaster) {
 
 	app.listen(3001, function () {
 	  console.log('API Server listening on port 3001!');
-	});
+	}); 
 }
