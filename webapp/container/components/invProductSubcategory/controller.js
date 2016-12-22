@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvProductSubcategoryCtrl',
-function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, productSubCategoryService, productCategoryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -22,13 +22,15 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
     $scope.id = '';
     $scope.cat = {
         id: '',
+        category_id: '',
         name: '',
         description: '',
         status: ''
     }
 
     $scope.selected = {
-        status: {}
+        status: {},
+        category_id: {}
     }
 
     $scope.arrActive = [
@@ -41,6 +43,12 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
             name: 'No'
         }
     ]
+
+    $scope.categories = []
+    productCategoryService.get()
+    .then(function(data){
+        $scope.categories = data.data
+    })
 
     $scope.filterVal = {
         search: ''
@@ -138,8 +146,9 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
         if ($scope.cat.id.length==0){
             //exec creation
             $scope.cat.status = $scope.selected.status.selected.id;
+            $scope.cat.category_id = $scope.selected.category_id.selected.id;
 
-            productCategoryService.create($scope.cat)
+            productSubCategoryService.create($scope.cat)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -167,8 +176,9 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
         else {
             //exec update
             $scope.cat.status = $scope.selected.status.selected.id;
+            $scope.cat.category_id = $scope.selected.category_id.selected.id;
 
-            productCategoryService.update($scope.cat)
+            productSubCategoryService.update($scope.cat)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Update')
@@ -188,13 +198,19 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
         $('#form-input').modal('show');
         $scope.cat.id = obj.id
 
-        productCategoryService.get(obj.id)
+        productSubCategoryService.get(obj.id)
         .then(function(result){
 
+            $scope.cat.category_id = result.data[0].category_id
             $scope.cat.name = result.data[0].name
             $scope.cat.description = result.data[0].description
             $scope.cat.status = result.data[0].status
             $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
+            for (var i = $scope.categories.length - 1; i >= 0; i--) {
+                if ($scope.categories[i].id == result.data[0].category_id){
+                    $scope.selected.category_id.selected = {name: $scope.categories[i].name, id: $scope.categories[i].id}
+                }
+            }
 
         })
     }
@@ -202,7 +218,7 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
     $scope.delete = function(obj){
         $scope.cat.id = obj.id;
         //$scope.customer.name = obj.name;
-        productCategoryService.get(obj.id)
+        productSubCategoryService.get(obj.id)
         .then(function(result){
             $scope.cat.name = result.data[0].name;
             $('#modalDelete').modal('show')
@@ -210,7 +226,7 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
     }
 
     $scope.execDelete = function(){
-        productCategoryService.delete($scope.cat)
+        productSubCategoryService.delete($scope.cat)
         .then(function (result){
             if (result.status = "200"){
                 console.log('Success Delete')
@@ -228,6 +244,7 @@ function($scope, $state, $sce, productCategoryService, DTOptionsBuilder, DTColum
     $scope.clear = function(){
         $scope.cat = {
             id: '',
+            category_id: '',
             name: '',
             description: '',
             status: ''
