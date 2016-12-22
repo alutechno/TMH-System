@@ -13,7 +13,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstring = 'select a.id,a.code,a.name,a.description,a.status,b.name as payable,c.name as deposit '+
+    var qstring = 'select a.*,b.name as payable,c.name as deposit '+
         'from ref_supplier_type a,mst_ledger_account b,mst_ledger_account c '+
         'where a.status!=2 '+
         'and a.payable_account_id=b.id '+
@@ -30,11 +30,15 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         id: '',
         name: '',
         description: '',
+        payable_account_id: '',
+        deposit_account_id: '',
         status: ''
     }
 
     $scope.selected = {
-        status: {}
+        status: {},
+        payable_account_id: {},
+        deposit_account_id: {}
     }
 
     $scope.arrActive = [
@@ -47,6 +51,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             name: 'No'
         }
     ]
+
+    $scope.accounts = []
+    queryService.get('select id,name from mst_ledger_account',undefined)
+    .then(function(data){
+        $scope.accounts = data.data
+    })
 
     $scope.filterVal = {
         search: ''
@@ -146,10 +156,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.submit = function(){
         if ($scope.cat.id.length==0){
             //exec creation
-            $scope.cat.status = $scope.selected.status.selected.id;
             delete $scope.cat.id
+            $scope.cat.status = $scope.selected.status.selected.id;
+            $scope.cat.payable_account_id = $scope.selected.payable_account_id.selected.id;
+            $scope.cat.deposit_account_id = $scope.selected.deposit_account_id.selected.id;
 
-            queryService.post('insert into ref_product_category SET ?',$scope.cat)
+            queryService.post('insert into ref_supplier_type SET ?',$scope.cat)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -177,8 +189,10 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         else {
             //exec update
             $scope.cat.status = $scope.selected.status.selected.id;
-            console.log($scope.cat)
-            queryService.post('update ref_product_category SET ? WHERE id='+$scope.cat.id ,$scope.cat)
+            $scope.cat.payable_account_id = $scope.selected.payable_account_id.selected.id;
+            $scope.cat.deposit_account_id = $scope.selected.deposit_account_id.selected.id;
+            // console.log($scope.cat)
+            queryService.post('update ref_supplier_type SET ? WHERE id='+$scope.cat.id ,$scope.cat)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -205,14 +219,28 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.update = function(obj){
-        queryService.get(qstring+ ' where id='+obj.id,undefined)
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             $('#form-input').modal('show');
             $scope.cat.id = obj.id
             $scope.cat.name = result.data[0].name
+            $scope.cat.code = result.data[0].code
             $scope.cat.description = result.data[0].description
             $scope.cat.status = result.data[0].status
             $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
+            $scope.cat.payable_account_id = result.data[0].payable_account_id
+            $scope.cat.deposit_account_id = result.data[0].deposit_account_id
+
+            for (var i = $scope.accounts.length - 1; i >= 0; i--) {
+                if ($scope.accounts[i].id == result.data[0].payable_account_id){
+                    $scope.selected.payable_account_id.selected = {name: $scope.accounts[i].name, id: $scope.accounts[i].id}
+                }
+                if ($scope.accounts[i].id == result.data[0].deposit_account_id){
+                    $scope.selected.deposit_account_id.selected = {name: $scope.accounts[i].name, id: $scope.accounts[i].id}
+                }
+            }
+
+
         },function(err){
             $('body').pgNotification({
                 style: 'flip',
@@ -227,7 +255,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.delete = function(obj){
         $scope.cat.id = obj.id;
         //$scope.customer.name = obj.name;
-        productCategoryService.get(obj.id)
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             $scope.cat.name = result.data[0].name;
             $('#modalDelete').modal('show')
@@ -235,7 +263,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.execDelete = function(){
-        queryService.post('delete from ref_product_category where id='+$scope.cat.id,undefined)
+        queryService.post('update ref_supplier_type set status=2 where id='+$scope.cat.id,undefined)
         .then(function (result){
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
@@ -265,6 +293,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             id: '',
             name: '',
             description: '',
+            payable_account_id: '',
+            deposit_account_id: '',
             status: ''
         }
     }

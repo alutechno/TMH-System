@@ -8,7 +8,7 @@
                 <div class="panel-title">Manage Supplier Type
                 </div>
                 <div class="pull-right" style="width: 60%;">
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Category</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Supplier Type</button>
 
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
@@ -39,7 +39,7 @@
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Category Information</div>
+       <div class="panel-title">Supplier Type Information</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -57,13 +57,51 @@
                           <input type="text" class="form-control" name="name" ng-model="cat.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
+              </div>
+              <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : cat.description.$invalid && !cat.description.$pristine }">
-                          <label>Description</label>
-                          <input type="text" class="form-control" name="name" ng-model="cat.description" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : cat.code.$invalid && !cat.code.$pristine }">
+                          <label>Code</label>
+                          <input type="text" class="form-control" name="name" ng-model="cat.code" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" >
                       </div>
                   </div>
-                <div class="col-sm-12">
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : cat.description.$invalid && !cat.description.$pristine }">
+                          <label>Description</label>
+                          <input type="text" class="form-control" name="name" ng-model="cat.description" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : cat.payable_account_id.$invalid && !cat.payable_account_id.$pristine }">
+                          <label>Account Payable</label>
+                          <ui-select ng-model="selected.payable_account_id.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in accounts | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : cat.deposit_account_id.$invalid && !cat.deposit_account_id.$pristine }">
+                          <label>Account Deposit</label>
+                          <ui-select ng-model="selected.deposit_account_id.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in accounts | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
                     <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : cat.status.$invalid && !cat.status.$pristine }">
                         <label>Is Active</label>
                         <ui-select ng-model="selected.status.selected" theme="bootstrap" >
