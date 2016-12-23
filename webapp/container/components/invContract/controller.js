@@ -2,10 +2,9 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvContractCtrl',
-function($scope, $state, $sce, supplierContractService, supplierService, productService, otherService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, queryService, supplierContractService, supplierService, productService, otherService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
 
     $scope.el = [];
-    console.log('asd')
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
@@ -36,10 +35,10 @@ function($scope, $state, $sce, supplierContractService, supplierService, product
     }
 
     $scope.selected = {
-        supplier: {},
-        product: {},
-        status: {},
-        supplier_flag: {}
+        supplier_id: {},
+        product_id: {},
+        contract_status: {},
+        default_supplier_flag: {}
     }
 
     $scope.arrActive = [
@@ -47,33 +46,34 @@ function($scope, $state, $sce, supplierContractService, supplierService, product
         {id: 0, name: 'No'}
     ]
 
-    $scope.suppliers = []
-    supplierService.get()
+    $scope.opt_supplier_id = []
+    queryService.post('select id,name, id as value from mst_supplier order by name',undefined)
     .then(function(data){
-        $scope.suppliers = data.data
+        $scope.opt_supplier_id = data.data
     })
 
-    $scope.products = []
-    productService.get()
+    $scope.opt_product_id = []
+    queryService.post('select id,name,last_order_price from mst_product order by name',undefined)
     .then(function(data){
-        $scope.products = data.data
+        $scope.opt_product_id = data.data
     })
 
-    $scope.contract_status = []
+    $scope.opt_contract_status = []
     otherService.getTableRef('inv_prod_price_contract','contract_status')
     .then(function(data){
-        $scope.contract_status = data.data
+        $scope.opt_contract_status = data.data
     })
 
-    $scope.supplier_flags = []
+    $scope.opt_default_supplier_flag = []
     otherService.getTableRef('inv_prod_price_contract','default_supplier_flag')
     .then(function(data){
-        $scope.supplier_flags = data.data
+        $scope.opt_default_supplier_flag = data.data
     })
 
     $scope.filterVal = {
         search: ''
     }
+
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
     };
@@ -106,15 +106,29 @@ function($scope, $state, $sce, supplierContractService, supplierService, product
         $compile(angular.element(row).contents())($scope);
     }
 
+    var qstring = "select a.*, "+
+                    "case  "+
+                    "when a.contract_status = 0 then 'Waiting Approval' "+
+                    "when a.contract_status = 1 then 'Active' "+
+                    "when a.contract_status = 2 then 'Expired' "+
+                    "when a.contract_status = 3 then 'Suspended' "+
+                    "when a.contract_status = 4 then 'Terminated' "+
+                    "end as contract_status_name, "+
+                    "b.name as supplier_name,c.name as product_name from  "+
+                    "inv_prod_price_contract a, mst_supplier b, mst_product c "+
+                    "where a.supplier_id = b.id and a.product_id = c.id"
+    var qwhere = ''
+
+
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: API_URL+'/apiinv/getContracts',
+        url: API_URL+'/apisql/datatable',
         type: 'GET',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.customSearch = $scope.filterVal.search;
+            data.query = qstring + qwhere;
         }
     })
     .withDataProp('data')
@@ -140,7 +154,7 @@ function($scope, $state, $sce, supplierContractService, supplierService, product
         DTColumnBuilder.newColumn('contract_start_date').withTitle('Start'),
         DTColumnBuilder.newColumn('contract_end_date').withTitle('End'),
         DTColumnBuilder.newColumn('price').withTitle('Price'),
-        DTColumnBuilder.newColumn('contract_supp_flag').withTitle('Default')
+        DTColumnBuilder.newColumn('default_supplier_flag').withTitle('Default')
     );
 
     $scope.filter = function(type,event) {
@@ -161,6 +175,9 @@ function($scope, $state, $sce, supplierContractService, supplierService, product
     /*END AD ServerSide*/
 
     $scope.openQuickView = function(state){
+        console.log($scope.opt_supplier_id)
+        // console.log($scope.opt_contract_status)
+        // console.log($scope.opt_default_supplier_flag)
         if (state == 'add'){
             $scope.clear()
         }
@@ -171,12 +188,14 @@ function($scope, $state, $sce, supplierContractService, supplierService, product
         console.log('submit')
         if ($scope.contract.id.length==0){
             //exec creation
-            $scope.contract.supplier_id = $scope.selected.supplier.selected.id;
-            $scope.contract.product_id = $scope.selected.product.selected.id;
-            $scope.contract.contract_status = $scope.selected.status.selected.id;
-            $scope.contract.default_supplier_flag = $scope.selected.supplier_flag.selected.id;
+            $scope.contract.supplier_id = $scope.selected.supplier_id.selected.id;
+            $scope.contract.product_id = $scope.selected.product_id.selected.id;
+            $scope.contract.contract_status = $scope.selected.contract_status.selected.id;
+            $scope.contract.default_supplier_flag = $scope.selected.default_supplier_flag.selected.id;
 
-            supplierContractService.create($scope.contract)
+            var query = "insert into inv_prod_price_contract set ?";
+
+            queryService.post(query,$scope.contract)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -204,12 +223,14 @@ function($scope, $state, $sce, supplierContractService, supplierService, product
         }
         else {
             //exec update
-            $scope.contract.supplier_id = $scope.selected.supplier.selected.id;
-            $scope.contract.product_id = $scope.selected.product.selected.id;
-            $scope.contract.contract_status = $scope.selected.status.selected.id;
-            $scope.contract.default_supplier_flag = $scope.selected.supplier_flag.selected.id;
+            $scope.contract.supplier_id = $scope.selected.supplier_id.selected.id;
+            $scope.contract.product_id = $scope.selected.product_id.selected.id;
+            $scope.contract.contract_status = $scope.selected.contract_status.selected.id;
+            $scope.contract.default_supplier_flag = $scope.selected.default_supplier_flag.selected.id;
 
-            supplierContractService.update($scope.contract)
+            var query = "update inv_prod_price_contract set ? where id = "+scope.contract.id;
+
+            queryService.post(query,$scope.contract)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Update')
@@ -228,7 +249,7 @@ function($scope, $state, $sce, supplierContractService, supplierService, product
     $scope.update = function(obj){
         $('#form-input').modal('show');
         // console.log(obj)
-        supplierContractService.get(obj.id)
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             $scope.contract.id = result.data[0].id
             $scope.contract.code = result.data[0].code
@@ -242,24 +263,24 @@ function($scope, $state, $sce, supplierContractService, supplierService, product
             $scope.contract.previous_price = result.data[0].previous_price
             $scope.contract.default_supplier_flag = result.data[0].default_supplier_flag
 
-            for (var i = $scope.suppliers.length - 1; i >= 0; i--) {
-                if ($scope.suppliers[i].id == result.data[0].supplier_id){
-                    $scope.selected.supplier.selected = {name: $scope.suppliers[i].name, id: $scope.suppliers[i].id}
+            for (var i = $scope.opt_supplier_id.length - 1; i >= 0; i--) {
+                if ($scope.opt_supplier_id[i].id == result.data[0].supplier_id){
+                    $scope.selected.supplier_id.selected = {name: $scope.opt_supplier_id[i].name, id: $scope.opt_supplier_id[i].id}
                 }
             };
-            for (var i = $scope.products.length - 1; i >= 0; i--) {
-                if ($scope.products[i].id == result.data[0].product_id){
-                    $scope.selected.product.selected = {name: $scope.products[i].name, id: $scope.products[i].id}
+            for (var i = $scope.opt_product_id.length - 1; i >= 0; i--) {
+                if ($scope.opt_product_id[i].id == result.data[0].product_id){
+                    $scope.selected.product_id.selected = {name: $scope.opt_product_id[i].name, id: $scope.opt_product_id[i].id}
                 }
             };
-            for (var i = $scope.contract_status.length - 1; i >= 0; i--) {
-                if ($scope.contract_status[i].id == result.data[0].contract_status){
-                    $scope.selected.status.selected = {name: $scope.contract_status[i].name, id: $scope.contract_status[i].id}
+            for (var i = $scope.opt_contract_status.length - 1; i >= 0; i--) {
+                if ($scope.opt_contract_status[i].id == result.data[0].contract_status){
+                    $scope.selected.contract_status.selected = {name: $scope.opt_contract_status[i].name, id: $scope.opt_contract_status[i].id}
                 }
             };
-            for (var i = $scope.supplier_flags.length - 1; i >= 0; i--) {
-                if ($scope.supplier_flags[i].id == result.data[0].default_supplier_flag){
-                    $scope.selected.supplier_flag.selected = {name: $scope.supplier_flags[i].name, id: $scope.supplier_flags[i].id}
+            for (var i = $scope.opt_default_supplier_flag.length - 1; i >= 0; i--) {
+                if ($scope.opt_default_supplier_flag[i].id == result.data[0].default_supplier_flag){
+                    $scope.selected.default_supplier_flag.selected = {name: $scope.opt_default_supplier_flag[i].name, id: $scope.opt_default_supplier_flag[i].id}
                 }
             };
 
@@ -268,7 +289,7 @@ function($scope, $state, $sce, supplierContractService, supplierService, product
 
     $scope.delete = function(obj){
         $scope.contract.id = obj.id;
-        supplierContractService.get(obj.id)
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             $scope.contract.code = result.data[0].code;
             $('#modalDelete').modal('show')
@@ -276,7 +297,7 @@ function($scope, $state, $sce, supplierContractService, supplierService, product
     }
 
     $scope.execDelete = function(){
-        supplierContractService.delete($scope.contract)
+        queryService.post('update inv_prod_price_contract set status=4 where id='+$scope.contract.id,undefined)
         .then(function (result){
             if (result.status = "200"){
                 console.log('Success Delete')

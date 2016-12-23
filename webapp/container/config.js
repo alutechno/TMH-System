@@ -480,7 +480,8 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             deps: ['$ocLazyLoad', function($ocLazyLoad) {
                 return $ocLazyLoad.load([
                     'dataTables',
-                    'select'
+                    'select',
+                    'datepicker'
                 ], {
                     insertBefore: '#lazyload_placeholder'
                 })
