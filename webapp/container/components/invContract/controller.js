@@ -175,9 +175,9 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
     /*END AD ServerSide*/
 
     $scope.openQuickView = function(state){
-        console.log($scope.opt_supplier_id)
-        // console.log($scope.opt_contract_status)
-        // console.log($scope.opt_default_supplier_flag)
+        // console.log($scope.opt_supplier_id)
+        console.log($scope.opt_contract_status)
+        console.log($scope.opt_default_supplier_flag)
         if (state == 'add'){
             $scope.clear()
         }
@@ -185,13 +185,13 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
     }
 
     $scope.submit = function(){
-        console.log('submit')
+        // console.log('submit')
         if ($scope.contract.id.length==0){
             //exec creation
             $scope.contract.supplier_id = $scope.selected.supplier_id.selected.id;
             $scope.contract.product_id = $scope.selected.product_id.selected.id;
-            $scope.contract.contract_status = $scope.selected.contract_status.selected.id;
-            $scope.contract.default_supplier_flag = $scope.selected.default_supplier_flag.selected.id;
+            $scope.contract.contract_status = $scope.selected.contract_status.selected.value;
+            $scope.contract.default_supplier_flag = $scope.selected.default_supplier_flag.selected.value;
 
             var query = "insert into inv_prod_price_contract set ?";
 
@@ -213,7 +213,7 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
             function (err){
                 $('#form-input').pgNotification({
                     style: 'flip',
-                    message: 'Error Insert: '+err.desc.code,
+                    message: 'Error Insert: '+err.code,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'danger'
@@ -225,10 +225,10 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
             //exec update
             $scope.contract.supplier_id = $scope.selected.supplier_id.selected.id;
             $scope.contract.product_id = $scope.selected.product_id.selected.id;
-            $scope.contract.contract_status = $scope.selected.contract_status.selected.id;
-            $scope.contract.default_supplier_flag = $scope.selected.default_supplier_flag.selected.id;
+            $scope.contract.contract_status = $scope.selected.contract_status.selected.value;
+            $scope.contract.default_supplier_flag = $scope.selected.default_supplier_flag.selected.value;
 
-            var query = "update inv_prod_price_contract set ? where id = "+scope.contract.id;
+            var query = "update inv_prod_price_contract set ? where id = "+$scope.contract.id;
 
             queryService.post(query,$scope.contract)
             .then(function (result){
@@ -248,7 +248,6 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
-        // console.log(obj)
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             $scope.contract.id = result.data[0].id
@@ -274,13 +273,13 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
                 }
             };
             for (var i = $scope.opt_contract_status.length - 1; i >= 0; i--) {
-                if ($scope.opt_contract_status[i].id == result.data[0].contract_status){
-                    $scope.selected.contract_status.selected = {name: $scope.opt_contract_status[i].name, id: $scope.opt_contract_status[i].id}
+                if ($scope.opt_contract_status[i].value == result.data[0].contract_status){
+                    $scope.selected.contract_status.selected = {name: $scope.opt_contract_status[i].name, value: $scope.opt_contract_status[i].value}
                 }
             };
             for (var i = $scope.opt_default_supplier_flag.length - 1; i >= 0; i--) {
-                if ($scope.opt_default_supplier_flag[i].id == result.data[0].default_supplier_flag){
-                    $scope.selected.default_supplier_flag.selected = {name: $scope.opt_default_supplier_flag[i].name, id: $scope.opt_default_supplier_flag[i].id}
+                if ($scope.opt_default_supplier_flag[i].value == result.data[0].default_supplier_flag){
+                    $scope.selected.default_supplier_flag.selected = {name: $scope.opt_default_supplier_flag[i].name, value: $scope.opt_default_supplier_flag[i].value}
                 }
             };
 
@@ -297,7 +296,8 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
     }
 
     $scope.execDelete = function(){
-        queryService.post('update inv_prod_price_contract set status=4 where id='+$scope.contract.id,undefined)
+        // console.log($scope.contract.id)
+        queryService.post('update inv_prod_price_contract set contract_status="4" where id='+$scope.contract.id,undefined)
         .then(function (result){
             if (result.status = "200"){
                 console.log('Success Delete')

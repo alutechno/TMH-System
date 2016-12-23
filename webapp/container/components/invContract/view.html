@@ -60,7 +60,7 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.supplier_id.$invalid && !contract.supplier_id.$pristine }">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : contract.supplier_id.$invalid && !contract.supplier_id.$pristine }">
                           <label>Supplier</label>
                           <ui-select ng-model="selected.supplier_id.selected" theme="bootstrap" >
                               <ui-select-match placeholder="select supplier">{{$select.selected.name}}</ui-select-match>
@@ -73,7 +73,7 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.product_id.$invalid && !contract.product_id.$pristine }">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : contract.product_id.$invalid && !contract.product_id.$pristine }">
                           <label>Product</label>
                           <ui-select ng-model="selected.product_id.selected" theme="bootstrap" >
                               <ui-select-match placeholder="select product">{{$select.selected.name}}</ui-select-match>
@@ -94,7 +94,7 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.contract_status.$invalid && !contract.contract_status.$pristine }">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : contract.contract_status.$invalid && !contract.contract_status.$pristine }">
                           <label>Status</label>
                           <ui-select ng-model="selected.contract_status.selected" theme="bootstrap" >
                               <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
@@ -142,7 +142,7 @@
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : contract.default_supplier_flag.$invalid && !contract.default_supplier_flag.$pristine }">
                           <label>Default Supplier Flag</label>
                           <ui-select ng-model="selected.default_supplier_flag.selected" theme="bootstrap" >
-                              <ui-select-match placeholder="select default flag">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in opt_default_supplier_flag | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                               </ui-select-choices>
@@ -175,7 +175,7 @@
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h4 class="no-margin p-b-10">Are you sure want to delete {{contract.code}} ?</h4>
+                    <h4 class="no-margin p-b-10">Are you sure want to terminate {{contract.code}} ?</h4>
                     <div >
                         <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
