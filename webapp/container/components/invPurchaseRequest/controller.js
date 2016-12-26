@@ -713,7 +713,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                     id: $scope.items[index].supplier_id,
                     name: $scope.items[index].supplier_name
                 }
-                queryService.get('select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',b.price) as char)as price_name from mst_supplier a, inv_prod_price_contract b where a.id = b.supplier_id and a.status=1 and b.product_id ='+$scope.items[index].product_id' order by id',undefined)
+                queryService.get('select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',b.price) as char)as price_name from mst_supplier a, inv_prod_price_contract b where a.id = b.supplier_id and a.status=1 and b.product_id ='+$scope.items[index].product_id+' order by id',undefined)
                 .then(function(data){
                     console.log(data)
                     $scope.suppliers = data.data
