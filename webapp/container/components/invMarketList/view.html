@@ -203,6 +203,7 @@
                                                   <ui-select-match placeholder="Supplier...">{{$select.selected.name}}</ui-select-match>
                                                   <ui-select-choices repeat="item in suppliers | filter: $select.search">
                                                       <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                                                      <small ng-bind-html="trustAsHtml((item.price_name | highlight: $select.search))"></small>
                                                   </ui-select-choices>
                                               </ui-select>
                                           </div>
