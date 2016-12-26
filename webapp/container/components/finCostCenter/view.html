@@ -57,18 +57,24 @@
                           <input type="text" class="form-control" name="code" id="dept_code" ng-model="cc.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
+              </div>
+              <div class="row clearfix">
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : cc.name.$invalid && !cc.name.$pristine }">
                           <label>Name</label>
                           <input type="text" class="form-control" ng-model="cc.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
+              </div>
+              <div class="row clearfix">
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default " ng-class="{ 'has-error' : cc.description.$invalid && !cc.description.$pristine }">
                           <label>Description</label>
                           <input type="text" class="form-control" ng-model="cc.description" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
+              </div>
+              <div class="row clearfix">
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : cc.category_id.$invalid && !cc.category_id.$pristine }">
                         <label>Category</label>
@@ -80,6 +86,21 @@
                         </ui-select>
                     </div>
                   </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : cc.account_id.$invalid && !cc.account_id.$pristine }">
+                        <label>Account</label>
+                        <ui-select ng-model="selected.account_id.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select ">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in opt_account_id | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : cc.status.$invalid && !cc.status.$pristine }">
                         <label>Is Active</label>

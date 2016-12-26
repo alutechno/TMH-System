@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinCostCenterCtrl',
-function($scope, $state, $sce, costCenterService, costCenterTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -26,12 +26,14 @@ function($scope, $state, $sce, costCenterService, costCenterTypeService, DTOptio
         name: '',
         category_id: '',
         description: '',
+        account_id: '',
         status: ''
     }
 
     $scope.selected = {
         status: {},
-        category: {}
+        category: {},
+        account_id: {}
     }
 
     $scope.arrActive = [
@@ -45,8 +47,14 @@ function($scope, $state, $sce, costCenterService, costCenterTypeService, DTOptio
         }
     ]
 
+    $scope.opt_account_id = []
+    queryService.post('select id,name from mst_ledger_account order by name',undefined)
+    .then(function(data){
+        $scope.opt_account_id = data.data
+    })
+
     $scope.ccTypes = []
-    costCenterTypeService.get()
+    queryService.post('select id,name from ref_cost_center_type where status != 2 order by name',undefined)
     .then(function(data){
         $scope.ccTypes = data.data
     })
@@ -86,15 +94,22 @@ function($scope, $state, $sce, costCenterService, costCenterTypeService, DTOptio
         $compile(angular.element(row).contents())($scope);
     }
 
+    var qstring = "select a.id,a.code,a.name,a.description,a.status, "+
+                    "a.category_id, b.name as category_name, a.account_id, c.name as account_name "+
+                    "from mst_cost_center a, ref_cost_center_type b, mst_ledger_account c "+
+                    "where a.status!=2 and a.category_id = b.id "+
+                    "and a.account_id = c.id "
+    var qwhere = ''
+
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: API_URL+'/apifin/getCostCenters',
+        url: API_URL+'/apisql/datatable',
         type: 'GET',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.customSearch = $scope.filterVal.search;
+            data.query = qstring + qwhere;
         }
     })
     .withDataProp('data')
@@ -116,6 +131,7 @@ function($scope, $state, $sce, costCenterService, costCenterTypeService, DTOptio
         DTColumnBuilder.newColumn('code').withTitle('Code'),
         DTColumnBuilder.newColumn('name').withTitle('Name'),
         DTColumnBuilder.newColumn('category_name').withTitle('Category'),
+        DTColumnBuilder.newColumn('account_name').withTitle('Account'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
         DTColumnBuilder.newColumn('status').withTitle('Status')
     );
@@ -151,8 +167,11 @@ function($scope, $state, $sce, costCenterService, costCenterTypeService, DTOptio
 
             $scope.cc.category_id = $scope.selected.category.selected.id;
             $scope.cc.status = $scope.selected.status.selected.id;
+            $scope.cc.account_id = $scope.selected.account_id.selected.id;
 
-            costCenterService.create($scope.cc)
+            var query = "insert into mst_cost_center set ?";
+
+            queryService.post(query,$scope.cc)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -182,8 +201,11 @@ function($scope, $state, $sce, costCenterService, costCenterTypeService, DTOptio
             //exec update
             $scope.cc.category_id = $scope.selected.category.selected.id;
             $scope.cc.status = $scope.selected.status.selected.id;
+            $scope.cc.account_id = $scope.selected.account_id.selected.id;
 
-            costCenterService.update($scope.cc)
+            var query = "update mst_cost_center set ? where id = "+$scope.cc.id;
+
+            queryService.post(query,$scope.cc)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Update')
@@ -202,7 +224,7 @@ function($scope, $state, $sce, costCenterService, costCenterTypeService, DTOptio
     $scope.update = function(obj){
         $('#form-input').modal('show');
 
-        costCenterService.get(obj.id)
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
 
             $scope.cc.id = result.data[0].id
@@ -211,11 +233,18 @@ function($scope, $state, $sce, costCenterService, costCenterTypeService, DTOptio
             $scope.cc.description = result.data[0].description
             $scope.cc.status = result.data[0].status
             $scope.cc.category_id = result.data[0].category_id
+            $scope.cc.account_id = result.data[0].account_id
             $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
 
             for (var i = $scope.ccTypes.length - 1; i >= 0; i--) {
                 if ($scope.ccTypes[i].id == result.data[0].category_id){
                     $scope.selected.category.selected = {name: $scope.ccTypes[i].name, id: $scope.ccTypes[i].id}
+                }
+            };
+
+            for (var i = $scope.opt_account_id.length - 1; i >= 0; i--) {
+                if ($scope.opt_account_id[i].id == result.data[0].account_id){
+                    $scope.selected.account_id.selected = {name: $scope.opt_account_id[i].name, id: $scope.opt_account_id[i].id}
                 }
             };
 
@@ -225,7 +254,7 @@ function($scope, $state, $sce, costCenterService, costCenterTypeService, DTOptio
 
     $scope.delete = function(obj){
         $scope.cc.id = obj.id;
-        costCenterService.get(obj.id)
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             $scope.cc.code = result.data[0].code;
             $('#modalDelete').modal('show')
@@ -233,7 +262,9 @@ function($scope, $state, $sce, costCenterService, costCenterTypeService, DTOptio
     }
 
     $scope.execDelete = function(){
-        costCenterService.delete($scope.cc)
+        var query = "update mst_cost_center set status=2 where id = "+$scope.cc.id;
+
+        queryService.post(query,$scope.cc)
         .then(function (result){
             if (result.status = "200"){
                 // console.log('Success Update')
@@ -253,6 +284,7 @@ function($scope, $state, $sce, costCenterService, costCenterTypeService, DTOptio
             id: '',
             code: '',
             name: '',
+            account_id: '',
             category_id: '',
             description: '',
             status: ''
