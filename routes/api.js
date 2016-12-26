@@ -392,7 +392,8 @@ module.exports = function(connection,jwt){
             name:req.body.username,
             password: req.body.password,
             token: jwt.sign(tokenuser, 'smrai.inc'),
-            full_name: req.body.fullname
+            full_name: req.body.fullname,
+            department_id:7
         }
 
         connection(sqlstr, sqlparam,function(err, result) {

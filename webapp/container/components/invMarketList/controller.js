@@ -1,7 +1,7 @@
 
 var userController = angular.module('app', []);
 userController
-.controller('InvPurchaseRequestCtrl',
+.controller('InvMarketListCtrl',
 function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOptionsBuilder, DTColumnBuilder,DTColumnDefBuilder, $localStorage, $compile, $rootScope, API_URL,
     warehouseService) {
 
@@ -50,20 +50,20 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     'and a.cost_center_id = c.id  '+
     'and a.warehouse_id = b.id '+
     'and a.doc_status_id = d.id';*/
-    var qstring = 'select a.id,a.code,a.purchase_notes,a.doc_status_id, a.approval_status,a.revision_counter, '+
+    var qstring = 'select a.id,a.code,a.ml_notes,a.doc_status_id, a.approval_status,a.revision_counter, '+
     	'b.name as doc_status_name,a.created_date, '+
         'DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date, '+
         'a.cost_center_id,c.name cost_center_name, '+
     	'a.warehouse_id,d.name warehouse_name, '+
-    '(SELECT SUM(order_amount) FROM inv_pr_line_item item WHERE item.pr_id = a.id) AS Total, '+
+    '(SELECT SUM(order_amount) FROM inv_ml_line_item item WHERE item.ml_id = a.id) AS Total, '+
     'case when approval_status = 1 then \'Approved\' when approval_status = 2 then \'Rejected\' else \'None\'  end as status '+
-    'from ref_pr_document_status b,inv_purchase_request a '+
+    'from ref_ml_document_status b,inv_market_list a '+
     'left join mst_cost_center as c on a.cost_center_id=c.id '+
     'left join mst_warehouse d on a.warehouse_id=d.id '+
     'where a.doc_status_id=b.id '
     var qwhere = '';
     var qstringdetail = 'select a.id as p_id,a.product_id,b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name '+
-        'from inv_pr_line_item a '+
+        'from inv_ml_line_item a '+
         'left join mst_product b on a.product_id = b.id '+
         'left join mst_supplier c on a.supplier_id = c.id '
     $scope.users = []
@@ -84,7 +84,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     $scope.pr = {
         id: '',
         code: '',
-        purchase_notes: '',
+        ml_notes: '',
         delivery_date: '',
         cost_center_id: ''
     }
@@ -134,7 +134,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         console.log(data)
         $scope.warehouse = data.data
     })
-    queryService.get('select id,name from ref_pr_document_status order by seq_id',undefined)
+    queryService.get('select id,name from ref_ml_document_status order by seq_id',undefined)
     .then(function(data){
         $scope.doc_status = data.data
         $scope.doc_status_def = data.data
@@ -261,7 +261,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 var param = {}
                 param = {
                     code: $scope.pr.code,
-                    purchase_notes: $scope.pr.purchase_notes,
+                    ml_notes: $scope.pr.ml_notes,
                     doc_status_id:1,
                     delivery_date: $scope.pr.delivery_date,
                     warehouse_id: $scope.selected.warehouse.selected.id,
@@ -271,11 +271,11 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                     approval_status:$scope.selected.approval
                 }
                 console.log(param)
-                queryService.post('insert into inv_purchase_request set ?',param)
+                queryService.post('insert into inv_market_list set ?',param)
                 .then(function (result){
                     console.log(result.data.insertId)
                     var paramDetail = {
-                        pr_id: result.data.insertId,
+                        ml_id: result.data.insertId,
                         doc_status_id:1,
                         created_by:$localStorage.currentUser.name.id
                     }
@@ -290,7 +290,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                     else {
                         paramDetail['approval_status'] = 0
                     }
-                    queryService.post('insert into inv_pr_doc_state set ?',paramDetail)
+                    queryService.post('insert into inv_ml_doc_state set ?',paramDetail)
                     .then(function (result2){
                         console.log(result2.data.insertId)
                         var paramItem = []
@@ -313,7 +313,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                             }, false)
                             $('body').pgNotification({
                                 style: 'flip',
-                                message: 'Success Insert PR '+$scope.pr.code,
+                                message: 'Success Insert Market List '+$scope.pr.code,
                                 position: 'top-right',
                                 timeout: 2000,
                                 type: 'success'
@@ -371,7 +371,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             //exec update
             var param = [{
                 code: $scope.pr.code,
-                purchase_notes: $scope.pr.purchase_notes,
+                ml_notes: $scope.pr.ml_notes,
                 delivery_date:$scope.pr.delivery_date,
                 doc_status_id:($scope.selected.approval==2?1:$scope.selected.doc_status.selected.id),
                 warehouse_id:$scope.selected.warehouse.selected.id,
@@ -383,7 +383,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             },$scope.pr.id]
 
 
-            queryService.post('update inv_purchase_request set ? where id=?',param)
+            queryService.post('update inv_market_list set ? where id=?',param)
             .then(function (result){
                 console.log(result)
                 var queryState = ''
@@ -449,9 +449,9 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 
                         })
                         if ($scope.selected.approval==1 || $scope.selected.approval==2){
-                            queryState = 'insert into inv_pr_doc_state set ?'
+                            queryState = 'insert into inv_ml_doc_state set ?'
                             paramState = {
-                                pr_id:$scope.pr.id,
+                                ml_id:$scope.pr.id,
                                 doc_status_id:$scope.selected.doc_status.selected.id,
                                 created_by:$localStorage.currentUser.name.id,
                                 created_date:globalFunction.currentDate(),
@@ -465,9 +465,9 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                             }
                         }
                         else {
-                            queryState = 'insert into inv_pr_doc_state set ?'
+                            queryState = 'insert into inv_ml_doc_state set ?'
                             paramState = {
-                                pr_id:$scope.pr.id,
+                                ml_id:$scope.pr.id,
                                 doc_status_id:$scope.selected.doc_status.selected.id,
                                 created_by:$localStorage.currentUser.name.id,
                                 created_date:globalFunction.currentDate(),
@@ -552,9 +552,9 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 
         }
         console.log(paramItem)
-        queryService.post('delete from inv_pr_line_item where pr_id='+result.data.insertId,undefined)
+        queryService.post('delete from inv_ml_line_item where ml_id='+result.data.insertId,undefined)
         .then(function (result2){
-            queryService.post('insert into inv_pr_line_item(pr_id,product_id,supplier_id,order_qty,net_price,order_amount,created_by,created_date) values ?',[paramItem])
+            queryService.post('insert into inv_ml_line_item(ml_id,product_id,supplier_id,order_qty,net_price,order_amount,created_by,created_date) values ?',[paramItem])
             .then(function (result3){
                 console.log(result.data.insertId)
                 defer.resolve(result3)
@@ -565,7 +565,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             })
         },
         function (err2){
-            queryService.post('insert into inv_pr_line_item(pr_id,product_id,supplier_id,order_qty,net_price,order_amount,created_by,created_date) values ?',[paramItem])
+            queryService.post('insert into inv_ml_line_item(ml_id,product_id,supplier_id,order_qty,net_price,order_amount,created_by,created_date) values ?',[paramItem])
             .then(function (result3){
                 console.log(result.data.insertId)
                 defer.resolve(result3)
@@ -588,7 +588,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         .then(function (result){
             console.log(result)
 
-            queryService.get('select id,name,last_order_price from mst_product order by id',undefined)
+            queryService.get('select id,name,last_order_price from mst_product where is_ml=1 order by id',undefined)
             .then(function(data){
                 $scope.products = data.data
             })
@@ -612,7 +612,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 $scope.item2Add.amount = $scope.item2Add.price * $scope.item2Add.qty
             }
 
-            queryService.post(qstringdetail + ' where a.pr_id='+ids,undefined)
+            queryService.post(qstringdetail + ' where a.ml_id='+ids,undefined)
             .then(function(data){
                 console.log(data)
                 console.log($scope.items)
@@ -727,73 +727,6 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 $scope.items.splice(index, 1);
             }
 
-            //$scope.dtInstanceItem = {} //Use for reloadData
-            /*$scope.actionsHtmlItem = function(data, type, full, meta) {
-                var html = ''
-                if ($scope.el.length>0){
-                    html = '<div class="btn-group btn-group-xs">'
-                    if ($scope.el.indexOf('addDetail')>-1){
-                        html +=
-                        '<button class="btn btn-default" ng-click="addDetail(\'' + data + '\')">' +
-                        '   <i class="fa fa-shopping-basket"></i>' +
-                        '</button>&nbsp;' ;
-                    }
-                    if ($scope.el.indexOf('buttonUpdate')>-1){
-                        html +=
-                        '<button class="btn btn-default" ng-click="update(\'' + data + '\')">' +
-                        '   <i class="fa fa-edit"></i>' +
-                        '</button>&nbsp;' ;
-                    }
-                    if ($scope.el.indexOf('buttonDelete')>-1){
-                        html+='<button class="btn btn-default" ng-click="delete(\'' + data + '\')" )"="">' +
-                        '   <i class="fa fa-trash-o"></i>' +
-                        '</button>';
-                    }
-                    html += '</div>'
-                }
-                return html
-            }
-
-            $scope.createdRowItem = function(row, data, dataIndex) {
-                // Recompiling so we can bind Angular directive to the DT
-                $compile(angular.element(row).contents())($scope);
-            }
-
-            $scope.dtOptionsItem = DTOptionsBuilder.newOptions()
-            .withOption('ajax', {
-                url: API_URL+'/apisql/datatable',
-                type: 'GET',
-                headers: {
-                    "authorization":  'Basic ' + $localStorage.mediaToken
-                },
-                data: function (data) {
-                    data.query = qstringdetail + ' and pr_id='+ids;
-                }
-            })
-            .withDataProp('data')
-            .withOption('processing', true)
-            .withOption('serverSide', true)
-            .withOption('bLengthChange', false)
-            .withOption('bFilter', false)
-            .withPaginationType('full_numbers')
-            .withDisplayLength(10)
-
-            .withOption('createdRow', $scope.createdRowItem);
-
-            $scope.dtColumns = [];
-            if ($scope.el.length>0){
-                $scope.dtColumns.push(DTColumnBuilder.newColumn('p_id').withTitle('Action').notSortable()
-                .renderWith($scope.actionsHtmlItem).withOption('width', '12%'))
-            }
-            $scope.dtColumns.push(
-                DTColumnBuilder.newColumn('product_name').withTitle('Product'),
-                DTColumnBuilder.newColumn('order_qty').withTitle('Qty'),
-                DTColumnBuilder.newColumn('net_price').withTitle('Price'),
-                DTColumnBuilder.newColumn('order_amount').withTitle('Amount'),
-                DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier')
-            );*/
-            //$scope.dtInstance.reloadData();
-            //$scope.dtInstanceItem.rerender();
         })
     }
 
@@ -932,7 +865,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         $scope.pr = {
             id: '',
             code: '',
-            purchase_notes: '',
+            ml_notes: '',
             delivery_date: '',
             approval_notes: '',
             doc_status_name: ''

@@ -528,6 +528,25 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.inv.ml', {
+        url: "/marketlist",
+        templateUrl: "container/components/invMarketList/view.html",
+        controller: 'InvMarketListCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invMarketList/controller.js');
+                });
+            }]
+        }
+    })
 
     //Finance and Accounting Module
     .state('app.fin', {

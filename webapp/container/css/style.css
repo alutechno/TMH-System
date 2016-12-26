@@ -3,3 +3,23 @@
 * Override Pages default styles or create your own styles here
 
 */
+
+span.ui-select-match-text.pull-left {
+  margin-right: 15px;
+
+}
+
+.form-input-full .modal-dialog {
+    width:95%;
+}
+.form-input-big .modal-dialog {
+    width:70%;
+}
+
+.form-input-medium .modal-dialog {
+    width:50%;
+}
+
+.form-input-small .modal-dialog {
+    width:30%px;
+}

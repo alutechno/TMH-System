@@ -5,10 +5,10 @@
         <!-- START PANEL -->
         <div class="panel panel-transparent">
             <div class="panel-heading">
-                <div class="panel-title">Purchase Request
+                <div class="panel-title">Market List
                 </div>
                 <div class="pull-right" style="width: 60%;">
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-if="show.prTable" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add PR</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-if="show.prTable" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Market List</button>
                     <!--<button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickViewItem('add')" ng-if="show.itemTable" ng-show="addItem"><i class="fa fa-plus"></i> Add Item</button>-->
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
@@ -63,7 +63,7 @@
 
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="col-sm-4">
-                  <h3>PR Document</h3>
+                  <h3>Market List Document</h3>
                   <div class="row clearfix">
                       <div class="col-sm-12">
                           <div class="col-md-6">
@@ -141,7 +141,7 @@
                       <div class="col-sm-12">
                           <div pg-form-group class="form-group form-group-default" >
                               <label>Purchase Notes</label>
-                              <input type="text" class="form-control" name="purchase_notes" ng-model="pr.purchase_notes" >
+                              <input type="text" class="form-control" name="ml_notes" ng-model="pr.ml_notes" >
                           </div>
                       </div>
 
@@ -203,6 +203,7 @@
                                                   <ui-select-match placeholder="Supplier...">{{$select.selected.name}}</ui-select-match>
                                                   <ui-select-choices repeat="item in suppliers | filter: $select.search">
                                                       <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                                                      <small ng-bind-html="trustAsHtml((item.price_name | highlight: $select.search))"></small>
                                                   </ui-select-choices>
                                               </ui-select>
                                           </div>
