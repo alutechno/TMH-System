@@ -139,14 +139,9 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : contract.default_supplier_flag.$invalid && !contract.default_supplier_flag.$pristine }">
-                          <label>Default Supplier Flag</label>
-                          <ui-select ng-model="selected.default_supplier_flag.selected" theme="bootstrap" >
-                              <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in opt_default_supplier_flag | filter: $select.search">
-                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                              </ui-select-choices>
-                          </ui-select>
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : contract.discount1_percent.$invalid && !contract.discount1_percent.$pristine }">
+                          <label>Discount (%)</label>
+                          <input type="text" class="form-control" name="discount1" ng-model="contract.discount1_percent" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
               </div>

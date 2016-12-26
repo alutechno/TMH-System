@@ -31,14 +31,13 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
         contract_end_date: '',
         price: '',
         previous_price: '',
-        default_supplier_flag: ''
+        discount1_percent: ''
     }
 
     $scope.selected = {
         supplier_id: {},
         product_id: {},
-        contract_status: {},
-        default_supplier_flag: {}
+        contract_status: {}
     }
 
     $scope.arrActive = [
@@ -62,12 +61,6 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
     otherService.getTableRef('inv_prod_price_contract','contract_status')
     .then(function(data){
         $scope.opt_contract_status = data.data
-    })
-
-    $scope.opt_default_supplier_flag = []
-    otherService.getTableRef('inv_prod_price_contract','default_supplier_flag')
-    .then(function(data){
-        $scope.opt_default_supplier_flag = data.data
     })
 
     $scope.filterVal = {
@@ -154,7 +147,7 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
         DTColumnBuilder.newColumn('contract_start_date').withTitle('Start'),
         DTColumnBuilder.newColumn('contract_end_date').withTitle('End'),
         DTColumnBuilder.newColumn('price').withTitle('Price'),
-        DTColumnBuilder.newColumn('default_supplier_flag').withTitle('Default')
+        DTColumnBuilder.newColumn('discount1_percent').withTitle('Disc(%)')
     );
 
     $scope.filter = function(type,event) {
@@ -175,9 +168,6 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
     /*END AD ServerSide*/
 
     $scope.openQuickView = function(state){
-        // console.log($scope.opt_supplier_id)
-        console.log($scope.opt_contract_status)
-        console.log($scope.opt_default_supplier_flag)
         if (state == 'add'){
             $scope.clear()
         }
@@ -191,7 +181,6 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
             $scope.contract.supplier_id = $scope.selected.supplier_id.selected.id;
             $scope.contract.product_id = $scope.selected.product_id.selected.id;
             $scope.contract.contract_status = $scope.selected.contract_status.selected.value;
-            $scope.contract.default_supplier_flag = $scope.selected.default_supplier_flag.selected.value;
 
             var query = "insert into inv_prod_price_contract set ?";
 
@@ -226,7 +215,6 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
             $scope.contract.supplier_id = $scope.selected.supplier_id.selected.id;
             $scope.contract.product_id = $scope.selected.product_id.selected.id;
             $scope.contract.contract_status = $scope.selected.contract_status.selected.value;
-            $scope.contract.default_supplier_flag = $scope.selected.default_supplier_flag.selected.value;
 
             var query = "update inv_prod_price_contract set ? where id = "+$scope.contract.id;
 
@@ -260,7 +248,6 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
             $scope.contract.contract_end_date = result.data[0].contract_end_date
             $scope.contract.price = result.data[0].price
             $scope.contract.previous_price = result.data[0].previous_price
-            $scope.contract.default_supplier_flag = result.data[0].default_supplier_flag
 
             for (var i = $scope.opt_supplier_id.length - 1; i >= 0; i--) {
                 if ($scope.opt_supplier_id[i].id == result.data[0].supplier_id){
@@ -277,12 +264,6 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
                     $scope.selected.contract_status.selected = {name: $scope.opt_contract_status[i].name, value: $scope.opt_contract_status[i].value}
                 }
             };
-            for (var i = $scope.opt_default_supplier_flag.length - 1; i >= 0; i--) {
-                if ($scope.opt_default_supplier_flag[i].value == result.data[0].default_supplier_flag){
-                    $scope.selected.default_supplier_flag.selected = {name: $scope.opt_default_supplier_flag[i].name, value: $scope.opt_default_supplier_flag[i].value}
-                }
-            };
-
         })
     }
 
@@ -324,7 +305,7 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
             contract_end_date: '',
             price: '',
             previous_price: '',
-            default_supplier_flag: ''
+            discount1_percent: ''
         }
     }
 
