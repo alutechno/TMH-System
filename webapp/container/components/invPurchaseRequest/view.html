@@ -8,8 +8,8 @@
                 <div class="panel-title">Purchase Request
                 </div>
                 <div class="pull-right" style="width: 60%;">
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-if="show.prTable" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Request</button>
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickViewItem('add')" ng-if="show.itemTable" ng-show="addItem"><i class="fa fa-plus"></i> Add Item</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-if="show.prTable" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add PR</button>
+                    <!--<button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickViewItem('add')" ng-if="show.itemTable" ng-show="addItem"><i class="fa fa-plus"></i> Add Item</button>-->
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
                     </div>
@@ -25,31 +25,32 @@
             </div>
             <div class="panel-body">
                 <div ng-if="show.prTable" id="divPr" >
-                    <table class="table table-hover table-condensed " id="prTable" name="prTable" datatable dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
+                    <table class="table table-hover table-condensed " id="prTable" name="prTable" datatable dt-options="dtOptions" dt-columns="dtColumns" dt-instance="nested.dtInstance">
                     </table>
                 </div>
-                <div class="col-sm-12" ng-show="show.itemTable">
+                <!--<div class="col-sm-12" ng-show="show.itemTable">
                     <label>PR Code: <span name="itemPrCode" ng-bind="pr.code"></span></label><br/>
                     <label>Approval Status: <span ng-bind="pr.doc_status_name"></span></label><br/>
-                    <label>Department: <span ng-bind="pr.department_name"></span></label><br/>
-                </div>
+                    <label>Warehouse: <span ng-bind="pr.warehouse_name"></span></label><br/>
+                    <label>Cost Center: <span ng-bind="pr.cost_center_name"></span></label><br/>
+                </div>-->
 
-                <div ng-if="show.itemTable" id="divItem" >
+                <!--<div ng-if="show.itemTable" id="divItem" >
                     <table class="table table-hover table-condensed " id="itemTable" name="itemTable" datatable dt-options="dtOptionsItem" dt-columns="dtColumns" dt-instance="dtInstanceItem">
                     </table>
-                </div>
+                </div>-->
             </div>
         </div>
     <!-- END PANEL -->
     </div>
 
 <!--START FORM INPUT-->
-<div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade slide-right form-input-full" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Request Information</div>
+       <div class="panel-title">Purchase Request Information</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -59,31 +60,193 @@
 
       <!-- START FORM -->
       <div class="panel panel-transparent m-t-20">
+
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
-              <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.code.$invalid && !pr.code.$pristine }">
-                          <label>Code</label>
-                          <input type="text" class="form-control" name="code" ng-model="pr.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+              <div class="col-sm-4">
+                  <h3>PR Document</h3>
+                  <div class="row clearfix">
+                      <div class="col-sm-12">
+                          <div class="col-md-6">
+                              <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.code.$invalid && !pr.code.$pristine }">
+                                  <label>Code</label>
+                                  <input type="text" class="form-control" name="code" ng-model="pr.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
+                              </div>
+                          </div>
+                          <div class="col-md-6">
+                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : pr.doc_status_name.$invalid && !pr.doc_status_name.$pristine }" >
+                                  <label>Status</label>
+                                  <ui-select ng-model="selected.doc_status.selected" theme="bootstrap" ng-disabled="statusState || viewMode" on-select="setApprovalStatus($item)">
+                                      <ui-select-match placeholder="Select Status">{{$select.selected.name}}</ui-select-match>
+                                      <ui-select-choices repeat="item in doc_status | filter: $select.search">
+                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                      </ui-select-choices>
+                                  </ui-select>
+                              </div>
+                          </div>
                       </div>
-                  </div>
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.purchase_notes.$invalid && !pr.purchase_notes.$pristine }">
-                          <label>Notes</label>
-                          <input type="text" class="form-control" name="purchase_notes" ng-model="pr.purchase_notes" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      <div class="col-sm-12">
+                          <div class="col-md-6">
+                              <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.delivery_date.$invalid && !pr.delivery_date.$pristine }">
+                                  <label>Delivery Date</label>
+                                  <input type="text" class="form-control" ng-model="pr.delivery_date" name="delivery_date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
+                              </div>
+                          </div>
+                          <div class="col-md-6">
+                              <div class="checkbox check-primary" >
+                                  <input type="checkbox" id="cbApprove" ng-checked="selected.approval==1" ng-true-value="1" ng-model="selected.approval" ng-disabled="updateState || approveState ||viewMode">
+                                  <label for="cbApprove">Approve</label>
+                                  <input type="checkbox" id="cbReject" ng-checked="selected.approval==2" ng-true-value="2" ng-model="selected.approval" ng-disabled="updateState || rejectState || viewMode">
+                                  <label for="cbReject">Reject</label>
+                              </div>
+                          </div>
+
                       </div>
-                  </div>
+                      <div class="col-sm-12">
+                          <div class="col-md-6">
+                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : pr.warehouse_id.$invalid && !pr.warehouse_id.$pristine }">
+                                  <label>Location</label>
+                                  <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode">
+                                      <ui-select-match placeholder="Select Warehouse">{{$select.selected.name}}</ui-select-match>
+                                      <ui-select-choices repeat="item in warehouse | filter: $select.search">
+                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                      </ui-select-choices>
+                                  </ui-select>
+                              </div>
+                          </div>
+                          <div class="col-md-6">
+                              <div pg-form-group class="form-group form-group-default " ng-disabled="updateState" >
+                                  <label>{{selected.approval==1?'Approve':'Reject'}} Notes</label>
+                                  <input type="text" class="form-control" name="approval_notes" ng-model="pr.approval_notes" ng-disabled="!selected.approval || updateState || viewMode" >
+                              </div>
+                          </div>
 
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.delivery_date.$invalid && !pr.delivery_date.$pristine }">
-                          <label>Expected Arrival Date</label>
-                          <input type="text" class="form-control" ng-model="pr.delivery_date" name="delivery_date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd">
                       </div>
+
+                      <div class="col-sm-12">
+                          <div class="col-md-6">
+                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : pr.cost_center_id.$invalid && !pr.cost_center_id.$pristine }">
+                                  <label>Cost Center</label>
+                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                                      <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
+                                      <ui-select-choices repeat="item in cost_center | filter: $select.search">
+                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                      </ui-select-choices>
+                                  </ui-select>
+                              </div>
+                          </div>
+
+                      </div>
+
+
+                      <div class="col-sm-12">
+                          <div pg-form-group class="form-group form-group-default" >
+                              <label>Purchase Notes</label>
+                              <input type="text" class="form-control" name="purchase_notes" ng-model="pr.purchase_notes" >
+                          </div>
+                      </div>
+
+
                   </div>
-
-
               </div>
+              <div class="col-sm-8">
+                  <h3>List of Item</h3>
+                  <!--<div ng-if="show.itemTable" id="divItem" >-->
+                  <div  id="divItem" >
+                      <table class="table table-condensed m-b-0" >
+                          <tr>
+                              <th>
+                                  <div class="form-group">
+                                      <button class="btn btn-primary btn-cons pull-right" ng-click="addItem()" ng-show="addItem"><i class="fa fa-plus">Item</i></button>
+                                  </div>
+                              </th>
+                              <th width="15%">
 
+                                      <label width="100%">
+                                          <div class="form-group clearfix">
+                                              <ui-select ng-model="selected.product.selected" theme="bootstrap" on-select="getProductPrice($item)">
+                                                  <ui-select-match placeholder="Product...">{{$select.selected.name}}</ui-select-match>
+                                                  <ui-select-choices repeat="item in products | filter: $select.search">
+                                                      <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+
+                                                  </ui-select-choices>
+                                              </ui-select>
+                                          </div>
+                                      </label>
+
+                              </th>
+                              <th>
+                                  <div class="form-group">
+                                      <label>
+                                          <input placeholder="Qty..." type="number" class="form-control" name="Qty" ng-model="item2Add.qty" value="1" ng-keyup="updatePrice($event)">
+                                      </label>
+                                  </div>
+                              </th>
+                              <th>
+                                  <div class="form-group">
+                                      <label>
+                                          <input placeholder="Price..." type="number" class="form-control" name="Price" ng-model="item2Add.price" ng-value="item2Add.price" ng-readonly=true>
+                                      </label>
+                                  </div>
+                              </th>
+                              <th>
+                                  <div class="form-group">
+                                      <label>
+                                          <input placeholder="Amount..." type="text" class="form-control" name="Amount" ng-model="item2Add.amount" ng-value="item2Add.amount" ng-readonly="true">
+                                      </label>
+                                  </div>
+                              </th>
+                              <th>
+
+                                      <label>
+                                          <div class="form-group clearfix">
+                                              <ui-select ng-model="selected.supplier.selected" theme="bootstrap" on-select="getProductPriceSupplier($item)">
+                                                  <ui-select-match placeholder="Supplier...">{{$select.selected.name}}</ui-select-match>
+                                                  <ui-select-choices repeat="item in suppliers | filter: $select.search">
+                                                      <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                                                  </ui-select-choices>
+                                              </ui-select>
+                                          </div>
+                                      </label>
+
+                              </th>
+                          </tr>
+
+                      </table>
+                        <table class="table table-hover table-condensed " id="itemTable" name="itemTable" datatable dt-options="dtOptionsItem"  dt-column-defs="dtColumnDefs" dt-instance="nested.dtInstanceItem">
+                            <thead>
+                            <tr>
+
+
+                            </tr>
+                            <tr>
+                                <th width="5%">Action</th>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Amount</th>
+                                <th>Supplier</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="item in items">
+                                <td>
+                                    <div class="btn-group btn-group-xs">
+                                        <button type="button" class="btn btn-default" ng-click="modifyItem($index)" ><i class="fa fa-edit"></i></button>
+                                        <button type="button" class="btn btn-default" ng-click="removeItem($index)" ><i class="fa fa-trash-o"></i></button>
+                                    </div>
+                                </td>
+                                <td>{{ item.product_name }}</td>
+                                <td>{{ item.qty }}</td>
+                                <td>{{ item.price }}</td>
+                                <td>{{ item.amount }}</td>
+                                <td>{{ item.supplier_name }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                      <!--<table class="table table-hover table-condensed " id="itemTable" name="itemTable" datatable dt-options="dtOptionsItem" dt-columns="dtColumns" dt-instance="dtInstanceItem">
+                      </table>-->
+                  </div>
+              </div>
               <br>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
@@ -104,10 +267,11 @@
 <!--END FORM INPUT-->
 
 <!-- START INPUT PRODUCT-->
+
 <div class="modal fade slide-right" id="form-input-item" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content-wrapper">
-      
+        <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
        <div class="panel-title">Item Information</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
@@ -141,28 +305,28 @@
 
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default form-group-default-select ">
-                          <label class="">Warehouse</label>
-                          <ui-select ng-model="selected.warehouse.selected" theme="bootstrap" >
-                              <ui-select-match placeholder="Select Warehouse">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in warehouses | filter: $select.search">
+                          <label class="">Supplier</label>
+                          <ui-select ng-model="selected.supplier.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="Select Supplier">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in suplier | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                               </ui-select-choices>
                           </ui-select>
                       </div>
                   </div>
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select ">
-                          <label class="">Delivery Type</label>
-                          <ui-select ng-model="selected.delivery_type.selected" theme="bootstrap" >
-                              <ui-select-match placeholder="Select Type">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in delivery_types | filter: $select.search">
-                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                              </ui-select-choices>
-                          </ui-select>
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : item.price.$invalid && !item.price.$pristine }">
+                          <label>Price</label>
+                          <input type="text" class="form-control" name="price" ng-model="item.price" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
+                  </div>
 
-
-              </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : item.total.$invalid && !item.total.$pristine }">
+                          <label>Total</label>
+                          <input type="text" class="form-control" name="total" ng-model="item.total" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
 
               <br>
               <div class="clearfix"></div>
@@ -193,7 +357,7 @@
                     <h4 class="no-margin p-b-10">Are you sure want to delete {{pr.code}} ?</h4>
                     <div >
                         <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="clear()">No</button>
                     </div>
                 </div>
             </div>

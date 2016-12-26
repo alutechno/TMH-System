@@ -15,6 +15,7 @@ module.exports = function(connection,jwt){
 
     app.get('/getCountry', function (req, res) {
         //Handle Request For Selected Records
+        console.log('getCountry')
         var where = '';
         var whereArr = []
         if (req.query.id){
@@ -23,10 +24,12 @@ module.exports = function(connection,jwt){
         }
         if (whereArr.length>0) where = 'where '+whereArr.join(' and ')
 
-        var sqlstr = 'select id,code,name,status '+
+        var sqlstr = 'select id,code,name '+
             ' from ref_country '+where
         connection(sqlstr, undefined,function(err, rows, fields) {
+            console.log(rows)
             if (err){
+                console.log(err)
                 res.status('404').send({
                     status: '404',
                     desc: err
@@ -67,7 +70,7 @@ module.exports = function(connection,jwt){
 
         if (whereArr.length>0) where = 'where '+whereArr.join(' and ')
 
-        var sqlstr = 'select id,code,name,prov_id,status '+
+        var sqlstr = 'select id,code,name,prov_id '+
             ' from ref_kabupaten '+where
         connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
@@ -88,7 +91,7 @@ module.exports = function(connection,jwt){
 
         if (whereArr.length>0) where = 'where '+whereArr.join(' and ')
 
-        var sqlstr = 'select id,code,name,kab_id,status '+
+        var sqlstr = 'select id,code,name,kab_id '+
             ' from ref_kecamatan '+where
         connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
@@ -109,8 +112,29 @@ module.exports = function(connection,jwt){
 
         if (whereArr.length>0) where = 'where '+whereArr.join(' and ')
 
-        var sqlstr = 'select id,code,name,kec_id,status '+
+        var sqlstr = 'select id,code,name,kec_id '+
             ' from ref_kelurahan '+where
+        connection(sqlstr, undefined,function(err, rows, fields) {
+            if (err){
+                res.status('404').send({
+                    status: '404',
+                    desc: err
+                });
+            }
+            else res.status(200).send(rows)
+        });
+    });
+
+    app.get('/getDesa', function (req, res) {
+        var where = '';
+        var whereArr = []
+        if (req.query.id) whereArr.push('id='+req.query.id)
+        if (req.query.kec_id) whereArr.push('kec_id='+req.query.kec_id)
+
+        if (whereArr.length>0) where = 'where '+whereArr.join(' and ')
+
+        var sqlstr = 'select id,code,name,kec_id '+
+            ' from ref_desa '+where
         connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({

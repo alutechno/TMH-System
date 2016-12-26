@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvSupplierCtrl',
-function($scope, $state, $sce, supplierService, otherService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, queryService, supplierService, otherService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -13,10 +13,42 @@ function($scope, $state, $sce, supplierService, otherService, DTOptionsBuilder, 
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
+    var qstring = 'select a.id,a.code,a.name,a.short_name,a.description,a.address,a.contact_person,a.phone_number,a.fax_number,a.def_payment_type,a.def_due_days,a.status, '+
+    	'a.country_id,b.name as country_name,a.prov_id,c.name as prov_name,a.kab_id,d.name as kab_name, '+
+        'a.kec_id,e.name as kec_name, a.kel_id,f.name as kel_name, a.used_currency, g.code as used_currency_code, '+
+        'a.supplier_type_id,h.name as supplier_type_name '+
+    'from mst_supplier a '+
+    'left join ref_country b on a.country_id=b.id '+
+    'left join ref_province c on a.prov_id=c.id '+
+    'left join ref_kabupaten d on a.kab_id=d.id '+
+    'left join ref_kecamatan e on a.kec_id=e.id '+
+    'left join ref_desa f on a.kel_id=f.id '+
+    'left join ref_currency g on a.used_currency=g.code '+
+    'left join ref_supplier_type h on a.supplier_type_id=h.id where a.status!=2 '
+    var qwhereobj = {
+        text: ''
+    }
+    var qwhere = ''
 
     $scope.role = {
         selected: []
     };
+
+    $scope.arr = {
+        country_id: [],
+        prov_id: [],
+        kab_id: [],
+        kec_id: [],
+        kel_id: [],
+        supplier_type: [],
+        status: [
+            {id: 0, name: 'Not Active'},
+            {id: 1, name: 'Active'},
+            {id: 3, name: 'Suspended'},
+            {id: 4, name: 'Black Listed'}
+        ],
+        used_currency: []
+    }
 
     $scope.suppliers = {}
     $scope.id = '';
@@ -36,48 +68,32 @@ function($scope, $state, $sce, supplierService, otherService, DTOptionsBuilder, 
     }
 
     $scope.selected = {
-        status: {},
-        country: {},
-        prov: {},
-        kab: {},
-        kec: {},
-        kel: {}
+        status: {selected:{}},
+        country_id: {selected:{}},
+        prov_id: {selected:{}},
+        kab_id: {selected:{}},
+        kec_id: {selected:{}},
+        kel_id: {selected:{}},
+        supplier_type: {selected:{}},
+        status: {selected:$scope.arr.status[1]},
+        used_currency: {selected:{}}
     }
 
-    $scope.arrActive = [
-        {id: 1, name: 'Yes'},
-        {id: 0, name: 'No'}
-    ]
-
-    $scope.countries = []
-    otherService.getCountry()
+    queryService.get('select id,code,name from ref_country order by name',undefined)
     .then(function(data){
-        $scope.countries = data.data
+        $scope.arr.country_id = data.data
     })
 
-    $scope.province = []
-    otherService.getProvince()
+    queryService.get('select id,code,name from ref_currency order by code',undefined)
     .then(function(data){
-        $scope.province = data.data
+        $scope.arr.used_currency = data.data
+        $scope.selected.used_currency['selected'] = data.data[0]
     })
 
-    $scope.kabupaten = []
-    // otherService.getKabupaten()
-    // .then(function(data){
-    //     $scope.kabupaten = data.data
-    // })
-
-    $scope.kecamatan = []
-    // otherService.getKecamatan()
-    // .then(function(data){
-    //     $scope.kecamatan = data.data
-    // })
-
-    $scope.kelurahan = []
-    // otherService.getKelurahan()
-    // .then(function(data){
-    //     $scope.kelurahan = data.data
-    // })
+    queryService.get('select id,name from ref_supplier_type order by name',undefined)
+    .then(function(data){
+        $scope.arr.supplier_type = data.data
+    })
 
     $scope.filterVal = {
         search: ''
@@ -116,13 +132,13 @@ function($scope, $state, $sce, supplierService, otherService, DTOptionsBuilder, 
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: API_URL+'/apiinv/getSuppliers',
+        url: API_URL+'/apisql/datatable',
         type: 'GET',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.customSearch = $scope.filterVal.search;
+            data.query = qstring + qwhere;
         }
     })
     .withDataProp('data')
@@ -145,25 +161,42 @@ function($scope, $state, $sce, supplierService, otherService, DTOptionsBuilder, 
         DTColumnBuilder.newColumn('name').withTitle('Name'),
         DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
         DTColumnBuilder.newColumn('status').withTitle('Status'),
-        DTColumnBuilder.newColumn('kab_name').withTitle('Kabupaten'),
-        DTColumnBuilder.newColumn('kel_name').withTitle('Kelurahan'),
-        DTColumnBuilder.newColumn('kec_name').withTitle('Kecamatan'),
+        DTColumnBuilder.newColumn('contact_person').withTitle('Contact Person'),
+        DTColumnBuilder.newColumn('phone_number').withTitle('Phone'),
         DTColumnBuilder.newColumn('address').withTitle('Address')
     );
 
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
+                if ($scope.filterVal.search.length>0) qwhereobj.text = ' a.name="'+$scope.filterVal.search+'"'
+                else qwhereobj.text = ''
+                qwhere = setWhere()
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
                 }, false)
             }
         }
         else {
+            qwhere = setWhere()
             $scope.dtInstance.reloadData(function(obj){
                 console.log(obj)
             }, false)
         }
+
+
+    }
+    function setWhere(){
+        var arrWhere = []
+        var strWhere = ''
+        for (var key in qwhereobj){
+            if (qwhereobj[key].length>0) arrWhere.push(qwhereobj[key])
+        }
+        if (arrWhere.length>0){
+            strWhere = ' and ' + arrWhere.join(' and ')
+        }
+        console.log(strWhere)
+        return strWhere
     }
 
     /*END AD ServerSide*/
@@ -179,59 +212,74 @@ function($scope, $state, $sce, supplierService, otherService, DTOptionsBuilder, 
         if ($scope.supplier.id.length==0){
             //exec creation
             $scope.supplier.status = $scope.selected.status.selected.id;
-            $scope.supplier.country_id = $scope.selected.country.selected.id;
-            $scope.supplier.prov_id = $scope.selected.prov.selected.id;
-            $scope.supplier.kab_id = $scope.selected.kab.selected.id;
-            $scope.supplier.kec_id = $scope.selected.kec.selected.id;
-            $scope.supplier.kel_id = $scope.selected.kel.selected.id;
-
-            supplierService.create($scope.supplier)
+            $scope.supplier.country_id = $scope.selected.country_id.selected?$scope.selected.country_id.selected.id:null;
+            $scope.supplier.prov_id = $scope.selected.prov_id.selected?$scope.selected.prov_id.selected.id:null;
+            $scope.supplier.kab_id = $scope.selected.kab_id.selected?$scope.selected.kab_id.selected.id:null;
+            $scope.supplier.kec_id = $scope.selected.kec_id.selected?$scope.selected.kec_id.selected.id:null;
+            $scope.supplier.kel_id = $scope.selected.kel_id.selected?$scope.selected.kel_id.selected.id:null;
+            $scope.supplier.used_currency = $scope.selected.used_currency.selected?$scope.selected.used_currency.selected.code:null;
+            $scope.supplier.supplier_type_id = $scope.selected.supplier_type.selected?$scope.selected.supplier_type.selected.id:null;
+            console.log($scope.supplier)
+            queryService.post('insert into mst_supplier SET ?',$scope.supplier)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
+                        // console.log(obj)
                     }, false)
+                    $scope.clear()
                     $('body').pgNotification({
                         style: 'flip',
-                        message: 'Success Insert '+$scope.supplier.name,
+                        message: 'Success Insert '+$scope.supplier.short_name,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'success'
                     }).show();
-
             },
             function (err){
                 $('#form-input').pgNotification({
                     style: 'flip',
-                    message: 'Error Insert: '+err.desc.code,
+                    message: 'Error Insert: '+err.code,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'danger'
                 }).show();
             })
-
         }
         else {
             //exec update
             $scope.supplier.status = $scope.selected.status.selected.id;
-            $scope.supplier.country_id = $scope.selected.country.selected.id;
-            $scope.supplier.prov_id = $scope.selected.prov.selected.id;
-            $scope.supplier.kab_id = $scope.selected.kab.selected.id;
-            $scope.supplier.kec_id = $scope.selected.kec.selected.id;
-            $scope.supplier.kel_id = $scope.selected.kel.selected.id;
-
-            supplierService.update($scope.supplier)
+            $scope.supplier.country_id = $scope.selected.country_id.selected?$scope.selected.country_id.selected.id:null;
+            $scope.supplier.prov_id = $scope.selected.prov_id.selected?$scope.selected.prov_id.selected.id:null;
+            $scope.supplier.kab_id = $scope.selected.kab_id.selected?$scope.selected.kab_id.selected.id:null;
+            $scope.supplier.kec_id = $scope.selected.kec_id.selected?$scope.selected.kec_id.selected.id:null;
+            $scope.supplier.kel_id = $scope.selected.kel_id.selected?$scope.selected.kel_id.selected.id:null;
+            $scope.supplier.used_currency = $scope.selected.used_currency.selected?$scope.selected.used_currency.selected.code:null;
+            $scope.supplier.supplier_type_id = $scope.selected.supplier_type.selected?$scope.selected.supplier_type.selected.id:null;
+            var param = $scope.supplier
+            //delete param.id
+            queryService.post('update mst_supplier SET ? WHERE id='+$scope.supplier.id ,param)
             .then(function (result){
-                if (result.status = "200"){
-                    console.log('Success Update')
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
+                        // console.log(obj)
                     }, false)
-                }
-                else {
-                    console.log('Failed Update')
-                }
+                    $scope.clear()
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Update '+$scope.supplier.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
+            },
+            function (err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Update: '+err.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
             })
         }
     }
@@ -240,10 +288,14 @@ function($scope, $state, $sce, supplierService, otherService, DTOptionsBuilder, 
         $('#form-input').modal('show');
         $scope.supplier.id = obj.id
         // console.log(obj)
-        supplierService.get(obj.id)
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
+            $('#form-input').modal('show');
             $scope.supplier.code = result.data[0].code
             $scope.supplier.name = result.data[0].name
+            $scope.supplier.contact_person = result.data[0].contact_person
+            $scope.supplier.phone_number = result.data[0].phone_number
+            $scope.supplier.fax_number = result.data[0].fax_number
             $scope.supplier.short_name = result.data[0].short_name
             $scope.supplier.description = result.data[0].description
             $scope.supplier.status = result.data[0].status
@@ -253,40 +305,57 @@ function($scope, $state, $sce, supplierService, otherService, DTOptionsBuilder, 
             $scope.supplier.kab_id = result.data[0].kab_id
             $scope.supplier.kec_id = result.data[0].kec_id
             $scope.supplier.kel_id = result.data[0].kel_id
-            $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
-            for (var i = $scope.countries.length - 1; i >= 0; i--) {
-                if ($scope.countries[i].id == result.data[0].country_id){
-                    $scope.selected.country.selected = {name: $scope.countries[i].name, id: $scope.countries[i].id}
+            for (var i=0;i<$scope.arr.status.length;i++){
+                if (result.data[0].status == $scope.arr.status[i].code){
+                    $scope.selected.status.selected = $scope.arr.status[i]
+                }
+            }
+            for (var i=0;i<$scope.arr.supplier_type.length;i++){
+                if (result.data[0].supplier_type_id == $scope.arr.supplier_type[i].id){
+                    $scope.selected.supplier_type.selected = $scope.arr.supplier_type[i]
+                }
+            }
+            for (var i = $scope.arr.country_id.length - 1; i >= 0; i--) {
+                if ($scope.arr.country_id[i].id == result.data[0].country_id){
+                    $scope.selected.country_id.selected = {name: $scope.arr.country_id[i].name, id: $scope.arr.country_id[i].id}
                 }
             };
-            for (var i = $scope.province.length - 1; i >= 0; i--) {
-                if ($scope.province[i].id == result.data[0].prov_id){
-                    $scope.selected.prov.selected = {name: $scope.province[i].name, id: $scope.province[i].id}
+            for (var i = $scope.arr.prov_id.length - 1; i >= 0; i--) {
+                if ($scope.arr.prov_id[i].id == result.data[0].prov_id){
+                    $scope.selected.prov_id.selected = {name: $scope.arr.prov_id[i].name, id: $scope.arr.prov_id[i].id}
                 }
             };
-            for (var i = $scope.kabupaten.length - 1; i >= 0; i--) {
-                if ($scope.kabupaten[i].id == result.data[0].kab_id){
-                    $scope.selected.kab.selected = {name: $scope.kabupaten[i].name, id: $scope.kabupaten[i].id}
+            for (var i = $scope.arr.kab_id.length - 1; i >= 0; i--) {
+                if ($scope.arr.kab_id[i].id == result.data[0].kab_id){
+                    $scope.selected.kab_id.selected = {name: $scope.arr.kab_id[i].name, id: $scope.arr.kab_id[i].id}
                 }
             };
-            for (var i = $scope.kecamatan.length - 1; i >= 0; i--) {
-                if ($scope.kecamatan[i].id == result.data[0].kec_id){
-                    $scope.selected.kec.selected = {name: $scope.kecamatan[i].name, id: $scope.kecamatan[i].id}
+            for (var i = $scope.arr.kec_id.length - 1; i >= 0; i--) {
+                if ($scope.arr.kec_id[i].id == result.data[0].kec_id){
+                    $scope.selected.kec_id.selected = {name: $scope.arr.kec_id[i].name, id: $scope.arr.kec_id[i].id}
                 }
             };
-            for (var i = $scope.kelurahan.length - 1; i >= 0; i--) {
-                if ($scope.kelurahan[i].id == result.data[0].kel_id){
-                    $scope.selected.kel.selected = {name: $scope.kelurahan[i].name, id: $scope.kelurahan[i].id}
+            for (var i = $scope.arr.kel_id.length - 1; i >= 0; i--) {
+                if ($scope.arr.kel_id[i].id == result.data[0].kel_id){
+                    $scope.selected.kel_id.selected = {name: $scope.arr.kel_id[i].name, id: $scope.arr.kel_id[i].id}
                 }
             };
-
+        },function(err){
+            $('body').pgNotification({
+                style: 'flip',
+                message: 'Failed Fetch Data: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
         })
+
 
     }
 
     $scope.delete = function(obj){
         $scope.supplier.id = obj.id;
-        supplierService.get(obj.id)
+        queryService.get('select name from mst_supplier where id='+obj.id,undefined)
         .then(function(result){
             $scope.supplier.name = result.data[0].name;
             $('#modalDelete').modal('show')
@@ -294,11 +363,12 @@ function($scope, $state, $sce, supplierService, otherService, DTOptionsBuilder, 
     }
 
     $scope.execDelete = function(){
-        supplierService.delete($scope.supplier)
+        queryService.get('update mst_supplier set status=2 where id='+$scope.supplier.id,undefined)
         .then(function (result){
             if (result.status = "200"){
                 console.log('Success Delete')
                 $('#form-input').modal('hide')
+                $scope.clear()
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
                 }, false)
@@ -324,29 +394,43 @@ function($scope, $state, $sce, supplierService, otherService, DTOptionsBuilder, 
             kec_id: '',
             kel_id: ''
         }
+        $scope.selected = {
+            status: {},
+            country_id: {},
+            prov_id: {},
+            kab_id: {},
+            kec_id: {},
+            kel_id: {},
+            supplier_type: {},
+            status: {selected:$scope.arr.status[1]},
+            used_currency: {selected:$scope.arr.used_currency[0]}
+        }
     }
 
-    $scope.getKabupaten = function(selectItem){
-        // console.log(selectItem)
-        otherService.getKabupaten('',selectItem.id)
+    $scope.getProvince = function(selectItem){
+        queryService.get('select id,name from ref_province where country_id='+selectItem.id+' order by name',undefined)
         .then(function(data){
-            $scope.kabupaten = data.data
+            $scope.arr.prov_id = data.data
+        })
+    }
+    $scope.getKabupaten = function(selectItem){
+        queryService.get('select id,name from ref_kabupaten where prov_id='+selectItem.id+' order by name',undefined)
+        .then(function(data){
+            $scope.arr.kab_id = data.data
         })
     }
 
     $scope.getKecamatan = function(selectItem){
-        // console.log(selectItem)
-        otherService.getKecamatan('',selectItem.id)
+        queryService.get('select id,name from ref_kecamatan where kab_id='+selectItem.id+' order by name',undefined)
         .then(function(data){
-            $scope.kecamatan = data.data
+            $scope.arr.kec_id = data.data
         })
     }
 
     $scope.getKelurahan = function(selectItem){
-        // console.log(selectItem)
-        otherService.getKelurahan('',selectItem.id)
+        queryService.get('select id,name from ref_desa where kec_id='+selectItem.id+' order by name',undefined)
         .then(function(data){
-            $scope.kelurahan = data.data
+            $scope.arr.kel_id = data.data
         })
     }
 
