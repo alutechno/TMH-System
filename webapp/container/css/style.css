@@ -23,3 +23,11 @@ span.ui-select-match-text.pull-left {
 .form-input-small .modal-dialog {
     width:30%px;
 }
+
+.page-sidebar .sidebar-menu .menu-items > li > a > .title {
+    float: left;
+    white-space: nowrap;
+     text-overflow: ellipsis;
+    overflow: hidden;
+     width: 80%; 
+}

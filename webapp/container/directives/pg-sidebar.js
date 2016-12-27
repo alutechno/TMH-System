@@ -4,14 +4,52 @@
 * ============================================================ */
 
 angular.module('app')
-.directive('menuItem', function($compile) {
+.directive('menuItem', function($compile,principal) {
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {
+            var menu = (principal.getAllMenu(undefined));
+            var t1 = ''
+            var z= 0;
+            for (var x in menu){
+                //ng-controller="MenuItemsCtrl"
+                z=0
+                console.log(menu[x])
+                for (var key in menu[x]){
+                    for (var k2 in menu[x][key]){
+                        for (var k3 in menu[x][key][k2]){
+                            if(menu[x][key][k2][k3].is_sidebar == 'Y'){
+                                var icon = ''
+                                if (menu[x][key][k2][k3].sidebar_icon.length>0){
+                                    icon = '<i class="fa '+menu[x][key][k2][k3].sidebar_icon+'"></i>'
+                                }
+                                else if (menu[x][key][k2][k3].sidebar_short.length>0){
+                                    icon = menu[x][key][k2][k3].sidebar_short
+                                }
+                                else {
+                                    icon = menu[x][key][k2][k3].name.substring(0,2)
+                                }
+                                t1 += '<li class="'+(z==0?'m-t-10':'')+'" ng-class="{\'open active\':includes(\''+menu[x][key][k2][k3].state+'\')}" ui-sref-active="active" ng-show="showSideMenu.'+x+'">'+
+                                '<a ui-sref="'+menu[x][key][k2][k3].state+'" class="detailed">'+
+                                '<span class="title">'+menu[x][key][k2][k3].name+'</span>'+
+
+                                '</a>'+
+                                '<span class="icon-thumbnail">'+icon+'</span>'+
+                                '</li>'
+                                z++;
+                            }
+
+
+                        }
+
+                    }
+
+                }
+            }
             var template =
             '<li class="m-t-5 open" ui-sref-active="active">'+
             '<a ui-sref="app.dashboard" class="detailed">'+
-            '<span class="title">Dashboardsss</span>'+
+            '<span class="title">Purchase Request</span>'+
             '<span class="details">100 New Updates</span>'+
             '</a>'+
             '<span class="icon-thumbnail"><i class="pg-home"></i></span>'+
@@ -59,7 +97,7 @@ angular.module('app')
             '</ul>'+
             '</li>';
 
-            var linkFn = $compile(template);
+            var linkFn = $compile(t1);
             var content = linkFn(scope);
             element.html(content);
 
