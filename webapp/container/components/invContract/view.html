@@ -140,8 +140,24 @@
               <div class="row clearfix">
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : contract.discount1_percent.$invalid && !contract.discount1_percent.$pristine }">
-                          <label>Discount (%)</label>
+                          <label>Discount 1(%)</label>
                           <input type="text" class="form-control" name="discount1" ng-model="contract.discount1_percent" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : contract.discount2_percent.$invalid && !contract.discount2_percent.$pristine }">
+                          <label>Discount 2(%)</label>
+                          <input type="text" class="form-control" name="discount2" ng-model="contract.discount2_percent" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : contract.discount_amount.$invalid && !contract.discount_amount.$pristine }">
+                          <label>Discount Amount(IDR)</label>
+                          <input type="text" class="form-control" name="discountamount" ng-model="contract.discount_amount" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
               </div>

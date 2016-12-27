@@ -31,7 +31,9 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
         contract_end_date: '',
         price: '',
         previous_price: '',
-        discount1_percent: ''
+        discount1_percent: '',
+        discount2_percent: '',
+        discount_amount: ''
     }
 
     $scope.selected = {
@@ -147,7 +149,9 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
         DTColumnBuilder.newColumn('contract_start_date').withTitle('Start'),
         DTColumnBuilder.newColumn('contract_end_date').withTitle('End'),
         DTColumnBuilder.newColumn('price').withTitle('Price'),
-        DTColumnBuilder.newColumn('discount1_percent').withTitle('Disc(%)')
+        DTColumnBuilder.newColumn('discount1_percent').withTitle('Disc 1(%)'),
+        DTColumnBuilder.newColumn('discount2_percent').withTitle('Disc 2(%)'),
+        DTColumnBuilder.newColumn('discount_amount').withTitle('Disc Amount')
     );
 
     $scope.filter = function(type,event) {
@@ -248,6 +252,9 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
             $scope.contract.contract_end_date = result.data[0].contract_end_date
             $scope.contract.price = result.data[0].price
             $scope.contract.previous_price = result.data[0].previous_price
+            $scope.contract.discount1_percent = result.data[0].discount1_percent
+            $scope.contract.discount2_percent = result.data[0].discount2_percent
+            $scope.contract.discount_amount = result.data[0].discount_amount
 
             for (var i = $scope.opt_supplier_id.length - 1; i >= 0; i--) {
                 if ($scope.opt_supplier_id[i].id == result.data[0].supplier_id){
@@ -305,7 +312,9 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
             contract_end_date: '',
             price: '',
             previous_price: '',
-            discount1_percent: ''
+            discount1_percent: '',
+            discount2_percent: '',
+            discount_amount: ''
         }
     }
 
