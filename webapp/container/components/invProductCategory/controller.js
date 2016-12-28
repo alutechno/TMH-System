@@ -32,24 +32,19 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         id: '',
         name: '',
         description: '',
-        status: '',
-        status_name: ''
+        status: ''
     }
 
     $scope.selected = {
         status: {}
     }
 
-    $scope.arrActive = [
-        {
-            id: 1,
-            name: 'Yes'
-        },
-        {
-            id: 0,
-            name: 'No'
-        }
-    ]
+    $scope.arrStatus = []
+    queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1) order by name asc',undefined)
+    .then(function(data){
+        $scope.arrStatus = data.data
+    })
+
 
     $scope.filterVal = {
         search: ''
@@ -205,14 +200,20 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.update = function(obj){
-        queryService.get(qstring+ ' where id='+obj.id,undefined)
+        queryService.get(qstring+ ' and id='+obj.id,undefined)
         .then(function(result){
             $('#form-input').modal('show');
             $scope.cat.id = obj.id
             $scope.cat.name = result.data[0].name
             $scope.cat.description = result.data[0].description
             $scope.cat.status = result.data[0].status
-            $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
+
+            for (var i=0;i<$scope.arrStatus.length;i++){
+                if (result.data[0].status == $scope.arrStatus[i].id){
+                    $scope.selected.status.selected = $scope.arrStatus[i]
+                }
+            }
+
         },function(err){
             $('body').pgNotification({
                 style: 'flip',
@@ -235,7 +236,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.execDelete = function(){
-        queryService.post('delete from ref_product_category where id='+$scope.cat.id,undefined)
+        queryService.post('update ref_product_category set status=2 where id='+$scope.cat.id,undefined)
         .then(function (result){
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
