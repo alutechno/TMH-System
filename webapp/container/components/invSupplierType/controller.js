@@ -14,10 +14,13 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
     $scope.users = []
     var qstring = 'select a.*,b.name as payable,c.name as deposit '+
-        'from ref_supplier_type a,mst_ledger_account b,mst_ledger_account c '+
+        'from ref_supplier_type a,mst_ledger_account b,mst_ledger_account c, '+
+        '(select id as status_id, value as status_value,name as status_name from table_ref '+
+        'where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1)) d '
         'where a.status!=2 '+
         'and a.payable_account_id=b.id '+
-        'and a.deposit_account_id=c.id '
+        'and a.deposit_account_id=c.id '+
+        'and a.status = d.status_value '
     var qwhere = ''
 
     $scope.role = {

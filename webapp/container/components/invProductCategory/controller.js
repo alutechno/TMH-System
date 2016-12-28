@@ -13,8 +13,13 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstring = 'select id,name,description,status '+
-        ' from ref_product_category '
+    var qstring = 'select id,name,description,status, b.status_name '+
+        'from ref_product_category a, '+
+        	'(select id as status_id, value as status_value,name as status_name '+
+            'from table_ref '+
+            'where table_name = \'ref_product_category\' and column_name=\'status\' '+
+        ')b '+
+        'where a.status = b.status_value '
     var qwhere = ''
 
     $scope.role = {
@@ -27,7 +32,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         id: '',
         name: '',
         description: '',
-        status: ''
+        status: '',
+        status_name: ''
     }
 
     $scope.selected = {
@@ -98,7 +104,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -109,7 +114,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('name').withTitle('Name'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
-        DTColumnBuilder.newColumn('status').withTitle('Status')
+        DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
 
     $scope.filter = function(type,event) {
