@@ -16,7 +16,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
     var qstring = 'select a.id,a.code,a.name,a.short_name,a.description,a.address,a.contact_person,a.phone_number,a.fax_number,a.def_payment_type,a.def_due_days,a.status, '+
     	'a.country_id,b.name as country_name,a.prov_id,c.name as prov_name,a.kab_id,d.name as kab_name, '+
         'a.kec_id,e.name as kec_name, a.kel_id,f.name as kel_name, a.used_currency, g.code as used_currency_code, '+
-        'a.supplier_type_id,h.name as supplier_type_name '+
+        'a.supplier_type_id,h.name as supplier_type_name,i.name as status_name '+
     'from mst_supplier a '+
     'left join ref_country b on a.country_id=b.id '+
     'left join ref_province c on a.prov_id=c.id '+
@@ -24,7 +24,9 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
     'left join ref_kecamatan e on a.kec_id=e.id '+
     'left join ref_desa f on a.kel_id=f.id '+
     'left join ref_currency g on a.used_currency=g.code '+
-    'left join ref_supplier_type h on a.supplier_type_id=h.id where a.status!=2 '
+    'left join ref_supplier_type h on a.supplier_type_id=h.id '+
+    'left join (select value as id,name from table_ref where table_name = \'mst_supplier\' and column_name=\'status\' and value != 2) i on a.status = i.id '+
+    'where a.status!=2 '
     var qwhereobj = {
         text: ''
     }
@@ -41,12 +43,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
         kec_id: [],
         kel_id: [],
         supplier_type: [],
-        status: [
-            {id: 0, name: 'Not Active'},
-            {id: 1, name: 'Active'},
-            {id: 3, name: 'Suspended'},
-            {id: 4, name: 'Black Listed'}
-        ],
+        status: [],
         used_currency: []
     }
 
@@ -78,6 +75,12 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
         status: {selected:$scope.arr.status[1]},
         used_currency: {selected:{}}
     }
+
+    $scope.arr.status = []
+    queryService.get('select value as id,name from table_ref where table_name = \'mst_supplier\' and column_name=\'status\' and value != 2',undefined)
+    .then(function(data){
+        $scope.arr.status = data.data
+    })
 
     queryService.get('select id,code,name from ref_country order by name',undefined)
     .then(function(data){
@@ -160,7 +163,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
         DTColumnBuilder.newColumn('code').withTitle('Code'),
         DTColumnBuilder.newColumn('name').withTitle('Name'),
         DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
-        DTColumnBuilder.newColumn('status').withTitle('Status'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status'),
         DTColumnBuilder.newColumn('contact_person').withTitle('Contact Person'),
         DTColumnBuilder.newColumn('phone_number').withTitle('Phone'),
         DTColumnBuilder.newColumn('address').withTitle('Address')
