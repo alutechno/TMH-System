@@ -239,7 +239,11 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.suptype.payable_account_id = result.data[0].payable_account_id
             $scope.suptype.deposit_account_id = result.data[0].deposit_account_id
 
-            $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
+            for (var i = $scope.arr.status.length - 1; i >= 0; i--) {
+                if ($scope.arr.status[i].id == result.data[0].status){
+                    $scope.selected.status.selected = {name: $scope.arr.status[i].name, id: $scope.arr.status[i].id}
+                }
+            }
 
             for (var i = $scope.arr.accounts.length - 1; i >= 0; i--) {
                 if ($scope.arr.accounts[i].id == result.data[0].payable_account_id){

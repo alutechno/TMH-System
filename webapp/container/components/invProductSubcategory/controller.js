@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvProductSubcategoryCtrl',
-function($scope, $state, $sce, productSubCategoryService, productCategoryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -18,9 +18,16 @@ function($scope, $state, $sce, productSubCategoryService, productCategoryService
         selected: []
     };
 
-    $scope.cats = {}
-    $scope.id = '';
-    $scope.cat = {
+    var qstring = "select a.*,b.name as category_name,d.status_name "+
+                    "from ref_product_subcategory a "+
+                    "left join ref_product_category b on a.category_id = b.id "+
+                    "left join (select id as status_id, value as status_value,name as status_name from table_ref "+
+                    "where table_name = 'ref_product_category' and column_name='status' and value in (0,1)) d on a.status = d.status_value "+
+                    "where a.status!=2 "
+    var qwhere = ""
+
+    $scope.rowdata = {}
+    $scope.field = {
         id: '',
         category_id: '',
         name: '',
@@ -33,21 +40,21 @@ function($scope, $state, $sce, productSubCategoryService, productCategoryService
         category_id: {}
     }
 
-    $scope.arrActive = [
-        {
-            id: 1,
-            name: 'Yes'
-        },
-        {
-            id: 0,
-            name: 'No'
-        }
-    ]
+    $scope.arr = {
+        status: [],
+        category_id: []
+    }
 
-    $scope.categories = []
-    productCategoryService.get()
+    $scope.arr.status = []
+    queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1)',undefined)
     .then(function(data){
-        $scope.categories = data.data
+        $scope.arr.status = data.data
+    })
+
+    $scope.arr.category_id = []
+    queryService.get('select id,name from ref_product_category where status != 2',undefined)
+    .then(function(data){
+        $scope.arr.category_id = data.data
     })
 
     $scope.filterVal = {
@@ -60,18 +67,18 @@ function($scope, $state, $sce, productSubCategoryService, productCategoryService
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        $scope.cats[data] = {id:data};
+        $scope.rowdata[data] = {id:data};
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(cats[\'' + data + '\'])">' +
+                '<button class="btn btn-default" ng-click="update(rowdata[\'' + data + '\'])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
+                html+='<button class="btn btn-default" ng-click="delete(rowdata[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
@@ -87,13 +94,13 @@ function($scope, $state, $sce, productSubCategoryService, productCategoryService
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: API_URL+'/apiinv/getProductSubcategories',
+        url: API_URL+'/apisql/datatable',
         type: 'GET',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.customSearch = $scope.filterVal.search;
+            data.query = qstring + qwhere;
         }
     })
     .withDataProp('data')
@@ -103,7 +110,6 @@ function($scope, $state, $sce, productSubCategoryService, productCategoryService
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -115,20 +121,29 @@ function($scope, $state, $sce, productSubCategoryService, productCategoryService
         DTColumnBuilder.newColumn('category_name').withTitle('Category'),
         DTColumnBuilder.newColumn('name').withTitle('Name'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
-        DTColumnBuilder.newColumn('status').withTitle('Status')
+        DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
 
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
+                if ($scope.filterVal.search.length>0) {
+                    qwhere += ' and (a.name like "%'+$scope.filterVal.search+'%" '+
+                        ' or d.status_name like "%'+$scope.filterVal.search+'%" '+
+                        ' or b.name like "%'+$scope.filterVal.search+'%" '+
+                        ')'
+                }else{
+                    qwhere = ''
+                } 
+                console.log(qwhere)
                 $scope.dtInstance.reloadData(function(obj){
-                    console.log(obj)
+                    // console.log(obj)
                 }, false)
             }
         }
         else {
             $scope.dtInstance.reloadData(function(obj){
-                console.log(obj)
+                // console.log(obj)
             }, false)
         }
     }
@@ -143,12 +158,12 @@ function($scope, $state, $sce, productSubCategoryService, productCategoryService
     }
 
     $scope.submit = function(){
-        if ($scope.cat.id.length==0){
+        if ($scope.field.id.length==0){
             //exec creation
-            $scope.cat.status = $scope.selected.status.selected.id;
-            $scope.cat.category_id = $scope.selected.category_id.selected.id;
+            $scope.field.status = $scope.selected.status.selected.id;
+            $scope.field.category_id = $scope.selected.category_id.selected.id;
 
-            productSubCategoryService.create($scope.cat)
+            queryService.post('insert into ref_product_subcategory SET ?',$scope.field)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -156,7 +171,7 @@ function($scope, $state, $sce, productSubCategoryService, productCategoryService
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
-                        message: 'Success Insert '+$scope.cat.name,
+                        message: 'Success Insert '+$scope.field.name,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'success'
@@ -165,7 +180,7 @@ function($scope, $state, $sce, productSubCategoryService, productCategoryService
             function (err){
                 $('#form-input').pgNotification({
                     style: 'flip',
-                    message: 'Error Insert: '+err.desc.code,
+                    message: 'Error Insert: '+err.code,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'danger'
@@ -175,40 +190,54 @@ function($scope, $state, $sce, productSubCategoryService, productCategoryService
         }
         else {
             //exec update
-            $scope.cat.status = $scope.selected.status.selected.id;
-            $scope.cat.category_id = $scope.selected.category_id.selected.id;
+            $scope.field.status = $scope.selected.status.selected.id;
+            $scope.field.category_id = $scope.selected.category_id.selected.id;
 
-            productSubCategoryService.update($scope.cat)
+            queryService.post('update ref_product_subcategory SET ? WHERE id='+$scope.field.id ,$scope.field)
             .then(function (result){
-                if (result.status = "200"){
-                    console.log('Success Update')
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
                     }, false)
-                }
-                else {
-                    console.log('Failed Update')
-                }
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Update '+$scope.field.name,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
+            },
+            function (err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Update: '+err.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
             })
         }
     }
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
-        $scope.cat.id = obj.id
+        $scope.field.id = obj.id
 
-        productSubCategoryService.get(obj.id)
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
 
-            $scope.cat.category_id = result.data[0].category_id
-            $scope.cat.name = result.data[0].name
-            $scope.cat.description = result.data[0].description
-            $scope.cat.status = result.data[0].status
-            $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
-            for (var i = $scope.categories.length - 1; i >= 0; i--) {
-                if ($scope.categories[i].id == result.data[0].category_id){
-                    $scope.selected.category_id.selected = {name: $scope.categories[i].name, id: $scope.categories[i].id}
+            $scope.field.category_id = result.data[0].category_id
+            $scope.field.name = result.data[0].name
+            $scope.field.description = result.data[0].description
+            $scope.field.status = result.data[0].status
+            for (var i = $scope.arr.status.length - 1; i >= 0; i--) {
+                if ($scope.arr.status[i].id == result.data[0].status){
+                    $scope.selected.status.selected = {name: $scope.arr.status[i].name, id: $scope.arr.status[i].id}
+                }
+            }
+            for (var i = $scope.arr.category_id.length - 1; i >= 0; i--) {
+                if ($scope.arr.category_id[i].id == result.data[0].category_id){
+                    $scope.selected.category_id.selected = {name: $scope.arr.category_id[i].name, id: $scope.arr.category_id[i].id}
                 }
             }
 
@@ -216,38 +245,52 @@ function($scope, $state, $sce, productSubCategoryService, productCategoryService
     }
 
     $scope.delete = function(obj){
-        $scope.cat.id = obj.id;
-        //$scope.customer.name = obj.name;
-        productSubCategoryService.get(obj.id)
+        $scope.field.id = obj.id;
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-            $scope.cat.name = result.data[0].name;
+            $scope.field.name = result.data[0].name;
             $('#modalDelete').modal('show')
         })
     }
 
     $scope.execDelete = function(){
-        productSubCategoryService.delete($scope.cat)
+        queryService.post('update ref_product_subcategory set status=2 where id='+$scope.field.id,undefined)
         .then(function (result){
-            if (result.status = "200"){
-                console.log('Success Delete')
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
                 }, false)
-            }
-            else {
-                console.log('Delete Failed')
-            }
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Success Delete '+$scope.field.name,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+        },
+        function (err){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Delete: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
         })
     }
 
     $scope.clear = function(){
-        $scope.cat = {
+        $scope.field = {
             id: '',
             category_id: '',
             name: '',
             description: '',
             status: ''
+        }
+
+        $scope.selected = {
+            status: {},
+            category_id: {}
         }
     }
 

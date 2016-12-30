@@ -52,11 +52,11 @@
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : cat.category_id.$invalid && !cat.unit_type_id.$pristine }">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : field.category_id.$invalid && !field.category_id.$pristine }">
                           <label>Category</label>
                           <ui-select ng-model="selected.category_id.selected" theme="bootstrap" >
                               <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in categories | filter: $select.search">
+                              <ui-select-choices repeat="item in arr.category_id | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                               </ui-select-choices>
                           </ui-select>
@@ -65,27 +65,27 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : cat.name.$invalid && !cat.name.$pristine }">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.name.$invalid && !field.name.$pristine }">
                           <label>Name</label>
-                          <input type="text" class="form-control" name="name" ng-model="cat.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" class="form-control" name="name" ng-model="field.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
               </div>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : cat.description.$invalid && !cat.description.$pristine }">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.description.$invalid && !field.description.$pristine }">
                           <label>Description</label>
-                          <input type="text" class="form-control" name="name" ng-model="cat.description" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" class="form-control" name="name" ng-model="field.description" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
               </div>
               <div class="row clearfix">
                 <div class="col-sm-12">
-                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : cat.status.$invalid && !cat.status.$pristine }">
-                        <label>Is Active</label>
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : field.status.$invalid && !field.status.$pristine }">
+                        <label>Status</label>
                         <ui-select ng-model="selected.status.selected" theme="bootstrap" >
                             <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                            <ui-select-choices repeat="item in arrActive | filter: $select.search">
+                            <ui-select-choices repeat="item in arr.status | filter: $select.search">
                                 <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                             </ui-select-choices>
                         </ui-select>
@@ -118,7 +118,7 @@
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h4 class="no-margin p-b-10">Are you sure want to delete {{cat.name}} ?</h4>
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{field.name}} ?</h4>
                     <div >
                         <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
