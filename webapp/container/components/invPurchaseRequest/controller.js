@@ -38,6 +38,10 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             $scope.approveState = true;
             $scope.rejectState = false;
         }
+        else if ($scope.el[i]=='prReleased'){
+            $scope.approveState = true;
+            $scope.rejectState = true;
+        }
         else $scope[$scope.el[i]] = true;
 
     }
@@ -253,7 +257,8 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     }
 
     $scope.submit = function(){
-        console.log($scope.pr)
+        console.log(JSON.stringify($scope.pr))
+        console.log(JSON.stringify($scope.items))
         if ($scope.pr.id.length==0 ){
             //exec creation
             console.log($scope.pr)
@@ -265,7 +270,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                     doc_status_id:1,
                     delivery_date: $scope.pr.delivery_date,
                     warehouse_id: $scope.selected.warehouse.selected.id,
-                    cost_center_id: $scope.selected.cost_center.selected.id,
+                    cost_center_id: $scope.selected.cost_center.selected?$scope.selected.cost_center.selected.id:null,
                     created_by: $localStorage.currentUser.name.id,
                     created_date: globalFunction.currentDate(),
                     approval_status:$scope.selected.approval
@@ -368,6 +373,18 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         }
         else {
             console.log($scope.pr)
+            console.log($scope.items)
+            console.log($scope.selected.doc_status)
+            console.log($scope.selected.approval)
+            /*queryService.generatePo($scope.pr,$scope.items)
+            .then(function (result){
+                console.log(result)
+
+            },
+            function (err){
+                console.log(err)
+
+            })*/
             //exec update
             var param = [{
                 code: $scope.pr.code,
@@ -588,10 +605,20 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         .then(function (result){
             console.log(result)
 
-            queryService.get('select id,name,last_order_price from mst_product order by id',undefined)
+            queryService.get('select id,name,last_order_price from mst_product order by id limit 50 ',undefined)
             .then(function(data){
                 $scope.products = data.data
             })
+            $scope.testUp = function(text) {
+                console.log(text.toLowerCase())
+                queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
+                .then(function(data){
+                    console.log(data)
+                    $scope.products = data.data
+                })
+
+
+            }
 
             //$scope.pr = result.data[0]
             //console.log($scope.pr)
@@ -638,6 +665,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 .withOption('paging', false)
                 .withPaginationType('full_numbers')
                 .withDisplayLength(100)
+                .withOption('width','800px')
                 .withLanguage({
                     sZeroRecords: ' ',
                     "sInfo":           "",
@@ -645,7 +673,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 });
             $scope.dtColumnDefs = [
                 DTColumnDefBuilder.newColumnDef(0).notSortable(),
-                DTColumnDefBuilder.newColumnDef(1),
+                DTColumnDefBuilder.newColumnDef(1).withOption('width', '40%'),
                 DTColumnDefBuilder.newColumnDef(2),
                 DTColumnDefBuilder.newColumnDef(3),
                 DTColumnDefBuilder.newColumnDef(4),
@@ -852,7 +880,14 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 //$scope.doc_status.push($scope.doc_status_def[4])
                 $scope.doc_status.push($scope.doc_status_def[5])
             }
+            else if ($scope.el.indexOf('prReleased')>-1){
+                //$scope.doc_status.push($scope.doc_status_def[4])
+                $scope.doc_status.push($scope.doc_status_def[6])
+            }
             else $scope.doc_status.push($scope.doc_status_def[0])
+
+            console.log($scope.doc_status)
+            console.log($scope.doc_status_def)
 
             /*for (var i=result.data[0].doc_status_id;i<(result.data[0].doc_status_id+1);i++){
                 $scope.doc_status.push($scope.doc_status_def[i])
@@ -883,6 +918,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             else if (((result.data[0].doc_status_id==4&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==3 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalCostControl')>-1) $scope.viewMode = false
             else if (((result.data[0].doc_status_id==5&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==4 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalFinance')>-1) $scope.viewMode = false
             else if (((result.data[0].doc_status_id==6&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==5 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalGm')>-1) $scope.viewMode = false
+            else if (((result.data[0].doc_status_id==7&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==6 && result.data[0].approval_status==1)) && $scope.el.indexOf('prReleased')>-1) $scope.viewMode = false
             else $scope.viewMode = true
 
             console.log($scope.viewMode)
