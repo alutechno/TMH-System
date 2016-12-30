@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvProductUnitCtrl',
-function($scope, $state, $sce, productUnitService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -18,29 +18,42 @@ function($scope, $state, $sce, productUnitService, DTOptionsBuilder, DTColumnBui
         selected: []
     };
 
-    $scope.units = {}
-    $scope.id = '';
-    $scope.unit = {
+    $scope.table = 'ref_product_unit'
+
+    var qstring = "select a.*,if(a.is_recipe_unit='Y','Yes','No') as is_recipe,d.status_name "+
+                    "from "+ $scope.table +" a "+
+                    "left join (select id as status_id, value as status_value,name as status_name from table_ref "+
+                    "where table_name = 'ref_product_category' and column_name='status' and value in (0,1)) d on a.status = d.status_value "+
+                    "where a.status!=2 "
+    var qwhere = ""
+
+    $scope.rowdata = {}
+    $scope.field = {
         id: '',
         name: '',
         description: '',
-        status: ''
+        status: '',
+        is_recipe_unit: ''
     }
 
     $scope.selected = {
-        status: {}
+        status: {},
+        is_recipe_unit: {}
     }
 
-    $scope.arrActive = [
-        {
-            id: 1,
-            name: 'Yes'
-        },
-        {
-            id: 0,
-            name: 'No'
-        }
-    ]
+    $scope.arr = {
+        status: [],
+        is_recipe_unit: [
+            {id:'N',name:'No'},
+            {id:'Y',name:'Yes'}
+        ]
+    }
+
+    $scope.arr.status = []
+    queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1)',undefined)
+    .then(function(data){
+        $scope.arr.status = data.data
+    })
 
     $scope.filterVal = {
         search: ''
@@ -52,18 +65,18 @@ function($scope, $state, $sce, productUnitService, DTOptionsBuilder, DTColumnBui
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        $scope.units[data] = {id:data};
+        $scope.rowdata[data] = {id:data};
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(units[\'' + data + '\'])">' +
+                '<button class="btn btn-default" ng-click="update(rowdata[\'' + data + '\'])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(units[\'' + data + '\'])" )"="">' +
+                html+='<button class="btn btn-default" ng-click="delete(rowdata[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
@@ -79,13 +92,13 @@ function($scope, $state, $sce, productUnitService, DTOptionsBuilder, DTColumnBui
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: API_URL+'/apiinv/getProductUnits',
+        url: API_URL+'/apisql/datatable',
         type: 'GET',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.customSearch = $scope.filterVal.search;
+            data.query = qstring + qwhere;
         }
     })
     .withDataProp('data')
@@ -95,7 +108,6 @@ function($scope, $state, $sce, productUnitService, DTOptionsBuilder, DTColumnBui
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -106,12 +118,21 @@ function($scope, $state, $sce, productUnitService, DTOptionsBuilder, DTColumnBui
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('name').withTitle('Name'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
-        DTColumnBuilder.newColumn('status').withTitle('Status')
+        DTColumnBuilder.newColumn('is_recipe').withTitle('Is Recipe'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
 
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
+                if ($scope.filterVal.search.length>0) {
+                    qwhere += ' and (a.name like "%'+$scope.filterVal.search+'%" '+
+                        ' or d.status_name like "%'+$scope.filterVal.search+'%" '+
+                        ' or a.description like "%'+$scope.filterVal.search+'%" '+
+                        ')'
+                }else{
+                    qwhere = ''
+                } 
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
                 }, false)
@@ -134,11 +155,12 @@ function($scope, $state, $sce, productUnitService, DTOptionsBuilder, DTColumnBui
     }
 
     $scope.submit = function(){
-        if ($scope.unit.id.length==0){
+        if ($scope.field.id.length==0){
             //exec creation
-            $scope.unit.status = $scope.selected.status.selected.id;
+            $scope.field.status = $scope.selected.status.selected.id;
+            $scope.field.is_recipe_unit = $scope.selected.is_recipe_unit.selected.id;
 
-            productUnitService.create($scope.unit)
+            queryService.post('insert into '+ $scope.table +' SET ?',$scope.field)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -146,7 +168,7 @@ function($scope, $state, $sce, productUnitService, DTOptionsBuilder, DTColumnBui
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
-                        message: 'Success Insert '+$scope.unit.name,
+                        message: 'Success Insert '+$scope.field.name,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'success'
@@ -155,7 +177,7 @@ function($scope, $state, $sce, productUnitService, DTOptionsBuilder, DTColumnBui
             function (err){
                 $('#form-input').pgNotification({
                     style: 'flip',
-                    message: 'Error Insert: '+err.desc.code,
+                    message: 'Error Insert: '+err.code,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'danger'
@@ -165,72 +187,107 @@ function($scope, $state, $sce, productUnitService, DTOptionsBuilder, DTColumnBui
         }
         else {
             //exec update
-            $scope.unit.status = $scope.selected.status.selected.id;
+            $scope.field.status = $scope.selected.status.selected.id;
+            $scope.field.is_recipe_unit = $scope.selected.is_recipe_unit.selected.id;
 
-            productUnitService.update($scope.unit)
+            queryService.post('update '+ $scope.table +' SET ? WHERE id='+$scope.field.id ,$scope.field)
             .then(function (result){
-                if (result.status = "200"){
-                    // console.log('Success Update')
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
                     }, false)
-                }
-                else {
-                    console.log('Failed Update')
-                }
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Update '+$scope.field.name,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
+            },
+            function (err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Update: '+err.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
             })
         }
     }
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
-        $scope.unit.id = obj.id
+        $scope.field.id = obj.id
 
-        productUnitService.get(obj.id)
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
 
-            $scope.unit.name = result.data[0].name
-            $scope.unit.description = result.data[0].description
-            $scope.unit.status = result.data[0].status
-            $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
+            $scope.field.name = result.data[0].name
+            $scope.field.description = result.data[0].description
+            $scope.field.status = result.data[0].status
+            $scope.field.is_recipe_unit = result.data[0].is_recipe_unit
+            for (var i = $scope.arr.status.length - 1; i >= 0; i--) {
+                if ($scope.arr.status[i].id == result.data[0].status){
+                    $scope.selected.status.selected = {name: $scope.arr.status[i].name, id: $scope.arr.status[i].id}
+                }
+            }
+            for (var i = $scope.arr.is_recipe_unit.length - 1; i >= 0; i--) {
+                if ($scope.arr.is_recipe_unit[i].id == result.data[0].is_recipe_unit){
+                    $scope.selected.is_recipe_unit.selected = {name: $scope.arr.is_recipe_unit[i].name, id: $scope.arr.is_recipe_unit[i].id}
+                }
+            }
 
         })
-
     }
 
     $scope.delete = function(obj){
-        $scope.unit.id = obj.id;
-        //$scope.customer.name = obj.name;
-        productUnitService.get(obj.id)
+        $scope.field.id = obj.id;
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-            $scope.unit.name = result.data[0].name;
+            $scope.field.name = result.data[0].name;
             $('#modalDelete').modal('show')
         })
     }
 
     $scope.execDelete = function(){
-        productUnitService.delete($scope.unit)
+        queryService.post('update '+ $scope.table +' set status=2 where id='+$scope.field.id,undefined)
         .then(function (result){
-            if (result.status = "200"){
-                // console.log('Success Delete')
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
                 }, false)
-            }
-            else {
-                console.log('Delete Failed')
-            }
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Success Delete '+$scope.field.name,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+        },
+        function (err){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Delete: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
         })
     }
 
     $scope.clear = function(){
-        $scope.unit = {
+        $scope.field = {
             id: '',
             name: '',
             description: '',
-            status: ''
+            status: '',
+            is_recipe_unit: ''
+        }
+
+        $scope.selected = {
+            status: {},
+            is_recipe_unit: {}
         }
     }
 
