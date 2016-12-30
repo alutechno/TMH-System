@@ -24,17 +24,26 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
         id:'',
         category_id: '',
         subcategory_id: '',
+        code: '',
+        barcode: '',
         status: '',
         name: '',
         description: '',
         is_stockable: '',
         unit_type_id: '',
+        price_per_unit: '',
         recipe_unit_type_id: '',
         recipe_unit_conversion: '',
+        price_per_recipe_unit: '',
+        lowest_unit_type_id: '',
+        lowest_unit_conversion: '',
+        price_per_lowest_unit: '',
         minimum_stock: '',
         maximum_stock: '',
         is_ml: '',
         is_pr: '',
+        is_production: {},
+        is_material: {},
         created_by: '',
         created_date: ''
     }
@@ -42,34 +51,62 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
     $scope.selected = {
         category_id: {},
         subcategory_id: {},
+        is_stockable: {},
         is_pr: {},
         is_ml: {},
-        is_stockable: {},
+        is_production: {},
+        is_material: {},
         unit_type_id: {},
-        recipe_unit_type_id: {}
+        recipe_unit_type_id: {},
+        lowest_unit_type_id: {},
+        status: {}
     }
 
-    $scope.arrActive = [
-        {id: 1, name: 'Yes'},
-        {id: 0, name: 'No'}
+    $scope.arr = {
+        active: [],
+        status: [],
+        category_id: [],
+        subcategory_id: [],
+        unit_type_id: [],
+        recipe_unit_type_id: [],
+        lowest_unit_type_id: []
+    }
+
+    $scope.arr.active = [
+        {id: 'Y', name: 'Yes'},
+        {id: 'N', name: 'No'}
     ]
 
-    $scope.categories = []
-    productCategoryService.get()
+    $scope.arr.status = []
+    queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1) order by name asc',undefined)
     .then(function(data){
-        $scope.categories = data.data
+        $scope.arr.status = data.data
     })
 
-    $scope.subcategories = []
-    productSubCategoryService.get()
+    $scope.arr.category_id = []
+    queryService.get('select id,name from ref_product_category where status != 2 order by name asc',undefined)
     .then(function(data){
-        $scope.subcategories = data.data
+        $scope.arr.category_id = data.data
     })
 
-    $scope.units = []
-    productUnitService.get()
+    $scope.arr.subcategory_id = []
+
+    $scope.arr.unit_type_id = []
+    queryService.get('select id,name from ref_product_unit where status != 2 and is_recipe_unit = \'N\' order by name asc',undefined)
     .then(function(data){
-        $scope.units = data.data
+        $scope.arr.unit_type_id = data.data
+    })
+
+    $scope.arr.recipe_unit_type_id = []
+    queryService.get('select id,name from ref_product_unit where status != 2 and is_recipe_unit = \'Y\' order by name asc',undefined)
+    .then(function(data){
+        $scope.arr.recipe_unit_type_id = data.data
+    })
+
+    $scope.arr.lowest_unit_type_id = []
+    queryService.get('select id,name from ref_product_unit where status != 2 and is_recipe_unit = \'Y\' order by name asc',undefined)
+    .then(function(data){
+        $scope.arr.lowest_unit_type_id = data.data
     })
 
     $scope.filterVal = {
@@ -108,10 +145,21 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
         $compile(angular.element(row).contents())($scope);
     }
 
-    var qstring = "select a.*,b.name as category,c.name as subcategory,d.name as unit_name, e.name as recipe_unit_name, if(a.is_stockable = 1,'Yes','No') as stockable,if(a.is_pr = 1,'Yes','No') as pr,if(a.is_ml = 1,'Yes','No') as ml "+
-                  "from mst_product a,ref_product_category b,ref_product_subcategory c,ref_product_unit d,ref_product_unit e "+
-                  "where a.category_id=b.id and a.subcategory_id=c.id and a.unit_type_id = d.id and a.recipe_unit_type_id = e.id and a.status!=2"
-    var qwhere = ''
+    var qstring = "select a.*,b.name as category,c.name as subcategory,d.name as unit_name,a.price_per_unit as unit_price,g.status_name, "
+                +"if(a.is_stockable = 'Y','Yes','No') as stockable, "
+                +"if(a.is_pr = 'Y','Yes','No') as pr, "
+                +"if(a.is_ml = 'Y','Yes','No') as ml, "
+                +"if(a.is_production = 'Y','Yes','No') as production, "
+                +"if(a.is_material = 'Y','Yes','No') as material "
+                +"from mst_product a "
+                +"left join ref_product_category b on a.category_id=b.id "
+                +"left join ref_product_subcategory c on a.subcategory_id = c.id "
+                +"left join ref_product_unit d on a.unit_type_id = d.id "
+                +"left join ref_product_unit e on a.recipe_unit_type_id = e.id "
+                +"left join ref_product_unit f on a.lowest_unit_type_id = f.id "
+                +"left join (select id as status_id, value as status_value,name as status_name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\') g on a.status = g.status_value "
+                +"where a.status!=2 "
+    var qwhere = ""
 
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
@@ -143,15 +191,10 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
         DTColumnBuilder.newColumn('name').withTitle('Name'),
         DTColumnBuilder.newColumn('category').withTitle('Category'),
         DTColumnBuilder.newColumn('subcategory').withTitle('Sub Category'),
-        DTColumnBuilder.newColumn('description').withTitle('Description'),
         DTColumnBuilder.newColumn('stockable').withTitle('Stockable'),
-        DTColumnBuilder.newColumn('pr').withTitle('In PR'),
-        DTColumnBuilder.newColumn('ml').withTitle('In ML'),
         DTColumnBuilder.newColumn('unit_name').withTitle('Unit'),
-        DTColumnBuilder.newColumn('recipe_unit_name').withTitle('Recipe Unit'),
-        DTColumnBuilder.newColumn('recipe_unit_conversion').withTitle('Conversion'),
-        DTColumnBuilder.newColumn('minimum_stock').withTitle('Min Stock'),
-        DTColumnBuilder.newColumn('maximum_stock').withTitle('Max Stock')
+        DTColumnBuilder.newColumn('unit_price').withTitle('Price'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
 
     $scope.filter = function(type,event) {
@@ -184,14 +227,18 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
         console.log('submit')
         if ($scope.product.id.length==0){
             //exec creation
-            $scope.product.is_pr = $scope.selected.is_pr.selected.id;
-            $scope.product.is_ml = $scope.selected.is_ml.selected.id;
-            $scope.product.is_stockable = $scope.selected.is_stockable.selected.id;
+
             $scope.product.category_id = $scope.selected.category_id.selected.id;
             $scope.product.subcategory_id = $scope.selected.subcategory_id.selected.id;
+            $scope.product.is_stockable = $scope.selected.is_stockable.selected.id;
+            $scope.product.is_pr = $scope.selected.is_pr.selected.id;
+            $scope.product.is_ml = $scope.selected.is_ml.selected.id;
+            $scope.product.is_production = $scope.selected.is_production.selected.id;
+            $scope.product.is_material = $scope.selected.is_material.selected.id;
             $scope.product.unit_type_id = $scope.selected.unit_type_id.selected.id;
-            $scope.product.recipe_unit_type_id = $scope.selected.recipe_unit_type_id.selected.id;
-            $scope.product.status = 1;
+            $scope.product.recipe_unit_type_id = $scope.selected.recipe_unit_type_id.selected?$scope.selected.recipe_unit_type_id.selected.id:null;
+            $scope.product.lowest_unit_type_id = $scope.selected.lowest_unit_type_id.selected?$scope.selected.lowest_unit_type_id.selected.id:null;
+            $scope.product.status = $scope.selected.status.selected.id;
             $scope.product.created_by = $localStorage.currentUser.name.id;
             $scope.product.created_date = globalFunction.currentDate();
 
@@ -226,13 +273,17 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
         else {
             //exec update
 
-            $scope.product.is_pr = $scope.selected.is_pr.selected.id;
-            $scope.product.is_ml = $scope.selected.is_ml.selected.id;
-            $scope.product.is_stockable = $scope.selected.is_stockable.selected.id;
             $scope.product.category_id = $scope.selected.category_id.selected.id;
             $scope.product.subcategory_id = $scope.selected.subcategory_id.selected.id;
+            $scope.product.is_stockable = $scope.selected.is_stockable.selected.id;
+            $scope.product.is_pr = $scope.selected.is_pr.selected.id;
+            $scope.product.is_ml = $scope.selected.is_ml.selected.id;
+            $scope.product.is_production = $scope.selected.is_production.selected.id;
+            $scope.product.is_material = $scope.selected.is_material.selected.id;
             $scope.product.unit_type_id = $scope.selected.unit_type_id.selected.id;
-            $scope.product.recipe_unit_type_id = $scope.selected.recipe_unit_type_id.selected.id;
+            $scope.product.recipe_unit_type_id = $scope.selected.recipe_unit_type_id.selected?$scope.selected.recipe_unit_type_id.selected.id:null;
+            $scope.product.lowest_unit_type_id = $scope.selected.lowest_unit_type_id.selected?$scope.selected.lowest_unit_type_id.selected.id:null;
+            $scope.product.status = $scope.selected.status.selected.id;
 
             var query = "update mst_product set ? where id = " + $scope.product.id;
 
@@ -254,54 +305,72 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
+        $scope.clear()
 
-        // console.log(obj)
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-
-            console.log(result)
 
             $scope.product.id = result.data[0].id
             $scope.product.category_id = result.data[0].category_id
             $scope.product.subcategory_id = result.data[0].subcategory_id
             $scope.product.name = result.data[0].name
             $scope.product.description = result.data[0].description
+            $scope.product.code = result.data[0].code
+            $scope.product.barcode = result.data[0].barcode
             $scope.product.status = result.data[0].status
-
             $scope.product.is_pr = result.data[0].is_pr
             $scope.product.is_ml = result.data[0].is_ml
-            $scope.product.category_id = result.data[0].category_id
+            $scope.product.is_production = result.data[0].is_production
+            $scope.product.is_material = result.data[0].is_material
             $scope.product.unit_type_id = result.data[0].unit_type_id
+            $scope.product.price_per_unit = result.data[0].price_per_unit
             $scope.product.is_stockable = result.data[0].is_stockable
             $scope.product.recipe_unit_type_id = result.data[0].recipe_unit_type_id
             $scope.product.recipe_unit_conversion = result.data[0].recipe_unit_conversion
+            $scope.product.price_per_recipe_unit = result.data[0].price_per_recipe_unit
+            $scope.product.lowest_unit_type_id = result.data[0].lowest_unit_type_id
+            $scope.product.lowest_unit_conversion = result.data[0].lowest_unit_conversion
+            $scope.product.price_per_lowest_unit = result.data[0].price_per_lowest_unit
             $scope.product.minimum_stock = result.data[0].minimum_stock
             $scope.product.maximum_stock = result.data[0].maximum_stock
             $scope.product.created_by = result.data[0].created_by
             $scope.product.created_date = result.data[0].created_date
 
-            $scope.selected.is_stockable.selected = {name: result.data[0].is_stockable == 1 ? 'Yes' : 'No' , id: result.data[0].is_stockable}
-            $scope.selected.is_pr.selected = {name: result.data[0].is_pr == 1 ? 'Yes' : 'No' , id: result.data[0].is_pr}
-            $scope.selected.is_ml.selected = {name: result.data[0].is_ml == 1 ? 'Yes' : 'No' , id: result.data[0].is_ml}
+            $scope.selected.is_stockable.selected = {name: result.data[0].is_stockable == 'Y' ? 'Yes' : 'No' , id: result.data[0].is_stockable}
+            $scope.selected.is_pr.selected = {name: result.data[0].is_pr == 'Y' ? 'Yes' : 'No' , id: result.data[0].is_pr}
+            $scope.selected.is_ml.selected = {name: result.data[0].is_ml == 'Y' ? 'Yes' : 'No' , id: result.data[0].is_ml}
+            $scope.selected.is_production.selected = {name: result.data[0].is_production == 'Y' ? 'Yes' : 'No' , id: result.data[0].is_production}
+            $scope.selected.is_material.selected = {name: result.data[0].is_material == 'Y' ? 'Yes' : 'No' , id: result.data[0].is_material}
 
-            for (var i = $scope.categories.length - 1; i >= 0; i--) {
-                if ($scope.categories[i].id == result.data[0].category_id){
-                    $scope.selected.category_id.selected = {name: $scope.categories[i].name, id: $scope.categories[i].id}
+            for (var i = $scope.arr.status.length - 1; i >= 0; i--) {
+                if ($scope.arr.status[i].id == result.data[0].status){
+                    $scope.selected.status.selected = {name: $scope.arr.status[i].name, id: $scope.arr.status[i].id}
                 }
             }
-            for (var i = $scope.subcategories.length - 1; i >= 0; i--) {
-                if ($scope.subcategories[i].id == result.data[0].subcategory_id){
-                    $scope.selected.subcategory_id.selected = {name: $scope.subcategories[i].name, id: $scope.subcategories[i].id}
+            for (var i = $scope.arr.category_id.length - 1; i >= 0; i--) {
+                if ($scope.arr.category_id[i].id == result.data[0].category_id){
+                    $scope.selected.category_id.selected = {name: $scope.arr.category_id[i].name, id: $scope.arr.category_id[i].id}
                 }
             }
-            for (var i = $scope.units.length - 1; i >= 0; i--) {
-                if ($scope.units[i].id == result.data[0].unit_type_id){
-                    $scope.selected.unit_type_id.selected = {name: $scope.units[i].name, id: $scope.units[i].id}
+            $scope.getSubCategory({id:$scope.product.category_id})
+
+            console.log($scope.arr.subcategory_id)
+
+            for (var i = $scope.arr.subcategory_id.length - 1; i >= 0; i--) {
+                if ($scope.arr.subcategory_id[i].id == result.data[0].subcategory_id){
+                    $scope.selected.subcategory_id.selected = {name: $scope.arr.subcategory_id[i].name, id: $scope.arr.subcategory_id[i].id}
                 }
-                if ($scope.units[i].id == result.data[0].recipe_unit_type_id){
-                    $scope.selected.recipe_unit_type_id.selected = {name: $scope.units[i].name, id: $scope.units[i].id}
+            }
+            for (var i = $scope.arr.unit_type_id.length - 1; i >= 0; i--) {
+                if ($scope.arr.unit_type_id[i].id == result.data[0].unit_type_id){
+                    $scope.selected.unit_type_id.selected = {name: $scope.arr.unit_type_id[i].name, id: $scope.arr.unit_type_id[i].id}
                 }
-            };
+            }
+            for (var i = $scope.arr.recipe_unit_type_id.length - 1; i >= 0; i--) {
+                if ($scope.arr.recipe_unit_type_id[i].id == result.data[0].unit_type_id){
+                    $scope.selected.unit_type_id.selected = {name: $scope.arr.recipe_unit_type_id[i].name, id: $scope.arr.recipe_unit_type_id[i].id}
+                }
+            }
 
         })
 
@@ -337,20 +406,51 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
             id:'',
             category_id: '',
             subcategory_id: '',
+            code: '',
+            barcode: '',
             status: '',
             name: '',
             description: '',
             is_stockable: '',
             unit_type_id: '',
+            price_per_unit: '',
             recipe_unit_type_id: '',
             recipe_unit_conversion: '',
+            price_per_recipe_unit: '',
+            lowest_unit_type_id: '',
+            lowest_unit_conversion: '',
+            price_per_lowest_unit: '',
             minimum_stock: '',
             maximum_stock: '',
             is_ml: '',
             is_pr: '',
+            is_production: {},
+            is_material: {},
             created_by: '',
             created_date: ''
         }
+        $scope.selected = {
+            category_id: {},
+            subcategory_id: {},
+            is_stockable: {},
+            is_pr: {},
+            is_ml: {},
+            is_production: {},
+            is_material: {},
+            unit_type_id: {},
+            recipe_unit_type_id: {},
+            lowest_unit_type_id: {},
+            status: {}
+        }
+    }
+
+    $scope.getSubCategory = function(selectItem){
+        // console.log(selectItem)
+        queryService.get('select id,name from ref_product_subcategory where category_id='+selectItem.id+' order by name',undefined)
+        .then(function(data){
+            $scope.arr.subcategory_id = data.data
+            console.log($scope.arr.subcategory_id)
+        })
     }
 
 })

@@ -34,7 +34,7 @@
 </div>
 
 <!--START FORM INPUT-->
-<div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade slide-right form-input-medium" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
@@ -60,108 +60,47 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.description.$invalid && !product.description.$pristine }">
+                          <label>Description</label>
+                          <input type="text" class="form-control" name="description" ng-model="product.description" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.code.$invalid && !product.code.$pristine }">
+                          <label>Code</label>
+                          <input type="text" class="form-control" name="code" ng-model="product.code" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.barcode.$invalid && !product.barcode.$pristine }">
+                          <label>Barcode</label>
+                          <input type="text" class="form-control" name="barcode" ng-model="product.barcode" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.category_id.$invalid && !product.category_id.$pristine }">
                           <label>Category</label>
-                          <ui-select ng-model="selected.category_id.selected" theme="bootstrap" >
+                          <ui-select ng-model="selected.category_id.selected" theme="bootstrap" on-select="getSubCategory($item)">
                               <ui-select-match placeholder="Select Category">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in categories | filter: $select.search">
+                              <ui-select-choices repeat="item in arr.category_id | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                               </ui-select-choices>
                           </ui-select>
                       </div>
                   </div>
-              </div>
-              <div class="row clearfix">
-                  <div class="col-sm-12">
+                  <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.subcategory_id.$invalid && !product.subcategory_id.$pristine }">
                           <label>Sub Category</label>
                           <ui-select ng-model="selected.subcategory_id.selected" theme="bootstrap" >
                               <ui-select-match placeholder="Select Sub Category">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in subcategories | filter: $select.search">
+                              <ui-select-choices repeat="item in arr.subcategory_id | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                               </ui-select-choices>
                           </ui-select>
-                      </div>
-                  </div>
-              </div>
-              <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : product.description.$invalid && !product.description.$pristine }">
-                          <label>Description</label>
-                          <input type="text" class="form-control" name="description" ng-model="product.description" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
-                      </div>
-                  </div>
-              </div>
-              <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.is_stockable.$invalid && !product.is_stockable.$pristine }">
-                          <label>Stockable</label>
-                          <ui-select ng-model="selected.is_stockable.selected" theme="bootstrap" >
-                              <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in arrActive | filter: $select.search">
-                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                              </ui-select-choices>
-                          </ui-select>
-                      </div>
-                  </div>
-              </div>
-              <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.is_pr.$invalid && !product.is_pr.$pristine }">
-                          <label>Listed in PR</label>
-                          <ui-select ng-model="selected.is_pr.selected" theme="bootstrap" >
-                              <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in arrActive | filter: $select.search">
-                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                              </ui-select-choices>
-                          </ui-select>
-                      </div>
-                  </div>
-              </div>
-              <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.is_ml.$invalid && !product.is_ml.$pristine }">
-                          <label>Listed in ML</label>
-                          <ui-select ng-model="selected.is_ml.selected" theme="bootstrap" >
-                              <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in arrActive | filter: $select.search">
-                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                              </ui-select-choices>
-                          </ui-select>
-                      </div>
-                  </div>
-              </div>
-              <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.unit_type_id.$invalid && !product.unit_type_id.$pristine }">
-                          <label>Unit</label>
-                          <ui-select ng-model="selected.unit_type_id.selected" theme="bootstrap" >
-                              <ui-select-match placeholder="Select Unit">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in units | filter: $select.search">
-                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                              </ui-select-choices>
-                          </ui-select>
-                      </div>
-                  </div>
-              </div>
-              <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.recipe_unit_type_id.$invalid && !product.recipe_unit_type_id.$pristine }">
-                          <label>Recipe Unit</label>
-                          <ui-select ng-model="selected.recipe_unit_type_id.selected" theme="bootstrap" >
-                              <ui-select-match placeholder="Select Recipe Unit">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in units | filter: $select.search">
-                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                              </ui-select-choices>
-                          </ui-select>
-                      </div>
-                  </div>
-              </div>
-              <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : product.recipe_unit_conversion.$invalid && !product.recipe_unit_conversion.$pristine }">
-                          <label>Recipe Unit Conversion</label>
-                          <input type="text" class="form-control" name="recipe_unit_conversion" ng-model="product.recipe_unit_conversion" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
               </div>
@@ -176,6 +115,147 @@
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : product.maximum_stock.$invalid && !product.maximum_stock.$pristine }">
                           <label>Maximum Stock</label>
                           <input type="text" class="form-control" name="maximum_stock" ng-model="product.maximum_stock" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.status.$invalid && !product.is_stockable.$pristine }">
+                          <label>Status</label>
+                          <ui-select ng-model="selected.status.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in arr.status | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.is_stockable.$invalid && !product.is_stockable.$pristine }">
+                          <label>Is Stockable</label>
+                          <ui-select ng-model="selected.is_stockable.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in arr.active | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.unit_type_id.$invalid && !product.unit_type_id.$pristine }">
+                          <label>Unit Type</label>
+                          <ui-select ng-model="selected.unit_type_id.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="Select Unit">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in arr.unit_type_id | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.price_per_unit.$invalid && !product.price_per_unit.$pristine }">
+                          <label>Price Per Unit</label>
+                          <input type="text" class="form-control" name="price_per_unit" ng-model="product.price_per_unit" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.is_pr.$invalid && !product.is_pr.$pristine }">
+                          <label>Listed in PR</label>
+                          <ui-select ng-model="selected.is_pr.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in arr.active | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.is_ml.$invalid && !product.is_ml.$pristine }">
+                          <label>Listed in ML</label>
+                          <ui-select ng-model="selected.is_ml.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in arr.active | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.is_production.$invalid && !product.is_production.$pristine }">
+                          <label>Is Production</label>
+                          <ui-select ng-model="selected.is_production.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in arr.active | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : product.is_material.$invalid && !product.is_material.$pristine }">
+                          <label>Is Material</label>
+                          <ui-select ng-model="selected.is_material.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in arr.active | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : product.lowest_unit_type_id.$invalid && !product.lowest_unit_type_id.$pristine }">
+                          <label>Lowest Unit</label>
+                          <ui-select ng-model="selected.lowest_unit_type_id.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="Select Lowest Unit">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in arr.recipe_unit_type_id | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.lowest_unit_conversion.$invalid && !product.lowest_unit_conversion.$pristine }">
+                          <label>Conversion</label>
+                          <input type="text" class="form-control" name="lowest_unit_conversion" ng-model="product.lowest_unit_conversion" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.price_per_lowest_unit.$invalid && !product.price_per_lowest_unit.$pristine }">
+                          <label>Price Per Lowest Unit</label>
+                          <input type="text" class="form-control" name="price_per_lowest_unit" ng-model="product.price_per_lowest_unit" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : product.recipe_unit_type_id.$invalid && !product.recipe_unit_type_id.$pristine }">
+                          <label>Recipe Unit</label>
+                          <ui-select ng-model="selected.recipe_unit_type_id.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="Select Recipe Unit">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in arr.recipe_unit_type_id | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.recipe_unit_conversion.$invalid && !product.recipe_unit_conversion.$pristine }">
+                          <label>Conversion</label>
+                          <input type="text" class="form-control" name="recipe_unit_conversion" ng-model="product.recipe_unit_conversion" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.price_per_recipe_unit.$invalid && !product.price_per_recipe_unit.$pristine }">
+                          <label>Price Per Recipe</label>
+                          <input type="text" class="form-control" name="price_per_recipe_unit" ng-model="product.price_per_recipe_unit" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
               </div>
