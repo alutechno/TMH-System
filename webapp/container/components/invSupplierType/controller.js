@@ -198,7 +198,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             //exec update
             $scope.suptype.status = $scope.selected.status.selected.id;
             $scope.suptype.payable_account_id = $scope.selected.payable_account_id.selected.id;
-            $scope.suptype.deposit_account_id = $scope.selected.deposit_account_id.selected.id;
+            $scope.suptype.deposit_account_id = $scope.selected.deposit_account_id.selected?$scope.selected.deposit_account_id.selected.id:null;
 
             queryService.post('update ref_supplier_type SET ? WHERE id='+$scope.suptype.id ,$scope.suptype)
             .then(function (result){
@@ -227,6 +227,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
 
     $scope.update = function(obj){
+        $scope.suptype.id = obj.id
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             $('#form-input').modal('show');
