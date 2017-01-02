@@ -17,15 +17,15 @@ angular.module('app')
 
                 if (listModule[(((i+1)*2)-2)]){
                     r += '<div class="col-xs-6 no-padding">'+
-                    '<a href="" class="p-l-20 dodol" ><img src="container/img/app/'+listModule[(((i+1)*2)-2)]+'.svg" alt="socail" >'+
-                    listModule[(((i+1)*2)-2)]+
+                    '<a href="" class="p-l-20 dodol" name="'+listModule[(((i+1)*2)-2)]+'" ><img src="container/img/app/'+listModule[(((i+1)*2)-2)]+'.svg" alt="socail" >'+
+                    //listModule[(((i+1)*2)-2)]+
                     '</a>'+
                     '</div>';
                 }
                 if (listModule[(((i+1)*2)-1)]){
                     r += '<div class="col-xs-6 no-padding">'+
-                    '<a href="" class="p-l-20 dodol" ><img src="container/img/app/'+listModule[(((i+1)*2)-1)]+'.svg" alt="socail" >'+
-                    listModule[(((i+1)*2)-1)]+
+                    '<a href="" class="p-l-20 dodol" name="'+listModule[(((i+1)*2)-1)]+'"><img src="container/img/app/'+listModule[(((i+1)*2)-1)]+'.svg" alt="socail" >'+
+                    //listModule[(((i+1)*2)-1)]+
                     '</a>'+
                     '</div>';
                 }
@@ -39,7 +39,11 @@ angular.module('app')
 
             $('body').on('click', '.dodol', function(e) {
                 var el = $(this);
-                principal.setModule(el.context.innerText)
+                //console.log(el)
+                //console.log(el.context.name)
+                //console.log(JSON.stringify(el.context.attributes['cattr']))
+                //for (var i=0;i<el.context.attributes)
+                principal.setModule(el.context.name)
                 var parent = $(this).parent().parent();
                 var li = $(this).parent();
                 var sub = $(this).parent().children('.mega');

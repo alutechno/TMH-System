@@ -1,6 +1,6 @@
 var cluster = require('cluster');
 var mysql = require('mysql');
-var pool  = mysql.createPool({
+/*var pool  = mysql.createPool({
     connectionLimit : 50,
      host            : '103.43.47.115',
     //host            : 'localhost',
@@ -9,15 +9,16 @@ var pool  = mysql.createPool({
 	database		: 'media',
 	port			: 3306,
 	multipleStatements : true
-});
-/*var pool  = mysql.createPool({
+});*/
+var pool  = mysql.createPool({
     connectionLimit : 50,
     host            : 'localhost',
     user            : 'root',
     password        : 'root',
 	database		: 'media',
-	port			: 8889
-});*/
+	port			: 8889,
+	multipleStatements : true
+});
 if (cluster.isMaster) {
     for (var i = 0; i < 4; i++) {
         cluster.fork();
@@ -39,7 +40,8 @@ if (cluster.isMaster) {
 	    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
 	    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With,State');
 	    if ('OPTIONS' === req.method) {
-	        res.send(200);
+	        //res.send(200);
+            res.status(200).send();
 	    }
 	    else {
 	        next();
@@ -51,8 +53,8 @@ if (cluster.isMaster) {
 	var connection=function(sql,data,callback){
 		pool.getConnection(function(err, connection) {
 	        if(err) {
-	            console.log('Error getting sql connection');
-	            console.dir(err);
+	            //console.log('Error getting sql connection');
+	            //console.dir(err);
 	            if(typeof connection !== "undefined")
 	                connection.release();
 	            callback(err);
@@ -60,7 +62,7 @@ if (cluster.isMaster) {
 	        if(typeof data === "undefined") {
 	            connection.query( sql, function(err, rows,fields) {
 	                connection.release();
-	                console.dir(sql);
+	                //console.dir(sql);
 	                if(err) {
 	                    console.log('err:' + err);
 	                    callback(err, rows,fields);
@@ -72,14 +74,14 @@ if (cluster.isMaster) {
 	        } else {
 	                connection.query( sql, data, function(err, rows,fields){
 		                connection.release();
-		                console.log(sql);
-		                console.dir(data);
+		                //console.log(sql);
+		                //console.dir(data);
 
 		                if(err) {
-		                    console.log('err:' + err);
+		                    //console.log('err:' + err);
 		                    callback(err, rows,fields);
 		                }else{
-		                    console.log( rows );
+		                    //console.log( rows );
 		                    callback(err, rows,fields);
 		                }
 
@@ -87,25 +89,57 @@ if (cluster.isMaster) {
 	        }
 	    });
 	}
+    var connection2=function(callback){
+		pool.getConnection(function(err, connection) {
+	        if(err) {
+	            //console.log('Error getting sql connection');
+	            //console.dir(err);
+	            if(typeof connection !== "undefined")
+	                connection.release();
+	            callback(err);
+	        }
+	        callback(undefined,connection);
+	    });
+	}
+    var log = function(headers,path,action,query,body,others){
+        var arr = []
+        var d = new Date()
+        dStr = d.getFullYear() + "-" +
+            ("00" + (d.getMonth() + 1)).slice(-2) + "-" +
+            ("00" + d.getDate()).slice(-2) + " " +
+            ("00" + d.getHours()).slice(-2) + ":" +
+            ("00" + d.getMinutes()).slice(-2) + ":" +
+            ("00" + d.getSeconds()).slice(-2)
+        //console.log('===========')
+        var user = {}
+        if (headers['authorization']) user = jwt.verify(headers['authorization'].split(' ')[1], 'smrai.inc');
+
+
+        arr.push(dStr,user.username?user.username:'',path?path:'',headers.state?headers.state:'',action?action:'',query?query:'',body?body:'',others?others:'',headers['user-agent']?headers['user-agent']:'')
+        console.log(arr.join('|'))
+    }
 
 	app.use(function (req, res, next) {
-	    console.log('accessing middleware /apifo')
-	    console.log('Accessing:'+req.path)
-	    console.log('Headers:'+JSON.stringify(req.headers))
-	    console.log('Body:'+JSON.stringify(req.body))
+        log(req.headers,req.path,'middleware',JSON.stringify(req.query),JSON.stringify(req.body),'middleware API')
+	    //console.log('accessing middleware /apifo')
+	    ///console.log('Accessing:'+req.path)
+	    //console.log('Headers:'+JSON.stringify(req.headers))
+	    //console.log('Body:'+JSON.stringify(req.body))
 	    if (req.path == '/authenticate'){
-	        console.log('re-authenticate')
-	        console.log(req.body)
+	        //console.log('re-authenticate')
+	        //console.log(req.body)
+            log(req.headers,req.path,'re-authenticate',JSON.stringify(req.query),JSON.stringify(req.body),'Re-authenticate')
 	        req.username = req.body.username
 	        next();
 	    }
 	    else {
 	        console.log('authorization checking')
+            log(req.headers,req.path,'authorization',JSON.stringify(req.query),JSON.stringify(req.body),'Authorization')
 	        if (req.headers['authorization']){
 	            try{
-	                console.log(req.headers.authorization)
+	                //console.log(req.headers.authorization)
 	                var user = jwt.verify(req.headers['authorization'].split(' ')[1], 'smrai.inc');
-	                console.log('authorization:'+JSON.stringify(user))
+	                //console.log('authorization:'+JSON.stringify(user))
 	                var sqlstr = 'select count(1) '+
 	                'from user a, role_user b,role_menu c, menu d '+
 	                'where a.id = b.user_id and b.role_id = c.role_id '+
@@ -113,30 +147,33 @@ if (cluster.isMaster) {
 	                'and a.name = "'+user.username+'" '+
 	                'and a.password = "'+user.password+'" '+
 	                'and d.state = "'+req.headers.state+'"';
-	                console.log(sqlstr)
+	                //console.log(sqlstr)
 
 	                connection(sqlstr,undefined, function(err, rows, fields) {
 	                    console.log('middleware res:'+JSON.stringify(rows))
 	                    if (err){
+                            log(req.headers,req.path,'authorization-500',JSON.stringify(req.query),JSON.stringify(req.body),JSON.stringify(err))
 	                        res.status(500).send({error:'unavailable'})
 	                    }
 	                    else if(rows.length==0){
+                            log(req.headers,req.path,'authorization-404',JSON.stringify(req.query),JSON.stringify(req.body),'User not found')
 	                        res.status(404).send({error:'failed authentication'})
 	                    }
 	                    else {
-	                        console.log('Success authenticate')
+	                        log(req.headers,req.path,'authorization-200',JSON.stringify(req.query),JSON.stringify(req.body),'success')
 	                        req.username = user.username
 	                        next();
 	                    }
 	                });
 	            }
 	            catch(e){
-	                console.log(e)
+	                log(req.headers,req.path,req.headers.state,'authorization-500',JSON.stringify(req.query),JSON.stringify(req.body),JSON.stringify(e))
 	                res.status(500).send({status:500,desc:'Invalid Access'})
 	            }
 
 	        }
 	        else{
+                log(req.headers,req.path,'authorization-500',JSON.stringify(req.query),JSON.stringify(req.body),'Forbidden')
 	            res.status(500).send({status:500,desc:'Forbidden'})
 	        }
 
@@ -149,7 +186,7 @@ if (cluster.isMaster) {
 	var apiFinRoutes = require('./routes/apifin')(connection,jwt);
 	var apiPosRoutes = require('./routes/apipos')(connection,jwt);
 	var apiOthers = require('./routes/apiothers')(connection,jwt);
-	var apiSql = require('./routes/apiSql')(connection,jwt);
+	var apiSql = require('./routes/apiSql')(connection,connection2,jwt,log);
 	app.use('/api', apiRoutes);
 	app.use('/apifo', apiFoRoutes);
 	app.use('/apiinv', apiInvRoutes);
@@ -210,7 +247,7 @@ if (cluster.isMaster) {
 	            obj.data['roles'] = arrRoles.filter(onlyUnique);
 	            obj.data['menu'] = arrMenu.filter(onlyUnique);
 	            obj.data['object'] = arrObject;
-	            console.log(obj)
+	            //console.log(obj)
 	            res.send(obj)
 	        }
 
@@ -220,7 +257,7 @@ if (cluster.isMaster) {
 
 	app.post('/authorize', function (req, res) {
 	    var where = ''
-	    console.log(req.body)
+
 	    /*var sqlstr = 'select group_concat(object) as object from menu a, menu_detail b '+
 	    'where a.id = b.menu_id '+
 	    'and a.state = "'+req.body.state+'"';
@@ -233,18 +270,23 @@ if (cluster.isMaster) {
                 'and e.name = \''+req.username+'\''+
         	    ' and a.state = \''+req.body.state+'\' ' ;
 	    connection(sqlstr,undefined, function(err, rows, fields) {
-	        if (err) throw err;
-	        if (rows.length>0){
+	        if (err) {
+                log(req.headers,req.path,'authorize-500',JSON.stringify(req.query),JSON.stringify(req.body),JSON.stringify(err))
+                res.status(500).send();
+            }
+            else if (rows.length>0){
+                log(req.headers,req.path,'authorize-200',JSON.stringify(req.query),JSON.stringify(req.body),(rows.length==0?[]:rows[0].object.split(',')))
 	            res.send(rows.length==0?[]:rows[0].object.split(','))
 	        }
 	        else{
+                log(req.headers,req.path,'authorize-404',JSON.stringify(req.query),JSON.stringify(req.body),'no authorization')
 	            res.send([])
 	        }
 	    });
 	});
 
 	app.post('/authenticate', function (req, res) {
-	    console.log(req.body)
+	    //console.log(req.body)
 	    var sqlstr = 'select a.id,a.name as username, a.full_name,a.password, a.token, g.name as gname, e.l1 as menuname, e.l2 as submenuname, h.name as module, e.l2state, '+
 	    'group_concat(f.object), f.custom, i.name as default_module, e.l2id,j.name as default_menu, j.state as default_state,e.is_sidebar,e.sidebar_short,e.sidebar_icon '+
 	    'from user a, role_user b, role c, role_menu d, '+
@@ -264,17 +306,21 @@ if (cluster.isMaster) {
 	    'and a.name="'+req.username+'" '+
 	    'group by submenuname '+
 	    'order by menuname,e.sequence, submenuname ';
-	    console.log(sqlstr)
+	    //console.log(sqlstr)
 
 
 	    connection(sqlstr,undefined, function(err, rows, fields) {
-	        console.log(err)
+	        //console.log(err)
 	        var obj = {
 	            isAuthenticated: false,
 	            data: {}
 	        };
-	        if (err) throw err;
-	        if (rows.length==0){
+	        if (err) {
+                log(req.headers,req.path,'authenticate-500',JSON.stringify(req.query),JSON.stringify(req.body),JSON.stringify(err))
+                res.status('500').send();
+            }
+	        else if (rows.length==0){
+                log(req.headers,req.path,'authenticate-404',JSON.stringify(req.query),JSON.stringify(req.body),JSON.stringify(obj))
 	            res.send(obj)
 	        }
 	        else {
@@ -332,7 +378,7 @@ if (cluster.isMaster) {
 	                    }
 	                }
 	            }
-	            console.log(JSON.stringify(objModule,null,2))
+	            //console.log(JSON.stringify(objModule,null,2))
 	            obj.data['token'] = rows[0].token;
 	            obj.data['default_module'] = rows[0].default_module;
 	            obj.data['default_menu'] = {
@@ -345,7 +391,7 @@ if (cluster.isMaster) {
                     full_name: rows[0].full_name
                 }
 	            obj.data['module'] = objModule;
-
+                log(req.headers,req.path,'authenticate-200',JSON.stringify(req.query),JSON.stringify(req.body),JSON.stringify(obj))
 	            res.send(obj)
 	        }
 
@@ -354,6 +400,7 @@ if (cluster.isMaster) {
 	});
 
 	app.listen(3001, function () {
-	  console.log('API Server listening on port 3001!');
+        log({},undefined,'Start API Service',undefined,undefined,undefined)
+	  //console.log('API Server listening on port 3001!');
 	});
 }

@@ -547,6 +547,44 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.inv.po', {
+        url: "/purchaseOrder",
+        templateUrl: "container/components/invPurchaseOrder/view.html",
+        controller: 'InvPurchaseOrderCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invPurchaseOrder/controller.js');
+                });
+            }]
+        }
+    })
+    .state('app.inv.receiving', {
+        url: "/receiving",
+        templateUrl: "container/components/invReceiving/view.html",
+        controller: 'InvReceivingCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invReceiving/controller.js');
+                });
+            }]
+        }
+    })
 
     //Finance and Accounting Module
     .state('app.fin', {

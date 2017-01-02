@@ -1,4 +1,4 @@
-<nav class="secondary-sidebar padding-30 ">
+<!--<nav class="secondary-sidebar padding-30 ">
     <p class="menu-title">MAIN</p>
     <ul class="main-menu">
         <li class="active">
@@ -42,8 +42,8 @@
             <a href="#">Exit</a>
         </li>
     </ul>
-</nav>
-<div class="inner-content full-height m-t-40">
+</nav>-->
+<div class=" full-height m-t-40">
     <!-- TABLES VIEW -->
     <div class="container-fluid container-fixed-lg">
         <!-- START PANEL -->
@@ -134,6 +134,22 @@
                     </div>
                 </div>
               </div>
+              <div class="row clearfix">
+                <div class="col-sm-12">
+                    <div pg-form-group class="form-group form-group-default" >
+                        <label>Mobile</label>
+                        <input type="text" class="form-control" name="mobile" ng-model="user.mobile" >
+                    </div>
+                </div>
+              </div>
+              <div class="row clearfix">
+                <div class="col-sm-12">
+                    <div pg-form-group class="form-group form-group-default" >
+                        <label>Email</label>
+                        <input type="text" class="form-control" name="email" ng-model="user.email" >
+                    </div>
+                </div>
+              </div>
 
 
 
@@ -141,7 +157,7 @@
                 <div class="col-sm-12">
                     <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : role.selected.$invalid && !role.selected.$pristine }">
                         <label>Roles</label>
-                        <ui-select multiple name="roleName" class="form-control" require-multiple ng-model="role.selected" theme="select2" ng-disabled="disabled" style="width:100%" validate-attached-form-element required>
+                        <ui-select multiple name="roleName" class="form-control" require-multiple ng-model="role.selected" theme="select2" ng-disabled="disabled" style="width:100%" validate-attached-form-element required on-select="getModule($item.id)">
                             <ui-select-match placeholder="Select role...">{{$item.name}}</ui-select-match>
                             <ui-select-choices repeat="item in roles | filter: {name: $select.search}" >
                                 <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
@@ -151,6 +167,35 @@
                     </div>
                 </div>
               </div>
+
+              <div class="row clearfix">
+                <div class="col-sm-12">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : user.default_module.$invalid && !user.default_module.$pristine }">
+                        <label>Default Module</label>
+                        <ui-select ng-model="selected.module.selected" theme="bootstrap" on-select="getMenu($item.id,undefined)">
+                            <ui-select-match placeholder="Select Default Module">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in modules | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+              </div>
+
+              <div class="row clearfix">
+                <div class="col-sm-12">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : user.default_menu.$invalid && !user.default_menu.$pristine }">
+                        <label>Default Menu</label>
+                        <ui-select ng-model="selected.menu.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="Select Default Menu">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in menus | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+              </div>
+
 
 
               <br>
@@ -252,7 +297,7 @@
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h4 class="no-margin p-b-10">Are you sure want to delete {{user.name}} ?</h4>
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{user.username}} ?</h4>
                     <div >
                         <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>

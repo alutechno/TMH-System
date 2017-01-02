@@ -145,6 +145,31 @@ function($q, $http, $timeout, $localStorage,API_URL) {
             return defer.promise;
 
 
+        },
+        generatePo: function(pr,items) {
+            var defer = $q.defer();
+            //console.log(sqlstr)
+            //console.log(sqlparam)
+            var body = {
+                pr: pr,
+                items: items
+            }
+
+            $http.post(API_URL+'/apisql/generatepo', body)
+            .then(function(response){
+                console.log(response)
+                if (response.data.err==null) {
+                    var rsp = {data:response.data.rows, status:200}
+                    defer.resolve(rsp)
+                }
+                else defer.reject(response.data.err)
+            },
+            function(response){
+                defer.reject(response)
+            })
+            return defer.promise;
+
+
         }
     }
 }
@@ -162,6 +187,9 @@ function($q, $http, $timeout, $localStorage,API_URL) {
                 ("00" + d.getHours()).slice(-2) + ":" +
                 ("00" + d.getMinutes()).slice(-2) + ":" +
                 ("00" + d.getSeconds()).slice(-2)
+        },
+        endOfYear: function() {
+            return (new Date().getFullYear()) + '-12-31 23:59:59'
         }
     }
 }

@@ -377,7 +377,7 @@ module.exports = function(connection,jwt){
             where += ' and a.id='+req.query.id
         }
 
-        var sqlstr = 'select a.password,a.name as username, full_name as fullname, GROUP_CONCAT(b.name) as roles, a.id , GROUP_CONCAT(b.id) as rolesid '+
+        var sqlstr = 'select a.password,a.name as username, full_name as fullname, GROUP_CONCAT(CAST(b.name as CHAR)) as roles, a.id , GROUP_CONCAT(CAST(b.id as CHAR)) as rolesid, a.default_module,a.default_menu,a.mobile,a.email '+
         'from user a, role b, role_user c '+
         'where a.id = c.user_id '+
         'and b.id = c.role_id '+ where +
@@ -405,7 +405,10 @@ module.exports = function(connection,jwt){
             password: req.body.password,
             token: jwt.sign(tokenuser, 'smrai.inc'),
             full_name: req.body.fullname,
-            department_id:7
+            default_menu: req.body.default_menu,
+            default_module: req.body.default_module,
+            mobile: req.body.mobile,
+            email: req.body.email
         }
 
         connection(sqlstr, sqlparam,function(err, result) {
@@ -436,7 +439,11 @@ module.exports = function(connection,jwt){
             name:req.body.username,
             password: req.body.password,
             token: jwt.sign(tokenuser, 'smrai.inc'),
-            full_name: req.body.fullname
+            full_name: req.body.fullname,
+            default_menu: req.body.default_menu,
+            default_module: req.body.default_module,
+            mobile: req.body.mobile,
+            email: req.body.email
         }
 
         connection(sqlstr, sqlparam,function(err, result) {

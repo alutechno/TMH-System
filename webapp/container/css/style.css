@@ -29,5 +29,29 @@ span.ui-select-match-text.pull-left {
     white-space: nowrap;
      text-overflow: ellipsis;
     overflow: hidden;
-     width: 80%; 
+     width: 80%;
+}
+
+.ui-select-match-text{
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+}
+.ui-select-toggle > .btn.btn-link {
+  margin-right: 10px;
+  top: 6px;
+  position: absolute;
+  right: 10px;
+}
+
+.table.table-condensed tbody tr td {
+    white-space: normal;
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.itemtable tbody tr td {
+    padding: 5px !important;
 }

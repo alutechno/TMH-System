@@ -7,15 +7,15 @@ function($scope, $state, $sce, profileService, queryService, $localStorage, $com
         name: '',
         full_name: '',
         password: '',
-        department_id: '',
+        //department_id: '',
         default_module: '',
         default_menu: ''
     }
-    $scope.departments = []
+    //$scope.departments = []
     $scope.modules = []
     $scope.menus = []
     $scope.selected= {
-        department: {selected:{}},
+        //department: {selected:{}},
         module: {selected:{}},
         menu: {selected:{}}
     }
@@ -23,18 +23,17 @@ function($scope, $state, $sce, profileService, queryService, $localStorage, $com
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
     };
-    var qstring = 'select a.id, a.name, a.full_name, a.password, a.image,a.mobile,a.email, a.department_id, b.name as department_name, '+
+    var qstring = 'select a.id, a.name, a.full_name, a.password, a.image,a.mobile,a.email, '+
         	'a.default_module, c.name as module_name, a.default_menu, d.name as menu_name '+
-        'from user a, mst_department b, module c, menu d '+
-        'where a.department_id = b.id '+
-        'and a.default_module = c.id '+
+        'from user a, module c, menu d '+
+        'where a.default_module = c.id '+
         'and a.default_menu = d.id '+
         'and a.name = \''+$localStorage.currentUser.name.name + '\''
 
     queryService.get(qstring,undefined)
     .then(function(result){
         $scope.user = result.data[0]
-        $scope.selected.department.selected = {id:result.data[0].department_id,name:result.data[0].department_name}
+        //$scope.selected.department.selected = {id:result.data[0].department_id,name:result.data[0].department_name}
         $scope.selected.module.selected = {id:result.data[0].default_module,name:result.data[0].module_name}
         $scope.getMenu(result.data[0].default_module,result.data[0].default_menu)
     },function(err){
@@ -47,16 +46,16 @@ function($scope, $state, $sce, profileService, queryService, $localStorage, $com
         }).show();
     })
 
-    queryService.get('select id, name from mst_department order by name asc',undefined)
+    /*queryService.get('select id, name from mst_department order by name asc',undefined)
     .then(function(result){
         $scope.departments = result.data
     },function(err){
         console.log(err)
-    })
+    })*/
     var qStrModule = 'select e.id, e.name '+
         'from user a, role_user b, role_menu c, menu f, group_menu d, module e '+
         'where a.id = b.user_id '+
-        'and b.id = c.role_id '+
+        'and b.role_id = c.role_id '+
         'and c.menu_id = f.id '+
         'and f.group_id = d.id '+
         'and d.module_id = e.id '+
@@ -75,7 +74,7 @@ function($scope, $state, $sce, profileService, queryService, $localStorage, $com
         var qStrMenu = 'select f.id,concat(d.name,\' - \',f.name) as name '+
             'from user a, role_user b, role_menu c, menu f, group_menu d, module e '+
             'where a.id = b.user_id '+
-            'and b.id = c.role_id '+
+            'and b.role_id = c.role_id '+
             'and c.menu_id = f.id '+
             'and f.group_id = d.id '+
             'and d.module_id = e.id '+
