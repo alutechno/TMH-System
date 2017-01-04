@@ -686,6 +686,47 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.fin.apvoucher', {
+        url: "/apvoucher",
+        templateUrl: "container/components/finApVoucher/view.html",
+        controller: 'FinApVoucherCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finApVoucher/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.appayment', {
+        url: "/appayment",
+        templateUrl: "container/components/finApPayment/view.html",
+        controller: 'FinApPaymentCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finApPayment/controller.js');
+                });
+
+            }]
+        }
+    })
 
     // Extra - Others
     .state('access', {

@@ -55,3 +55,30 @@ span.ui-select-match-text.pull-left {
 .itemtable tbody tr td {
     padding: 5px !important;
 }
+
+.ui-select-match-close.select2-search-choice-close {
+    color: #626262 !important;
+    opacity: .4;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}
+.lDate .select2-choices {
+    background-image: none;
+    border: 1px solid #815e36;
+    border-radius: 2px;
+}
+.lDate2 .ui-select-match {
+    background-image: none;
+    border: 1px solid #815e36;
+    border-radius: 2px;
+}
+.lDate .select2-container-multi .select2-choices .select2-search-choice {
+    background-color: #e6e6e6;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+    color: inherit;
+    border-radius: 8px;
+    margin: 4px -5px 4px 10px;
+    padding: 4px 8px 4px 18px;
+}

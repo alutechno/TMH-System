@@ -190,7 +190,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.query = qstring + qwhere + ' order by a.id desc ';
+            data.query = qstring + qwhere ;
         }
     })
     .withDataProp('data')
@@ -199,6 +199,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     .withOption('bLengthChange', false)
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
+    .withOption('order', [1, 'desc'])
     .withDisplayLength(10)
 
     .withOption('createdRow', $scope.createdRow);
@@ -209,6 +210,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         .renderWith($scope.actionsHtml).withOption('width', '12%'))
     }
     $scope.dtColumns.push(
+        DTColumnBuilder.newColumn('id').withTitle('ID'),
         DTColumnBuilder.newColumn('code').withTitle('Code'),
         DTColumnBuilder.newColumn('doc_status_name').withTitle('Status'),
         DTColumnBuilder.newColumn('status').withTitle('Approval'),
