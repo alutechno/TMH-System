@@ -190,7 +190,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.query = qstring + qwhere;
+            data.query = qstring + qwhere + ' order by a.id desc ';
         }
     })
     .withDataProp('data')
@@ -377,7 +377,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             console.log($scope.selected.doc_status)
             console.log($scope.selected.approval)
 
-            
+
             //exec update
             var param = [{
                 code: $scope.pr.code,

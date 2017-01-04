@@ -186,7 +186,7 @@ if (cluster.isMaster) {
 	var apiFinRoutes = require('./routes/apifin')(connection,jwt);
 	var apiPosRoutes = require('./routes/apipos')(connection,jwt);
 	var apiOthers = require('./routes/apiothers')(connection,jwt);
-	var apiSql = require('./routes/apiSql')(connection,connection2,jwt,log);
+	var apiSql = require('./routes/apiSql')(connection,jwt,log);
 	app.use('/api', apiRoutes);
 	app.use('/apifo', apiFoRoutes);
 	app.use('/apiinv', apiInvRoutes);
