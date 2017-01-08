@@ -82,3 +82,23 @@ span.ui-select-match-text.pull-left {
     margin: 4px -5px 4px 10px;
     padding: 4px 8px 4px 18px;
 }
+
+@media screen {
+    #printSection {
+        display: none;
+    }
+}
+
+@media print {
+    body * {
+        visibility:hidden;
+    }
+    #printSection, #printSection * {
+        visibility:visible;
+    }
+    #printSection {
+        position:absolute;
+        left:0;
+        top:0;
+    }
+}
