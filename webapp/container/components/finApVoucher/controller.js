@@ -128,6 +128,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         else $scope.isReceiving = true
     }
 
+    $scope.showAdvance = false
+    $scope.openAdvancedFilter = function(val){
+        console.log(val)
+        $scope.showAdvance = val
+    }
+
     $scope.setReceiving = function(e){
         console.log(e)
         $scope.ap.source_no=$scope.selected.source_no.selected.id
@@ -214,7 +220,24 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-    .withOption('createdRow', $scope.createdRow);
+    .withOption('createdRow', $scope.createdRow)
+    /*.withOption("oTableTools", {
+        "sSwfPath": "assets/plugins/jquery-datatable/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
+        "aButtons": [{
+            "sExtends": "csv",
+            "sButtonText": "<i class='pg-grid'></i>",
+        }, {
+            "sExtends": "xls",
+            "sButtonText": "<i class='fa fa-file-excel-o'></i>",
+        }, {
+            "sExtends": "pdf",
+            "sButtonText": "<i class='fa fa-file-pdf-o'></i>",
+        }, {
+            "sExtends": "copy",
+            "sButtonText": "<i class='fa fa-copy'></i>",
+        }]
+    })
+    .withOption("sDom", "<'exportOptions'T><'table-responsive't><'row'<p i>>")*/;
 
     $scope.dtColumns = [];
     if ($scope.el.length>0){
@@ -223,15 +246,15 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('id').withTitle('Vcr No'),
-        DTColumnBuilder.newColumn('code').withTitle('Doc No'),
+        DTColumnBuilder.newColumn('code').withTitle('Doc No').withOption('width', '20%'),
         DTColumnBuilder.newColumn('open_date').withTitle('Open Date'),
         DTColumnBuilder.newColumn('due_date').withTitle('Due Date'),
         DTColumnBuilder.newColumn('status').withTitle('Status'),
-        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier'),
+        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '20%'),
         DTColumnBuilder.newColumn('source').withTitle('Source'),
         DTColumnBuilder.newColumn('currency_id').withTitle('Currency'),
-        DTColumnBuilder.newColumn('total_amount').withTitle('Total Amount'),
-        DTColumnBuilder.newColumn('home_total_amount').withTitle('Home Total Amount')
+        DTColumnBuilder.newColumn('total_amount').withTitle('Total Amount').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('home_total_amount').withTitle('Home Total Amount').withOption('width', '10%')
     );
 
     $scope.filter = function(type,event) {
