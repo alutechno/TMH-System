@@ -153,9 +153,10 @@ angular.module('app')
                     name: 'select',
                     files: [
                         'assets/plugins/bootstrap-select2/select2.css',
-                        'assets/plugins/angular-ui-select/select.min.css',
-                        'assets/plugins/angular-ui-select/select.min.js'
-                        //'assets/plugins/angular-ui-select/select.min.git.js'
+                        //'assets/plugins/angular-ui-select/select.min.css',
+                        'container/plugins/angular-ui-select/select.min.git.css',
+                        //'assets/plugins/angular-ui-select/select.min.js'
+                        'container/plugins/angular-ui-select/select.min.git.js'
                     ]
                 }, {
                     name: 'datepicker',
