@@ -8,8 +8,9 @@
 angular.module('app', [
     'ngStorage',
     'ui.router',
-    
+
     'ui.utils',
     'ngResource',
-    'oc.lazyLoad'
+    'oc.lazyLoad',
+    'xeditable'
 ]);

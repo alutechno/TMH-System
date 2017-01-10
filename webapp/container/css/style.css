@@ -83,6 +83,41 @@ span.ui-select-match-text.pull-left {
     padding: 4px 8px 4px 18px;
 }
 
+.editable-wrap.editable-text {
+    width: 100%;
+}
+.editable-wrap.editable-text input{
+    width: 100%;
+    background-color: #ffffff;
+    background-image: none;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    font-family: Arial, sans-serif;
+    -webkit-appearance: none;
+    color: #2c2c2c;
+    outline: 0;
+    height: 35px;
+    padding: 9px 12px;
+    line-height: normal;
+    font-size: 14px;
+    font-weight: normal;
+    vertical-align: middle;
+    min-height: 35px;
+    -webkit-transition: all 0.12s ease;
+    transition: all 0.12s ease;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    border-radius: 2px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    -webkit-transition: background 0.2s linear 0s;
+    transition: background 0.2s linear 0s;
+}
+.editable-wrap {
+    display: inline-block;
+     white-space: nowrap !important;
+    margin: 0;
+}
+
 @media screen {
     #printSection {
         display: none;
