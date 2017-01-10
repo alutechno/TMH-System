@@ -585,6 +585,63 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.inv.stockAdmin', {
+        url: "/stockAdmin",
+        templateUrl: "container/components/invWarehouseStockAdmin/view.html",
+        controller: 'InvWarehouseStockAdminCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invWarehouseStockAdmin/controller.js');
+                });
+            }]
+        }
+    })
+    .state('app.inv.stockOpname', {
+        url: "/stockAdmin",
+        templateUrl: "container/components/invWarehouseStockOpname/view.html",
+        controller: 'InvWarehouseStockOpnameCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invWarehouseStockOpname/controller.js');
+                });
+            }]
+        }
+    })
+    .state('app.inv.storeRequest', {
+        url: "/stockAdmin",
+        templateUrl: "container/components/invWarehouseStoreRequest/view.html",
+        controller: 'InvWarehouseStoreRequestCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invWarehouseStoreRequest/controller.js');
+                });
+            }]
+        }
+    })
 
     //Finance and Accounting Module
     .state('app.fin', {

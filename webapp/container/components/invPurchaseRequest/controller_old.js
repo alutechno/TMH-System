@@ -1,9 +1,5 @@
 
-var userController = angular.module('app', ["xeditable"]);
-
-userController.run(function(editableOptions) {
-  editableOptions.theme = 'bs3';
-});
+var userController = angular.module('app', []);
 userController
 .controller('InvPurchaseRequestCtrl',
 function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOptionsBuilder, DTColumnBuilder,DTColumnDefBuilder, $localStorage, $compile, $rootScope, API_URL,
@@ -86,8 +82,6 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     }
     $scope.updateState = false
     $scope.items = []
-    $scope.itemsOri = []
-    $scope.child = {}
 
 
     $scope.id = '';
@@ -317,7 +311,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                         }
                         console.log(paramItem)
                         //queryService.post('insert into inv_pr_line_item(pr_id,product_id,supplier_id,order_qty,net_price,order_amount,created_by,created_date) values ?',[paramItem])
-                        $scope.addItemDetail(result.data.insertId)
+                        $scope.addItemDetail(result)
                         .then(function (result3){
                             console.log(result.data.insertId)
                             $('#form-input').modal('hide')
@@ -414,7 +408,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                     //Hanya Update inv_purchase_request, tidak doc_status_id atau approval yang berubah
                     $('#form-input').modal('hide')
                     result.data['insertId'] = $scope.pr.id
-                    $scope.addItemDetail($scope.pr.id)
+                    $scope.addItemDetail(result)
                     .then(function (result3){
                         $scope.nested.dtInstance.reloadData(function(obj){
                             // console.log(obj)
@@ -458,7 +452,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                         }).show();
                     }
                     else {
-                        $scope.addItemDetail($scope.pr.id)
+                        $scope.addItemDetail(result)
                         .then(function (result3){
                             console.log(result.data.insertId)
                         },
@@ -566,24 +560,14 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             })
         }
     }
-    $scope.addItemDetail = function(pr_id){
+    $scope.addItemDetail = function(result){
         console.log('addItemDetail')
         console.log($scope.items)
-        console.log(pr_id)
-        var sqli = $scope.child.saveTable(pr_id);
-        console.log(sqli)
-
+        console.log(result.data)
         var defer = $q.defer();
         var paramItem = []
         var sqlCtr = []
-        queryService.post(sqli.join(';'),undefined)
-        .then(function (result2){
-            defer.resolve(result2)
-        },
-        function (err2){
-            defer.reject(err2)
-        })
-        /*for (var x=0;x<$scope.items.length;x++){
+        for (var x=0;x<$scope.items.length;x++){
             paramItem.push([
                 result.data.insertId,$scope.items[x].product_id,$scope.items[x].supplier_id,
                 parseInt($scope.items[x].qty),parseInt($scope.items[x].price),parseInt($scope.items[x].amount),
@@ -638,7 +622,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 console.log(err3)
                 defer.reject(err3)
             })
-        })*/
+        })
 
 
         return defer.promise;
@@ -652,7 +636,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         .then(function (result){
             console.log(result)
 
-            /*queryService.get('select id,name,last_order_price from mst_product order by id limit 50 ',undefined)
+            queryService.get('select id,name,last_order_price from mst_product order by id limit 50 ',undefined)
             .then(function(data){
                 $scope.products = data.data
             })
@@ -710,7 +694,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             }
             $scope.updatePrice = function(e){
                 $scope.item2Add.amount = $scope.item2Add.price * $scope.item2Add.qty
-            }*/
+            }
 
             queryService.post(qstringdetail + ' where a.pr_id='+ids,undefined)
             .then(function(data){
@@ -719,8 +703,6 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 $scope.items = []
                 for (var i=0;i<data.data.length;i++){
                     $scope.items.push({
-                        id: i+1,
-                        p_id: data.data[i].p_id,
                         product_id:data.data[i].product_id,
                         product_name:data.data[i].product_name,
                         qty: data.data[i].order_qty,
@@ -730,7 +712,6 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                         supplier_name: data.data[i].supplier_name
                     })
                 }
-                $scope.itemsOri = angular.copy($scope.items)
                 //$scope.items = data.data
             })
             $scope.nested.dtInstanceItem = {}
@@ -755,14 +736,14 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 DTColumnDefBuilder.newColumnDef(4).withOption('width', '10%'),
                 DTColumnDefBuilder.newColumnDef(5).withOption('width', '35%')
             ];
-            /*$scope.item2Add = {
+            $scope.item2Add = {
                 product_id:'',
                 qty: '',
                 price: '',
                 amount: '',
                 supplier_id: ''
             }
-            $scope.items = _buildPerson2Add({
+            /*$scope.items = _buildPerson2Add({
                 product_id:'',
                 qty: '',
                 price: '',
@@ -773,7 +754,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             $scope.modifyPerson = modifyPerson;
             $scope.removePerson = removePerson;*/
 
-            /*function _buildPerson2Add(d) {
+            function _buildPerson2Add(d) {
                 return d;
             }
             $scope.addItem = function() {
@@ -845,7 +826,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             $scope.removeItem = function(index) {
                 console.log(index)
                 $scope.items.splice(index, 1);
-            }*/
+            }
         })
     }
 
@@ -1069,190 +1050,3 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     }
 
 })
-.controller('EditableTableCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {
-    $scope.item = {
-        product_id:'',
-        product_name:'',
-        qty: '',
-        price: '',
-        amount: '',
-        supplier_id: '',
-        supplier_name: '',
-        old_price: '',
-        new_price: ''
-    };
-
-    $scope.checkName = function(data, id) {
-        if (id === 2 && data !== 'awesome') {
-            return "Username 2 should be `awesome`";
-        }
-    };
-
-    // filter users to show
-    $scope.filterUser = function(user) {
-        return user.isDeleted !== true;
-    };
-
-    // mark user as deleted
-    $scope.deleteUser = function(id) {
-        console.log(id)
-        var filtered = $filter('filter')($scope.items, {id: id});
-        if (filtered.length) {
-            filtered[0].isDeleted = true;
-        }
-    };
-
-    // add user
-    $scope.addUser = function() {
-        $scope.item = {
-            id:($scope.items.length+1),
-            product_id:'',
-            product_name:'',
-            qty: 0,
-            price: 0,
-            amount: 0,
-            supplier_id: '',
-            supplier_name: '',
-            old_price: 0,
-            new_price: 0,
-            isNew: true
-        };
-        $scope.items.push($scope.item)
-    };
-
-    // cancel all changes
-    $scope.cancel = function() {
-        for (var i = $scope.items.length; i--;) {
-            var user = $scope.items[i];
-            // undelete
-            if (user.isDeleted) {
-                delete user.isDeleted;
-            }
-            // remove new
-            if (user.isNew) {
-                $scope.items.splice(i, 1);
-            }
-        };
-    };
-
-    // save edits
-    $scope.child.saveTable = function(pr_id) {
-        console.log('asd')
-        var results = [];
-        console.log($scope.itemsOri)
-
-        console.log(JSON.stringify($scope.items,null,2))
-        var sqlitem = []
-        for (var i = $scope.items.length; i--;) {
-            var user = $scope.items[i];
-            // actually delete user
-            /*if (user.isDeleted) {
-                $scope.items.splice(i, 1);
-            }*/
-            // mark as not new
-            /*if (user.isNew) {
-                user.isNew = false;
-            }*/
-
-            // send on server
-            //results.push($http.post('/saveUser', user));
-            if (user.isNew && !user.isDeleted){
-                sqlitem.push('insert into inv_pr_line_item (pr_id,product_id,'+(user.supplier_id.length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date) values('+
-                pr_id+','+user.product_id+','+(user.supplier_id.length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
-            }
-            else if(!user.isNew && user.isDeleted){
-                sqlitem.push('delete from inv_pr_line_item where id='+user.p_id)
-            }
-            else if(!user.isNew){
-                console.log(user)
-                for (var j=0;j<$scope.itemsOri.length;j++){
-                    if ($scope.itemsOri[j].p_id==user.p_id){
-                        var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].supplier_id+$scope.itemsOri[j].qty+$scope.itemsOri[j].price
-                        var d2 = user.p_id+user.product_id+user.supplier_id+user.qty+user.price
-                        if(d1 != d2){
-                            sqlitem.push('update inv_pr_line_item set '+
-                            ' product_id = '+user.product_id+',' +
-                            ' supplier_id = '+user.supplier_id+',' +
-                            ' order_qty = '+user.qty+',' +
-                            ' net_price = '+user.price+',' +
-                            ' order_amount = '+user.amount+',' +
-                            ' modified_by = '+$localStorage.currentUser.name.id+',' +
-                            ' modified_date = \''+globalFunction.currentDate()+'\'' +
-                            ' where id='+user.p_id)
-                        }
-                    }
-                }
-            }
-
-        }
-        console.log($scope.items)
-        console.log(sqlitem.join(';'))
-        return sqlitem
-        //return $q.all(results);
-    };
-    $scope.trustAsHtml = function(value) {
-        return $sce.trustAsHtml(value);
-    };
-
-    $scope.products = []
-
-    queryService.get('select id,name,last_order_price from mst_product order by id limit 50 ',undefined)
-    .then(function(data){
-        $scope.products = data.data
-    })
-    $scope.productUp = function(text) {
-        queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
-        .then(function(data){
-            $scope.products = data.data
-        })
-    }
-    $scope.supplierUp = function(text,d) {
-        var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
-            'from mst_supplier a '+
-            'left join inv_prod_price_contract b '+
-            'on a.id = b.supplier_id  '+
-            'and a.status=1  '+
-            'and b.product_id ='+$scope.items[d-1].product_id + ' '
-            'and lower(a.name) like \''+text.toLowerCase()+'%\'' +
-            ' order by price desc limit 50'
-        //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
-        queryService.post(sqlCtr,undefined)
-        .then(function(data){
-            $scope.products = data.data
-        })
-    }
-
-    $scope.getProductPrice = function(e,d){
-        console.log(e)
-        $scope.items[d-1].product_id = e.id
-        $scope.items[d-1].product_name = e.name
-        $scope.items[d-1].price = e.last_order_price
-        $scope.items[d-1].amount = e.last_order_price * $scope.items[d-1].qty
-        var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
-            'from mst_supplier a '+
-            'left join inv_prod_price_contract b '+
-            'on a.id = b.supplier_id  '+
-            'and a.status=1  '+
-            'and b.product_id ='+e.id+' order by price desc limit 50'
-        queryService.get(sqlCtr,undefined)
-        .then(function(data){
-            $scope.suppliers = data.data
-        })
-    }
-    $scope.getProductPriceSupplier = function(e,d){
-        console.log(e)
-        $scope.items[d-1].supplier_id = e.id
-        $scope.items[d-1].supplier_name = e.name
-        $scope.items[d-1].price = e.price
-        $scope.items[d-1].amount = e.price * $scope.items[d-1].qty
-    }
-    $scope.updatePrice = function(e,d,p){
-        $scope.items[d-1].price = p
-        $scope.items[d-1].amount = p * $scope.items[d-1].qty
-    }
-    $scope.updatePriceQty = function(e,d,q){
-        $scope.items[d-1].qty = q
-        $scope.items[d-1].amount = q * $scope.items[d-1].price
-    }
-
-});
