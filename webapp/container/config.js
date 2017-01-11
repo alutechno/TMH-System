@@ -605,7 +605,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
         }
     })
     .state('app.inv.stockOpname', {
-        url: "/stockAdmin",
+        url: "/stockOpname",
         templateUrl: "container/components/invWarehouseStockOpname/view.html",
         controller: 'InvWarehouseStockOpnameCtrl',
         resolve: {
@@ -638,6 +638,60 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                 })
                 .then(function() {
                     return $ocLazyLoad.load('container/components/invWarehouseStoreRequest/controller.js');
+                });
+            }]
+        }
+    })
+    .state('app.inv.mealTime', {
+        url: "/mealTime",
+        templateUrl: "container/components/invMealTime/view.html",
+        controller: 'InvMealTimeCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invMealTime/controller.js');
+                });
+            }]
+        }
+    })
+    .state('app.inv.cuisineRegion', {
+        url: "/mealTime",
+        templateUrl: "container/components/invCuisineRegion/view.html",
+        controller: 'InvCuisineRegionCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invCuisineRegion/controller.js');
+                });
+            }]
+        }
+    })
+    .state('app.inv.cuisineCategory', {
+        url: "/mealTime",
+        templateUrl: "container/components/invCuisineCategory/view.html",
+        controller: 'InvCuisineCategoryCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invCuisineCategory/controller.js');
                 });
             }]
         }
