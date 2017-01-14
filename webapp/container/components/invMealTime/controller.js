@@ -18,9 +18,9 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         selected: []
     };
 
-    $scope.table = 'ref_product_unit'
+    $scope.table = 'ref_meal_time'
 
-    var qstring = "select a.*,if(a.is_recipe_unit='Y','Yes','No') as is_recipe,d.status_name "+
+    var qstring = "select a.*,d.status_name "+
                     "from "+ $scope.table +" a "+
                     "left join (select id as status_id, value as status_value,name as status_name from table_ref "+
                     "where table_name = 'ref_product_category' and column_name='status' and value in (0,1)) d on a.status = d.status_value "+
@@ -31,22 +31,17 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.field = {
         id: '',
         name: '',
+        code: '',
         description: '',
-        status: '',
-        is_recipe_unit: ''
+        status: ''
     }
 
     $scope.selected = {
-        status: {},
-        is_recipe_unit: {}
+        status: {}
     }
 
     $scope.arr = {
-        status: [],
-        is_recipe_unit: [
-            {id:'N',name:'No'},
-            {id:'Y',name:'Yes'}
-        ]
+        status: []
     }
 
     $scope.arr.status = []
@@ -117,8 +112,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('name').withTitle('Name'),
+        DTColumnBuilder.newColumn('code').withTitle('Code'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
-        DTColumnBuilder.newColumn('is_recipe').withTitle('Is Recipe'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
 
@@ -129,6 +124,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     qwhere += ' and (a.name like "%'+$scope.filterVal.search+'%" '+
                         ' or d.status_name like "%'+$scope.filterVal.search+'%" '+
                         ' or a.description like "%'+$scope.filterVal.search+'%" '+
+                        ' or a.code like "%'+$scope.filterVal.search+'%" '+
                         ')'
                 }else{
                     qwhere = ''
@@ -158,7 +154,6 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         if ($scope.field.id.length==0){
             //exec creation
             $scope.field.status = $scope.selected.status.selected.id;
-            $scope.field.is_recipe_unit = $scope.selected.is_recipe_unit.selected.id;
 
             queryService.post('insert into '+ $scope.table +' SET ?',$scope.field)
             .then(function (result){
@@ -188,7 +183,6 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         else {
             //exec update
             $scope.field.status = $scope.selected.status.selected.id;
-            $scope.field.is_recipe_unit = $scope.selected.is_recipe_unit.selected.id;
 
             queryService.post('update '+ $scope.table +' SET ? WHERE id='+$scope.field.id ,$scope.field)
             .then(function (result){
@@ -226,15 +220,10 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.field.name = result.data[0].name
             $scope.field.description = result.data[0].description
             $scope.field.status = result.data[0].status
-            $scope.field.is_recipe_unit = result.data[0].is_recipe_unit
+            $scope.field.code = result.data[0].code
             for (var i = $scope.arr.status.length - 1; i >= 0; i--) {
                 if ($scope.arr.status[i].id == result.data[0].status){
                     $scope.selected.status.selected = {name: $scope.arr.status[i].name, id: $scope.arr.status[i].id}
-                }
-            }
-            for (var i = $scope.arr.is_recipe_unit.length - 1; i >= 0; i--) {
-                if ($scope.arr.is_recipe_unit[i].id == result.data[0].is_recipe_unit){
-                    $scope.selected.is_recipe_unit.selected = {name: $scope.arr.is_recipe_unit[i].name, id: $scope.arr.is_recipe_unit[i].id}
                 }
             }
 
@@ -281,13 +270,11 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             id: '',
             name: '',
             description: '',
-            status: '',
-            is_recipe_unit: ''
+            status: ''
         }
 
         $scope.selected = {
-            status: {},
-            is_recipe_unit: {}
+            status: {}
         }
     }
 
