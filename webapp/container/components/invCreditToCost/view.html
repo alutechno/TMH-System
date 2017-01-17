@@ -5,10 +5,10 @@
         <!-- START PANEL -->
         <div class="panel panel-transparent">
             <div class="panel-heading">
-                <div class="panel-title">Warehouse Store Request
+                <div class="panel-title">Credit to Cost
                 </div>
                 <div class="pull-right" style="width: 60%;">
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add SR</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Credit</button>
 
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
@@ -52,13 +52,13 @@
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
                   <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : sr.code.$invalid && !sr.code.$pristine }">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : it.code.$invalid && !it.code.$pristine }">
                           <label>Code</label>
-                          <input type="text" class="form-control" name="code" ng-model="sr.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" class="form-control" name="code" ng-model="it.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
                   <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : sr.request_status.$invalid && !sr.request_status.$pristine }">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : it.request_status.$invalid && !it.request_status.$pristine }">
                           <label>Request Status</label>
                           <ui-select ng-model="selected.request_status.selected" theme="bootstrap" >
                               <ui-select-match placeholder="select reqest status">{{$select.selected.name}}</ui-select-match>
@@ -71,58 +71,47 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : sr.date.$invalid && !sr.date.$pristine }">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : it.date.$invalid && !it.date.$pristine }">
                           <label>Date</label>
-                          <input type="text" class="form-control" ng-model="sr.date" name="date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="sr.date" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
+                          <input type="text" class="form-control" ng-model="it.date" name="date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="it.date" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
                           <!--<input type="text" class="form-control" name="date" ng-model="sr.date" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >-->
                       </div>
                   </div>
                   <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : sr.issued_status.$invalid && !sr.issued_status.$pristine }">
-                          <label>Issued Status</label>
-                          <ui-select ng-model="selected.issued_status.selected" theme="bootstrap" >
-                              <ui-select-match placeholder="select issued status">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in issued_status | filter: $select.search">
-                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                              </ui-select-choices>
-                          </ui-select>
+                      <div pg-form-group class="form-group form-group-default " >
+                          <label>Notes</label>
+                          <input type="text" class="form-control" name="request_notes" ng-model="it.request_notes" >
                       </div>
                   </div>
               </div>
               <div class="row clearfix">
-                <div class="col-sm-6">
-                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : sr.warehouse_id.$invalid && !sr.warehouse_id.$pristine }">
-                        <label>Warehouse</label>
-                        <ui-select ng-model="selected.warehouse.selected" theme="bootstrap" >
-                            <ui-select-match placeholder="select warehouse">{{$select.selected.name}}</ui-select-match>
-                            <ui-select-choices repeat="item in warehouse | filter: $select.search">
-                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                            </ui-select-choices>
-                        </ui-select>
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                    <div pg-form-group class="form-group form-group-default " >
-                        <label>Notes</label>
-                        <input type="text" class="form-control" name="request_notes" ng-model="sr.request_notes" >
-                    </div>
-                </div>
-              </div>
-              <div class="row clearfix">
-                <div class="col-sm-6">
-                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : sr.cost_center_id.$invalid && !sr.cost_center_id.$pristine }">
-                        <label>Cost Center</label>
-                        <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" >
-                            <ui-select-match placeholder="select cost center">{{$select.selected.name}}</ui-select-match>
-                            <ui-select-choices repeat="item in cost_center | filter: $select.search">
-                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                            </ui-select-choices>
-                        </ui-select>
-                    </div>
-                </div>
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : it.cc_id.$invalid && !it.cc_id.$pristine }">
+                          <label>Cost Center Origin</label>
+                          <ui-select ng-model="selected.cc_origin.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select cost center">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in cc_origin | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : it.cc_id.$invalid && !it.cc_id.$pristine }">
+                          <label>Cost Center Destination</label>
+                          <ui-select ng-model="selected.cc_dest.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select cost center">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in cc_dest | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+
               </div>
 
-              <div ng-controller="EditableTableSrCtrl" ng-form editable-form name="tableform" oncancel="cancel()">
+
+              <div ng-controller="EditableTableCcCtrl" ng-form editable-form name="tableform" oncancel="cancel()">
                     <!-- table -->
                     <table class="table  table-hover itemtable">
                         <thead>
@@ -131,9 +120,9 @@
                             <th width="10%">Stock in Hand</th>
                             <th width="10%">Qty</th>
                             <th width="10%">Unit</th>
-                            <th width="10%">Stock Issued</th>
                             <th width="10%">Issued Qty</th>
-                            <th width="10%">Status</th>
+                            <th width="10%">Price</th>
+                            <th width="10%">Amount</th>
                         </tr>
                         </thead>
 
@@ -159,20 +148,21 @@
                                 </span>
                             </td>
                             <td><span>{{item.unit_name}}</span></td>
-                            <td><span>{{item.issued_qty || 0}}</span></td>
 
                             <td>
                                 <span editable-text="item.issued_qty_n" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'iq')" ng-disabled="!issuing">
                                     {{ item.issued_qty_n }}
                                 </span>
                             </td>
-                            <td><span>{{item.status_name}}</span></td>
+
+                            <td><span>{{item.price_per_unit}}</span></td>
+                            <td><span>{{item.amount}}</span></td>
                         </tr>
                         </tbody>
                     </table>
                     <!-- buttons -->
                     <div class="btn-edit">
-                      <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()" ng-disabled="!selected.warehouse.selected">
+                      <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()" ng-disabled="!selected.cc_origin.selected">
                         Modify Item List
                       </button>
                     </div>

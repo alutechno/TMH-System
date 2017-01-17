@@ -624,7 +624,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
         }
     })
     .state('app.inv.storeRequest', {
-        url: "/stockAdmin",
+        url: "/storeRequest",
         templateUrl: "container/components/invWarehouseStoreRequest/view.html",
         controller: 'InvWarehouseStoreRequestCtrl',
         resolve: {
@@ -692,6 +692,44 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                 })
                 .then(function() {
                     return $ocLazyLoad.load('container/components/invCuisineCategory/controller.js');
+                });
+            }]
+        }
+    })
+    .state('app.inv.interlocationTransfer', {
+        url: "/interlocationTransfer",
+        templateUrl: "container/components/invInterlocationTransfer/view.html",
+        controller: 'InvInterlocationTransferCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invInterlocationTransfer/controller.js');
+                });
+            }]
+        }
+    })
+    .state('app.inv.creditToCost', {
+        url: "/creditToCost",
+        templateUrl: "container/components/invCreditToCost/view.html",
+        controller: 'InvCreditToCostCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invCreditToCost/controller.js');
                 });
             }]
         }
