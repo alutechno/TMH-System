@@ -43,6 +43,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1) order by name asc',undefined)
     .then(function(data){
         $scope.arrStatus = data.data
+        $scope.selected.status['selected'] = $scope.arrStatus[0]
     })
 
 

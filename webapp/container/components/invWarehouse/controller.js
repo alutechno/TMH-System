@@ -46,7 +46,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
 
     $scope.arr.status = []
-    queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1)',undefined)
+    queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1) order by name',undefined)
     .then(function(data){
         $scope.arr.status = data.data
     })
@@ -130,7 +130,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                         ')'
                 }else{
                     qwhere = ''
-                } 
+                }
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
                 }, false)
@@ -279,7 +279,9 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         }
 
         $scope.selected = {
-            status: {}
+            status: {
+                selected: $scope.arr.status[0]
+            }
         }
     }
 

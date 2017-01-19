@@ -101,7 +101,6 @@ function($q, $http, $timeout, $localStorage,API_URL) {
 function($q, $http, $timeout, $localStorage,API_URL) {
     return {
         get: function(sqlstr,sqlparam) {
-            console.log('aa:'+API_URL)
             var defer = $q.defer();
             var url= API_URL+"/apisql/query?query="+sqlstr;
             console.log(url)
@@ -109,7 +108,6 @@ function($q, $http, $timeout, $localStorage,API_URL) {
             //$http.get("http://localhost:3000/getRoles")
             $http.get(url)
             .then(function(response){
-                console.log(response)
                 if (response.data.err==null) {
                     var rsp = {data:response.data.rows, status:200}
                     defer.resolve(rsp)
@@ -132,7 +130,6 @@ function($q, $http, $timeout, $localStorage,API_URL) {
 
             $http.post(API_URL+'/apisql/query', body)
             .then(function(response){
-                console.log(response)
                 if (response.data.err==null) {
                     var rsp = {data:response.data.rows, status:200}
                     defer.resolve(rsp)

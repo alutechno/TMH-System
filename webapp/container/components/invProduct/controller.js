@@ -200,15 +200,11 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                $scope.dtInstance.reloadData(function(obj){
-                    console.log(obj)
-                }, false)
+                $scope.dtInstance.reloadData(function(obj){}, false)
             }
         }
         else {
-            $scope.dtInstance.reloadData(function(obj){
-                console.log(obj)
-            }, false)
+            $scope.dtInstance.reloadData(function(obj){}, false)
         }
     }
 
@@ -224,7 +220,6 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
 // console.log($localStorage.currentUser)
 
     $scope.submit = function(){
-        console.log('submit')
         if ($scope.product.id.length==0){
             //exec creation
 
@@ -290,11 +285,8 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
             queryService.post(query,$scope.product)
             .then(function (result){
                 if (result.status = "200"){
-                    console.log('Success Update')
                     $('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
-                    }, false)
+                    $scope.dtInstance.reloadData(function(obj){}, false)
                 }
                 else {
                     console.log('Failed Update')
@@ -309,7 +301,6 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
 
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-
             $scope.product.id = result.data[0].id
             $scope.product.category_id = result.data[0].category_id
             $scope.product.subcategory_id = result.data[0].subcategory_id
@@ -354,21 +345,24 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
             }
             $scope.getSubCategory({id:$scope.product.category_id})
 
-            console.log($scope.arr.subcategory_id)
-
-            for (var i = $scope.arr.subcategory_id.length - 1; i >= 0; i--) {
+            /*for (var i = $scope.arr.subcategory_id.length - 1; i >= 0; i--) {
                 if ($scope.arr.subcategory_id[i].id == result.data[0].subcategory_id){
                     $scope.selected.subcategory_id.selected = {name: $scope.arr.subcategory_id[i].name, id: $scope.arr.subcategory_id[i].id}
                 }
-            }
+            }*/
+            $scope.selected.subcategory_id.selected = {name: result.data[0].subcategory, id: result.data[0].subcategory_id}
+
             for (var i = $scope.arr.unit_type_id.length - 1; i >= 0; i--) {
                 if ($scope.arr.unit_type_id[i].id == result.data[0].unit_type_id){
                     $scope.selected.unit_type_id.selected = {name: $scope.arr.unit_type_id[i].name, id: $scope.arr.unit_type_id[i].id}
                 }
             }
             for (var i = $scope.arr.recipe_unit_type_id.length - 1; i >= 0; i--) {
-                if ($scope.arr.recipe_unit_type_id[i].id == result.data[0].unit_type_id){
-                    $scope.selected.unit_type_id.selected = {name: $scope.arr.recipe_unit_type_id[i].name, id: $scope.arr.recipe_unit_type_id[i].id}
+                if ($scope.arr.recipe_unit_type_id[i].id == result.data[0].recipe_unit_type_id){
+                    $scope.selected.recipe_unit_type_id.selected = {name: $scope.arr.recipe_unit_type_id[i].name, id: $scope.arr.recipe_unit_type_id[i].id}
+                }
+                if ($scope.arr.recipe_unit_type_id[i].id == result.data[0].lowest_unit_type_id){
+                    $scope.selected.lowest_unit_type_id.selected = {name: $scope.arr.recipe_unit_type_id[i].name, id: $scope.arr.recipe_unit_type_id[i].id}
                 }
             }
 
@@ -389,7 +383,6 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
         queryService.post('update mst_product set status=2 where id='+$scope.product.id,undefined)
         .then(function (result){
             if (result.status = "200"){
-                console.log('Success Delete')
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
@@ -449,7 +442,6 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
         queryService.get('select id,name from ref_product_subcategory where category_id='+selectItem.id+' order by name',undefined)
         .then(function(data){
             $scope.arr.subcategory_id = data.data
-            console.log($scope.arr.subcategory_id)
         })
     }
 
