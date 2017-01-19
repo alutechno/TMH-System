@@ -135,7 +135,10 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         return $sce.trustAsHtml(value);
     };
 
-    queryService.get('select id,name from mst_cost_center order by id',undefined)
+    queryService.get('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+        'from mst_cost_center a, mst_department b '+
+        'where a.department_id = b.id '+
+        'order by a.code asc',undefined)
     .then(function(data){
         $scope.cost_center = data.data
     })
@@ -908,7 +911,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 //$scope.doc_status.push($scope.doc_status_def[4])
                 $scope.doc_status.push($scope.doc_status_def[6])
             }
-            if ($scope.el.indexOf('buttonCreate')>-1){
+            if ($scope.el.indexOf('buttonCreate')>-1 && (result.data[0].doc_status_id == 0 && result.data[0].approval_status == 1)){
                 //$scope.doc_status.push($scope.doc_status_def[4])
                 $scope.doc_status.push($scope.doc_status_def[0])
             }
@@ -1145,6 +1148,9 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         var sqlitem = []
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
+            console.log(user)
+            console.log(user.supplier_id)
+            console.log(user.supplier_id.toString().length)
             // actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);
@@ -1157,8 +1163,8 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             // send on server
             //results.push($http.post('/saveUser', user));
             if (user.isNew && !user.isDeleted){
-                sqlitem.push('insert into inv_pr_line_item (pr_id,product_id,'+(user.supplier_id.length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date) values('+
-                pr_id+','+user.product_id+','+(user.supplier_id.length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                sqlitem.push('insert into inv_pr_line_item (pr_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date) values('+
+                pr_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
             }
             else if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from inv_pr_line_item where id='+user.p_id)
@@ -1206,7 +1212,8 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             $scope.products = data.data
         })
     }
-    $scope.supplierUp = function(text,d) {
+    /*$scope.supplierUp = function(text,d) {
+        console.log('supplierUp')
         var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
             'from mst_supplier a '+
             'left join inv_prod_price_contract b '+
@@ -1218,9 +1225,9 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
         queryService.post(sqlCtr,undefined)
         .then(function(data){
-            $scope.products = data.data
+            $scope.suppliers = data.data
         })
-    }
+    }*/
 
     $scope.getProductPrice = function(e,d){
         console.log(e)
@@ -1235,6 +1242,23 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             'and a.status=1  '+
             'and b.product_id ='+e.id+' order by price desc limit 50'
         queryService.get(sqlCtr,undefined)
+        .then(function(data){
+            $scope.suppliers = data.data
+        })
+    }
+    $scope.funcAsync = function(e,d){
+        console.log('funcAsync')
+        console.log($scope.items[d-1].product_id)
+        var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
+            'from mst_supplier a '+
+            'left join inv_prod_price_contract b '+
+            'on a.id = b.supplier_id  '+
+            'and a.status=1  '+
+            'and b.product_id ='+$scope.items[d-1].product_id + ' '
+            'and lower(a.name) like \''+e.toLowerCase()+'%\'' +
+            ' order by price desc limit 50'
+        //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
+        queryService.post(sqlCtr,undefined)
         .then(function(data){
             $scope.suppliers = data.data
         })

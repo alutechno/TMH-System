@@ -63,109 +63,101 @@
 
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
-              <div class="col-sm-12">
-                  <h4>PR Document</h4>
-                  <div class="row clearfix">
-                      <div class="col-sm-12">
-                          <div class="col-md-3">
-                              <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.code.$invalid && !pr.code.$pristine }">
-                                  <label>Code</label>
-                                  <input type="text" class="form-control" name="code" ng-model="pr.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
+                  <div class="col-sm-12">
+                      <h4>PR Document</h4>
+                      <div class="row clearfix">
+                          <div class="col-sm-12">
+                              <div class="col-md-3">
+                                  <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.code.$invalid && !pr.code.$pristine }">
+                                      <label>Code</label>
+                                      <input type="text" class="form-control" name="code" ng-model="pr.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
+                                  </div>
                               </div>
-                          </div>
-                          <div class="col-md-3">
-                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : pr.warehouse_id.$invalid && !pr.warehouse_id.$pristine }">
-                                  <label>Location</label>
-                                  <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode">
-                                      <ui-select-match placeholder="Select Warehouse">{{$select.selected.name}}</ui-select-match>
-                                      <ui-select-choices repeat="item in warehouse | filter: $select.search">
-                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                      </ui-select-choices>
-                                  </ui-select>
+                              <div class="col-md-3">
+                                  <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : pr.warehouse_id.$invalid && !pr.warehouse_id.$pristine }">
+                                      <label>Location</label>
+                                      <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode">
+                                          <ui-select-match placeholder="Select Warehouse">{{$select.selected.name}}</ui-select-match>
+                                          <ui-select-choices repeat="item in warehouse | filter: $select.search">
+                                              <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                          </ui-select-choices>
+                                      </ui-select>
+                                  </div>
                               </div>
-                          </div>
-                          <div class="col-md-3">
-                              <!--<div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : pr.cost_center_id.$invalid && !pr.cost_center_id.$pristine }">
-                                  <label>Cost Center</label>
-                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
-                                      <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
-                                      <ui-select-choices repeat="item in cost_center | filter: $select.search">
-                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                      </ui-select-choices>
-                                  </ui-select>
-                              </div>-->
-                              <div pg-form-group class="form-group form-group-default form-group-default-select ">
-                                  <label>Cost Center</label>
-                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
-                                      <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
-                                      <ui-select-choices repeat="item in cost_center | filter: $select.search">
-                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                      </ui-select-choices>
-                                  </ui-select>
+                              <div class="col-md-3">
+                                  <div pg-form-group class="form-group form-group-default form-group-default-select ">
+                                      <label>Cost Center</label>
+                                      <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
+                                          <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
+                                          <ui-select-choices repeat="item in cost_center | filter: $select.search">
+                                              <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
+                                              <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
+                                          </ui-select-choices>
+                                      </ui-select>
+                                  </div>
                               </div>
-                          </div>
 
-                          <div class="col-md-3">
-                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : pr.doc_status_name.$invalid && !pr.doc_status_name.$pristine }" >
-                                  <label>Status</label>
-                                  <ui-select ng-model="selected.doc_status.selected" theme="bootstrap" ng-disabled="statusState || viewMode" on-select="setApprovalStatus($item)">
-                                      <ui-select-match placeholder="Select Status">{{$select.selected.name}}</ui-select-match>
-                                      <ui-select-choices repeat="item in doc_status | filter: $select.search">
-                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                      </ui-select-choices>
-                                  </ui-select>
+                              <div class="col-md-3">
+                                  <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : pr.doc_status_name.$invalid && !pr.doc_status_name.$pristine }" >
+                                      <label>Status</label>
+                                      <ui-select ng-model="selected.doc_status.selected" theme="bootstrap" ng-disabled="statusState || viewMode" on-select="setApprovalStatus($item)">
+                                          <ui-select-match placeholder="Select Status">{{$select.selected.name}}</ui-select-match>
+                                          <ui-select-choices repeat="item in doc_status | filter: $select.search">
+                                              <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                          </ui-select-choices>
+                                      </ui-select>
+                                  </div>
                               </div>
                           </div>
-                      </div>
-                      <div class="col-sm-12">
-                          <div class="col-md-3">
-                              <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.delivery_date.$invalid && !pr.delivery_date.$pristine }">
-                                  <label>Delivery Date</label>
-                                  <input type="text" class="form-control" ng-model="pr.delivery_date" name="delivery_date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
+                          <div class="col-sm-12">
+                              <div class="col-md-3">
+                                  <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.delivery_date.$invalid && !pr.delivery_date.$pristine }">
+                                      <label>Delivery Date</label>
+                                      <input type="text" class="form-control" ng-model="pr.delivery_date" name="delivery_date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
+                                  </div>
                               </div>
-                          </div>
-                          <div class="col-md-6">
-                              <div pg-form-group class="form-group form-group-default" >
-                                  <label>Purchase Notes</label>
-                                  <input type="text" class="form-control" name="purchase_notes" ng-model="pr.purchase_notes" >
+                              <div class="col-md-6">
+                                  <div pg-form-group class="form-group form-group-default" >
+                                      <label>Purchase Notes</label>
+                                      <input type="text" class="form-control" name="purchase_notes" ng-model="pr.purchase_notes" >
+                                  </div>
                               </div>
-                          </div>
 
 
-                          <div class="col-md-3">
-                              <div pg-form-group class="form-group form-group-default " ng-disabled="updateState" >
-                                  <label>{{selected.approval==1?'Approve':'Reject'}} Notes</label>
-                                  <input type="text" class="form-control" name="approval_notes" ng-model="pr.approval_notes" ng-disabled="!selected.approval || updateState || viewMode" >
+                              <div class="col-md-3">
+                                  <div pg-form-group class="form-group form-group-default " ng-disabled="updateState" >
+                                      <label>{{selected.approval==1?'Approve':'Reject'}} Notes</label>
+                                      <input type="text" class="form-control" name="approval_notes" ng-model="pr.approval_notes" ng-disabled="!selected.approval || updateState || viewMode" >
+                                  </div>
                               </div>
+
+
                           </div>
+                          <div class="col-sm-12">
 
-
-                      </div>
-                      <div class="col-sm-12">
-
-                          <div class="col-md-9">
-                              &nbsp;
-                          </div>
-                          <div class="col-md-3">
-                              <div class="checkbox check-primary" >
-                                  <input type="checkbox" id="cbApprove" ng-checked="selected.approval==1" ng-true-value="1" ng-model="selected.approval" ng-disabled="updateState || approveState ||viewMode">
-                                  <label for="cbApprove">Approve</label>
-                                  <input type="checkbox" id="cbReject" ng-checked="selected.approval==2" ng-true-value="2" ng-model="selected.approval" ng-disabled="updateState || rejectState || viewMode">
-                                  <label for="cbReject">Reject</label>
+                              <div class="col-md-9">
+                                  &nbsp;
                               </div>
+                              <div class="col-md-3">
+                                  <div class="checkbox check-primary" >
+                                      <input type="checkbox" id="cbApprove" ng-checked="selected.approval==1" ng-true-value="1" ng-model="selected.approval" ng-disabled="updateState || approveState ||viewMode">
+                                      <label for="cbApprove">Approve</label>
+                                      <input type="checkbox" id="cbReject" ng-checked="selected.approval==2" ng-true-value="2" ng-model="selected.approval" ng-disabled="updateState || rejectState || viewMode">
+                                      <label for="cbReject">Reject</label>
+                                  </div>
+                              </div>
+
                           </div>
+
+
 
                       </div>
-
-
-
                   </div>
-              </div>
               </div>
               <div class="row clearfix">
               <div class="col-sm-12">
                   <h4>List of Item</h4>
-                  <!--<div ng-if="show.itemTable" id="divItem" >-->
+
 <div ng-controller="EditableTableCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()">
 
 
@@ -185,7 +177,7 @@
                           <tbody>
                           <tr ng-repeat="item in items | filter:filterUser">
 
-                              <td >
+                              <td style="vertical-align: middle;">
                                   <div class="btn-group btn-group-xs" ng-show="tableform.$visible">
                                       <button type="button" class="btn btn-default" ng-click="deleteUser(item.id)" ><i class="fa fa-trash-o"></i></button>
                                   </div>
@@ -223,12 +215,12 @@
                               </td>
                               <td >
                                   <span editable-ui-select="item.supplier_name" theme="bootstrap" data-e-name="supplier_name" name="supplier_name" data-e-ng-model="selected.supplier.selected"
-                                  data-e-form="tableform" data-e-on-select="getProductPriceSupplier($item,item.id)" data-e-ng-keyup="supplierUp($select.search,item.id)">
+                                  data-e-form="tableform" data-e-on-select="getProductPriceSupplier($item,item.id)" >
                                   {{item.supplier_name}}
                                         <editable-ui-select-match placeholder="Supplier..."  style="width: 300px;">
                                             {{item.supplier_name}}
                                         </editable-ui-select-match>
-                                        <editable-ui-select-choices repeat="item in suppliers | filter: $select.search">
+                                        <editable-ui-select-choices repeat="item in suppliers | filter: $select.search" refresh="funcAsync($select.search,item.id)" refresh-delay="0">
                                             <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
                                             <small ng-bind-html="trustAsHtml((item.price_name | highlight: $select.search))"></small>
                                         </editable-ui-select-choices>
