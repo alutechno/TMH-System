@@ -10,8 +10,10 @@ angular.module('app')
         if (key == module) $scope.showMenu[key] = true
         else $scope.showMenu[key] = false
     }
+    $scope.currentModule = module
     $scope.$watch('$root.currentModule', function(val) {
         if (val){
+            $scope.currentModule = val
             for (var key in $scope.showMenu){
                 if (key == val) $scope.showMenu[key] = true
                 else $scope.showMenu[key] = false

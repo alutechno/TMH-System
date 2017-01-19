@@ -12,7 +12,6 @@ angular.module('app')
             var menu = (principal.getAllMenu(undefined));
             var t1 = ''
             for (var x in menu){
-                console.log(menu[x])
                 for (var key in menu[x]){
                     t1 +=
                     '<li class="mega" ng-show="showMenu.'+x+'">'+
@@ -32,6 +31,7 @@ angular.module('app')
                             //console.log('csTopMenu k3:'+JSON.stringify(menu[x][key][k2][k3]))
                             t1 += '<li> <a ui-sref="'+menu[x][key][k2][k3].state+'"> '+k3+' </a> </li>'
                         }
+
                         t1 += '</ul>'+
                         '</div>';
                     }
@@ -40,7 +40,9 @@ angular.module('app')
                     '</ul>'+
                     '</li>'
                 }
+
             }
+            t1 += '<li class="mega pull-right m-r-100"> {{currentModule}} </li>'
             var template =
             '<li class="mega">'+
             '<a href="javascript:;">'+

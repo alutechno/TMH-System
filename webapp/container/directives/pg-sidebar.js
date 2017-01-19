@@ -14,7 +14,6 @@ angular.module('app')
             for (var x in menu){
                 //ng-controller="MenuItemsCtrl"
                 z=0
-                console.log(menu[x])
                 for (var key in menu[x]){
                     for (var k2 in menu[x][key]){
                         for (var k3 in menu[x][key][k2]){
