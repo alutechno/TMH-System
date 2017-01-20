@@ -92,19 +92,22 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
     $scope.arr.subcategory_id = []
 
     $scope.arr.unit_type_id = []
-    queryService.get('select id,name from ref_product_unit where status != 2 and is_recipe_unit = \'N\' order by name asc',undefined)
+    //queryService.get('select id,name from ref_product_unit where status != 2 and is_recipe_unit = \'N\' order by name asc',undefined)
+    queryService.get('select id,name from ref_product_unit where status != 2 order by name asc',undefined)
     .then(function(data){
         $scope.arr.unit_type_id = data.data
     })
 
     $scope.arr.recipe_unit_type_id = []
-    queryService.get('select id,name from ref_product_unit where status != 2 and is_recipe_unit = \'Y\' order by name asc',undefined)
+    //queryService.get('select id,name from ref_product_unit where status != 2 and is_recipe_unit = \'Y\' order by name asc',undefined)
+    queryService.get('select id,name from ref_product_unit where status != 2 order by name asc',undefined)
     .then(function(data){
         $scope.arr.recipe_unit_type_id = data.data
     })
 
     $scope.arr.lowest_unit_type_id = []
-    queryService.get('select id,name from ref_product_unit where status != 2 and is_recipe_unit = \'Y\' order by name asc',undefined)
+    //queryService.get('select id,name from ref_product_unit where status != 2 and is_recipe_unit = \'Y\' order by name asc',undefined)
+    queryService.get('select id,name from ref_product_unit where status != 2 order by name asc',undefined)
     .then(function(data){
         $scope.arr.lowest_unit_type_id = data.data
     })
@@ -231,11 +234,15 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
             $scope.product.is_production = $scope.selected.is_production.selected.id;
             $scope.product.is_material = $scope.selected.is_material.selected.id;
             $scope.product.unit_type_id = $scope.selected.unit_type_id.selected.id;
-            $scope.product.recipe_unit_type_id = $scope.selected.recipe_unit_type_id.selected?$scope.selected.recipe_unit_type_id.selected.id:null;
-            $scope.product.lowest_unit_type_id = $scope.selected.lowest_unit_type_id.selected?$scope.selected.lowest_unit_type_id.selected.id:null;
+            $scope.product.recipe_unit_type_id = $scope.selected.recipe_unit_type_id.selected?$scope.selected.recipe_unit_type_id.selected.id:$scope.selected.unit_type_id.selected.id;
+            $scope.product.lowest_unit_type_id = $scope.selected.lowest_unit_type_id.selected?$scope.selected.lowest_unit_type_id.selected.id:$scope.selected.unit_type_id.selected.id;
             $scope.product.status = $scope.selected.status.selected.id;
             $scope.product.created_by = $localStorage.currentUser.name.id;
             $scope.product.created_date = globalFunction.currentDate();
+            $scope.product.lowest_unit_conversion = $scope.selected.lowest_unit_type_id.selected?$scope.product.lowest_unit_conversion:1;
+            $scope.product.recipe_unit_conversion = $scope.selected.recipe_unit_type_id.selected?$scope.product.recipe_unit_conversion:1;
+            //delete $scope.product.id
+            console.log($scope.product)
 
             var query = "insert into mst_product set ?";
 
@@ -276,8 +283,10 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
             $scope.product.is_production = $scope.selected.is_production.selected.id;
             $scope.product.is_material = $scope.selected.is_material.selected.id;
             $scope.product.unit_type_id = $scope.selected.unit_type_id.selected.id;
-            $scope.product.recipe_unit_type_id = $scope.selected.recipe_unit_type_id.selected?$scope.selected.recipe_unit_type_id.selected.id:null;
-            $scope.product.lowest_unit_type_id = $scope.selected.lowest_unit_type_id.selected?$scope.selected.lowest_unit_type_id.selected.id:null;
+            $scope.product.recipe_unit_type_id = $scope.selected.recipe_unit_type_id.selected?$scope.selected.recipe_unit_type_id.selected.id:$scope.selected.unit_type_id.selected.id;
+            $scope.product.lowest_unit_type_id = $scope.selected.lowest_unit_type_id.selected?$scope.selected.lowest_unit_type_id.selected.id:$scope.selected.unit_type_id.selected.id;
+            $scope.product.lowest_unit_conversion = $scope.selected.lowest_unit_type_id.selected?$scope.product.lowest_unit_conversion:1;
+            $scope.product.recipe_unit_conversion = $scope.selected.recipe_unit_type_id.selected?$scope.product.recipe_unit_conversion:1;
             $scope.product.status = $scope.selected.status.selected.id;
 
             var query = "update mst_product set ? where id = " + $scope.product.id;
