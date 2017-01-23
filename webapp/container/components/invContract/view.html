@@ -62,7 +62,7 @@
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : contract.supplier_id.$invalid && !contract.supplier_id.$pristine }">
                           <label>Supplier</label>
-                          <ui-select ng-model="selected.supplier_id.selected" theme="bootstrap" >
+                          <ui-select ng-model="selected.supplier_id.selected" theme="bootstrap" ng-keyup="supplierUp($select.search)" >
                               <ui-select-match placeholder="select supplier">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in opt_supplier_id | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -75,7 +75,7 @@
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : contract.product_id.$invalid && !contract.product_id.$pristine }">
                           <label>Product</label>
-                          <ui-select ng-model="selected.product_id.selected" theme="bootstrap" >
+                          <ui-select ng-model="selected.product_id.selected" theme="bootstrap" ng-keyup="productUp($select.search)">
                               <ui-select-match placeholder="select product">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in opt_product_id | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>

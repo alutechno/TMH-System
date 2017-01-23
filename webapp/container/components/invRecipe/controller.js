@@ -176,7 +176,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL+'/apisql/datatable',
-        type: 'GET',
+        type: 'POST',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
@@ -192,7 +192,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     .withPaginationType('full_numbers')
     .withOption('order', [1, 'desc'])
     .withDisplayLength(10)
-
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -213,7 +213,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere += ' and a.code=\''+$scope.filterVal.search+'\''
+                if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like \'%'+$scope.filterVal.search.toLowerCase()+'%\''
                 else qwhere = ''
 
                 $scope.nested.dtInstance.reloadData(function(obj){

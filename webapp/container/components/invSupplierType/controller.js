@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvSupplierTypeCtrl',
-function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope,globalFunction, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -97,7 +97,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL+'/apisql/datatable',
-        type: 'GET',
+        type: 'POST',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
@@ -112,7 +112,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -132,15 +132,13 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         if (type == 'search'){
             if (event.keyCode == 13){
                 if ($scope.filterVal.search.length>0) {
-                    qwhere += ' and (a.code like "%'+$scope.filterVal.search+'%" '+
-                        ' or a.code like "%'+$scope.filterVal.search+'%" '+
-                        ' or d.status_name like "%'+$scope.filterVal.search+'%" '+
-                        ' or b.name like "%'+$scope.filterVal.search+'%" '+
-                        ' or c.name like "%'+$scope.filterVal.search+'%" '+
+                    qwhere += ' and (lower(a.code) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                        ' or a.name like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                        //' or c.name like "%'+$scope.filterVal.search+'%" '+
                         ')'
                 }else{
                     qwhere = ''
-                } 
+                }
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
                 }, false)
@@ -168,6 +166,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.suptype.status = $scope.selected.status.selected.id;
             $scope.suptype.payable_account_id = $scope.selected.payable_account_id.selected.id;
             $scope.suptype.deposit_account_id = $scope.selected.deposit_account_id.selected.id;
+            $scope.suptype['created_by'] = $localStorage.currentUser.name.id;
+            $scope.suptype['created_date'] = globalFunction.currentDate();
 
             queryService.post('insert into ref_supplier_type SET ?',$scope.suptype)
             .then(function (result){
@@ -182,6 +182,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                         timeout: 2000,
                         type: 'success'
                     }).show();
+                    $scope.clear()
             },
             function (err){
                 $('#form-input').pgNotification({
@@ -199,6 +200,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.suptype.status = $scope.selected.status.selected.id;
             $scope.suptype.payable_account_id = $scope.selected.payable_account_id.selected.id;
             $scope.suptype.deposit_account_id = $scope.selected.deposit_account_id.selected?$scope.selected.deposit_account_id.selected.id:null;
+            $scope.suptype['modified_by'] = $localStorage.currentUser.name.id;
+            $scope.suptype['modified_date'] = globalFunction.currentDate();
 
             queryService.post('update ref_supplier_type SET ? WHERE id='+$scope.suptype.id ,$scope.suptype)
             .then(function (result){
@@ -213,6 +216,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                         timeout: 2000,
                         type: 'success'
                     }).show();
+                    $scope.clear()
             },
             function (err){
                 $('#form-input').pgNotification({
@@ -276,7 +280,10 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
 
     $scope.execDelete = function(){
-        queryService.post('update ref_supplier_type set status=2 where id='+$scope.suptype.id,undefined)
+        queryService.post('update ref_supplier_type set status=2, '+
+        ' modified_by='+$localStorage.currentUser.name.id+
+        ' ,modified_date=\''+globalFunction.currentDate()+'\''+
+        ' where id='+$scope.suptype.id,undefined)
         .then(function (result){
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
@@ -289,6 +296,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     timeout: 2000,
                     type: 'success'
                 }).show();
+                $scope.clear()
         },
         function (err){
             $('#form-input').pgNotification({

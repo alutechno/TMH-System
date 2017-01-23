@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvSupplierCtrl',
-function($scope, $state, $sce, queryService, supplierService, otherService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, queryService, supplierService, otherService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -136,7 +136,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL+'/apisql/datatable',
-        type: 'GET',
+        type: 'POST',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
@@ -151,7 +151,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -172,7 +172,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhereobj.text = ' a.name="'+$scope.filterVal.search+'"'
+                if ($scope.filterVal.search.length>0) qwhereobj.text = ' lower(a.name) like "%'+$scope.filterVal.search+'%"'
                 else qwhereobj.text = ''
                 qwhere = setWhere()
                 $scope.dtInstance.reloadData(function(obj){
@@ -222,6 +222,8 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
             $scope.supplier.kel_id = $scope.selected.kel_id.selected?$scope.selected.kel_id.selected.id:null;
             $scope.supplier.used_currency = $scope.selected.used_currency.selected?$scope.selected.used_currency.selected.code:null;
             $scope.supplier.supplier_type_id = $scope.selected.supplier_type.selected?$scope.selected.supplier_type.selected.id:null;
+            $scope.supplier['created_by'] = $localStorage.currentUser.name.id;
+            $scope.supplier['created_date'] = globalFunction.currentDate();
             console.log($scope.supplier)
             queryService.post('insert into mst_supplier SET ?',$scope.supplier)
             .then(function (result){
@@ -258,6 +260,8 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
             $scope.supplier.kel_id = $scope.selected.kel_id.selected?$scope.selected.kel_id.selected.id:null;
             $scope.supplier.used_currency = $scope.selected.used_currency.selected?$scope.selected.used_currency.selected.code:null;
             $scope.supplier.supplier_type_id = $scope.selected.supplier_type.selected?$scope.selected.supplier_type.selected.id:null;
+            $scope.supplier['modified_by'] = $localStorage.currentUser.name.id;
+            $scope.supplier['modified_date'] = globalFunction.currentDate();
             var param = $scope.supplier
             //delete param.id
             queryService.post('update mst_supplier SET ? WHERE id='+$scope.supplier.id ,param)
@@ -366,7 +370,10 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
     }
 
     $scope.execDelete = function(){
-        queryService.get('update mst_supplier set status=2 where id='+$scope.supplier.id,undefined)
+        queryService.get('update mst_supplier set status=2, '+
+        ' modified_by='+$localStorage.currentUser.name.id+
+        ' ,modified_date=\''+globalFunction.currentDate()+'\''+
+        ' where id='+$scope.supplier.id,undefined)
         .then(function (result){
             if (result.status = "200"){
                 console.log('Success Delete')
@@ -375,6 +382,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
                 }, false)
+                $scope.clear()
             }
             else {
                 console.log('Delete Failed')

@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvProductSubcategoryCtrl',
-function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -112,6 +112,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -130,9 +131,9 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         if (type == 'search'){
             if (event.keyCode == 13){
                 if ($scope.filterVal.search.length>0) {
-                    qwhere += ' and (a.name like "%'+$scope.filterVal.search+'%" '+
-                        ' or d.status_name like "%'+$scope.filterVal.search+'%" '+
-                        ' or b.name like "%'+$scope.filterVal.search+'%" '+
+                    qwhere = ' and (lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                        ' or lower(d.status_name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                        ' or lower(b.name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
                         ')'
                 }else{
                     qwhere = ''
@@ -164,6 +165,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             //exec creation
             $scope.field.status = $scope.selected.status.selected.id;
             $scope.field.category_id = $scope.selected.category_id.selected.id;
+            $scope.field['created_by'] = $localStorage.currentUser.name.id;
+            $scope.field['created_date'] = globalFunction.currentDate();
 
             queryService.post('insert into ref_product_subcategory SET ?',$scope.field)
             .then(function (result){
@@ -194,6 +197,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             //exec update
             $scope.field.status = $scope.selected.status.selected.id;
             $scope.field.category_id = $scope.selected.category_id.selected.id;
+            $scope.field['modified_by'] = $localStorage.currentUser.name.id;
+            $scope.field['modified_date'] = globalFunction.currentDate();
 
             queryService.post('update ref_product_subcategory SET ? WHERE id='+$scope.field.id ,$scope.field)
             .then(function (result){
@@ -256,7 +261,10 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
 
     $scope.execDelete = function(){
-        queryService.post('update ref_product_subcategory set status=2 where id='+$scope.field.id,undefined)
+        queryService.post('update ref_product_subcategory set status=2, '+
+        ' modified_by='+$localStorage.currentUser.name.id+
+        ' ,modified_date=\''+globalFunction.currentDate()+'\''+
+        ' where id='+$scope.field.id,undefined)
         .then(function (result){
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){

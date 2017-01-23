@@ -168,7 +168,7 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL+'/apisql/datatable',
-        type: 'GET',
+        type: 'POST',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
@@ -183,6 +183,7 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -203,11 +204,17 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                $scope.dtInstance.reloadData(function(obj){}, false)
+                if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
+                else qwhere = ''
+                $scope.dtInstance.reloadData(function(obj){
+                    console.log(obj)
+                }, false)
             }
         }
         else {
-            $scope.dtInstance.reloadData(function(obj){}, false)
+            $scope.dtInstance.reloadData(function(obj){
+                console.log(obj)
+            }, false)
         }
     }
 
@@ -288,7 +295,10 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
             $scope.product.lowest_unit_conversion = $scope.selected.lowest_unit_type_id.selected?$scope.product.lowest_unit_conversion:1;
             $scope.product.recipe_unit_conversion = $scope.selected.recipe_unit_type_id.selected?$scope.product.recipe_unit_conversion:1;
             $scope.product.status = $scope.selected.status.selected.id;
+            $scope.product['modified_by'] = $localStorage.currentUser.name.id;
+            $scope.product['modified_date'] = globalFunction.currentDate();
 
+            console.log($scope.product)
             var query = "update mst_product set ? where id = " + $scope.product.id;
 
             queryService.post(query,$scope.product)
@@ -296,6 +306,7 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
                 if (result.status = "200"){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){}, false)
+                    $scope.clear()
                 }
                 else {
                     console.log('Failed Update')
@@ -389,13 +400,17 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
     }
 
     $scope.execDelete = function(){
-        queryService.post('update mst_product set status=2 where id='+$scope.product.id,undefined)
+        queryService.post('update mst_product set status=2, '+
+        ' modified_by='+$localStorage.currentUser.name.id+
+        ' ,modified_date=\''+globalFunction.currentDate()+'\''+
+        '  where id='+$scope.product.id,undefined)
         .then(function (result){
             if (result.status = "200"){
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
                 }, false)
+                $scope.clear()
             }
             else {
                 console.log('Delete Failed')

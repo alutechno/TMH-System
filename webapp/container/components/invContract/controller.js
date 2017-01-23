@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvContractCtrl',
-function($scope, $state, $sce, queryService, supplierContractService, supplierService, productService, otherService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, queryService, supplierContractService, supplierService, productService, otherService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -48,16 +48,28 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
     ]
 
     $scope.opt_supplier_id = []
-    queryService.post('select id,name, id as value from mst_supplier order by name',undefined)
+    queryService.post('select id,name, id as value from mst_supplier order by name limit 20',undefined)
     .then(function(data){
         $scope.opt_supplier_id = data.data
     })
+    $scope.supplierUp = function(text){
+        queryService.post('select id,name, id as value from mst_supplier where lower(name) like \'%'+text.toLowerCase()+'%\' order by name limit 20',undefined)
+        .then(function(data){
+            $scope.opt_supplier_id = data.data
+        })
+    }
 
     $scope.opt_product_id = []
-    queryService.post('select id,name,last_order_price from mst_product order by name',undefined)
+    queryService.post('select id,name,last_order_price from mst_product order by name limit 20',undefined)
     .then(function(data){
         $scope.opt_product_id = data.data
     })
+    $scope.productUp = function(text){
+        queryService.post('select id,name,last_order_price from mst_product where lower(name) like \'%'+text.toLowerCase()+'%\' order by name limit 20',undefined)
+        .then(function(data){
+            $scope.opt_product_id = data.data
+        })
+    }
 
     $scope.opt_contract_status = []
     otherService.getTableRef('inv_prod_price_contract','contract_status')
@@ -111,14 +123,14 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
                     "end as contract_status_name, "+
                     "b.name as supplier_name,c.name as product_name from  "+
                     "inv_prod_price_contract a, mst_supplier b, mst_product c "+
-                    "where a.supplier_id = b.id and a.product_id = c.id"
+                    "where a.supplier_id = b.id and a.product_id = c.id "
     var qwhere = ''
 
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL+'/apisql/datatable',
-        type: 'GET',
+        type: 'POST',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
@@ -133,7 +145,7 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -157,6 +169,14 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
+                if ($scope.filterVal.search.length>0) {
+                    qwhere += ' and (lower(b.name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                        ' or lower(c.name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                        //' or c.name like "%'+$scope.filterVal.search+'%" '+
+                        ')'
+                }else{
+                    qwhere = ''
+                }
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
                 }, false)
@@ -185,6 +205,8 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
             $scope.contract.supplier_id = $scope.selected.supplier_id.selected.id;
             $scope.contract.product_id = $scope.selected.product_id.selected.id;
             $scope.contract.contract_status = $scope.selected.contract_status.selected.value;
+            $scope.contract['created_by'] = $localStorage.currentUser.name.id;
+            $scope.contract['created_date'] = globalFunction.currentDate();
 
             var query = "insert into inv_prod_price_contract set ?";
 
@@ -219,6 +241,8 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
             $scope.contract.supplier_id = $scope.selected.supplier_id.selected.id;
             $scope.contract.product_id = $scope.selected.product_id.selected.id;
             $scope.contract.contract_status = $scope.selected.contract_status.selected.value;
+            $scope.contract['modified_by'] = $localStorage.currentUser.name.id;
+            $scope.contract['modified_date'] = globalFunction.currentDate();
 
             var query = "update inv_prod_price_contract set ? where id = "+$scope.contract.id;
 
@@ -230,6 +254,7 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
                     }, false)
+                    $scope.clear()
                 }
                 else {
                     console.log('Failed Update')
@@ -285,7 +310,10 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
 
     $scope.execDelete = function(){
         // console.log($scope.contract.id)
-        queryService.post('update inv_prod_price_contract set contract_status="4" where id='+$scope.contract.id,undefined)
+        queryService.post('update inv_prod_price_contract set contract_status="4" , '+
+        ' modified_by='+$localStorage.currentUser.name.id+
+        ' ,modified_date=\''+globalFunction.currentDate()+'\''+
+        ' where id='+$scope.contract.id,undefined)
         .then(function (result){
             if (result.status = "200"){
                 console.log('Success Delete')
@@ -293,6 +321,7 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
                 }, false)
+                $scope.clear()
             }
             else {
                 console.log('Delete Failed')

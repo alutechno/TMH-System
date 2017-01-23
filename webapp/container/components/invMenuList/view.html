@@ -67,7 +67,7 @@
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.menu.$invalid && !selected.menu.$pristine }">
                           <label>Menu</label>
-                          <ui-select ng-model="selected.menu.selected" theme="bootstrap" validate-attached-form-element required>
+                          <ui-select ng-model="selected.menu.selected" theme="bootstrap" ng-keyup="menuUp($select.search)" validate-attached-form-element required>
                               <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in arr.menu | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>

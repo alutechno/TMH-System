@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvProductCategoryCtrl',
-function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope,globalFunction, API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -19,7 +19,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             'from table_ref '+
             'where table_name = \'ref_product_category\' and column_name=\'status\' '+
         ')b '+
-        'where a.status = b.status_value '
+        'where a.status = b.status_value '+
+        ' and status!=2 '
     var qwhere = ''
 
     $scope.role = {
@@ -85,7 +86,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL+'/apisql/datatable',
-        type: 'GET',
+        type: 'POST',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
@@ -100,6 +101,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -116,7 +118,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere += ' where name="'+$scope.filterVal.search+'"'
+                if ($scope.filterVal.search.length>0) qwhere = ' where lower(name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
                 else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
@@ -143,6 +145,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         if ($scope.cat.id.length==0){
             //exec creation
             $scope.cat.status = $scope.selected.status.selected.id;
+            $scope.cat['created_by'] = $localStorage.currentUser.name.id;
+            $scope.cat['created_date'] = globalFunction.currentDate();
+
             delete $scope.cat.id
 
             queryService.post('insert into ref_product_category SET ?',$scope.cat)
@@ -173,6 +178,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         else {
             //exec update
             $scope.cat.status = $scope.selected.status.selected.id;
+            $scope.cat['modified_by'] = $localStorage.currentUser.name.id;
+            $scope.cat['modified_date'] = globalFunction.currentDate();
             console.log($scope.cat)
             queryService.post('update ref_product_category SET ? WHERE id='+$scope.cat.id ,$scope.cat)
             .then(function (result){
@@ -187,6 +194,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                         timeout: 2000,
                         type: 'success'
                     }).show();
+                    $scope.clear()
             },
             function (err){
                 $('#form-input').pgNotification({
@@ -237,7 +245,11 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.execDelete = function(){
-        queryService.post('update ref_product_category set status=2 where id='+$scope.cat.id,undefined)
+
+        queryService.post('update ref_product_category set status=2, '+
+        ' modified_by='+$localStorage.currentUser.name.id+
+        ' ,modified_date=\''+globalFunction.currentDate()+'\''+
+        '  where id='+$scope.cat.id,undefined)
         .then(function (result){
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
@@ -250,6 +262,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                     timeout: 2000,
                     type: 'success'
                 }).show();
+                $scope.clear()
         },
         function (err){
             $('#form-input').pgNotification({

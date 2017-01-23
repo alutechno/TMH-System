@@ -661,7 +661,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
         }
     })
     .state('app.inv.cuisineRegion', {
-        url: "/mealTime",
+        url: "/cuisineRegion",
         templateUrl: "container/components/invCuisineRegion/view.html",
         controller: 'InvCuisineRegionCtrl',
         resolve: {
@@ -679,7 +679,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
         }
     })
     .state('app.inv.cuisineCategory', {
-        url: "/mealTime",
+        url: "/cuisineCategory",
         templateUrl: "container/components/invCuisineCategory/view.html",
         controller: 'InvCuisineCategoryCtrl',
         resolve: {

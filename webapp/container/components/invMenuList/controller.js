@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvMenuListCtrl',
-function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -18,10 +18,15 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         selected: []
     };
 
-    var qstring = 'select a.id,a.outlet_id,b.name outlet_name,a.recipe_id,c.name recipe_name,c.product_cost,c.selling_price,a.created_by '+
-        'from inv_outlet_menus a,mst_outlet b,mst_cuisine_recipe c '+
+    var qstring = 'select a.id,a.outlet_id,b.name outlet_name,a.recipe_id,c.name recipe_name,c.product_cost,c.selling_price,a.created_by,d.status_value,d.status_name '+
+        'from inv_outlet_menus a,mst_outlet b,mst_cuisine_recipe c, '+
+        '(select id as status_id, value as status_value,name as status_name '+
+        'from table_ref  '+
+        'where table_name = \'ref_product_category\' and column_name=\'status\')d '+
         'where a.outlet_id=b.id '+
-        'and a.recipe_id=c.id '
+        'and a.recipe_id=c.id '+
+        'and a.status = d.status_value '+
+        'and a.status!=2 '
     var qwhere = ""
 
     $scope.rowdata = {}
@@ -59,10 +64,17 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         $scope.arr.outlet = data.data
     })
     $scope.arr.menu = []
-    queryService.get('select id,name from mst_cuisine_recipe order by name',undefined)
+    queryService.get('select id,name from mst_cuisine_recipe order by name limit 10',undefined)
     .then(function(data){
         $scope.arr.menu = data.data
     })
+    $scope.menuUp = function(text) {
+        queryService.post('select id,name from mst_cuisine_recipe where name like \''+text.toLowerCase()+'%\' order by name limit 10',undefined)
+        .then(function(data){
+            $scope.arr.menu = data.data
+        })
+    };
+
 
     $scope.filterVal = {
         search: ''
@@ -102,7 +114,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL+'/apisql/datatable',
-        type: 'GET',
+        type: 'POST',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
@@ -117,6 +129,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -136,9 +149,9 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         if (type == 'search'){
             if (event.keyCode == 13){
                 if ($scope.filterVal.search.length>0) {
-                    qwhere += ' and (a.name like "%'+$scope.filterVal.search+'%" '+
-                        ' or d.status_name like "%'+$scope.filterVal.search+'%" '+
-                        ' or b.name like "%'+$scope.filterVal.search+'%" '+
+                    qwhere += ' and (lower(b.name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                        ' or lower(c.name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                        //' or b.name like "%'+$scope.filterVal.search+'%" '+
                         ')'
                 }else{
                     qwhere = ''
@@ -245,6 +258,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
+            console.log(result)
+
 
             $scope.selected.outlet['selected'] = {
                 id: result.data[0].outlet_id,
@@ -255,7 +270,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                 name: result.data[0].recipe_name
             }
             $scope.selected.status['selected'] = {
-                id: result.data[0].status_id,
+                id: result.data[0].status_value,
                 name: result.data[0].status_name
             }
         })
@@ -271,7 +286,10 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
 
     $scope.execDelete = function(){
-        queryService.post('update ref_product_subcategory set status=2 where id='+$scope.field.id,undefined)
+        queryService.post('update inv_outlet_menus set status=2, '+
+        ' modified_by='+$localStorage.currentUser.name.id+
+        ' ,modified_date=\''+globalFunction.currentDate()+'\''+
+        ' where id='+$scope.field.id,undefined)
         .then(function (result){
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
@@ -284,6 +302,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     timeout: 2000,
                     type: 'success'
                 }).show();
+                $scope.clear
         },
         function (err){
             $('#form-input').pgNotification({
@@ -309,7 +328,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             status: {
                 selected: $scope.arr.status[0]
             },
-            category_id: {}
+            outlet: {},
+            menu: {}
         }
     }
 
