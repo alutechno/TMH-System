@@ -61,6 +61,42 @@ module.exports = function(connection,jwt,log){
 
 
     });
+    app.post('/datatable', function (req, res) {
+        //Handle Request From Angular DataTables
+        log(req.headers,req.path,'datatable-request',JSON.stringify(req.query),JSON.stringify(req.body),'GET - Prepare query')
+        //console.log(req.headers)
+
+        var dtParam = req.query
+        var where = '';
+        /*if (req.query.id){
+            where += ' where id='+req.query.id
+        }
+        if (req.query.customSearch.length>0){
+            where += ' where name="'+req.query.customSearch + '" '
+        }*/
+
+        var limit = ' limit '+req.body.start+','+req.body.length
+        var order = '';
+        order = ' order by ' +req.body.columns[req.body.order[0].column].data +' '+ req.body.order[0].dir
+
+        var sqlstr =req.body.query
+
+        connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
+            if (!err){
+                dtParam['recordsFiltered'] = rows[0].cnt
+                connection(sqlstr + order + limit,undefined, function(err2, rows2, fields2) {
+                    if (!err2){
+                        dtParam['recordsTotal'] = rows2.length
+                        dtParam['data'] = rows2
+                        log(req.headers,req.path,'query-response',JSON.stringify(req.query),JSON.stringify(req.body),JSON.stringify(dtParam))
+                        res.send(dtParam)
+                    }
+                });
+            }
+        });
+
+
+    });
 
 
     return app;
