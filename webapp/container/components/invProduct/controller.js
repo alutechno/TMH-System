@@ -112,6 +112,54 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
         $scope.arr.lowest_unit_type_id = data.data
     })
 
+    $scope.setUnit =function(e) {
+        console.log(e)
+
+        if (!$scope.selected.recipe_unit_type_id.selected){
+            $scope.selected.recipe_unit_type_id['selected'] = {
+                id: e.id,
+                name: e.name
+            }
+            $scope.product.recipe_unit_conversion = 1
+        }
+        if (!$scope.selected.lowest_unit_type_id.selected){
+            $scope.selected.lowest_unit_type_id['selected'] = {
+                id: e.id,
+                name: e.name
+            }
+            $scope.product.lowest_unit_conversion = 1
+        }
+    }
+    $scope.setPriceUnit = function(){
+
+        $scope.product.price_per_lowest_unit = $scope.product.price_per_unit*($scope.product.lowest_unit_conversion==''?1:$scope.product.lowest_unit_conversion)
+        $scope.product.price_per_recipe_unit = $scope.product.price_per_unit*($scope.product.recipe_unit_conversion==''?1:$scope.product.recipe_unit_conversion)
+
+
+        /*if ($scope.product.price_per_lowest_unit==''){
+            $scope.product.price_per_lowest_unit = $scope.product.price_per_unit
+        }
+        else if ($scope.product.price_per_lowest_unit!=''){
+            $scope.product.price_per_lowest_unit = $scope.product.price_per_unit*$scope.product.lowest_unit_conversion
+        }
+        if ($scope.product.price_per_recipe_unit==''){
+            $scope.product.price_per_recipe_unit = $scope.product.price_per_unit
+        }*/
+
+    }
+    $scope.setConversion = function(e){
+        console.log(e)
+
+
+        if (e=='lowest'){
+            $scope.product.price_per_lowest_unit = $scope.product.price_per_unit*$scope.product.lowest_unit_conversion
+        }
+        if (e=='recipe'){
+            $scope.product.price_per_recipe_unit = $scope.product.price_per_unit*$scope.product.recipe_unit_conversion
+        }
+
+    }
+
     $scope.filterVal = {
         search: ''
     }
@@ -238,16 +286,16 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
             $scope.product.is_stockable = $scope.selected.is_stockable.selected.id;
             $scope.product.is_pr = $scope.selected.is_pr.selected.id;
             $scope.product.is_ml = $scope.selected.is_ml.selected.id;
-            $scope.product.is_production = $scope.selected.is_production.selected.id;
-            $scope.product.is_material = $scope.selected.is_material.selected.id;
+            //$scope.product.is_production = $scope.selected.is_production.selected.id;
+            //$scope.product.is_material = $scope.selected.is_material.selected.id;
             $scope.product.unit_type_id = $scope.selected.unit_type_id.selected.id;
-            $scope.product.recipe_unit_type_id = $scope.selected.recipe_unit_type_id.selected?$scope.selected.recipe_unit_type_id.selected.id:$scope.selected.unit_type_id.selected.id;
-            $scope.product.lowest_unit_type_id = $scope.selected.lowest_unit_type_id.selected?$scope.selected.lowest_unit_type_id.selected.id:$scope.selected.unit_type_id.selected.id;
+            $scope.product.recipe_unit_type_id = $scope.selected.recipe_unit_type_id.selected.id;
+            $scope.product.lowest_unit_type_id = $scope.selected.lowest_unit_type_id.selected.id;
             $scope.product.status = $scope.selected.status.selected.id;
             $scope.product.created_by = $localStorage.currentUser.name.id;
             $scope.product.created_date = globalFunction.currentDate();
-            $scope.product.lowest_unit_conversion = $scope.selected.lowest_unit_type_id.selected?$scope.product.lowest_unit_conversion:1;
-            $scope.product.recipe_unit_conversion = $scope.selected.recipe_unit_type_id.selected?$scope.product.recipe_unit_conversion:1;
+            //$scope.product.lowest_unit_conversion = $scope.selected.lowest_unit_type_id.selected.id;
+            //$scope.product.recipe_unit_conversion = $scope.selected.recipe_unit_type_id.selected.id;
             //delete $scope.product.id
             console.log($scope.product)
 
@@ -287,13 +335,11 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
             $scope.product.is_stockable = $scope.selected.is_stockable.selected.id;
             $scope.product.is_pr = $scope.selected.is_pr.selected.id;
             $scope.product.is_ml = $scope.selected.is_ml.selected.id;
-            $scope.product.is_production = $scope.selected.is_production.selected.id;
-            $scope.product.is_material = $scope.selected.is_material.selected.id;
+            //$scope.product.is_production = $scope.selected.is_production.selected.id;
+            //$scope.product.is_material = $scope.selected.is_material.selected.id;
             $scope.product.unit_type_id = $scope.selected.unit_type_id.selected.id;
-            $scope.product.recipe_unit_type_id = $scope.selected.recipe_unit_type_id.selected?$scope.selected.recipe_unit_type_id.selected.id:$scope.selected.unit_type_id.selected.id;
-            $scope.product.lowest_unit_type_id = $scope.selected.lowest_unit_type_id.selected?$scope.selected.lowest_unit_type_id.selected.id:$scope.selected.unit_type_id.selected.id;
-            $scope.product.lowest_unit_conversion = $scope.selected.lowest_unit_type_id.selected?$scope.product.lowest_unit_conversion:1;
-            $scope.product.recipe_unit_conversion = $scope.selected.recipe_unit_type_id.selected?$scope.product.recipe_unit_conversion:1;
+            $scope.product.recipe_unit_type_id = $scope.selected.recipe_unit_type_id.selected.id;
+            $scope.product.lowest_unit_type_id = $scope.selected.lowest_unit_type_id.selected.id;
             $scope.product.status = $scope.selected.status.selected.id;
             $scope.product['modified_by'] = $localStorage.currentUser.name.id;
             $scope.product['modified_date'] = globalFunction.currentDate();

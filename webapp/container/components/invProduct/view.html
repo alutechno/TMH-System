@@ -146,7 +146,7 @@
                   <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.unit_type_id.selected.$invalid && !selected.unit_type_id.selected.$pristine }">
                           <label>Unit Type</label>
-                          <ui-select ng-model="selected.unit_type_id.selected" theme="bootstrap" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element required>
+                          <ui-select ng-model="selected.unit_type_id.selected" theme="bootstrap" on-select="setUnit($item)" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element required>
                               <ui-select-match placeholder="Select Unit">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in arr.unit_type_id | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -157,7 +157,7 @@
                   <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.price_per_unit.$invalid && !product.price_per_unit.$pristine }">
                           <label>Price Per Unit</label>
-                          <input type="text" class="form-control" name="price_per_unit" ng-model="product.price_per_unit" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                          <input type="text" class="form-control" name="price_per_unit" ng-model="product.price_per_unit" ng-keyup="setPriceUnit()" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
               </div>
@@ -185,7 +185,7 @@
                       </div>
                   </div>
               </div>
-              <div class="row clearfix">
+              <!--<div class="row clearfix">
                   <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.is_production.$invalid && !selected.is_production.$pristine }">
                           <label>Is Production</label>
@@ -208,7 +208,7 @@
                           </ui-select>
                       </div>
                   </div>
-              </div>
+              </div>-->
               <div class="row clearfix">
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : product.lowest_unit_type_id.$invalid && !product.lowest_unit_type_id.$pristine }">
@@ -224,13 +224,13 @@
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.lowest_unit_conversion.$invalid && !product.lowest_unit_conversion.$pristine }">
                           <label>Conversion</label>
-                          <input type="text" class="form-control" name="lowest_unit_conversion" ng-model="product.lowest_unit_conversion" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                          <input type="text" class="form-control" name="lowest_unit_conversion" ng-model="product.lowest_unit_conversion" ng-keyup="setConversion('lowest')" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.price_per_lowest_unit.$invalid && !product.price_per_lowest_unit.$pristine }">
                           <label>Price Per Lowest Unit</label>
-                          <input type="text" class="form-control" name="price_per_lowest_unit" ng-model="product.price_per_lowest_unit" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                          <input type="text" class="form-control" name="price_per_lowest_unit" ng-model="product.price_per_lowest_unit" ng-readonly="true" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
               </div>
@@ -249,13 +249,13 @@
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.recipe_unit_conversion.$invalid && !product.recipe_unit_conversion.$pristine }">
                           <label>Conversion</label>
-                          <input type="text" class="form-control" name="recipe_unit_conversion" ng-model="product.recipe_unit_conversion" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                          <input type="text" class="form-control" name="recipe_unit_conversion" ng-model="product.recipe_unit_conversion" ng-keyup="setConversion('recipe')" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.price_per_recipe_unit.$invalid && !product.price_per_recipe_unit.$pristine }">
                           <label>Price Per Recipe</label>
-                          <input type="text" class="form-control" name="price_per_recipe_unit" ng-model="product.price_per_recipe_unit" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                          <input type="text" class="form-control" name="price_per_recipe_unit" ng-model="product.price_per_recipe_unit" ng-readonly="true" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
               </div>
