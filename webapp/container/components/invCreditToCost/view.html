@@ -89,7 +89,7 @@
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : it.cc_id.$invalid && !it.cc_id.$pristine }">
                           <label>Cost Center Origin</label>
                           <ui-select ng-model="selected.cc_origin.selected" theme="bootstrap" >
-                              <ui-select-match placeholder="select cost center">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-match placeholder="select cost center">{{$select.selected.code}}</ui-select-match>
                               <ui-select-choices repeat="item in cc_origin | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
                               </ui-select-choices>
@@ -100,7 +100,7 @@
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : it.cc_id.$invalid && !it.cc_id.$pristine }">
                           <label>Cost Center Destination</label>
                           <ui-select ng-model="selected.cc_dest.selected" theme="bootstrap" >
-                              <ui-select-match placeholder="select cost center">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-match placeholder="select cost center">{{$select.selected.code}}</ui-select-match>
                               <ui-select-choices repeat="item in cc_dest | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
                               </ui-select-choices>

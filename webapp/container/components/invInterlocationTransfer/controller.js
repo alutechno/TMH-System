@@ -19,7 +19,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         'and a.orig_warehouse_id=d.id '+
         'and a.dest_warehouse_id=e.id '
     var qstringdetail = 'select a.id,a.product_id ,b.name product_name,d.stock_qty,d.stock_qty_l stock_in_hand,a.request_qty,e.name unit_name,b.unit_type_id unit_id,b.lowest_unit_type_id unit_id2,b.lowest_unit_conversion unit_conversion,d.id warehouse_item_id '+
-        'from inv_inter_loc_trans_line_item  a,mst_product b,inv_inter_location_transfer c,inv_warehouse_stock d,ref_product_unit e,(select value,name from table_ref where table_name=\'inv_store_req_line_item\')f '+
+        'from inv_inter_loc_trans_line_item  a,mst_product b,inv_inter_location_transfer c,inv_warehouse_stock d,ref_product_unit e '+
         'where a.product_id=b.id '+
         'and a.inter_loc_transfer_id=c.id '+
         'and c.orig_warehouse_id=d.warehouse_id '+

@@ -96,7 +96,7 @@
                               </div>-->
                               <div pg-form-group class="form-group form-group-default form-group-default-select ">
                                   <label>Cost Center</label>
-                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
+                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
                                       <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in cost_center | filter: $select.search">
                                           <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>

@@ -20,7 +20,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     }
 
     var qstring = 'select * from (select aa.*,g.name warehouse_name,h.name cost_center_name from( '+
-        'select a.id,a.code,a.po_id,a.received_status status_id,c.name status_name,a.created_date,a.currency_id,d.supplier_id,e.name supplier_name,f.code currency_code,a.total_amount,a.receive_notes notes,d.warehouse_id,d.cost_center_id,d.delivery_date,a.home_currency_exchange '+
+        'select a.id,a.code,a.po_id,a.received_status status_id,c.name status_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\') as created_date,a.currency_id,d.supplier_id,e.name supplier_name,f.code currency_code,a.total_amount,a.receive_notes notes,d.warehouse_id,d.cost_center_id,d.delivery_date,a.home_currency_exchange '+
         'from inv_po_receive a,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f '+
         'where c.table_name=\'inv_po_receive\'  '+
         'and a.received_status=c.value  '+
@@ -147,10 +147,25 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         return $sce.trustAsHtml(value);
     };
 
-    queryService.get('select id,name from mst_cost_center order by name',undefined)
+    queryService.get('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+        'from mst_cost_center a, mst_department b '+
+        'where a.department_id = b.id '+
+        'order by a.code asc limit 10',undefined)
     .then(function(data){
         $scope.cost_center = data.data
     })
+    $scope.costCenterUp = function(text){
+        console.log(text)
+        queryService.post('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+            'from mst_cost_center a, mst_department b '+
+            'where a.department_id = b.id '+
+            ' and lower(a.code) like \'%'+text+'%\' '+
+            'order by a.code asc limit 10',undefined)
+        .then(function(data){
+            $scope.cost_center = data.data
+        })
+
+    }
     queryService.get('select id,code name from ref_currency order by id',undefined)
     .then(function(data){
         $scope.currency = data.data
@@ -252,7 +267,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -405,6 +420,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                             timeout: 2000,
                             type: 'success'
                         }).show();
+                        $scope.clear();
                     },
                     function(err2){
                         $('#form-input').pgNotification({
@@ -609,6 +625,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                         product_name:data.data[i].product_name,
                         qty: data.data[i].order_qty,
                         price: data.data[i].price,
+                        price: data.data[i].price,
                         amount: data.data[i].amount,
                         received_qty: data.data[i].received_qty==null?0:data.data[i].received_qty,
                         received_price: data.data[i].received_price==null?0:data.data[i].received_price
@@ -786,6 +803,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                     })
                 }
                 $scope.itemsOri = angular.copy($scope.items)
+                console.log($scope.items)
             },
             function(err2){
                 console.log(err2)
@@ -882,6 +900,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             currency_id: ''
         }
         $scope.items = []
+        $scope.itemsOri = []
         $scope.selected = {
             status: {},
             product: {},
@@ -1005,6 +1024,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                     if ($scope.itemsOri[j].p_id==user.p_id){
                         var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].item_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].rcv_qty+$scope.itemsOri[j].rcv_price
                         var d2 = user.p_id+user.item_id+user.product_id+user.rcv_qty+user.rcv_price
+                        console.log($scope.itemsOri[j])
                         console.log(d1)
                         console.log(d2)
                         if(d1 != d2){

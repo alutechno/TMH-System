@@ -457,25 +457,25 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                             var sql3 = 'update inv_cost_center_stock set '+
                                 'cost_center_id = '+$scope.selected.cc_origin.selected.id+','+
                                 'product_id = '+user.product_id+','+
-                                'stock_qty = '+(user.stock_qty-(parseInt(user.issued_qty_n)*user.unit_conversion))+','+
-                                'stock_qty_l = '+(user.stock_in_hand-user.issued_qty_n)+','+
+                                'stock_qty = stock_qty-'+(parseInt(user.issued_qty_n)*user.unit_conversion)+','+
+                                'stock_qty_l = stock_qty_l-'+(parseInt(user.issued_qty_n))+','+
                                 ' modified_by = '+$localStorage.currentUser.name.id+',' +
                                 ' modified_date = \''+globalFunction.currentDate()+'\'' +
                                 ' where id='+user.warehouse_item_id
 
-                            /*var sql4 = 'INSERT INTO inv_cost_center_stock(cost_center_id,product_id,stock_qty,stock_qty_l,stock_qty_in_recipe_unit,created_by) '+
-                                ' values('+$scope.selected.cost_center.selected.id+','+user.product_id+','+(user.stock_qty+(user.issued_qty_n*used.unit_conversion))+
-                                ','+(user.stock_qty_l+user.issued_qty_n)+', '+(user.stock_qty_in_recipe_unit+(user.issued_qty_n*user.recipe_unit_conversion))+','+$localStorage.currentUser.name.id+') ' +
+                            var sql4 = 'INSERT INTO inv_cost_center_stock(cost_center_id,product_id,stock_qty,stock_qty_l,created_by) '+
+                                ' values('+$scope.selected.cc_origin.selected.id+','+user.product_id+','+((parseInt(user.issued_qty_n)*user.unit_conversion))+
+                                ','+(parseInt(user.issued_qty_n))+', '+$localStorage.currentUser.name.id+') ' +
                                 'ON DUPLICATE KEY UPDATE '+
-                                ' stock_qty = '+(user.stock_qty+(user.issued_qty_n*used.unit_conversion))+
-                                ' ,stock_qty_l = '+(user.stock_qty_l+user.issued_qty_n)
-                                ' ,stock_qty_in_recipe_unit = '+(user.stock_qty_in_recipe_unit+(user.issued_qty_n*user.recipe_unit_conversion))
+                                ' stock_qty = stock_qty-'+(parseInt(user.issued_qty_n)*user.unit_conversion)+
+                                ' ,stock_qty_l = stock_qty_l-'+(parseInt(user.issued_qty_n))
+                                //' ,stock_qty_in_recipe_unit = '+(user.stock_qty_in_recipe_unit+(user.issued_qty_n*user.recipe_unit_conversion))
                                 ' ,modified_by = '+$localStorage.currentUser.name.id+',' +
-                                ' modified_date = \''+globalFunction.currentDate()+'\''*/
+                                ' modified_date = \''+globalFunction.currentDate()+'\''
 
                             sqlitem.push(sql2)
                             sqlitem.push(sql3)
-                            //sqlitem.push(sql4)
+                            sqlitem.push(sql4)
                         }
                     }
                 }

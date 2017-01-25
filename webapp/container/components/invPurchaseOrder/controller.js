@@ -137,10 +137,25 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         return $sce.trustAsHtml(value);
     };
 
-    queryService.get('select id,name from mst_cost_center order by name',undefined)
+    queryService.get('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+        'from mst_cost_center a, mst_department b '+
+        'where a.department_id = b.id '+
+        'order by a.code asc limit 10',undefined)
     .then(function(data){
         $scope.cost_center = data.data
     })
+    $scope.costCenterUp = function(text){
+        console.log(text)
+        queryService.post('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+            'from mst_cost_center a, mst_department b '+
+            'where a.department_id = b.id '+
+            ' and lower(a.code) like \'%'+text+'%\' '+
+            'order by a.code asc limit 10',undefined)
+        .then(function(data){
+            $scope.cost_center = data.data
+        })
+
+    }
     queryService.get('select id,code name from ref_currency order by id',undefined)
     .then(function(data){
         $scope.currency = data.data
@@ -242,7 +257,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -421,7 +436,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                             timeout: 2000,
                             type: 'success'
                         }).show();
-
+                        $scope.clear();
 
                     },
                     function (err3){
@@ -434,6 +449,20 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                             type: 'danger'
                         }).show();
                     })
+                }
+                else {
+                    $('#form-input').modal('hide')
+                    $scope.nested.dtInstance.reloadData(function(obj){
+                        // console.log(obj)
+                    }, false)
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Insert PO '+$scope.po.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
+                    $scope.clear();
                 }
 
                 var queryState = ''
@@ -847,6 +876,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             currency_id: ''
         }
         $scope.items = []
+        $scope.itemsOri = []
         $scope.selected = {
             status: {},
             product: {},

@@ -40,7 +40,7 @@
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Purchase Order Information</div>
+       <div class="panel-title"></div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -97,10 +97,11 @@
                               </div>-->
                               <div pg-form-group class="form-group form-group-default form-group-default-select ">
                                   <label>Cost Center</label>
-                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-disabled="viewMode" on-select="po.cost_center_id=selected.cost_center.selected.id" >
+                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
                                       <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in cost_center | filter: $select.search">
-                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                          <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
+                                          <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
                                       </ui-select-choices>
                                   </ui-select>
                               </div>
@@ -178,13 +179,13 @@
                                                 <td><span>{{item.product_name}}</span></td>
                                                 <td><span>{{item.qty}}</span></td>
                                                 <td>
-                                                    <span editable-text="item.qty" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'qty')">
+                                                    <span editable-text="item.rcv_qty" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'qty')">
                                                         {{ item.rcv_qty }}
                                                     </span>
                                                 </td>
                                                 <td><span>{{item.price}}</span></td>
                                                 <td >
-                                                    <span editable-text="item.price" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'price')">
+                                                    <span editable-text="item.rcv_price" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'price')">
                                                         {{ item.rcv_price }}
                                                     </span>
                                                 </td>

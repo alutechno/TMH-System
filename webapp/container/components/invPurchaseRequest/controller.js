@@ -138,10 +138,22 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     queryService.get('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
         'from mst_cost_center a, mst_department b '+
         'where a.department_id = b.id '+
-        'order by a.code asc',undefined)
+        'order by a.code asc limit 10',undefined)
     .then(function(data){
         $scope.cost_center = data.data
     })
+    $scope.costCenterUp = function(text){
+        console.log(text)
+        queryService.post('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+            'from mst_cost_center a, mst_department b '+
+            'where a.department_id = b.id '+
+            ' and lower(a.code) like \'%'+text+'%\' '+
+            'order by a.code asc limit 10',undefined)
+        .then(function(data){
+            $scope.cost_center = data.data
+        })
+
+    }
     queryService.get('select id,name from mst_warehouse',undefined)
     .then(function(data){
         console.log(data)
