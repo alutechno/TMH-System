@@ -10,7 +10,7 @@ angular.module('app')
 
         // App globals
         $scope.app = {
-            name: 'The Media',
+            name: 'The Media HMS',
             description: 'The Media Hotel System',
             layout: {
                 menuPin: false,
