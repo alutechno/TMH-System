@@ -228,7 +228,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere = ' and a.code like \'%'+$scope.filterVal.search+'%\' '
+                if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.code) like \'%'+$scope.filterVal.search+'%\' '
                 else qwhere = ''
 
                 $scope.nested.dtInstance.reloadData(function(obj){
