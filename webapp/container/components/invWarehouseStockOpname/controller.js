@@ -300,6 +300,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 console.log(q2)
                 queryService.post(q2,undefined)
                 .then(function (result2){
+                    $('#form-input').modal('hide')
                     console.log(result2)
                 },
                 function (err2){
