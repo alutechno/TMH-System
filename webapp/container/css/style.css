@@ -118,6 +118,12 @@ span.ui-select-match-text.pull-left {
     margin: 0;
 }
 
+.row.divider{
+    border-bottom: 1px solid #e6e6e6;
+    padding-top: 19px;
+    margin-bottom: 19px;
+}
+
 @media screen {
     #printSection {
         display: none;
