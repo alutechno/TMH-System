@@ -131,7 +131,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL+'/apisql/datatable',
-        type: 'GET',
+        type: 'POST',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
@@ -166,7 +166,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere += ' where name="'+$scope.filterVal.search+'"'
+                if ($scope.filterVal.search.length>0) qwhere = ' and a.code like "%'+$scope.filterVal.search+'%"'
                 else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)

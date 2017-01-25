@@ -13,13 +13,13 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstring = 'select a.id,a.code,a.request_status,b.name request_status_name,a.transc_date,a.credit_to_cost_center_id,d.name cost_orig_name,a.debt_to_cost_center_id,e.name cost_dest_name,a.total_amount '+
+    var qstring = 'select a.id,a.code,a.request_status,b.name request_status_name,a.transc_date,a.credit_to_cost_center_id,d.name cost_orig_name,a.debt_to_cost_center_id,e.name cost_dest_name,a.total_amount,a.transc_notes '+
         'from inv_credit_to_cost a,(select value,name from table_ref where table_name=\'interlocation\' and column_name=\'request_status\') b,mst_cost_center d,mst_cost_center e '+
         'where a.request_status=b.value '+
         'and a.credit_to_cost_center_id=d.id '+
         'and a.debt_to_cost_center_id=e.id '
-    var qstringdetail = 'select a.id,a.product_id ,d.stock_qty_l stock_in_hand,a.qty,e.name unit_name,b.unit_type_id unit_id,b.lowest_unit_type_id unit_id2,b.lowest_unit_conversion unit_conversion,d.id warehouse_item_id '+
-        'from inv_ctc_line_item  a,mst_product b,inv_credit_to_cost c,inv_cost_center_stock d,ref_product_unit e,(select value,name from table_ref where table_name=\'inv_store_req_line_item\')f '+
+    var qstringdetail = 'select a.id,a.product_id ,b.name product_name,d.stock_qty_l stock_in_hand,a.qty request_qty,e.name unit_name,b.unit_type_id unit_id,b.lowest_unit_type_id unit_id2,b.lowest_unit_conversion unit_conversion,d.id warehouse_item_id '+
+        'from inv_ctc_line_item  a,mst_product b,inv_credit_to_cost c,inv_cost_center_stock d,ref_product_unit e '+
         'where a.product_id=b.id '+
         'and a.ctc_id=c.id '+
         'and c.credit_to_cost_center_id=d.cost_center_id '+
@@ -60,7 +60,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope.cc_dest = data.data
     })
     $scope.request_status = []
-    queryService.get('select value,name from table_ref where table_name=\'store_request\' and column_name=\'request_status\' ',undefined)
+    queryService.get('select value id,value,name from table_ref where table_name=\'store_request\' and column_name=\'request_status\' ',undefined)
     .then(function(data){
         $scope.request_status = data.data
         $scope.selected.request_status['selected'] = $scope.request_status[0]
@@ -105,7 +105,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL+'/apisql/datatable',
-        type: 'GET',
+        type: 'POST',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
@@ -131,7 +131,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         DTColumnBuilder.newColumn('id').withTitle('id'),
         DTColumnBuilder.newColumn('code').withTitle('code'),
         DTColumnBuilder.newColumn('request_status_name').withTitle('status'),
-        DTColumnBuilder.newColumn('transfer_date').withTitle('date'),
+        DTColumnBuilder.newColumn('transc_date').withTitle('date'),
         DTColumnBuilder.newColumn('cost_orig_name').withTitle('Origin'),
         DTColumnBuilder.newColumn('cost_dest_name').withTitle('Destination'),
         DTColumnBuilder.newColumn('total_amount').withTitle('amount')
@@ -140,7 +140,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere += ' where name="'+$scope.filterVal.search+'"'
+                if ($scope.filterVal.search.length>0) qwhere = ' and a.code like "%'+$scope.filterVal.search+'%"'
                 else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
@@ -170,7 +170,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 code: $scope.it.code,
                 transc_date: $scope.it.date,
                 request_status: $scope.selected.request_status.selected.id,
-                transc_note: $scope.it.request_notes,
+                transc_notes: $scope.it.request_notes,
                 credit_to_cost_center_id: $scope.selected.cc_origin.selected.id,
                 debt_to_cost_center_id: $scope.selected.cc_dest.selected.id,
                 created_by: $localStorage.currentUser.name.id,
@@ -214,11 +214,11 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 code: $scope.it.code,
                 transc_date: $scope.it.date,
                 request_status: $scope.selected.request_status.selected.id,
-                transc_note: $scope.it.request_notes,
-                credit_to_cost_center_id: $scope.selected.warehouse_origin.selected.id,
-                debt_to_cost_center_id: $scope.selected.warehouse_dest.selected.id,
-                created_by: $localStorage.currentUser.name.id,
-                created_date: globalFunction.currentDate(),
+                transc_notes: $scope.it.request_notes,
+                credit_to_cost_center_id: $scope.selected.cc_origin.selected.id,
+                debt_to_cost_center_id: $scope.selected.cc_dest.selected.id,
+                modified_by: $localStorage.currentUser.name.id,
+                modified_date: globalFunction.currentDate(),
             }
             queryService.post('update inv_credit_to_cost set ? where id='+$scope.it.id,param)
             .then(function (result){
@@ -259,7 +259,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             $('#form-input').modal('show');
             console.log(result.data)
             $scope.it = result.data[0]
-            $scope.it.date = $scope.it.transfer_date
+            $scope.it.date = $scope.it.transc_date
+            $scope.it.request_notes = $scope.it.transc_notes
             $scope.selected.cc_origin['selected'] = {id:$scope.it.credit_to_cost_center_id,name:$scope.it.cost_orig_name}
             $scope.selected.cc_dest['selected'] = {id:$scope.it.debt_to_cost_center_id,name:$scope.it.cost_dest_name}
             $scope.selected.request_status['selected'] = {id:$scope.it.request_status,name:$scope.it.request_status_name}
@@ -435,7 +436,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             // send on server
             //results.push($http.post('/saveUser', user));
             if (user.isNew && !user.isDeleted){
-                sqlitem.push('insert into inv_ctc_line_item(ctc_id,product_id,price,amount,request_qty,unit_type_id,created_by) values '+
+                sqlitem.push('insert into inv_ctc_line_item(ctc_id,product_id,price,amount,qty,unit_type_id,created_by) values '+
                     '( '+transfer_id+', '+user.product_id+','+user.price_per_unit+','+(user.price_per_unit*user.request_qty)+','+user.request_qty+','+user.unit_id+', '+$localStorage.currentUser.name.id+' )')
                 //sqlitem.push('insert into inv_pr_line_item (pr_id,product_id,'+(user.supplier_id.length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date) values('+
                 //pr_id+','+user.product_id+','+(user.supplier_id.length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
@@ -450,11 +451,11 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                         var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].request_qty+$scope.itemsOri[j].issued_qty_n
                         var d2 = user.p_id+user.product_id+user.request_qty+user.issued_qty_n
                         if(d1 != d2){
-                            var sql2 = 'insert into inv_wh_stock_move(transc_type,inter_loc_trans_id,origin_warehouse_id,dest_warehouse_id,product_id,qty,unit_type_id,qty_l,lowest_unit_type_id,created_by) values '+
-                                '( \'IL\','+transfer_id+','+$scope.selected.warehouse_origin.selected.id+','+$scope.selected.warehouse_dest.selected.id+','+
+                            var sql2 = 'insert into inv_cs_stock_move(transc_type,ctc_id,origin_cost_center_id,dest_cost_center_id,product_id,qty,unit_type_id,qty_l,lowest_unit_type_id,created_by) values '+
+                                '( \'CC\','+transfer_id+','+$scope.selected.cc_origin.selected.id+','+$scope.selected.cc_dest.selected.id+','+
                                 ' '+user.product_id+', '+(user.issued_qty_n*user.unit_conversion)+', '+user.unit_id+','+user.issued_qty_n+','+user.unit_id2+', '+$localStorage.currentUser.name.id+' )'
-                            var sql3 = 'update inv_warehouse_stock set '+
-                                'warehouse_id = '+$scope.selected.warehouse_origin.selected.id+','+
+                            var sql3 = 'update inv_cost_center_stock set '+
+                                'cost_center_id = '+$scope.selected.cc_origin.selected.id+','+
                                 'product_id = '+user.product_id+','+
                                 'stock_qty = '+(user.stock_qty-(parseInt(user.issued_qty_n)*user.unit_conversion))+','+
                                 'stock_qty_l = '+(user.stock_in_hand-user.issued_qty_n)+','+

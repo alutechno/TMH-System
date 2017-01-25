@@ -84,13 +84,13 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL+'/apisql/datatable',
-        type: 'GET',
+        type: 'POST',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
 
-            data.query = qstring.join(' union ') + qwhere;
+            data.query = 'select * from ('+qstring.join(' union ') +')al ' +qwhere;
         }
     })
     .withDataProp('data')
@@ -117,7 +117,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere += ' where name="'+$scope.filterVal.search+'"'
+                if ($scope.filterVal.search.length>0) qwhere = ' where al.name like "%'+$scope.filterVal.search+'%"'
                 else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
