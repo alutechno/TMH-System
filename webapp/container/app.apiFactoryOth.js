@@ -176,6 +176,19 @@ function($q, $http, $timeout, $localStorage,API_URL) {
     return {
         currentDate: function() {
             var d = new Date();
+
+            console.log(d.getFullYear() + "-" + ("00" + (d.getMonth() + 1)).slice(-2) + "-" + ("00" + d.getDate()).slice(-2) + " ")
+            console.log(("00" + d.getHours()).slice(-2) + ":" +
+            ("00" + d.getMinutes()).slice(-2) + ":" +
+            ("00" + d.getSeconds()).slice(-2))
+            return d.getFullYear() + "-" + ("00" + (d.getMonth() + 1)).slice(-2) + "-" + ("00" + d.getDate()).slice(-2) + " " +
+                ("00" + d.getHours()).slice(-2) + ":" +
+                ("00" + d.getMinutes()).slice(-2) + ":" +
+                ("00" + d.getSeconds()).slice(-2)
+        },
+        next30Day: function() {
+            var d = new Date();
+            d.setDate(d.getDate() + 30)
             console.log(d.getFullYear() + "-" + ("00" + (d.getMonth() + 1)).slice(-2) + "-" + ("00" + d.getDate()).slice(-2) + " ")
             console.log(("00" + d.getHours()).slice(-2) + ":" +
             ("00" + d.getMinutes()).slice(-2) + ":" +
