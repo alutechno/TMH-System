@@ -462,7 +462,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                             }).show();
                         },
                         function(err3){
-                            console.log(err2)
+                            console.log(err3)
                         })
                     },
                     function(err2){
@@ -925,8 +925,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                     pr_id+','+user.account_id+',\'D\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }
                 else if (user.credit>0){
-                    sqlitem.push('insert into acc_journal_entries (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
-                    pr_id+','+user.account_id+',\'D\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
+                    pr_id+','+user.account_id+',\'C\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }
 
             }
