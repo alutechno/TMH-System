@@ -521,8 +521,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                             var sql3 = 'update inv_warehouse_stock set '+
                                 'warehouse_id = '+$scope.selected.warehouse.selected.id+','+
                                 'product_id = '+user.product_id+','+
-                                'stock_qty = '+(user.stock_qty-(user.issued_qty_n*user.unit_conversion))+','+
-                                'stock_qty_l = '+(user.issued_qty_l-user.issued_qty_n)+','+
+                                'stock_qty_l = stock_qty_l-'+((user.issued_qty_n*user.unit_conversion))+','+
+                                'stock_qty = stock_qty-'+(user.issued_qty_n)+','+
                                 ' modified_by = '+$localStorage.currentUser.name.id+',' +
                                 ' modified_date = \''+globalFunction.currentDate()+'\'' +
                                 ' where id='+user.warehouse_item_id
