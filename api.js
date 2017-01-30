@@ -1,6 +1,6 @@
 var cluster = require('cluster');
 var mysql = require('mysql');
-/*var pool  = mysql.createPool({
+var pool  = mysql.createPool({
     connectionLimit : 50,
      host            : '103.43.47.115',
     //host            : 'localhost',
@@ -9,8 +9,8 @@ var mysql = require('mysql');
 	database		: 'media',
 	port			: 3306,
 	multipleStatements : true
-});*/
-var pool  = mysql.createPool({
+});
+/*var pool  = mysql.createPool({
     connectionLimit : 50,
     host            : 'localhost',
     user            : 'root',
@@ -18,7 +18,7 @@ var pool  = mysql.createPool({
 	database		: 'media',
 	port			: 8889,
 	multipleStatements : true
-});
+});*/
 if (cluster.isMaster) {
     for (var i = 0; i < 4; i++) {
         cluster.fork();
