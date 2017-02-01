@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinDepartmentCtrl',
-function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -12,6 +12,11 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
+    var qstring = "select a.*,b.name status_name from mst_department a, "+
+        "(select * from table_ref where table_name = 'ref_product_category' and column_name = 'status') b "+
+        "where a.status = b.value "+
+        "and a.status != '2' "
+    var qwhere = ''
     $scope.users = []
 
     $scope.role = {
@@ -54,10 +59,8 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        console.log(data)
         $scope.deps[data] = {id:data};
         //console.log(data)
-        console.log($scope.deps)
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
@@ -84,13 +87,13 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: API_URL+'/apifin/getDepartments',
+        url: API_URL+'/apisql/datatable',
         type: 'GET',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.customSearch = $scope.filterVal.search;
+            data.query = qstring + qwhere;
         }
     })
     .withDataProp('data')
@@ -99,6 +102,7 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
     .withOption('bLengthChange', false)
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
+    .withOption('order', [0, 'desc'])
     .withDisplayLength(10)
 
     .withOption('createdRow', $scope.createdRow);
@@ -113,12 +117,14 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
         DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
         DTColumnBuilder.newColumn('name').withTitle('Name'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
-        DTColumnBuilder.newColumn('status').withTitle('Status')
+        DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
 
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
+                if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
+                else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
                 }, false)
@@ -151,8 +157,17 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
             $scope.department.short_name = $scope.department.short_name;
             $scope.department.description = $scope.department.description;
             $scope.department.status = $scope.selected.dep.selected.id;
+            var param = {
+                code: $scope.department.code,
+                name: $scope.department.name,
+                short_name: $scope.department.short_name,
+                description: $scope.department.description,
+                status: $scope.selected.dep.selected.id,
+                created_date: globalFunction.currentDate(),
+                created_by: $localStorage.currentUser.name.id
+            }
 
-            departmentService.create($scope.department)
+            queryService.post('insert into mst_department SET ?',param)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -184,8 +199,17 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
             $scope.department.short_name = $scope.department.short_name;
             $scope.department.description = $scope.department.description;
             $scope.department.status = $scope.selected.dep.selected.id;
-
-            departmentService.update($scope.department)
+            var param = {
+                code: $scope.department.code,
+                name: $scope.department.name,
+                short_name: $scope.department.short_name,
+                description: $scope.department.description,
+                status: $scope.selected.dep.selected.id,
+                modified_date: globalFunction.currentDate(),
+                modified_by: $localStorage.currentUser.name.id
+            }
+            console.log(param)
+            queryService.post('update mst_department SET ? WHERE id='+$scope.department.id ,param)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Update')
@@ -205,9 +229,9 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
         $('#form-input').modal('show');
         $('#dept_code').prop('disabled', true);
 
-        departmentService.get(obj.id)
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-        // console.log(result)
+         console.log(result)
             $scope.department.id = result.data[0].id
             $scope.department.code = result.data[0].code
             $scope.department.name = result.data[0].name
@@ -222,7 +246,7 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
 
     $scope.delete = function(obj){
         $scope.department.id = obj.id;
-        departmentService.get(obj.id)
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             $scope.department.code = result.data[0].code;
             $('#modalDelete').modal('show')
@@ -230,7 +254,7 @@ function($scope, $state, $sce, departmentService, DTOptionsBuilder, DTColumnBuil
     }
 
     $scope.execDelete = function(){
-        departmentService.delete($scope.department)
+        queryService.post('update mst_department SET status=\'2\' WHERE id='+$scope.department.id ,undefined)
         .then(function (result){
             if (result.status = "200"){
                 // console.log('Success Update')

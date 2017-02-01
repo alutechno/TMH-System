@@ -70,9 +70,9 @@
                       </div>
                   </div>
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : coa.report_level.$invalid && !coa.report_level.$pristine }">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.report_level.selected.$invalid && !selected.report_level.selected.$pristine }">
                           <label>Report Level</label>
-                          <ui-select ng-model="selected.report_level.selected" theme="bootstrap" >
+                          <ui-select ng-model="selected.report_level.selected" theme="bootstrap" validate-attached-form-element required>
                               <ui-select-match placeholder="select level">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in arrReportLevel | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -81,9 +81,9 @@
                       </div>
                   </div>
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : coa.account_type_id.$invalid && !coa.account_type_id.$pristine }">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.account_type.selected.$invalid && !selected.account_type.selected.$pristine }">
                           <label>Account Type</label>
-                          <ui-select ng-model="selected.account_type.selected" theme="bootstrap" >
+                          <ui-select ng-model="selected.account_type.selected" theme="bootstrap" validate-attached-form-element required>
                               <ui-select-match placeholder="Select Account Type">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in account_types | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -92,9 +92,9 @@
                       </div>
                   </div>
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : coa.dept_id.$invalid && !coa.dept_id.$pristine }">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.dept.selected.$invalid && !selected.dept.selected.$pristine }">
                           <label>Department</label>
-                          <ui-select ng-model="selected.dept.selected" theme="bootstrap" >
+                          <ui-select ng-model="selected.dept.selected" theme="bootstrap" validate-attached-form-element required>
                               <ui-select-match placeholder="Select Department">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in departments | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -103,7 +103,7 @@
                       </div>
                   </div>
 
-                  <div class="col-sm-12">
+                  <!--<div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : coa.cost_center_id.$invalid && !coa.cost_center_id.$pristine }">
                           <label>Cost Center</label>
                           <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" >
@@ -113,19 +113,19 @@
                               </ui-select-choices>
                           </ui-select>
                       </div>
-                  </div>
+                  </div>-->
 
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.description.$invalid && !coa.description.$pristine }">
+                      <div pg-form-group class="form-group form-group-default">
                           <label>Desc</label>
-                          <input type="text" class="form-control" name="name" ng-model="coa.description" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" >
+                          <input type="text" class="form-control" name="name" ng-model="coa.description" >
                       </div>
                   </div>
 
                 <div class="col-sm-12">
-                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : coa.status.$invalid && !coa.status.$pristine }">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.status.selected.$invalid && !selected.status.selected.$pristine }">
                         <label>Is Active</label>
-                        <ui-select ng-model="selected.status.selected" theme="bootstrap" >
+                        <ui-select ng-model="selected.status.selected" theme="bootstrap" validate-attached-form-element required>
                             <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
                             <ui-select-choices repeat="item in arrActive | filter: $select.search">
                                 <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>

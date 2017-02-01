@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinCoaCtrl',
-function($scope, $state, $sce, coaService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -12,6 +12,15 @@ function($scope, $state, $sce, coaService, departmentService, accountTypeService
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
+
+    var qstring = "select a.*,b.code account_type_code, b.name account_type_name,c.name status_name "+
+        "from mst_ledger_account a, ref_ledger_account_type b, "+
+         "(select * from table_ref where table_name = 'ref_product_category' and column_name = 'status') c "+
+        "where a.account_type_id = b.id "+
+        "and a.status = c.value "+
+        "and a.status != '2' "
+    var qwhere = ''
+
     $scope.users = []
 
     $scope.role = {
@@ -109,13 +118,13 @@ function($scope, $state, $sce, coaService, departmentService, accountTypeService
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: API_URL+'/apifin/getCoas',
-        type: 'GET',
+        url: API_URL+'/apisql/datatable',
+        type: 'POST',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.customSearch = $scope.filterVal.search;
+            data.query = qstring + qwhere;
         }
     })
     .withDataProp('data')
@@ -125,7 +134,7 @@ function($scope, $state, $sce, coaService, departmentService, accountTypeService
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -139,15 +148,15 @@ function($scope, $state, $sce, coaService, departmentService, accountTypeService
         DTColumnBuilder.newColumn('name').withTitle('Name'),
         DTColumnBuilder.newColumn('report_level').withTitle('Level'),
         DTColumnBuilder.newColumn('account_type_name').withTitle('A/C'),
-        DTColumnBuilder.newColumn('dept_name').withTitle('Department'),
-        DTColumnBuilder.newColumn('cost_center_name').withTitle('CostCenter'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
-        DTColumnBuilder.newColumn('status').withTitle('Status')
+        DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
 
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
+                if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
+                else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
                 }, false)
@@ -176,14 +185,29 @@ function($scope, $state, $sce, coaService, departmentService, accountTypeService
             // $scope.coa.code = $scope.coa.code;
             // $scope.coa.short_name = $scope.coa.short_name;
             // $scope.coa.description = $scope.coa.description;
-            $scope.coa.status = $scope.selected.status.selected.id;
+            /*$scope.coa.status = $scope.selected.status.selected.id;
             $scope.coa.report_level = $scope.selected.report_level.selected.id;
             $scope.coa.account_type_id = $scope.selected.account_type.selected.id;
             $scope.coa.dept_id = $scope.selected.dept.selected.id;
             $scope.coa.cost_center_id = $scope.selected.cost_center.selected.id;
-            console.log($scope.coa)
+            $scope.cat.status = $scope.selected.status.selected.id;
+            $scope.cat['created_by'] = $localStorage.currentUser.name.id;
+            $scope.cat['created_date'] = globalFunction.currentDate();*/
+            var param = {
+                code: $scope.coa.code,
+                name: $scope.coa.name,
+                short_name: $scope.coa.short_name,
+                description: $scope.coa.description,
+                status: $scope.selected.status.selected.id,
+                account_type_id: $scope.selected.account_type.selected.id,
+                report_level: $scope.selected.report_level.selected.id,
+                dept_id: $scope.selected.dept.selected.id,
+                created_date: globalFunction.currentDate(),
+                created_by: $localStorage.currentUser.name.id
+            }
+            console.log(param)
 
-            coaService.create($scope.coa)
+            queryService.post('insert into mst_ledger_account SET ?',param)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -196,6 +220,7 @@ function($scope, $state, $sce, coaService, departmentService, accountTypeService
                         timeout: 2000,
                         type: 'success'
                     }).show();
+                    $scope.clear()
 
             },
             function (err){
@@ -214,14 +239,25 @@ function($scope, $state, $sce, coaService, departmentService, accountTypeService
             // $scope.coa.code = $scope.coa.code;
             // $scope.coa.short_name = $scope.coa.short_name;
             // $scope.coa.description = $scope.coa.description;
-            $scope.coa.status = $scope.selected.status.selected.id;
+            /*$scope.coa.status = $scope.selected.status.selected.id;
             $scope.coa.report_level = $scope.selected.report_level.selected.id;
             $scope.coa.account_type_id = $scope.selected.account_type.selected.id;
             $scope.coa.dept_id = $scope.selected.dept.selected.id;
-            $scope.coa.cost_center_id = $scope.selected.cost_center.selected.id;
-
-            console.log($scope.coa)
-            coaService.update($scope.coa)
+            $scope.coa.cost_center_id = $scope.selected.cost_center.selected.id;*/
+            var param = {
+                code: $scope.coa.code,
+                name: $scope.coa.name,
+                short_name: $scope.coa.short_name,
+                description: $scope.coa.description,
+                status: $scope.selected.status.selected.id,
+                account_type_id: $scope.selected.account_type.selected.id,
+                report_level: $scope.selected.report_level.selected.id,
+                dept_id: $scope.selected.dept.selected.id,
+                modified_date: globalFunction.currentDate(),
+                modified_by: $localStorage.currentUser.name.id
+            }
+            console.log(param)
+            queryService.post('update mst_ledger_account SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Update')
@@ -229,6 +265,7 @@ function($scope, $state, $sce, coaService, departmentService, accountTypeService
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
                     }, false)
+                    $scope.clear()
                 }
                 else {
                     console.log('Failed Update')
@@ -242,7 +279,7 @@ function($scope, $state, $sce, coaService, departmentService, accountTypeService
         $('#coa_code').prop('disabled', true);
 
         // console.log(obj)
-        coaService.get(obj.id)
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             console.log(result)
 
@@ -255,7 +292,6 @@ function($scope, $state, $sce, coaService, departmentService, accountTypeService
             $scope.coa.report_level = result.data[0].report_level
             $scope.coa.account_type_id = result.data[0].account_type_id
             $scope.coa.dept_id = result.data[0].dept_id
-            $scope.coa.cost_center_id = result.data[0].cost_center_id
             $scope.coa.status = result.data[0].status
             $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
 
@@ -287,7 +323,7 @@ function($scope, $state, $sce, coaService, departmentService, accountTypeService
 
     $scope.delete = function(obj){
         $scope.coa.id = obj.id;
-        coaService.get(obj.id)
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             $scope.coa.name = result.data[0].name;
             $('#modalDelete').modal('show')
@@ -295,7 +331,7 @@ function($scope, $state, $sce, coaService, departmentService, accountTypeService
     }
 
     $scope.execDelete = function(){
-        coaService.delete($scope.coa)
+        queryService.post('update mst_ledger_account SET status=\'2\' WHERE id='+$scope.coa.id ,undefined)
         .then(function (result){
             if (result.status = "200"){
                 console.log('Success Delete')
@@ -303,6 +339,7 @@ function($scope, $state, $sce, coaService, departmentService, accountTypeService
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
                 }, false)
+                $scope.clear()
             }
             else {
                 console.log('Delete Failed')
@@ -320,8 +357,7 @@ function($scope, $state, $sce, coaService, departmentService, accountTypeService
             status: '',
             report_level: '',
             account_type_id: '',
-            dept_id: '',
-            cost_center_id: ''
+            dept_id: ''
         }
     }
 
