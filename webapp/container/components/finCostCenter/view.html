@@ -68,15 +68,15 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default " ng-class="{ 'has-error' : cc.description.$invalid && !cc.description.$pristine }">
+                      <div pg-form-group class="form-group form-group-default " >
                           <label>Description</label>
-                          <input type="text" class="form-control" ng-model="cc.description" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
+                          <input type="text" class="form-control" ng-model="cc.description" >
                       </div>
                   </div>
               </div>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : cc.category_id.$invalid && !cc.category_id.$pristine }">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select" >
                         <label>Category</label>
                         <ui-select ng-model="selected.category.selected" theme="bootstrap" >
                             <ui-select-match placeholder="select category">{{$select.selected.name}}</ui-select-match>
@@ -89,7 +89,33 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : cc.account_id.$invalid && !cc.account_id.$pristine }">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : selected.category.selected.$invalid && !selected.category.selected.$pristine }">
+                        <label>Department</label>
+                        <ui-select ng-model="selected.department.selected" theme="bootstrap" validate-attached-form-element required>
+                            <ui-select-match placeholder="select department">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in department | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select" >
+                        <label>Warehouse</label>
+                        <ui-select ng-model="selected.warehouse.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select warehouse">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in warehouse | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select" >
                         <label>Account</label>
                         <ui-select ng-model="selected.account_id.selected" theme="bootstrap" >
                             <ui-select-match placeholder="select ">{{$select.selected.name}}</ui-select-match>
@@ -102,9 +128,9 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : cc.status.$invalid && !cc.status.$pristine }">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.status.selected.$invalid && !selected.status.selected.$pristine }">
                         <label>Is Active</label>
-                        <ui-select ng-model="selected.status.selected" theme="bootstrap" >
+                        <ui-select ng-model="selected.status.selected" theme="bootstrap" validate-attached-form-element required>
                             <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
                             <ui-select-choices repeat="item in arrActive | filter: $select.search">
                                 <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>

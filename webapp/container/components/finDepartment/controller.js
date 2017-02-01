@@ -254,7 +254,12 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
 
     $scope.execDelete = function(){
-        queryService.post('update mst_department SET status=\'2\' WHERE id='+$scope.department.id ,undefined)
+        modified_date: globalFunction.currentDate(),
+        modified_by: $localStorage.currentUser.name.id
+        queryService.post('update mst_department SET status=\'2\' ,'+
+        ' modified_by='+$localStorage.currentUser.name.id+', ' +
+        ' modified_date=\''+globalFunction.currentDate()+'\' ' +
+        ' WHERE id='+$scope.department.id ,undefined)
         .then(function (result){
             if (result.status = "200"){
                 // console.log('Success Update')

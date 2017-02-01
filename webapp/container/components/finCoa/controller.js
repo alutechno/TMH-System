@@ -331,7 +331,10 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.execDelete = function(){
-        queryService.post('update mst_ledger_account SET status=\'2\' WHERE id='+$scope.coa.id ,undefined)
+        queryService.post('update mst_ledger_account SET status=\'2\', '+
+        ' modified_by='+$localStorage.currentUser.name.id+', ' +
+        ' modified_date=\''+globalFunction.currentDate()+'\' ' +
+        ' WHERE id='+$scope.coa.id ,undefined)
         .then(function (result){
             if (result.status = "200"){
                 console.log('Success Delete')
