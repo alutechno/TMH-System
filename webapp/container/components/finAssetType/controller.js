@@ -60,7 +60,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     .then(function(data){
         $scope.arr.account_id = data.data
     })
-console.log($scope.arr.account_id)
+
     $scope.filterVal = {
         search: ''
     }
