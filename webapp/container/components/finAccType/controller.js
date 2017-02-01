@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinAccTypeCtrl',
-function($scope, $state, $sce, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, API_URL) {
+function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -12,6 +12,10 @@ function($scope, $state, $sce, accountTypeService, DTOptionsBuilder, DTColumnBui
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
+    var qstring = 'select a.*,b.name status_name from ref_ledger_account_type a, '+
+        '(select * from table_ref where table_name = \'ref_product_category\' and column_name = \'status\') b '+
+        'where a.status = b.value and a.status!=2 '
+    var qwhere = ''
     $scope.users = []
 
     $scope.role = {
@@ -82,13 +86,13 @@ function($scope, $state, $sce, accountTypeService, DTOptionsBuilder, DTColumnBui
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
-        url: API_URL+'/apifin/getAccountTypes',
-        type: 'GET',
+        url: API_URL+'/apisql/datatable',
+        type: 'POST',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.customSearch = $scope.filterVal.search;
+            data.query = qstring + qwhere;
         }
     })
     .withDataProp('data')
@@ -98,7 +102,7 @@ function($scope, $state, $sce, accountTypeService, DTOptionsBuilder, DTColumnBui
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -110,12 +114,14 @@ function($scope, $state, $sce, accountTypeService, DTOptionsBuilder, DTColumnBui
         DTColumnBuilder.newColumn('code').withTitle('Code'),
         DTColumnBuilder.newColumn('name').withTitle('Name'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
-        DTColumnBuilder.newColumn('status').withTitle('Status')
+        DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
 
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
+                if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
+                else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
                 }, false)
@@ -147,8 +153,16 @@ function($scope, $state, $sce, accountTypeService, DTOptionsBuilder, DTColumnBui
             $scope.accountType.name = $scope.accountType.name;
             $scope.accountType.description = $scope.accountType.description;
             $scope.accountType.status = $scope.selected.accountType.selected.id;
+            var param = {
+                code: $scope.accountType.code,
+                name: $scope.accountType.name,
+                description: $scope.accountType.description,
+                status: $scope.selected.accountType.selected.id,
+                created_date: globalFunction.currentDate(),
+                created_by: $localStorage.currentUser.name.id
+            }
 
-            accountTypeService.create($scope.accountType)
+            queryService.post('insert into ref_ledger_account_type SET ?',param)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -180,7 +194,16 @@ function($scope, $state, $sce, accountTypeService, DTOptionsBuilder, DTColumnBui
             $scope.accountType.description = $scope.accountType.description;
             $scope.accountType.status = $scope.selected.accountType.selected.id;
 
-            accountTypeService.update($scope.accountType)
+            var param = {
+                code: $scope.accountType.code,
+                name: $scope.accountType.name,
+                description: $scope.accountType.description,
+                status: $scope.selected.accountType.selected.id,
+                modified_date: globalFunction.currentDate(),
+                modified_by: $localStorage.currentUser.name.id
+            }
+
+            queryService.post('update ref_ledger_account_type SET ? WHERE id='+$scope.accountType.id ,param)
             .then(function (result){
                 if (result.status = "200"){
                     // console.log('Success Update')
@@ -200,7 +223,7 @@ function($scope, $state, $sce, accountTypeService, DTOptionsBuilder, DTColumnBui
         $('#form-input').modal('show');
         $('#acc_code').prop('disabled', true);
 
-        accountTypeService.get(obj.id)
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
         console.log(result)
             $scope.accountType.id = result.data[0].id
@@ -216,7 +239,7 @@ function($scope, $state, $sce, accountTypeService, DTOptionsBuilder, DTColumnBui
     $scope.delete = function(obj){
         $scope.accountType.id = obj.id;
         //$scope.customer.name = obj.name;
-        accountTypeService.get(obj.id)
+        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             $scope.accountType.name = result.data[0].name;
             $('#modalDelete').modal('show')
@@ -224,7 +247,10 @@ function($scope, $state, $sce, accountTypeService, DTOptionsBuilder, DTColumnBui
     }
 
     $scope.execDelete = function(){
-        accountTypeService.delete($scope.accountType)
+        queryService.post('update ref_ledger_account_type SET status=\'2\' ,'+
+        ' modified_by='+$localStorage.currentUser.name.id+', ' +
+        ' modified_date=\''+globalFunction.currentDate()+'\' ' +
+        ' WHERE id='+$scope.accountType.id ,undefined)
         .then(function (result){
             if (result.status = "200"){
                 // console.log('Success Update')
