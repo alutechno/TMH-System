@@ -937,6 +937,25 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.fin.bank', {
+        url: "/bank",
+        templateUrl: "container/components/finBank/view.html",
+        controller: 'FinBankCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finBank/controller.js');
+                });
+
+            }]
+        }
+    })
     .state('app.fin.bankAccount', {
         url: "/bankAccount",
         templateUrl: "container/components/finBankAccount/view.html",
