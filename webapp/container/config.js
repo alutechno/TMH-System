@@ -937,6 +937,120 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.fin.bankAccount', {
+        url: "/bankAccount",
+        templateUrl: "container/components/finBankAccount/view.html",
+        controller: 'FinBankAccountCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finBankAccount/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.currency', {
+        url: "/currency",
+        templateUrl: "container/components/finCurrency/view.html",
+        controller: 'FinCurrencyCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finCurrency/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.asset', {
+        url: "/asset",
+        templateUrl: "container/components/finAsset/view.html",
+        controller: 'FinAssetCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finAsset/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.assetType', {
+        url: "/assetType",
+        templateUrl: "container/components/finAssetType/view.html",
+        controller: 'FinAssetTypeCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finAssetType/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.assetDepartment', {
+        url: "/assetDepartment",
+        templateUrl: "container/components/finAssetDepartment/view.html",
+        controller: 'FinAssetDepartmentCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finAssetDepartment/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.assetLocation', {
+        url: "/assetLocation",
+        templateUrl: "container/components/finAssetLocation/view.html",
+        controller: 'FinAssetLocationCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finAssetLocation/controller.js');
+                });
+
+            }]
+        }
+    })
 
     // Extra - Others
     .state('access', {
