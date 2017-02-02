@@ -8,6 +8,7 @@
                 <div class="panel-title">Market List
                 </div>
                 <div class="pull-right" style="width: 60%;">
+                    <button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-if="show.prTable" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Market List</button>
                     <!--<button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickViewItem('add')" ng-if="show.itemTable" ng-show="addItem"><i class="fa fa-plus"></i> Add Item</button>-->
                     <div class="input-group date col-sm-4 pull-right m-r-10">
@@ -21,6 +22,68 @@
                     <a class="config" data-toggle="modal" href="#grid-config"></a>
                     <a class="reload" href="javascript:;"></a>
                     <a class="remove" href="javascript:;"></a>
+                </div>
+                <div class="panel panel-default m-t-5" pg-portlet ng-show="showAdvance">
+                    <div class="panel-heading">
+                        <div class="panel-title">Advanced Search
+                        </div>
+                        <div class="panel-controls">
+                            <ul>
+                                <li><a href="" ng-click="openAdvancedFilter(false)"><i class="portlet-icon portlet-icon-close"></i></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="panel-body" >
+                        <div class="btn-group dropdown-default pull-left  m-r-5">
+                            <label>Status:</label><br />
+                            <ui-select multiple ng-model="selected.filter_status" theme="select2" ng-disabled="disabled" style="width: 300px;" >
+                                <ui-select-match placeholder="Filter Status...">{{$item.name}}</ui-select-match>
+                                <ui-select-choices repeat="item in doc_status | filter:$select.search">
+                                    {{item.name}}
+                                </ui-select-choices>
+                            </ui-select>
+                         </div>
+                         <div class="input-prepend input-group pull-left lDate m-r-5" >
+                             <label>Created Date:</label><br />
+                            <input type="text" class="form-control" ng-model="f.filter_date" name="filter_date" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" >
+                            <!--<span class="add-on input-group-addon bDate"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i></span>-->
+                        </div>
+                        <div class="btn-group form-group-default-select pull-left  m-r-5">
+                            <label>Store Location:</label><br />
+                            <ui-select ng-model="selected.filter_warehouse.selected" theme="bootstrap"  >
+                                <ui-select-match placeholder="Select Location">{{$select.selected.name}}</ui-select-match>
+                                <ui-select-choices repeat="item in warehouse | filter: $select.search">
+                                    <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                         </div>
+                         <div class="btn-group form-group-default-select pull-left  m-r-5">
+                             <label>Cost Center:</label><br />
+                             <ui-select ng-model="selected.filter_cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
+                                 <ui-select-match placeholder="Pick Cost Center">{{$select.selected.code}}</ui-select-match>
+                                 <ui-select-choices repeat="item in cost_center | filter: $select.search">
+                                     <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
+                                     <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
+                                 </ui-select-choices>
+                             </ui-select>
+                          </div>
+
+                         <div class="btn-group dropdown-default  m-r-5" >
+                             <label>&nbsp;</label><br />
+                           <button id="show-modal" class="btn btn-primary pull-right" ng-click="applyFilter()" ><i class="fa fa-search"></i> Apply</button>
+                          </div>
+
+
+
+                        <!--<div class="input-prepend input-group date col-sm-4 pull-right m-r-5" style="width: 250px;" >
+                          <input date-range-picker type="text" placeholder="filter due date" class="form-control date-picker lDate">
+                          <span class="add-on input-group-addon bDate"><i class="fa fa-calendar"></i></span>
+                      </div>-->
+
+
+
+                    </div>
                 </div>
             </div>
             <div class="panel-body">
@@ -69,15 +132,15 @@
                       <div class="col-sm-12">
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.code.$invalid && !pr.code.$pristine }">
-                                  <label>Code</label>
-                                  <input type="text" class="form-control" name="code" ng-model="pr.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
+                                  <label>ML Number</label>
+                                  <input type="text" class="form-control" name="code" ng-model="pr.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode" ng-readonly="true">
                               </div>
                           </div>
                           <div class="col-md-3">
-                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : pr.warehouse_id.$invalid && !pr.warehouse_id.$pristine }">
-                                  <label>Location</label>
+                              <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                                  <label>Store Location</label>
                                   <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode">
-                                      <ui-select-match placeholder="Select Warehouse">{{$select.selected.name}}</ui-select-match>
+                                      <ui-select-match placeholder="Select Location">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in warehouse | filter: $select.search">
                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                       </ui-select-choices>
@@ -94,9 +157,9 @@
                                       </ui-select-choices>
                                   </ui-select>
                               </div>-->
-                              <div pg-form-group class="form-group form-group-default form-group-default-select ">
+                              <div pg-form-group class="form-group form-group-default form-group-default-select required " ng-class="{ 'has-error' : selected.cost_center.selected.$invalid && !selected.cost_center.selected.$pristine }">
                                   <label>Cost Center</label>
-                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
+                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" validate-attached-form-element required>
                                       <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in cost_center | filter: $select.search">
                                           <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
@@ -202,7 +265,7 @@
                                                               <!--{{$select.selected.name}}-->
                                                               {{item.product_name || 'Empty'}}
                                                           </editable-ui-select-match>
-                                                          <editable-ui-select-choices repeat="d in products | filter: $select.search">
+                                                          <editable-ui-select-choices repeat="d in products | filter: $select.search" style="width: 300px" >
                                                               <div ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></div>
                                                           </editable-ui-select-choices>
                                                     </span>
@@ -229,8 +292,9 @@
                                                           <editable-ui-select-match placeholder="Supplier..."  style="width: 300px;">
                                                               {{item.supplier_name}}
                                                           </editable-ui-select-match>
-                                                          <editable-ui-select-choices repeat="item in suppliers | filter: $select.search" refresh="funcAsync($select.search,item.id)" refresh-delay="0">
+                                                          <editable-ui-select-choices repeat="item in suppliers | filter: $select.search" refresh="funcAsync($select.search,item.id)" refresh-delay="0" style="width: 300px;">
                                                               <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                                                              <small ng-bind-html="trustAsHtml((item.type_name | highlight: $select.search))"></small><br />
                                                               <small ng-bind-html="trustAsHtml((item.price_name | highlight: $select.search))"></small>
                                                           </editable-ui-select-choices>
                                                     </span>
