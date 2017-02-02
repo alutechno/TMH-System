@@ -63,7 +63,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         'DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date, '+
         'a.cost_center_id,c.name cost_center_name, '+
     	'a.warehouse_id,d.name warehouse_name, '+
-    '(SELECT SUM(order_amount) FROM inv_pr_line_item item WHERE item.pr_id = a.id) AS Total, '+
+    'format((SELECT SUM(order_amount) FROM inv_pr_line_item item WHERE item.pr_id = a.id),0) AS Total, '+
     'case when approval_status = 1 then \'Approved\' when approval_status = 2 then \'Rejected\' else \'None\'  end as status '+
     'from ref_pr_document_status b,inv_purchase_request a '+
     'left join mst_cost_center as c on a.cost_center_id=c.id '+
@@ -122,8 +122,12 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         delivery_type: {},
         cost_center: {},
         doc_status: {},
-        approval: 0
+        approval: 0,
+        filter_status: [],
+        filter_cost_center: {},
+        filter_warehouse: {}
     }
+    $scope.filter_date = ''
     $scope.products = []
     $scope.suppliers = []
     $scope.warehouse = []
@@ -140,7 +144,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 
     queryService.get('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
         'from mst_cost_center a, mst_department b '+
-        'where a.department_id = b.id '+
+        'where a.department_id = b.id and a.status!=2 '+
         'order by a.code asc limit 10',undefined)
     .then(function(data){
         $scope.cost_center = data.data
@@ -149,7 +153,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         console.log(text)
         queryService.post('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
             'from mst_cost_center a, mst_department b '+
-            'where a.department_id = b.id '+
+            'where a.department_id = b.id and a.status!=2 '+
             ' and lower(a.code) like \'%'+text+'%\' '+
             'order by a.code asc limit 10',undefined)
         .then(function(data){
@@ -157,7 +161,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         })
 
     }
-    queryService.get('select id,name from mst_warehouse',undefined)
+    queryService.get('select id,name from mst_warehouse where status!=2',undefined)
     .then(function(data){
         console.log(data)
         $scope.warehouse = data.data
@@ -247,11 +251,21 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         DTColumnBuilder.newColumn('Total').withTitle('Total')
     );
 
+    var qwhereobj = {
+        text: '',
+        status: '',
+        cost_center: '',
+        warehouse: '',
+        date: ''
+    }
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere = ' and a.code like \'%'+$scope.filterVal.search+'%\' '
-                else qwhere = ''
+                if ($scope.filterVal.search.length>0) qwhereobj.text = ' a.code like \'%'+$scope.filterVal.search+'%\' '
+                else qwhereobj.text = ''
+                qwhere = setWhere()
+                //if ($scope.filterVal.search.length>0) qwhere = ' and a.code like \'%'+$scope.filterVal.search+'%\' '
+                //else qwhere = ''
 
                 $scope.nested.dtInstance.reloadData(function(obj){
                     console.log(obj)
@@ -260,8 +274,55 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         }
 
     }
+    $scope.f = {filter_date : ''}
+    $scope.applyFilter = function(){
+        //console.log($scope.selected.filter_status)
+        var status = []
+        if ($scope.selected.filter_status.length>0){
+            for (var i=0;i<$scope.selected.filter_status.length;i++){
+                status.push($scope.selected.filter_status[i].id)
+            }
+            qwhereobj.status = ' a.doc_status_id in('+status.join(',')+') '
+        }
+
+        //console.log($scope.selected.filter_cost_center)
+        if ($scope.selected.filter_cost_center.selected){
+            qwhereobj.cost_center = ' a.cost_center_id = '+$scope.selected.filter_cost_center.selected.id+ ' '
+        }
+        //console.log($scope.selected.filter_warehouse)
+        if ($scope.selected.filter_warehouse.selected){
+            qwhereobj.warehouse = ' a.warehouse_id = '+$scope.selected.filter_warehouse.selected.id+ ' '
+        }
+        //console.log($scope.f.filter_date)
+        if ($scope.f.filter_date.length>0){
+            qwhereobj.date = ' a.created_date between \''+$scope.f.filter_date+ ' 00:00:00\'  and \''+$scope.f.filter_date+' 23:59:59\' '
+        }
+        //console.log(setWhere())
+        qwhere = setWhere()
+        $scope.nested.dtInstance.reloadData(function(obj){
+            console.log(obj)
+        }, false)
+
+    }
+    function setWhere(){
+        var arrWhere = []
+        var strWhere = ''
+        for (var key in qwhereobj){
+            if (qwhereobj[key].length>0) arrWhere.push(qwhereobj[key])
+        }
+        if (arrWhere.length>0){
+            strWhere = ' and ' + arrWhere.join(' and ')
+        }
+        //console.log(strWhere)
+        return strWhere
+    }
 
     /*END AD ServerSide*/
+    $scope.showAdvance = false
+    $scope.openAdvancedFilter = function(val){
+        console.log(val)
+        $scope.showAdvance = val
+    }
 
     $scope.openQuickView = function(state){
         if (state == 'add'){
@@ -1263,13 +1324,16 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         $scope.items[d-1].product_name = e.name
         $scope.items[d-1].price = e.last_order_price
         $scope.items[d-1].amount = e.last_order_price * $scope.items[d-1].qty
-        var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
+        var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(concat(b.price,\' (valid until:\',date_format(contract_end_date,\'%Y-%m-%d\'),\')\' ),\' - \')) as char)as price_name,'+
+            'b.contract_end_date,cast(concat(\'Type: \',c.name) as char) type_name  '+
             'from mst_supplier a '+
-            'left join inv_prod_price_contract b '+
+            'left join (select * from inv_prod_price_contract where contract_end_date>curdate() and product_id='+e.id+') b '+
             'on a.id = b.supplier_id  '+
+            'left join ref_supplier_type c on a.supplier_type_id=c.id '+
             'and a.status=1  '+
-            'and b.product_id ='+e.id+' order by price desc limit 50'
-        queryService.get(sqlCtr,undefined)
+            //'and b.product_id ='+e.id+' '+
+            'order by price desc limit 50'
+        queryService.post(sqlCtr,undefined)
         .then(function(data){
             $scope.suppliers = data.data
         })
@@ -1277,12 +1341,14 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     $scope.funcAsync = function(e,d){
         console.log('funcAsync')
         console.log($scope.items[d-1].product_id)
-        var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
+        var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(concat(b.price,\' (valid until:\',date_format(contract_end_date,\'%Y-%m-%d\'),\')\' ),\' - \')) as char)as price_name,'+
+            'b.contract_end_date,cast(concat(\'Type: \',c.name) as char) type_name  '+
             'from mst_supplier a '+
-            'left join inv_prod_price_contract b '+
+            'left join (select * from inv_prod_price_contract where contract_end_date>curdate() and product_id ='+$scope.items[d-1].product_id + ' ) b '+
             'on a.id = b.supplier_id  '+
+            'left join ref_supplier_type c on a.supplier_type_id=c.id '+
             'and a.status=1  '+
-            'and b.product_id ='+$scope.items[d-1].product_id + ' '
+            //'and b.product_id ='+$scope.items[d-1].product_id + ' '+
             'and lower(a.name) like \''+e.toLowerCase()+'%\'' +
             ' order by price desc limit 50'
         //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
@@ -1303,8 +1369,17 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         $scope.items[d-1].amount = p * $scope.items[d-1].qty
     }
     $scope.updatePriceQty = function(e,d,q){
+        console.log(q)
         $scope.items[d-1].qty = q
         $scope.items[d-1].amount = q * $scope.items[d-1].price
+    }
+    function numberSep(val){
+        console.log(parseFloat(val).toLocaleString())
+        return parseFloat(val.length==0?0:val).toLocaleString()
+    }
+    function numberDesep(val){
+
+        return parseFloat(val.replace(/[, ]+/g, " ").trim())
     }
 
 });
