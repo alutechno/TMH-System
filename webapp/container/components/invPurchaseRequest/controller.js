@@ -59,7 +59,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     'and a.warehouse_id = b.id '+
     'and a.doc_status_id = d.id';*/
     var qstring = 'select a.id,a.code,a.purchase_notes,a.doc_status_id, a.approval_status,a.revision_counter, '+
-    	'b.name as doc_status_name,a.created_date, '+
+    	'b.name as doc_status_name,date_format(a.created_date,\'%Y-%m-%d %H:%i:%s\') created_date, e.name created_by, e.department_name,'+
         'DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date, '+
         'a.cost_center_id,c.name cost_center_name, '+
     	'a.warehouse_id,d.name warehouse_name, '+
@@ -68,6 +68,9 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     'from ref_pr_document_status b,inv_purchase_request a '+
     'left join mst_cost_center as c on a.cost_center_id=c.id '+
     'left join mst_warehouse d on a.warehouse_id=d.id '+
+    'left join (select a.*,b.name department_name from user a '+
+            'left join mst_department b on a.department_id = b.id) e  '+
+        'on a.created_by = e.id '+
     'where a.doc_status_id=b.id '
     var qwhere = '';
     var qstringdetail = 'select a.id as p_id,a.product_id,b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name '+
@@ -222,7 +225,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     .withPaginationType('full_numbers')
     .withOption('order', [1, 'desc'])
     .withDisplayLength(10)
-
+    .withOption('scrollX',true)
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -232,12 +235,15 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     }
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('id').withTitle('ID'),
-        DTColumnBuilder.newColumn('code').withTitle('Code'),
+        DTColumnBuilder.newColumn('code').withTitle('PR Number'),
         DTColumnBuilder.newColumn('doc_status_name').withTitle('Status'),
         DTColumnBuilder.newColumn('status').withTitle('Approval'),
         DTColumnBuilder.newColumn('delivery_date').withTitle('Expected At'),
         DTColumnBuilder.newColumn('cost_center_name').withTitle('Cost Center'),
-        DTColumnBuilder.newColumn('warehouse_name').withTitle('Warehouse'),
+        DTColumnBuilder.newColumn('warehouse_name').withTitle('Store Location'),
+        DTColumnBuilder.newColumn('created_date').withTitle('Created Date'),
+        DTColumnBuilder.newColumn('created_by').withTitle('Created by'),
+        DTColumnBuilder.newColumn('department_name').withTitle('Created Dept'),
         DTColumnBuilder.newColumn('Total').withTitle('Total')
     );
 
@@ -269,10 +275,20 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         $scope.approveState = false
         $scope.rejectState = true
         $scope.selected.approval = 1
+        var dt = new Date()
+
+        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        console.log(ym)
+        queryService.post('select cast(concat(\'PR/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'PR\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+        .then(function(data){
+            console.log(data)
+            $scope.pr.code = data.data[0].code
+        })
     }
     $scope.openQuickViewItem = function(state){
         //$scope.addDetail(1);
         $('#form-input-item').modal('show')
+
     }
     $scope.setApprovalStatus = function(ev){
         $scope.approveState = false

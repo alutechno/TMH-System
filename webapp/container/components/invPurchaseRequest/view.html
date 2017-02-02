@@ -69,13 +69,13 @@
                           <div class="col-sm-12">
                               <div class="col-md-3">
                                   <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : pr.code.$invalid && !pr.code.$pristine }">
-                                      <label>Code</label>
-                                      <input type="text" class="form-control" name="code" ng-model="pr.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
+                                      <label>PR Number</label>
+                                      <input type="text" class="form-control" name="code" ng-model="pr.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode" ng-readonly="true">
                                   </div>
                               </div>
                               <div class="col-md-3">
                                   <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : pr.warehouse_id.$invalid && !pr.warehouse_id.$pristine }">
-                                      <label>Location</label>
+                                      <label>Store Location</label>
                                       <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode">
                                           <ui-select-match placeholder="Select Warehouse">{{$select.selected.name}}</ui-select-match>
                                           <ui-select-choices repeat="item in warehouse | filter: $select.search">
