@@ -937,6 +937,28 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.fin.ap_r_aging', {
+        url: "/apraging",
+        templateUrl: "container/components/finApRAging/view.html",
+        controller: 'FinApRAgingCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finApRAging/controller.js');
+                });
+
+            }]
+        }
+    })
     .state('app.fin.bank', {
         url: "/bank",
         templateUrl: "container/components/finBank/view.html",
