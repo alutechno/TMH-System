@@ -12,18 +12,19 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
-    var qstring = 'select a.id, a.code, a.journal_type_id, c.name as journal_code, '+
-             'a.bookkeeping_date, a.gl_status, e.name as status_name,  '+
-             'a.notes, a.ref_account, b.account_id, d.name as account_name,  '+
-             'b.transc_type, b.amount '+
-        'from acc_gl_transaction a '+
-        'left join acc_gl_journal b on a.id = b.gl_id '+
-        'left join ref_journal_type c on a.journal_type_id = c.id '+
-        'left join mst_ledger_account d on b.account_id = d.id '+
-        'left join (select * from table_ref '+
-                                    'where table_name = \'acc_gl_transaction\' '+
-                      'and column_name = \'gl_status\') e on a.gl_status = e.value    '+
-       'where a.gl_status = \'1\' '
+    var qstring = 'select a.id, a.code, a.journal_type_id, d.code as account_code,c.name as journal_code, '+
+         'DATE_FORMAT(a.bookkeeping_date,\'%Y-%m-%d\') bookkeeping_date, a.gl_status, e.name as status_name,  '+
+         'a.notes, a.ref_account, b.account_id, d.name as account_name,  '+
+         'case when b.transc_type = \'D\' then b.amount end as debit_amount, '+
+         'case when b.transc_type = \'C\' then b.amount end as credit_amount  '+
+    'from acc_gl_transaction a '+
+    'left join acc_gl_journal b on a.id = b.gl_id '+
+    'left join ref_journal_type c on a.journal_type_id = c.id '+
+    'left join mst_ledger_account d on b.account_id = d.id '+
+    'left join (select * from table_ref '+
+                                'where table_name = \'acc_gl_transaction\' '+
+                  'and column_name = \'gl_status\') e on a.gl_status = e.value    '+
+   'where a.gl_status = \'1\' '
 
     var qwhere = ''
 
@@ -117,14 +118,15 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         //.renderWith($scope.actionsHtml).withOption('width', '10%'))
     }
     $scope.nested.dtColumns.push(
-        DTColumnBuilder.newColumn('supplier_id').withTitle('Supplier Id'),
-        DTColumnBuilder.newColumn('supplier_name').withTitle('Name').withOption('width','15%'),
-        DTColumnBuilder.newColumn('transc_type').withTitle('Trans Type').withOption('width','20%'),
-        DTColumnBuilder.newColumn('current').withTitle('Current'),
-        DTColumnBuilder.newColumn('over30').withTitle('Over 30 Days'),
-        DTColumnBuilder.newColumn('over60').withTitle('Over 60 Days'),
-        DTColumnBuilder.newColumn('over90').withTitle('Over 90 Days'),
-        DTColumnBuilder.newColumn('total').withTitle('Total')
+        DTColumnBuilder.newColumn('id').withTitle('Entry'),
+        DTColumnBuilder.newColumn('account_code').withTitle('Account').withOption('width','15%'),
+        DTColumnBuilder.newColumn('account_name').withTitle('Account Name').withOption('width','20%'),
+        DTColumnBuilder.newColumn('bookkeeping_date').withTitle('Date').withOption('width','10%'),
+        DTColumnBuilder.newColumn('notes').withTitle('Remarks'),
+        DTColumnBuilder.newColumn('journal_code').withTitle('Journal Code'),
+        DTColumnBuilder.newColumn('ref_account').withTitle('Reference'),
+        DTColumnBuilder.newColumn('debit_amount').withTitle('Debit'),
+        DTColumnBuilder.newColumn('credit_amount').withTitle('Credit')
     );
 
     $scope.filter = function(type,event) {
