@@ -1,7 +1,7 @@
 
 var userController = angular.module('app', []);
 userController
-.controller('FinApRAgingCtrl',
+.controller('FinApRGLLedgerCtrl',
 function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
@@ -12,30 +12,19 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
-    var qstring = 'select * from ( '+
-        'select supplier_id, b.name as supplier_name, account_id, c.name as transc_type, '+
-                 'current, over30, over60, over90, total '+
-            'from ( '+
-                          'select supplier_id, account_id, '+
-                                         'sum(case when status = \'1\' or (status = \'2\' and age <= 30) then amount end) as current, '+
-                                         'sum(case when status = \'2\' and age between 31 and 60 then amount end) as over30, '+
-                                         'sum(case when status = \'2\' and age between 61 and 90 then amount end) as over60, '+
-                                         'sum(case when status = \'2\' and age > 90 then amount end) as over90, '+
-                         'sum(amount) as total '+
-                           'from ( '+
-                                          'select a.supplier_id, a.status, c.account_id, c.amount,  '+
-                                                         'datediff(current_date(),a.open_date) as age '+
-                                                'from acc_ap_voucher a '+
-                                                'left join acc_gl_transaction b on a.id = b.voucher_id '+
-                                                'left join acc_gl_journal c on b.id = c.gl_id and c.transc_type = \'C\' '+
-                                           //'#where a.open_date=? '+
-                                            //'#    and a.used_currency_id=?  '+
-                                        ') as a '+
-                         'group by supplier_id, account_id '+
-                        ') as a '+
-           'left join mst_supplier b on a.supplier_id = b.id '+
-           'left join mst_ledger_account c on a.account_id = c.id '+
-           ')t '
+    var qstring = 'select a.id, a.code, a.journal_type_id, c.name as journal_code, '+
+             'a.bookkeeping_date, a.gl_status, e.name as status_name,  '+
+             'a.notes, a.ref_account, b.account_id, d.name as account_name,  '+
+             'b.transc_type, b.amount '+
+        'from acc_gl_transaction a '+
+        'left join acc_gl_journal b on a.id = b.gl_id '+
+        'left join ref_journal_type c on a.journal_type_id = c.id '+
+        'left join mst_ledger_account d on b.account_id = d.id '+
+        'left join (select * from table_ref '+
+                                    'where table_name = \'acc_gl_transaction\' '+
+                      'and column_name = \'gl_status\') e on a.gl_status = e.value    '+
+       'where a.gl_status = \'1\' '
+
     var qwhere = ''
 
     $scope.users = []
@@ -124,8 +113,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 
     $scope.nested.dtColumns = [];
     if ($scope.el.length>0){
-        $scope.nested.dtColumns.push(DTColumnBuilder.newColumn('supplier_id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        //$scope.nested.dtColumns.push(DTColumnBuilder.newColumn('supplier_id').withTitle('Action').notSortable()
+        //.renderWith($scope.actionsHtml).withOption('width', '10%'))
     }
     $scope.nested.dtColumns.push(
         DTColumnBuilder.newColumn('supplier_id').withTitle('Supplier Id'),

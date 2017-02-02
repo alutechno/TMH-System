@@ -1,7 +1,7 @@
 
 var userController = angular.module('app', []);
 userController
-.controller('FinApRAgingCtrl',
+.controller('FinApRMutationCtrl',
 function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
@@ -12,30 +12,33 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
-    var qstring = 'select * from ( '+
-        'select supplier_id, b.name as supplier_name, account_id, c.name as transc_type, '+
-                 'current, over30, over60, over90, total '+
-            'from ( '+
-                          'select supplier_id, account_id, '+
-                                         'sum(case when status = \'1\' or (status = \'2\' and age <= 30) then amount end) as current, '+
-                                         'sum(case when status = \'2\' and age between 31 and 60 then amount end) as over30, '+
-                                         'sum(case when status = \'2\' and age between 61 and 90 then amount end) as over60, '+
-                                         'sum(case when status = \'2\' and age > 90 then amount end) as over90, '+
-                         'sum(amount) as total '+
-                           'from ( '+
-                                          'select a.supplier_id, a.status, c.account_id, c.amount,  '+
-                                                         'datediff(current_date(),a.open_date) as age '+
-                                                'from acc_ap_voucher a '+
-                                                'left join acc_gl_transaction b on a.id = b.voucher_id '+
-                                                'left join acc_gl_journal c on b.id = c.gl_id and c.transc_type = \'C\' '+
-                                           //'#where a.open_date=? '+
-                                            //'#    and a.used_currency_id=?  '+
-                                        ') as a '+
-                         'group by supplier_id, account_id '+
-                        ') as a '+
-           'left join mst_supplier b on a.supplier_id = b.id '+
-           'left join mst_ledger_account c on a.account_id = c.id '+
-           ')t '
+    var qstring = 'select supplier_id, b.name as supplier_name, d.name as supplier_type, '+
+          'previous_balance, new_voucher, cash_payment,  '+
+          '(previous_balance + new_voucher - cash_payment) as ending_balance '+
+     'from ( '+
+                   'select supplier_id, sum(previous_balance) as previous_balance, sum(new_voucher) as new_voucher, '+
+                                  'sum(cash_payment) as cash_payment '+
+                         'from ( '+
+                                   'select period, supplier_id, currency_id, closing_balance as previous_balance, 0 as new_voucher, '+
+                                                  '0 as cash_payment, 0 as adjustment '+
+                                         'from acc_ap_closing '+
+                                        'where period = \'2016-12-31\' '+
+                                   'union all   '+
+                                   'select open_date, supplier_id, currency_id, 0 as previous, total_amount as new_voucher, '+
+                                                '0 as cash_payment, 0 as adjustment '+
+                                         'from acc_ap_voucher a '+
+                                        'where open_date between \'2017-01-01\' and \'2017-01-31\' '+
+                                        'union all     '+
+                                        'select open_date, supplier_id, currency_id, 0 as previous, 0 as new_voucher, '+
+                                                '0 as cash_payment, total_amount as adjustment '+
+                                         'from acc_cash_payment a '+
+                                        'where prepared_date between \'2017-01-01\' and \'2017-01-31\' '+
+                                  ') as a '+
+                        'group by supplier_id '+
+                  ') as a '+
+         'left join mst_supplier b on a.supplier_id = b.id '+
+     'left join ref_supplier_type c on b.supplier_type_id = c.id '+
+     'left join mst_ledger_account d on c.payable_account_id = d.id '
     var qwhere = ''
 
     $scope.users = []
@@ -84,14 +87,14 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         $scope.deps[data] = {id:data};
         //console.log(data)
         var html = ''
-        if ($scope.el.length>0){
+        /*if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
                 html +=
                 '<button class="btn btn-default" ng-click="detail(' + data + ')">' +
                 '   <i class="fa fa-list"></i>' +
                 '</button>&nbsp;' ;
             html += '</div>'
-        }
+        }*/
         return html
     }
 
@@ -124,24 +127,23 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 
     $scope.nested.dtColumns = [];
     if ($scope.el.length>0){
-        $scope.nested.dtColumns.push(DTColumnBuilder.newColumn('supplier_id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        //$scope.nested.dtColumns.push(DTColumnBuilder.newColumn('supplier_id').withTitle('Action').notSortable()
+        //.renderWith($scope.actionsHtml).withOption('width', '10%'))
     }
     $scope.nested.dtColumns.push(
         DTColumnBuilder.newColumn('supplier_id').withTitle('Supplier Id'),
         DTColumnBuilder.newColumn('supplier_name').withTitle('Name').withOption('width','15%'),
-        DTColumnBuilder.newColumn('transc_type').withTitle('Trans Type').withOption('width','20%'),
-        DTColumnBuilder.newColumn('current').withTitle('Current'),
-        DTColumnBuilder.newColumn('over30').withTitle('Over 30 Days'),
-        DTColumnBuilder.newColumn('over60').withTitle('Over 60 Days'),
-        DTColumnBuilder.newColumn('over90').withTitle('Over 90 Days'),
-        DTColumnBuilder.newColumn('total').withTitle('Total')
+        DTColumnBuilder.newColumn('supplier_type').withTitle('Supplier Type').withOption('width','10%'),
+        DTColumnBuilder.newColumn('previous_balance').withTitle('Previous'),
+        DTColumnBuilder.newColumn('new_voucher').withTitle('New Voucher'),
+        DTColumnBuilder.newColumn('cash_payment').withTitle('Cash'),
+        DTColumnBuilder.newColumn('ending_balance').withTitle('Ending')
     );
 
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere = ' where lower(t.supplier_name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
+                if ($scope.filterVal.search.length>0) qwhere = ' where lower(a.supplier_name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
                 else qwhere = ''
                 $scope.nested.dtInstance.reloadData(function(obj){
                     console.log(obj)
@@ -182,7 +184,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
 
 })
-.controller('DetailApraCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction,DTOptionsBuilder,DTColumnBuilder,DTColumnDefBuilder,API_URL) {
+/*.controller('DetailApraCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction,DTOptionsBuilder,DTColumnBuilder,DTColumnDefBuilder,API_URL) {
     $scope.details = []
     var qstringdetail = 'select * from ( '+
         'select supplier_id, b.name as supplier_name, account_id, c.name as transc_type, '+
@@ -253,4 +255,4 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         DTColumnBuilder.newColumn('total').withTitle('Total')
     );
 
-});
+});*/

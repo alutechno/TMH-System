@@ -959,6 +959,72 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.fin.ap_r_glledger', {
+        url: "/aprglledger",
+        templateUrl: "container/components/finApRGLLedger/view.html",
+        controller: 'FinApRGLLedgerCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finApRGLLedger/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.ap_r_mutation', {
+        url: "/aprmutation",
+        templateUrl: "container/components/finApRMutation/view.html",
+        controller: 'FinApRMutationCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finApRMutation/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.ap_r_cashrequired', {
+        url: "/aprcashrequired",
+        templateUrl: "container/components/finApRCashRequired/view.html",
+        controller: 'FinApRCashRequiredCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finApRCashRequired/controller.js');
+                });
+
+            }]
+        }
+    })
     .state('app.fin.bank', {
         url: "/bank",
         templateUrl: "container/components/finBank/view.html",
