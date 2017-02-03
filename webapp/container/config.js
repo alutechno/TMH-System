@@ -518,7 +518,10 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                 return $ocLazyLoad.load([
                     'dataTables',
                     'select',
-                    'datepicker'
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput',
+                    'autonumeric'
                 ], {
                     insertBefore: '#lazyload_placeholder'
                 })
@@ -932,6 +935,94 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                 })
                 .then(function() {
                     return $ocLazyLoad.load('container/components/finApDeposit/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.ap_r_aging', {
+        url: "/apraging",
+        templateUrl: "container/components/finApRAging/view.html",
+        controller: 'FinApRAgingCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finApRAging/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.ap_r_glledger', {
+        url: "/aprglledger",
+        templateUrl: "container/components/finApRGLLedger/view.html",
+        controller: 'FinApRGLLedgerCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finApRGLLedger/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.ap_r_mutation', {
+        url: "/aprmutation",
+        templateUrl: "container/components/finApRMutation/view.html",
+        controller: 'FinApRMutationCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finApRMutation/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.ap_r_cashrequired', {
+        url: "/aprcashrequired",
+        templateUrl: "container/components/finApRCashRequired/view.html",
+        controller: 'FinApRCashRequiredCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finApRCashRequired/controller.js');
                 });
 
             }]

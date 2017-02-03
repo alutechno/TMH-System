@@ -20,7 +20,9 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     }
 
     var qstring = 'select * from (select aa.*,g.name warehouse_name,h.name cost_center_name from( '+
-        'select a.id,a.code,a.po_id,a.received_status status_id,c.name status_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\') as created_date,a.currency_id,d.supplier_id,e.name supplier_name,f.code currency_code,a.total_amount,a.receive_notes notes,d.warehouse_id,d.cost_center_id,d.delivery_date,a.home_currency_exchange '+
+        'select a.id,a.code,a.po_id,a.received_status status_id,c.name status_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\') as created_date,'+
+        'a.currency_id,d.supplier_id,e.name supplier_name,f.code currency_code,format(a.total_amount,0)total_amount,a.receive_notes notes,d.warehouse_id,'+
+        'd.cost_center_id,d.delivery_date,a.home_currency_exchange '+
         'from inv_po_receive a,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f '+
         'where c.table_name=\'inv_po_receive\'  '+
         'and a.received_status=c.value  '+
@@ -276,7 +278,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         .renderWith($scope.actionsHtml).withOption('width', '12%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('code').withTitle('Code'),
+        DTColumnBuilder.newColumn('code').withTitle('PO Number'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status'),
         DTColumnBuilder.newColumn('created_date').withTitle('Created at'),
         DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier'),
@@ -781,7 +783,8 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 }
             }
 
-
+            $scope.items = []
+            $scope.itemsOri = []
             queryService.post(qstringdetail+' and a.id='+ids,undefined)
             .then(function (result2){
                 for (var i=0;i<result2.data.length;i++){
@@ -932,6 +935,9 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     };
 
     $scope.checkName = function(data, id) {
+        console.log('checkName')
+        console.log(data)
+        console.log(id)
         if (id === 2 && data !== 'awesome') {
             return "Username 2 should be `awesome`";
         }
@@ -1165,12 +1171,29 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         console.log(p)
         console.log(t)
         if (t=='qty') {
+
+            if(parseFloat(p)>parseFloat($scope.items[d-1].qty)){
+                $scope.items[d-1].rcv_qty = $scope.items[d-1].qty
+                e.target.value=$scope.items[d-1].qty
+            }
+            else {
+                $scope.items[d-1].rcv_qty = p
+                e.target.value=p
+            }
             $scope.items[d-1].amount = $scope.items[d-1].rcv_price*p
-            $scope.items[d-1].rcv_qty = p
+            //$scope.items[d-1].rcv_qty = (parseFloat(p)<=parseFloat($scope.items[d-1].qty)?p:(p.substring(0,p.length-1)))
         }
         if (t=='price') {
+            if(parseFloat(p)>parseFloat($scope.items[d-1].price)){
+                $scope.items[d-1].rcv_price = $scope.items[d-1].price
+                e.target.value=$scope.items[d-1].price
+            }
+            else {
+                $scope.items[d-1].rcv_price = p
+                e.target.value=p
+            }
             $scope.items[d-1].amount = $scope.items[d-1].rcv_qty*p
-            $scope.items[d-1].rcv_price = p
+            //$scope.items[d-1].rcv_price = p
         }
     }
 

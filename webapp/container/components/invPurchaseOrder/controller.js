@@ -22,16 +22,17 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     var qstring = 'select a.id,a.code,a.pr_id,a.ml_id,a.created_date,DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date,a.po_source,a.supplier_id, a.warehouse_id, a.cost_center_id, a.notes, '+
         	'a.doc_submission_date, a.delivery_type,a.delivery_status,a.receive_status, a.payment_type,a.due_days,a.currency_id, '+
         	'b.name supplier_name,c.name cost_center_name,d.name warehouse_name, '+
-            '(SELECT SUM(amount) FROM inv_po_line_item item WHERE item.po_id = a.id) AS \'Total\', '+
+            'format((SELECT SUM(amount) FROM inv_po_line_item item WHERE item.po_id = a.id),0) AS \'Total\', '+
             '(select name from table_ref r where table_name = \'inv_purchase_order\' and column_name = \'delivery_status\' and value=a.delivery_status) as delivery_status_name '+
         'from inv_purchase_order a '+
         'left join mst_supplier b on a.supplier_id=b.id '+
         'left join mst_cost_center c on a.cost_center_id=c.id '+
         'left join mst_warehouse d on a.warehouse_id = d.id '
     var qwhere = '';
-    var qstringdetail = 'select a.id as p_id,a.product_id,b.name as product_name,a.order_qty qty,a.price,a.amount '+
+    var qstringdetail = 'select a.id as p_id,a.product_id,b.name as product_name,a.order_qty qty,a.price,a.amount,c.name unit_name '+
         'from inv_po_line_item a '+
-        'left join mst_product b on a.product_id = b.id ';
+        'left join mst_product b on a.product_id = b.id '+
+        'left join ref_product_unit c on b.unit_type_id = c.id';
     $scope.users = []
 
     $scope.role = {
@@ -90,7 +91,12 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         cost_center: {},
         doc_status: {},
         currency: {},
-        approval: 0
+        approval: 0,
+        filter_status: [],
+        filter_cost_center: {},
+        filter_warehouse: {},
+        filter_source: {},
+        filter_supplier: {}
     }
     $scope.product = []
     $scope.delivery_status = []
@@ -270,14 +276,26 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         DTColumnBuilder.newColumn('delivery_date').withTitle('Delivery'),
         DTColumnBuilder.newColumn('delivery_status_name').withTitle('Status'),
         DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier'),
-        DTColumnBuilder.newColumn('warehouse_name').withTitle('Warehouse')
+        DTColumnBuilder.newColumn('warehouse_name').withTitle('Store Location')
     );
 
+    var qwhereobj = {
+        text: '',
+        status: '',
+        cost_center: '',
+        warehouse: '',
+        date: '',
+        source: '',
+        supplier: ''
+    }
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere = ' where a.code like \'%'+$scope.filterVal.search+'%\' '
-                else qwhere = ''
+                if ($scope.filterVal.search.length>0) qwhereobj.text = ' a.code like \'%'+$scope.filterVal.search+'%\' '
+                else qwhereobj.text = ''
+                qwhere = setWhere()
+                //if ($scope.filterVal.search.length>0) qwhere = ' and a.code like \'%'+$scope.filterVal.search+'%\' '
+                //else qwhere = ''
 
                 $scope.nested.dtInstance.reloadData(function(obj){
                     console.log(obj)
@@ -285,6 +303,71 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             }
         }
 
+    }
+    $scope.source = [
+        {id: '0',name: 'PR'},
+        {id: '1',name: 'ML'}
+    ]
+    $scope.f = {filter_date : ''}
+    $scope.applyFilter = function(){
+        //console.log($scope.selected.filter_status)
+        var status = []
+        if ($scope.selected.filter_status.length>0){
+            for (var i=0;i<$scope.selected.filter_status.length;i++){
+                status.push($scope.selected.filter_status[i].id)
+            }
+            qwhereobj.status = ' a.delivery_status in('+status.join(',')+') '
+        }
+
+        //console.log($scope.selected.filter_cost_center)
+        if ($scope.selected.filter_cost_center.selected){
+            qwhereobj.cost_center = ' a.cost_center_id = '+$scope.selected.filter_cost_center.selected.id+ ' '
+        }
+        //console.log($scope.selected.filter_warehouse)
+        if ($scope.selected.filter_warehouse.selected){
+            qwhereobj.warehouse = ' a.warehouse_id = '+$scope.selected.filter_warehouse.selected.id+ ' '
+        }
+        if ($scope.selected.filter_supplier.selected){
+            qwhereobj.supplier = ' a.supplier_id = '+$scope.selected.filter_supplier.selected.id+ ' '
+        }
+        if ($scope.selected.filter_source.selected){
+            qwhereobj.source = ' a.po_source = \''+$scope.selected.filter_source.selected.name+ '\' '
+        }
+        //console.log($scope.f.filter_date)
+        if ($scope.f.filter_date.length>0){
+            qwhereobj.date = ' a.delivery_date between \''+$scope.f.filter_date+ ' 00:00:00\'  and \''+$scope.f.filter_date+' 23:59:59\' '
+        }
+        else qwhereobj.date = ''
+        //console.log(setWhere())
+        qwhere = setWhere()
+        $scope.nested.dtInstance.reloadData(function(obj){
+            console.log(obj)
+        }, false)
+
+    }
+    function setWhere(){
+        var arrWhere = []
+        var strWhere = ''
+        for (var key in qwhereobj){
+            if (qwhereobj[key].length>0) arrWhere.push(qwhereobj[key])
+        }
+        if (arrWhere.length>0){
+            strWhere = ' where ' + arrWhere.join(' and ')
+        }
+        //console.log(strWhere)
+        return strWhere
+    }
+    $scope.showAdvance = false
+    $scope.openAdvancedFilter = function(val){
+        $scope.showAdvance = val
+        if (val==false){
+            $scope.selected.filter_status = []
+            $scope.selected.filter_cost_center = {}
+            $scope.selected.filter_warehouse = {}
+            $scope.selected.filter_source = {}
+            $scope.selected.filter_supplier = {}
+            $scope.f.filter_date = ''
+        }
     }
 
     /*END AD ServerSide*/
@@ -776,7 +859,8 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                         product_name: result2.data[i].product_name,
                         price:result2.data[i].price,
                         qty: result2.data[i].qty,
-                        amount: result2.data[i].amount
+                        amount: result2.data[i].amount,
+                        unit_name: result2.data[i].unit_name
                     })
                 }
                 $scope.itemsOri = angular.copy($scope.items)
@@ -934,10 +1018,11 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             price:'',
             qty: '',
             amount: '',
+            unit_name: '',
             isNew: true
         };
         $scope.items.push($scope.item)
-        queryService.get('select id,code,name,last_order_price from mst_product order by id limit 20 ',undefined)
+        queryService.get('select a.id,a.code,a.name,a.last_order_price,b.name unit_name from mst_product a left join ref_product_unit b on a.unit_type_id=b.id order by id limit 20 ',undefined)
         .then(function(data){
             $scope.product[$scope.item.id] = data.data
         })
@@ -1023,7 +1108,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 
     $scope.productUp = function(d,text) {
         //queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
-        queryService.post('select id,code,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 10 ',undefined)
+        queryService.post('select a.id,a.code,a.name,a.last_order_price,b.name unit_name from mst_product a left join ref_product_unit b on a.unit_type_id=b.id where lower(a.name) like \''+text.toLowerCase()+'%\' order by id limit 10 ',undefined)
         .then(function(data){
             $scope.product[d] = data.data
         })
@@ -1051,6 +1136,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         $scope.items[d-1].product_name = e.name
         $scope.items[d-1].price = e.last_order_price
         $scope.items[d-1].amount = e.last_order_price*$scope.items[d-1].qty
+        $scope.items[d-1].unit_name = e.unit_name
     }
 
 

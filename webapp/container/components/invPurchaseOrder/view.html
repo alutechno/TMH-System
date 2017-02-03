@@ -8,10 +8,11 @@
                 <div class="panel-title">Purchase Order
                 </div>
                 <div class="pull-right" style="width: 60%;">
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-if="show.prTable" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add PO</button>
+                    <button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)"><i class="fa fa-search"></i></button>
+                    <!--<button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-if="show.prTable" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add PO</button>-->
                     <!--<button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickViewItem('add')" ng-if="show.itemTable" ng-show="addItem"><i class="fa fa-plus"></i> Add Item</button>-->
                     <div class="input-group date col-sm-4 pull-right m-r-10">
-                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
+                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search PO Number.." ng-keyup="filter('search',$event)" ng-model="filterVal.search">
                     </div>
 
                 </div>
@@ -21,6 +22,93 @@
                     <a class="config" data-toggle="modal" href="#grid-config"></a>
                     <a class="reload" href="javascript:;"></a>
                     <a class="remove" href="javascript:;"></a>
+                </div>
+                <div class="panel panel-default m-t-5" pg-portlet ng-show="showAdvance">
+                    <div class="panel-heading">
+                        <div class="panel-title">Advanced Search
+                        </div>
+                        <div class="panel-controls">
+                            <ul>
+                                <li><a href="" ng-click="openAdvancedFilter(false)"><i class="portlet-icon portlet-icon-close"></i></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="panel-body" >
+                        <div class="row col-md-12">
+                            <div class="btn-group dropdown-default pull-left  m-r-5">
+                                <label>Status:</label><br />
+                                <ui-select multiple ng-model="selected.filter_status" theme="select2" ng-disabled="disabled" style="width: 300px;" >
+                                    <ui-select-match placeholder="Filter Status...">{{$item.name}}</ui-select-match>
+                                    <ui-select-choices repeat="item in delivery_status | filter:$select.search">
+                                        {{item.name}}
+                                    </ui-select-choices>
+                                </ui-select>
+                             </div>
+                             <div class="input-prepend input-group pull-left lDate m-r-5" >
+                                 <label>Delivery Date:</label><br />
+                                <input type="text" class="form-control" ng-model="f.filter_date" name="filter_date" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" >
+                                <!--<span class="add-on input-group-addon bDate"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i></span>-->
+                            </div>
+                            <div class="btn-group form-group-default-select pull-left  m-r-5">
+                                <label>Source:</label><br />
+                                <ui-select ng-model="selected.filter_source.selected" theme="bootstrap"  >
+                                    <ui-select-match placeholder="Select Source">{{$select.selected.name}}</ui-select-match>
+                                    <ui-select-choices repeat="item in source | filter: $select.search">
+                                        <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                             </div>
+                            <div class="btn-group form-group-default-select pull-left  m-r-5">
+                                <label>Store Location:</label><br />
+                                <ui-select ng-model="selected.filter_warehouse.selected" theme="bootstrap"  >
+                                    <ui-select-match placeholder="Select Location">{{$select.selected.name}}</ui-select-match>
+                                    <ui-select-choices repeat="item in warehouse | filter: $select.search">
+                                        <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                             </div>
+                        </div>
+
+                        <div class="row col-md-12 m-t-10">
+                            <div class="btn-group form-group-default-select pull-left  m-r-5">
+                                <label>Cost Center:</label><br />
+                                <ui-select ng-model="selected.filter_cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
+                                    <ui-select-match placeholder="Pick Cost Center">{{$select.selected.code}}</ui-select-match>
+                                    <ui-select-choices repeat="item in cost_center | filter: $select.search">
+                                        <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
+                                        <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
+                                    </ui-select-choices>
+                                </ui-select>
+                             </div>
+                             <div class="btn-group form-group-default-select pull-left  m-r-5">
+                                 <label>Supplier:</label><br />
+                                 <ui-select ng-model="selected.filter_supplier.selected" theme="bootstrap" ng-keyup="supplierUp($select.search)" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                                     <ui-select-match placeholder="Pick Supplier">{{$select.selected.name}}</ui-select-match>
+                                     <ui-select-choices repeat="item in supplier | filter: $select.search">
+                                         <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                     </ui-select-choices>
+                                 </ui-select>
+                              </div>
+
+                            <div class="btn-group dropdown-default pull-left  m-r-5" >
+                                <label>&nbsp;</label><br />
+                              <button id="show-modal" class="btn btn-primary pull-right" ng-click="applyFilter()" ><i class="fa fa-search"></i> Apply</button>
+                             </div>
+                        </div>
+
+
+
+
+
+                        <!--<div class="input-prepend input-group date col-sm-4 pull-right m-r-5" style="width: 250px;" >
+                          <input date-range-picker type="text" placeholder="filter due date" class="form-control date-picker lDate">
+                          <span class="add-on input-group-addon bDate"><i class="fa fa-calendar"></i></span>
+                      </div>-->
+
+
+
+                    </div>
                 </div>
             </div>
             <div class="panel-body">
@@ -76,9 +164,9 @@
                           </div>
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default form-group-default-select " >
-                                  <label>Location</label>
+                                  <label>Delivered To</label>
                                   <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  on-select="po.warehouse_id=selected.warehouse.selected.id">
-                                      <ui-select-match placeholder="Select Warehouse">{{$select.selected.name}}</ui-select-match>
+                                      <ui-select-match placeholder="Select Location">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in warehouse | filter: $select.search">
                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                       </ui-select-choices>
@@ -198,7 +286,8 @@
                                             <thead>
                                             <tr>
                                                 <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
-                                                <th width="40%">Product</th>
+                                                <th width="30%">Product</th>
+                                                <th width="10%">Unit</th>
                                                 <th width="10%">Qty</th>
                                                 <th width="15%">Price</th>
                                                 <th width="20%">Amount</th>
@@ -224,12 +313,13 @@
                                                               <!--{{$select.selected.name}}-->
                                                               {{item.product_name || 'Empty'}}
                                                           </editable-ui-select-match>
-                                                          <editable-ui-select-choices repeat="d in product[item.id] | filter: $select.search">
+                                                          <editable-ui-select-choices repeat="d in product[item.id] | filter: $select.search" style="width: 300px" >
                                                               <div ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></div>
                                                               <!--<small ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></small>-->
                                                           </editable-ui-select-choices>
                                                     </span>
                                                 </td>
+                                                <td><span>{{item.unit_name}}</span></td>
                                                 <td>
                                                     <span editable-text="item.qty" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'qty')">
                                                         {{ item.qty }}
