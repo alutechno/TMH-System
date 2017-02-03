@@ -12,42 +12,43 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
-    var qstring = "select a.*,b.name status_name from mst_department a, "+
-        "(select * from table_ref where table_name = 'ref_product_category' and column_name = 'status') b "+
-        "where a.status = b.value "+
-        "and a.status != '2' "
-    var qwhere = ''
     $scope.users = []
 
     $scope.role = {
         selected: []
     };
 
-    $scope.deps = {}
-    $scope.id = '';
-    $scope.department = {
+    $scope.table = 'mst_cash_bank'
+
+    var qstring = "select a.*,d.status_name "+
+                    "from "+ $scope.table +" a "+
+                    "left join (select id as status_id, value as status_value,name as status_name from table_ref "+
+                    "where table_name = 'ref_product_category' and column_name='status' and value in (0,1)) d on a.status = d.status_value "+
+                    "where a.status!=2 "
+    var qwhere = ""
+
+    $scope.rowdata = {}
+    $scope.field = {
         id: '',
-        code: '',
         name: '',
-        short_name: '',
+        code: '',
         description: '',
         status: ''
     }
 
     $scope.selected = {
-        dep: {}
+        status: {}
     }
 
-    $scope.arrActive = [
-        {
-            id: 1,
-            name: 'Yes'
-        },
-        {
-            id: 0,
-            name: 'No'
-        }
-    ]
+    $scope.arr = {
+        status: []
+    }
+
+    $scope.arr.status = []
+    queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1)',undefined)
+    .then(function(data){
+        $scope.arr.status = data.data
+    })
 
     $scope.filterVal = {
         search: ''
@@ -59,19 +60,18 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        $scope.deps[data] = {id:data};
-        //console.log(data)
+        $scope.rowdata[data] = {id:data};
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(deps[\'' + data + '\'])">' +
+                '<button class="btn btn-default" ng-click="update(rowdata[\'' + data + '\'])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(deps[\'' + data + '\'])" )"="">' +
+                html+='<button class="btn btn-default" ng-click="delete(rowdata[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
@@ -88,7 +88,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL+'/apisql/datatable',
-        type: 'GET',
+        type: 'POST',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
@@ -102,9 +102,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     .withOption('bLengthChange', false)
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
-    .withOption('order', [0, 'desc'])
     .withDisplayLength(10)
-
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -113,9 +112,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         .renderWith($scope.actionsHtml).withOption('width', '10%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('code').withTitle('Code'),
-        DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
         DTColumnBuilder.newColumn('name').withTitle('Name'),
+        DTColumnBuilder.newColumn('code').withTitle('Code'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
@@ -123,16 +121,23 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
-                else qwhere = ''
+                if ($scope.filterVal.search.length>0) {
+                    qwhere += ' and (lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                        ' or lower(d.status_name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                        ' or lower(a.description) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                        ' or lower(a.code) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                        ')'
+                }else{
+                    qwhere = ''
+                }
                 $scope.dtInstance.reloadData(function(obj){
-                    console.log(obj)
+                    // console.log(obj)
                 }, false)
             }
         }
         else {
             $scope.dtInstance.reloadData(function(obj){
-                console.log(obj)
+                // console.log(obj)
             }, false)
         }
     }
@@ -144,48 +149,33 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.clear()
         }
         $('#form-input').modal('show')
-        $('#dept_code').prop('disabled', false);
     }
 
     $scope.submit = function(){
-        // console.log($scope.contract)
-        if ($scope.department.id.length==0){
+        if ($scope.field.id.length==0){
             //exec creation
+            $scope.field.status = $scope.selected.status.selected.id;
+            $scope.field['created_by'] = $localStorage.currentUser.name.id;
+            $scope.field['created_date'] = globalFunction.currentDate();
 
-            $scope.department.code = $scope.department.code;
-            $scope.department.name = $scope.department.name;
-            $scope.department.short_name = $scope.department.short_name;
-            $scope.department.description = $scope.department.description;
-            $scope.department.status = $scope.selected.dep.selected.id;
-            var param = {
-                code: $scope.department.code,
-                name: $scope.department.name,
-                short_name: $scope.department.short_name,
-                description: $scope.department.description,
-                status: $scope.selected.dep.selected.id,
-                created_date: globalFunction.currentDate(),
-                created_by: $localStorage.currentUser.name.id
-            }
-
-            queryService.post('insert into mst_department SET ?',param)
+            queryService.post('insert into '+ $scope.table +' SET ?',$scope.field)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
+                        // console.log(obj)
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
-                        message: 'Success Insert '+$scope.department.name,
+                        message: 'Success Insert '+$scope.field.name,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'success'
                     }).show();
-
             },
             function (err){
                 $('#form-input').pgNotification({
                     style: 'flip',
-                    message: 'Error Insert: '+err.desc.code,
+                    message: 'Error Insert: '+err.code,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'danger'
@@ -195,91 +185,105 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         }
         else {
             //exec update
-            $scope.department.name = $scope.department.name;
-            $scope.department.short_name = $scope.department.short_name;
-            $scope.department.description = $scope.department.description;
-            $scope.department.status = $scope.selected.dep.selected.id;
-            var param = {
-                code: $scope.department.code,
-                name: $scope.department.name,
-                short_name: $scope.department.short_name,
-                description: $scope.department.description,
-                status: $scope.selected.dep.selected.id,
-                modified_date: globalFunction.currentDate(),
-                modified_by: $localStorage.currentUser.name.id
-            }
-            console.log(param)
-            queryService.post('update mst_department SET ? WHERE id='+$scope.department.id ,param)
+            $scope.field.status = $scope.selected.status.selected.id;
+            $scope.field['modified_by'] = $localStorage.currentUser.name.id;
+            $scope.field['modified_date'] = globalFunction.currentDate();
+
+            queryService.post('update '+ $scope.table +' SET ? WHERE id='+$scope.field.id ,$scope.field)
             .then(function (result){
-                if (result.status = "200"){
-                    console.log('Success Update')
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
+                        // console.log(obj)
                     }, false)
-                }
-                else {
-                    console.log('Failed Update')
-                }
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Update '+$scope.field.name,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
+                    $scope.clear()
+            },
+            function (err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Update: '+err.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
             })
         }
     }
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
-        $('#dept_code').prop('disabled', true);
+        $scope.field.id = obj.id
 
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-         console.log(result)
-            $scope.department.id = result.data[0].id
-            $scope.department.code = result.data[0].code
-            $scope.department.name = result.data[0].name
-            $scope.department.short_name = result.data[0].short_name
-            $scope.department.description = result.data[0].description
-            $scope.department.status = result.data[0].status
-            $scope.selected.dep.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
+
+            $scope.field.name = result.data[0].name
+            $scope.field.description = result.data[0].description
+            $scope.field.status = result.data[0].status
+            $scope.field.code = result.data[0].code
+            for (var i = $scope.arr.status.length - 1; i >= 0; i--) {
+                if ($scope.arr.status[i].id == result.data[0].status){
+                    $scope.selected.status.selected = {name: $scope.arr.status[i].name, id: $scope.arr.status[i].id}
+                }
+            }
 
         })
-
     }
 
     $scope.delete = function(obj){
-        $scope.department.id = obj.id;
+        $scope.field.id = obj.id;
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-            $scope.department.code = result.data[0].code;
+            $scope.field.name = result.data[0].name;
             $('#modalDelete').modal('show')
         })
     }
 
     $scope.execDelete = function(){
-        queryService.post('update mst_department SET status=\'2\' ,'+
-        ' modified_by='+$localStorage.currentUser.name.id+', ' +
-        ' modified_date=\''+globalFunction.currentDate()+'\' ' +
-        ' WHERE id='+$scope.department.id ,undefined)
+        queryService.post('update '+ $scope.table +' set status=2, '+
+        ' modified_by='+$localStorage.currentUser.name.id+
+        ' ,modified_date=\''+globalFunction.currentDate()+'\''+
+        '  where id='+$scope.field.id,undefined)
         .then(function (result){
-            if (result.status = "200"){
-                // console.log('Success Update')
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
                 }, false)
-            }
-            else {
-                // console.log('Failed Update')
-            }
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Success Delete '+$scope.field.name,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+        },
+        function (err){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Delete: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
         })
     }
 
     $scope.clear = function(){
-        $scope.department = {
+        $scope.field = {
             id: '',
-            code: '',
             name: '',
-            short_name: '',
             description: '',
             status: ''
+        }
+
+        $scope.selected = {
+            status: {}
         }
     }
 
