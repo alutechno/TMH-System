@@ -59,7 +59,7 @@
                       <div class="col-sm-12">
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : po.code.$invalid && !po.code.$pristine }">
-                                  <label>PO Code</label>
+                                  <label>PO Number</label>
                                   <input type="text" class="form-control" name="code" ng-model="po.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
                               </div>
                           </div>
@@ -179,7 +179,7 @@
                                                 <td><span>{{item.product_name}}</span></td>
                                                 <td><span>{{item.qty}}</span></td>
                                                 <td>
-                                                    <span editable-text="item.rcv_qty" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'qty')">
+                                                    <span editable-text="item.rcv_qty" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'qty')" >
                                                         {{ item.rcv_qty }}
                                                     </span>
                                                 </td>
