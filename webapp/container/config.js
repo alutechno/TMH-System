@@ -1028,6 +1028,50 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.fin.gltransaction', {
+        url: "/gltransaction",
+        templateUrl: "container/components/finGlTransaction/view.html",
+        controller: 'FinGlTransactionCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finGlTransaction/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.glrecurring', {
+        url: "/glrecurring",
+        templateUrl: "container/components/finGlRecurring/view.html",
+        controller: 'FinGlRecurringCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finGlRecurring/controller.js');
+                });
+
+            }]
+        }
+    })
     .state('app.fin.bank', {
         url: "/bank",
         templateUrl: "container/components/finBank/view.html",

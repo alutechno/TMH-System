@@ -258,6 +258,11 @@
                                         </editable-ui-select-match>
                                         <editable-ui-select-choices repeat="d in products | filter: $select.search" style="width: 300px" >
                                             <div ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></div>
+                                            <small class="m-l-10" ng-bind-html="trustAsHtml((d.cat_text | highlight: $select.search))"></small><br />
+                                            <small class="m-l-10" ng-bind-html="trustAsHtml((d.cost_text | highlight: $select.search))"></small><br />
+                                            <small class="m-l-10" ng-bind-html="trustAsHtml((d.lastp_text | highlight: $select.search))"></small><br />
+                                            <small class="m-l-10" ng-bind-html="trustAsHtml((d.lastd_text | highlight: $select.search))"></small><br />
+                                            <small class="m-l-10" ng-bind-html="trustAsHtml((d.lasts_text | highlight: $select.search))"></small>
                                         </editable-ui-select-choices>
                                   </span>
                               </td>
