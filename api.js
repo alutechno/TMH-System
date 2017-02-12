@@ -275,7 +275,14 @@ if (cluster.isMaster) {
                 res.status(500).send();
             }
             else if (rows.length>0){
-                log(req.headers,req.path,'authorize-200',JSON.stringify(req.query),JSON.stringify(req.body),(rows.length==0?[]:rows[0].object.split(',')))
+                try{
+                        log(req.headers,req.path,'authorize-200',JSON.stringify(req.query),JSON.stringify(req.body),(rows.length==0?[]:rows[0].object.split(',')))
+                }
+                catch(e){
+                    log(req.headers,req.path,'authorize-404',JSON.stringify(req.query),JSON.stringify(req.body),'no authorization')
+                    res.send([])
+                }
+
 	            res.send(rows.length==0?[]:rows[0].object.split(','))
 	        }
 	        else{
