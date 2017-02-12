@@ -38,11 +38,38 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     var qgroup = ' group by a.id, a.code, a.journal_type_id, a.bookkeeping_date, a.gl_status, c.name, a.notes, a.ref_account '
 
     var year = ['2015','2016','2017','2018','2019']
-    var month = ['01','02','03','04','05','06','07','08','09','10','11','12']
+    var month = [
+        {id:'01',last:'31'},
+        {id:'02',last:'28'},
+        {id:'03',last:'31'},
+        {id:'04',last:'30'},
+        {id:'05',last:'31'},
+        {id:'06',last:'30'},
+        {id:'07',last:'31'},
+        {id:'08',last:'31'},
+        {id:'09',last:'30'},
+        {id:'10',last:'31'},
+        {id:'11',last:'30'},
+        {id:'12',last:'31'}]
     $scope.period = [
         { id: 0, name: 'Current Month'},
         { id: 1, name: 'Last Month'}
     ]
+    $scope.listYear = []
+    $scope.listMonth = []
+    for (var i=0;i<year.length;i++){
+        $scope.listYear.push({
+            id: year[i],
+            name: year[i]
+        })
+    }
+    for (var i=0;i<month.length;i++){
+        $scope.listMonth.push({
+            id: month[i].id,
+            name: month[i].id,
+            last:month[i].last
+        })
+    }
 
     /*for (var i=0;i<year.length;i++){
         for (var j=0;j<month.length;j++){
@@ -65,8 +92,21 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
     $scope.selected = {
         status: {},
-        journal_type: {}
+        journal_type: {},
+        filter_year: {},
+        filter_month: {},
+        filter_status: [],
+        filter_journal: {},
+        filter_source: {}
     }
+    var cd = new Date()
+    $scope.selected.filter_year['selected'] = {id: cd.getFullYear(),name:cd.getFullYear()}
+    for (var i=0;i<$scope.listMonth.length;i++){
+        if (cd.getMonth()+1 == parseInt($scope.listMonth[i].id)){
+            $scope.selected.filter_month['selected'] = $scope.listMonth[i]
+        }
+    }
+    //$scope.selected.filter_month['selected'] = {id: (cd.getMonth()<10?'0'+(cd.getMonth()+1):(cd.getMonth()+1)),name:(cd.getMonth()<10?'0'+(cd.getMonth()+1):(cd.getMonth()+1)),last:}
 
     queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
     .then(function(data){
@@ -75,9 +115,14 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
     $scope.status = []
     $scope.statusShow = []
-    queryService.get('select value id, value, name from table_ref where table_name = \'acc_ap_voucher\' and column_name = \'status\' order by id ',undefined)
+    queryService.get('select value id, value, name from table_ref where table_name = \'acc_gl_transaction\' and column_name = \'gl_status\' order by id ',undefined)
     .then(function(data){
         $scope.status = data.data
+    })
+    $scope.listSource = []
+    queryService.get('select value id, value, name from table_ref where table_name = \'acc_gl_transaction\' and column_name = \'source\' order by id ',undefined)
+    .then(function(data){
+        $scope.listSource = data.data
     })
     /*$scope.status = [
         {id:0,name:'Open'},
@@ -202,6 +247,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         DTColumnBuilder.newColumn('balance').withTitle('Balance').withOption('width', '10%')
     );
 
+    var qwhereobj = {
+        status: '',
+        journal: '',
+        period: ''
+    }
+
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
@@ -217,6 +268,45 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 console.log(obj)
             }, false)
         }
+    }
+
+    $scope.applyFilter = function(){
+        console.log($scope.selected.filter_month)
+        var status = []
+        if ($scope.selected.filter_status.length>0){
+            for (var i=0;i<$scope.selected.filter_status.length;i++){
+                status.push($scope.selected.filter_status[i].id)
+            }
+            qwhereobj.status = ' a.gl_status in('+status.join(',')+') '
+        }
+
+        //console.log($scope.selected.filter_cost_center)
+        if ($scope.selected.filter_journal.selected){
+            qwhereobj.journal = ' a.journal_type_id = '+$scope.selected.filter_journal.selected.id+ ' '
+        }
+        //console.log($scope.selected.filter_warehouse)
+
+        qwhereobj.period = ' (a.bookkeeping_date between \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-01\' and '+
+        ' \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-'+$scope.selected.filter_month.selected.last+'\') '
+        //console.log(setWhere())
+        qwhere = setWhere()
+        console.log(qwhere)
+        $scope.dtInstance.reloadData(function(obj){
+            console.log(obj)
+        }, false)
+
+    }
+    function setWhere(){
+        var arrWhere = []
+        var strWhere = ''
+        for (var key in qwhereobj){
+            if (qwhereobj[key].length>0) arrWhere.push(qwhereobj[key])
+        }
+        if (arrWhere.length>0){
+            strWhere = ' where ' + arrWhere.join(' and ')
+        }
+        //console.log(strWhere)
+        return strWhere
     }
 
     /*END AD ServerSide*/

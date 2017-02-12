@@ -1205,6 +1205,72 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.fin.gljer', {
+        url: "/fingljer",
+        templateUrl: "container/components/finGlJournalEntryReport/view.html",
+        controller: 'FinGlJournalEntryReportCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finGlJournalEntryReport/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.glbr', {
+        url: "/finglbr",
+        templateUrl: "container/components/finGlBankReconciliation/view.html",
+        controller: 'FinGlBankReconciliationCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finGlBankReconciliation/controller.js');
+                });
+
+            }]
+        }
+    })
+    .state('app.fin.glbe', {
+        url: "/finglbe",
+        templateUrl: "container/components/finGlBudgetEntry/view.html",
+        controller: 'FinGlBudgetEntryCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finGlBudgetEntry/controller.js');
+                });
+
+            }]
+        }
+    })
 
     // Extra - Others
     .state('access', {

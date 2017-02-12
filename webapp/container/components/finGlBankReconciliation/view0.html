@@ -1,0 +1,160 @@
+
+<div class="full-height m-t-40">
+    <!-- TABLES VIEW -->
+    <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">Bank Reconciliation
+                </div>
+                <div class="pull-right" style="width: 60%;">
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Department</button>
+
+                    <div class="input-group date col-sm-4 pull-right m-r-10">
+                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
+                    </div>
+
+                </div>
+                <div class="clearfix"></div>
+                <div class="tools">
+                    <a class="collapse" href="javascript:;"></a>
+                    <a class="config" data-toggle="modal" href="#grid-config"></a>
+                    <a class="reload" href="javascript:;"></a>
+                    <a class="remove" href="javascript:;"></a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <ul class="nav nav-tabs nav-tabs-fillup" pg-tab-dropdownfx>
+                    <li class="active">
+                        <a data-toggle="tab" pg-tab href="#tab-fillup1"><span>Payable</span></a>
+                    </li>
+                    <li >
+                        <a data-toggle="tab" pg-tab href="#tab-fillup2"><span>Payable Deposit</span></a>
+                    </li>
+
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tab-fillup1">
+                        <div class="row">
+                            <div class="clearfix">
+                                <table class="table table-hover " datatable="" name="t1" id="t1"  datatable dt-options="nested.dtOptions" dt-columns="nested.dtColumns" dt-instance="nested.dtInstance">
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="tab-fillup2">
+                        <div class="row clearfix">
+                            <div class="col-md-12">
+                                <table class="table table-hover  " datatable="" name="t2" id="t2" datatable="" dt-options="nested.dtDepOptions" dt-columns="nested.dtDepColumns" dt-instance="nested.dtDepInstance">
+                                </table>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+
+        </div>
+    </div>
+    <!-- END PANEL -->
+</div>
+
+<!--START FORM INPUT-->
+<div class="modal fade slide-right form-input-full" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content-wrapper">
+      <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
+      <div class="panel-heading">
+       <div class="panel-title">Detail Aging</div>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
+        </button>
+       </div>
+        <div class="container-xs-height full-height">
+          <div class="row-xs-height">
+            <div class="modal-body col-xs-height col-top">
+
+      <!-- START FORM -->
+      <div class="panel panel-transparent m-t-20">
+          <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+
+
+                      <div ng-controller="DetailApraCtrl" >
+
+                        <table datatable=""  dt-options="nested.dtDetailOptions" class="table table-hover " dt-columns="nested.dtDetailColumns"  dt-instance="nested.dtDetailInstance">
+
+                        </table>
+
+                    </div>
+                  </div>
+
+              </div>
+
+          </form>
+      </div>
+      <!-- END FORM -->
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!--END FORM INPUT-->
+
+<!-- START MODAL CONTENT-->
+<div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{department.code}} ?</h4>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<!-- END MODAL CONTENT-->
+<div class="modal fade slide-up disable-scroll" id="modalReconcile" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Are you sure want to reconcile {{id}} from {{type}}?</h4>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<div class="modal fade slide-up disable-scroll" id="modalBankBook" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Are you sure want to export {{id}} from {{type}}?</h4>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>

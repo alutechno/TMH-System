@@ -143,3 +143,17 @@ span.ui-select-match-text.pull-left {
         top:0;
     }
 }
+
+.datatable-scroll {
+    overflow-x: auto;
+    overflow-y: visible;
+}
+.dataTables_scroll
+{
+    overflow:auto;
+}
+.dataTable td {
+    overflow: hidden; /* this is what fixes the expansion */
+  text-overflow: ellipsis; /* not supported in all browsers, but I accepted the tradeoff */
+  white-space: nowrap;
+}

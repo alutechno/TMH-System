@@ -1,0 +1,220 @@
+
+<div class="full-height m-t-40">
+    <!-- TABLES VIEW -->
+    <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">Budget Entry
+                </div>
+                <div class="pull-right" style="width: 60%;">
+                    <!--<button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Budget</button>-->
+
+                    <div class="input-group date col-sm-4 pull-right m-r-10">
+                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
+                    </div>
+
+                </div>
+                <div class="clearfix"></div>
+                <div class="tools">
+                    <a class="collapse" href="javascript:;"></a>
+                    <a class="config" data-toggle="modal" href="#grid-config"></a>
+                    <a class="reload" href="javascript:;"></a>
+                    <a class="remove" href="javascript:;"></a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
+                    </table>
+            </div>
+        </div>
+    </div>
+    <!-- END PANEL -->
+</div>
+
+<!--START FORM INPUT-->
+<div class="modal fade slide-right form-input-medium" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content-wrapper">
+      <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
+      <div class="panel-heading">
+       <div class="panel-title">Budget Allocation</div>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
+        </button>
+       </div>
+        <div class="container-xs-height full-height">
+          <div class="row-xs-height">
+            <div class="modal-body col-xs-height col-top">
+
+      <!-- START FORM -->
+      <div class="panel panel-transparent m-t-20">
+          <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+
+              <div class="row clearfix">
+                <div class="col-sm-12">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select " ng-class="{ 'has-error' : selected.account.selected.$invalid && !selected.account.selected.$pristine }">
+                        <label>Account Name</label>
+                        <ui-select ng-model="selected.account.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.account | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-md-12">
+                      <div class="checkbox check-primary" >
+                          <input type="checkbox" id="cbMonthly" ng-checked="selected.method==1" ng-true-value="1" ng-model="selected.method" ng-click="setMonthly()">
+                          <label for="cbMonthly">Monthly</label>
+                          <input type="checkbox" id="cbYearly" ng-checked="selected.method==2" ng-true-value="2" ng-model="selected.method" ng-click="setYearly()">
+                          <label for="cbYearly">Yearly</label>
+                      </div>
+                  </div>
+
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.total.$invalid && !field.total.$pristine }">
+                          <label>Total Allocation</label>
+                          <input type="text" class="form-control" name="total" ng-model="field.total" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.jan.$invalid && !field.jan.$pristine }">
+                          <label>January</label>
+                          <input type="text" class="form-control" name="jan" ng-model="field.jan" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.feb.$invalid && !field.feb.$pristine }">
+                          <label>February</label>
+                          <input type="text" class="form-control" name="feb" ng-model="field.feb" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.mar.$invalid && !field.mar.$pristine }">
+                          <label>March</label>
+                          <input type="text" class="form-control" name="mar" ng-model="field.mar" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.apr.$invalid && !field.apr.$pristine }">
+                          <label>April</label>
+                          <input type="text" class="form-control" name="apr" ng-model="field.apr" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.may.$invalid && !field.may.$pristine }">
+                          <label>May</label>
+                          <input type="text" class="form-control" name="may" ng-model="field.may" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.jun.$invalid && !field.jun.$pristine }">
+                          <label>June</label>
+                          <input type="text" class="form-control" name="jun" ng-model="field.jun" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.jul.$invalid && !field.jul.$pristine }">
+                          <label>July</label>
+                          <input type="text" class="form-control" name="jul" ng-model="field.jul" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.aug.$invalid && !field.aug.$pristine }">
+                          <label>August</label>
+                          <input type="text" class="form-control" name="aug" ng-model="field.aug" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.sep.$invalid && !field.sep.$pristine }">
+                          <label>September</label>
+                          <input type="text" class="form-control" name="sep" ng-model="field.sep" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.oct.$invalid && !field.oct.$pristine }">
+                          <label>October</label>
+                          <input type="text" class="form-control" name="oct" ng-model="field.oct" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.nov.$invalid && !field.nov.$pristine }">
+                          <label>November</label>
+                          <input type="text" class="form-control" name="nov" ng-model="field.nov" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.dec.$invalid && !field.dec.$pristine }">
+                          <label>December</label>
+                          <input type="text" class="form-control" name="dec" ng-model="field.dec" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+
+
+              <br>
+              <div class="clearfix"></div>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
+              <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
+          </form>
+      </div>
+      <!-- END FORM -->
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!--END FORM INPUT-->
+
+<!-- START MODAL CONTENT-->
+<div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{field.name}} ?</h4>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<!-- END MODAL CONTENT-->

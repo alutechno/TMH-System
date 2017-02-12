@@ -64,31 +64,54 @@
                         </div>
                     </div>
                     <div class="panel-body" >
-                        <div class="btn-group dropdown-default pull-left lDate m-r-5">
+                        <div class="btn-group form-group-default-select pull-left  m-r-5">
+                            <label>Period:</label><br />
+                            <ui-select ng-model="selected.filter_month.selected" theme="bootstrap"  >
+                                <ui-select-match placeholder="Select Month">{{$select.selected.name}}</ui-select-match>
+                                <ui-select-choices repeat="item in listMonth | filter: $select.search">
+                                    <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                            <ui-select ng-model="selected.filter_year.selected" theme="bootstrap"  >
+                                <ui-select-match placeholder="Select Year">{{$select.selected.name}}</ui-select-match>
+                                <ui-select-choices repeat="item in listYear | filter: $select.search">
+                                    <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                         </div>
+                         <div class="btn-group form-group-default-select pull-left  m-r-5">
+                             <label>Journal Type</label><br />
+                             <ui-select ng-model="selected.filter_journal.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
+                                 <ui-select-match placeholder="Pick Journal">{{$select.selected.code}}</ui-select-match>
+                                 <ui-select-choices repeat="item in journal_type | filter: $select.search">
+                                     <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
+                                     <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
+                                 </ui-select-choices>
+                             </ui-select>
+                          </div>
+                        <div class="btn-group dropdown-default pull-left  m-r-5">
                             <label>Status:</label><br />
-                            <ui-select multiple ng-model="selected.status" theme="select2" ng-disabled="disabled" style="width: 300px;" >
+                            <ui-select multiple ng-model="selected.filter_status" theme="select2" ng-disabled="disabled" style="width: 300px;" >
                                 <ui-select-match placeholder="Filter Status...">{{$item.name}}</ui-select-match>
                                 <ui-select-choices repeat="item in status | filter:$select.search">
                                     {{item.name}}
                                 </ui-select-choices>
                             </ui-select>
                          </div>
-                         <div class="input-prepend input-group pull-left m-r-5" style="width: 220px;" >
-                             <label>Due Date:</label><br />
-                            <input date-range-picker placeholder="Filter due date" class="form-control date-picker lDate" type="text" ng-model="date" />
-                            <!--<span class="add-on input-group-addon bDate"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i></span>-->
-                        </div>
-                        <div class="btn-group dropdown-default pull-left m-r-5" >
-                            <label>Period:</label><br />
-                          <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">{{selected.period.name}}<span class="caret"></span></button>
-                            <ul class="dropdown-menu" role="menu">
-                              <li><a href="javascript:;" ng-click="setPeriod(0)">Current Month</a></li>
-                              <li><a href="javascript:;" ng-click="setPeriod(1)">Last Month</a></li>
-                            </ul>
-                         </div>
-                         <div class="btn-group dropdown-default pull-left m-r-5" >
+                         <!--<div class="btn-group form-group-default-select pull-left  m-r-5">
+                            <label>Source:</label><br />
+                            <ui-select ng-model="selected.filter_source.selected" theme="bootstrap"  >
+                                <ui-select-match placeholder="Select Source">{{$select.selected.name}}</ui-select-match>
+                                <ui-select-choices repeat="item in listSource | filter: $select.search">
+                                    <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>-->
+
+
+                         <div class="btn-group dropdown-default  m-r-5" >
                              <label>&nbsp;</label><br />
-                           <button id="show-modal" class="btn btn-primary pull-right" ng-click="applyFilter()" ng-show="buttonCreate"><i class="fa fa-search"></i> Apply</button>
+                           <button id="show-modal" class="btn btn-primary pull-right" ng-click="applyFilter()" ><i class="fa fa-search"></i> Apply</button>
                           </div>
 
 
@@ -253,7 +276,7 @@
                                             </td>
 
                                         </tr>
-                                        
+
                                         <tr>
                                             <td>&nbsp;</td>
                                             <td>&nbsp;</td>
