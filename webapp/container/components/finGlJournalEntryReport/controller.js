@@ -13,7 +13,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         $scope[$scope.el[i]] = true;
     }
     var qstring = 'select a.id, a.code, a.journal_type_id, c.name as journal_code, '+
-         'a.bookkeeping_date, a.gl_status, e.name as status_name,  '+
+         'date_format(a.bookkeeping_date,\'%Y-%m-%d\') bookkeeping_date, a.gl_status, e.name as status_name,  '+
          'a.notes, a.ref_account, b.account_id,d.code as account_code, d.name as account_name,  '+
          'case when b.transc_type = \'D\' then b.amount end as debit_amount, '+
          'case when b.transc_type = \'C\' then b.amount end as credit_amount  '+
@@ -46,7 +46,84 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
 
     $scope.selected = {
-        dep: {}
+        dep: {},
+        filter_c_period: {},
+        filter_start_year: {},
+        filter_start_month: {},
+        filter_end_year: {},
+        filter_end_month: {}
+    }
+
+    $scope.c_period = [
+        {id: 0, name:'Current Period'},
+        {id: 1, name:'Last Month'},
+        {id: 2, name:'Custom'}
+    ]
+    $scope.selected.filter_c_period['selected'] = $scope.c_period[0]
+
+    var year = ['2015','2016','2017','2018','2019']
+    var month = [
+        {id:'01',last:'31'},
+        {id:'02',last:'28'},
+        {id:'03',last:'31'},
+        {id:'04',last:'30'},
+        {id:'05',last:'31'},
+        {id:'06',last:'30'},
+        {id:'07',last:'31'},
+        {id:'08',last:'31'},
+        {id:'09',last:'30'},
+        {id:'10',last:'31'},
+        {id:'11',last:'30'},
+        {id:'12',last:'31'}]
+    $scope.listYear = []
+    $scope.listMonth = []
+    for (var i=0;i<year.length;i++){
+        $scope.listYear.push({
+            id: year[i],
+            name: year[i]
+        })
+    }
+    for (var i=0;i<month.length;i++){
+        $scope.listMonth.push({
+            id: month[i].id,
+            name: month[i].id,
+            last:month[i].last
+        })
+    }
+    var cd = new Date()
+    $scope.selected.filter_start_year['selected'] = {id: cd.getFullYear(),name:cd.getFullYear()}
+    $scope.selected.filter_end_year['selected'] = {id: cd.getFullYear(),name:cd.getFullYear()}
+    for (var i=0;i<$scope.listMonth.length;i++){
+        if (cd.getMonth()+1 == parseInt($scope.listMonth[i].id)){
+            $scope.selected.filter_start_month['selected'] = $scope.listMonth[i]
+            $scope.selected.filter_end_month['selected'] = $scope.listMonth[i]
+        }
+    }
+    $scope.setCPeriod = function(e){
+        console.log(e)
+        var cd = new Date()
+        if (e.id==0){
+            $scope.selected.filter_start_year['selected'] = {id: cd.getFullYear(),name:cd.getFullYear()}
+            $scope.selected.filter_end_year['selected'] = {id: cd.getFullYear(),name:cd.getFullYear()}
+            for (var i=0;i<$scope.listMonth.length;i++){
+                if (cd.getMonth()+1 == parseInt($scope.listMonth[i].id)){
+                    $scope.selected.filter_start_month['selected'] = $scope.listMonth[i]
+                    $scope.selected.filter_end_month['selected'] = $scope.listMonth[i]
+                }
+            }
+
+        }
+        else if(e.id==1){
+            cd = new Date(cd.getFullYear(), cd.getMonth() - 1, 1);
+            $scope.selected.filter_start_year['selected'] = {id: cd.getFullYear(),name:cd.getFullYear()}
+            $scope.selected.filter_end_year['selected'] = {id: cd.getFullYear(),name:cd.getFullYear()}
+            for (var i=0;i<$scope.listMonth.length;i++){
+                if (cd.getMonth()+1 == parseInt($scope.listMonth[i].id)){
+                    $scope.selected.filter_start_month['selected'] = $scope.listMonth[i]
+                    $scope.selected.filter_end_month['selected'] = $scope.listMonth[i]
+                }
+            }
+        }
     }
 
     $scope.arrActive = [
@@ -62,6 +139,11 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 
     $scope.filterVal = {
         search: ''
+    }
+    $scope.showAdvance = false
+    $scope.openAdvancedFilter = function(val){
+        console.log(val)
+        $scope.showAdvance = val
     }
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
@@ -144,6 +226,45 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                 console.log(obj)
             }, false)
         }
+    }
+
+    var qwhereobj = {
+        bank_account: '',
+        period: ''
+    }
+
+    $scope.applyFilter = function(){
+        //console.log($scope.selected.filter_month)
+        var status = []
+
+
+        //console.log($scope.selected.filter_cost_center)
+        //if ($scope.selected.filter_bank_account.selected){
+        //    qwhereobj.bank_acc = ' a.bank_account_id = '+$scope.selected.filter_bank_account.selected.id+ ' '
+        //}
+        //console.log($scope.selected.filter_warehouse)
+
+        qwhereobj.period = ' (a.bookkeeping_date between \''+$scope.selected.filter_start_year.selected.id+'-'+$scope.selected.filter_start_month.selected.id+'-01\' and '+
+        ' \''+$scope.selected.filter_end_year.selected.id+'-'+$scope.selected.filter_end_month.selected.id+'-'+$scope.selected.filter_end_month.selected.last+'\') '
+        //console.log(setWhere())
+        qwhere = setWhere()
+        console.log(qwhere)
+        $scope.nested.dtInstance.reloadData(function(obj){
+            console.log(obj)
+        }, false)
+
+    }
+    function setWhere(){
+        var arrWhere = []
+        var strWhere = ''
+        for (var key in qwhereobj){
+            if (qwhereobj[key].length>0) arrWhere.push(qwhereobj[key])
+        }
+        if (arrWhere.length>0){
+            strWhere = ' and ' + arrWhere.join(' and ')
+        }
+        //console.log(strWhere)
+        return strWhere
     }
 
     /*END AD ServerSide*/

@@ -1271,6 +1271,28 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.fin.bcbe', {
+        url: "/bcbe",
+        templateUrl: "container/components/finGlCashBank/view.html",
+        controller: 'FinGlCashBankCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finGlCashBank/controller.js');
+                });
+
+            }]
+        }
+    })
 
     // Extra - Others
     .state('access', {

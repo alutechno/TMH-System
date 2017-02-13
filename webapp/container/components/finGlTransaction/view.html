@@ -64,28 +64,33 @@
                         </div>
                     </div>
                     <div class="panel-body" >
-                        <div class="btn-group form-group-default-select pull-left  m-r-5">
+                        <div class="btn-group pull-left m-r-5">
                             <label>Period:</label><br />
-                            <ui-select ng-model="selected.filter_month.selected" theme="bootstrap"  >
-                                <ui-select-match placeholder="Select Month">{{$select.selected.name}}</ui-select-match>
-                                <ui-select-choices repeat="item in listMonth | filter: $select.search">
-                                    <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                </ui-select-choices>
-                            </ui-select>
-                            <ui-select ng-model="selected.filter_year.selected" theme="bootstrap"  >
-                                <ui-select-match placeholder="Select Year">{{$select.selected.name}}</ui-select-match>
-                                <ui-select-choices repeat="item in listYear | filter: $select.search">
-                                    <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                </ui-select-choices>
-                            </ui-select>
+                            <div class="btn-group form-group-default-select pull-left  m-r-5">
+                                <ui-select ng-model="selected.filter_month.selected" theme="bootstrap"  >
+                                    <ui-select-match placeholder="Select Month">{{$select.selected.name}}</ui-select-match>
+                                    <ui-select-choices repeat="item in listMonth | filter: $select.search">
+                                        <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                            <div class="btn-group form-group-default-select pull-left  m-r-5">
+                                <ui-select ng-model="selected.filter_year.selected" theme="bootstrap"  >
+                                    <ui-select-match placeholder="Select Year">{{$select.selected.name}}</ui-select-match>
+                                    <ui-select-choices repeat="item in listYear | filter: $select.search">
+                                        <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+
                          </div>
                          <div class="btn-group form-group-default-select pull-left  m-r-5">
                              <label>Journal Type</label><br />
-                             <ui-select ng-model="selected.filter_journal.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
+                             <ui-select ng-model="selected.filter_journal.selected" theme="bootstrap" style="width: 200px;" >
                                  <ui-select-match placeholder="Pick Journal">{{$select.selected.code}}</ui-select-match>
                                  <ui-select-choices repeat="item in journal_type | filter: $select.search">
                                      <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
-                                     <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
+                                     <small ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></small>
                                  </ui-select-choices>
                              </ui-select>
                           </div>

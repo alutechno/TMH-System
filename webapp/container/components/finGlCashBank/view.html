@@ -5,15 +5,14 @@
         <!-- START PANEL -->
         <div class="panel panel-transparent">
             <div class="panel-heading">
-                <div class="panel-title">Journal Entry Report
+                <div class="panel-title">Cash and Bank Book
                 </div>
                 <div class="pull-right" style="width: 60%;">
                     <button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>
-                    <!--<button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Department</button>-->
 
-                    <!--<div class="input-group date col-sm-4 pull-right m-r-10">
+                    <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
-                    </div>-->
+                    </div>
 
                 </div>
                 <div class="clearfix"></div>
@@ -23,6 +22,7 @@
                     <a class="reload" href="javascript:;"></a>
                     <a class="remove" href="javascript:;"></a>
                 </div>
+
                 <div class="panel panel-default m-t-5" pg-portlet ng-show="showAdvance">
                     <div class="panel-heading">
                         <div class="panel-title">Advanced Search
@@ -35,49 +35,19 @@
                         </div>
                     </div>
                     <div class="panel-body" >
-                        <div class="btn-group form-group-default-select pull-left  m-r-5">
+                        <div class="btn-group pull-left m-r-5">
                             <label>Period:</label><br />
-                            <ui-select ng-model="selected.filter_c_period.selected" theme="bootstrap" style="width: 200px;" on-select="setCPeriod($item)">
-                                <ui-select-match placeholder="Pick Period">{{$select.selected.name}}</ui-select-match>
-                                <ui-select-choices repeat="item in c_period | filter: $select.search">
-                                    <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
-                                </ui-select-choices>
-                            </ui-select>
-                         </div>
-                        <div class="btn-group pull-left m-r-5" ng-show="selected.filter_c_period.selected.id==2">
-                            <label>Set Custom Period:</label><br />
-                            <div class="btn-group form-group-default-select  m-r-5">
-                                <ui-select ng-model="selected.filter_start_month.selected" theme="bootstrap"  >
-                                    <ui-select-match placeholder="Start Month">{{$select.selected.name}}</ui-select-match>
+                            <div class="btn-group form-group-default-select pull-left  m-r-5">
+                                <ui-select ng-model="selected.filter_month.selected" theme="bootstrap"  >
+                                    <ui-select-match placeholder="Select Month">{{$select.selected.name}}</ui-select-match>
                                     <ui-select-choices repeat="item in listMonth | filter: $select.search">
                                         <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                     </ui-select-choices>
                                 </ui-select>
                             </div>
-                            <div class="btn-group form-group-default-select  m-r-5">
-                                <ui-select ng-model="selected.filter_start_year.selected" theme="bootstrap"  >
-                                    <ui-select-match placeholder="Start Year">{{$select.selected.name}}</ui-select-match>
-                                    <ui-select-choices repeat="item in listYear | filter: $select.search">
-                                        <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                    </ui-select-choices>
-                                </ui-select>
-                            </div>
-                            <div class="btn-group form-group-default-select  m-r-10 m-l-10">
-                                <label class="m-r-10 m-l-10 m-t-5">to</label>
-                            </div>
-
-
-                            <div class="btn-group form-group-default-select  m-r-5">
-                                <ui-select ng-model="selected.filter_end_month.selected" theme="bootstrap"  >
-                                    <ui-select-match placeholder="End Month">{{$select.selected.name}}</ui-select-match>
-                                    <ui-select-choices repeat="item in listMonth | filter: $select.search">
-                                        <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                    </ui-select-choices>
-                                </ui-select>
-                            </div>
-                            <div class="btn-group form-group-default-select m-r-5">
-                                <ui-select ng-model="selected.filter_end_year.selected" theme="bootstrap"  >
-                                    <ui-select-match placeholder="End Year">{{$select.selected.name}}</ui-select-match>
+                            <div class="btn-group form-group-default-select pull-left  m-r-5">
+                                <ui-select ng-model="selected.filter_year.selected" theme="bootstrap"  >
+                                    <ui-select-match placeholder="Select Year">{{$select.selected.name}}</ui-select-match>
                                     <ui-select-choices repeat="item in listYear | filter: $select.search">
                                         <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                     </ui-select-choices>
@@ -85,7 +55,16 @@
                             </div>
 
                          </div>
+                         <div class="btn-group form-group-default-select pull-left  m-r-5">
+                             <label>Bank Account</label><br />
+                             <ui-select ng-model="selected.filter_bank_account.selected" theme="bootstrap" style="width: 200px;" >
+                                 <ui-select-match placeholder="Pick Bank Account">{{$select.selected.name}}</ui-select-match>
+                                 <ui-select-choices repeat="item in bank_account | filter: $select.search">
+                                     <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
 
+                                 </ui-select-choices>
+                             </ui-select>
+                          </div>
 
                          <div class="btn-group dropdown-default  m-r-5" >
                              <label>&nbsp;</label><br />
@@ -120,7 +99,7 @@
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Detail Aging</div>
+       <div class="panel-title">Detail Cash Bank</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
