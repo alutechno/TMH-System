@@ -60,7 +60,50 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
 
     $scope.selected = {
-        dep: {}
+        dep: {},
+        filter_year: {},
+        filter_month: {}
+    }
+
+    var year = ['2015','2016','2017','2018','2019']
+    var month = [
+        {id:'01',last:'31'},
+        {id:'02',last:'28'},
+        {id:'03',last:'31'},
+        {id:'04',last:'30'},
+        {id:'05',last:'31'},
+        {id:'06',last:'30'},
+        {id:'07',last:'31'},
+        {id:'08',last:'31'},
+        {id:'09',last:'30'},
+        {id:'10',last:'31'},
+        {id:'11',last:'30'},
+        {id:'12',last:'31'}]
+    $scope.period = [
+        { id: 0, name: 'Current Month'},
+        { id: 1, name: 'Last Month'}
+    ]
+    $scope.listYear = []
+    $scope.listMonth = []
+    for (var i=0;i<year.length;i++){
+        $scope.listYear.push({
+            id: year[i],
+            name: year[i]
+        })
+    }
+    for (var i=0;i<month.length;i++){
+        $scope.listMonth.push({
+            id: month[i].id,
+            name: month[i].id,
+            last:month[i].last
+        })
+    }
+    var cd = new Date()
+    $scope.selected.filter_year['selected'] = {id: cd.getFullYear(),name:cd.getFullYear()}
+    for (var i=0;i<$scope.listMonth.length;i++){
+        if (cd.getMonth()+1 == parseInt($scope.listMonth[i].id)){
+            $scope.selected.filter_month['selected'] = $scope.listMonth[i]
+        }
     }
 
     $scope.arrActive = [
@@ -73,6 +116,10 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             name: 'No'
         }
     ]
+    $scope.setPeriod = function(){
+        $scope.nested.reloadPayableTable()
+        $scope.nested.reloadDepositTable()
+    }
 
     $scope.filterVal = {
         search: ''
@@ -91,134 +138,6 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         // Recompiling so we can bind Angular directive to the DT
         $compile(angular.element(row).contents())($scope);
     }
-    /*$scope.nested.dtInstance = {} //Use for reloadData
-    $scope.actionsHtml = function(data, type, full, meta) {
-        $scope.deps[data] = {id:data};
-        console.log(data)
-        console.log(type)
-        console.log(full)
-        console.log(meta)
-        var html = ''
-            html = '<div class="btn-group btn-group-xs">'
-            html +=
-            '<button class="btn btn-default" ng-click="detail(' + data + ')">' +
-            '   <i class="fa fa-list"></i>' +
-            '</button>&nbsp;' ;
-            html +=
-            '<button class="btn btn-default" ng-click="bankbook(' + full.id + ',\''+full.type+'\')">' +
-            '   <i class="fa fa-flash"></i>' +
-            '</button>&nbsp;' ;
-        if (full.reconciled_date==null){
-            html+='<button class="btn btn-default" ng-click="reconcile(' + full.id + ',\''+full.type+'\')">' +
-            '   <i class="fa fa-check"></i>' +
-            '</button>&nbsp;' ;
-        }
-            html += '</div>'
-
-        return html
-    }
-
-    $scope.createdRow = function(row, data, dataIndex) {
-        // Recompiling so we can bind Angular directive to the DT
-        $compile(angular.element(row).contents())($scope);
-    }
-
-    $scope.nested.dtOptions = DTOptionsBuilder.newOptions()
-    .withOption('ajax', {
-        url: API_URL+'/apisql/datatable',
-        type: 'POST',
-        headers: {
-            "authorization":  'Basic ' + $localStorage.mediaToken
-        },
-        data: function (data) {
-            data.query = qstringPayable + qwhere;
-        }
-    })
-    .withDataProp('data')
-    .withOption('processing', true)
-    .withOption('serverSide', true)
-    .withOption('bLengthChange', false)
-    .withOption('bFilter', false)
-    .withPaginationType('full_numbers')
-    .withOption('order', [0, 'desc'])
-    .withDisplayLength(10)
-        .withDOM('r<"H"lf><"datatable-scroll"t><"F"ip>')
-    .withOption('scrollX',true)
-    .withOption('createdRow', $scope.createdRow);
-
-    $scope.nested.dtColumns = [];
-    if ($scope.el.length>0){
-        $scope.nested.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
-    }
-    $scope.nested.dtColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('Entry'),
-        DTColumnBuilder.newColumn('bank').withTitle('Bank'),
-        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account'),
-        //DTColumnBuilder.newColumn('account_name').withTitle('Account Name'),
-        DTColumnBuilder.newColumn('currency').withTitle('currency').withOption('width','10%'),
-        DTColumnBuilder.newColumn('check_no').withTitle('Check'),
-        DTColumnBuilder.newColumn('supplier_name').withTitle('supplier'),
-        DTColumnBuilder.newColumn('issued_date').withTitle('date'),
-        DTColumnBuilder.newColumn('reconciled_date').withTitle('reconcile'),
-        DTColumnBuilder.newColumn('status_name').withTitle('status'),
-        DTColumnBuilder.newColumn('total_amount').withTitle('amount')
-    );
-
-    $scope.createdDepRow = function(row, data, dataIndex) {
-        // Recompiling so we can bind Angular directive to the DT
-        $compile(angular.element(row).contents())($scope);
-    }
-    $scope.nested.dtDepInstance = {} //Use for reloadData
-
-    $scope.nested.dtDepOptions = DTOptionsBuilder.newOptions()
-    .withOption('ajax', {
-        url: API_URL+'/apisql/datatable',
-        type: 'POST',
-        headers: {
-            "authorization":  'Basic ' + $localStorage.mediaToken
-        },
-        data: function (data) {
-            data.query = qstringDeposit + qwhere;
-        }
-    })
-
-    .withDataProp('data')
-    .withOption('processing', true)
-    .withOption('serverSide', true)
-    .withOption('bLengthChange', false)
-    .withOption('bFilter', false)
-    .withPaginationType('full_numbers')
-    .withOption('order', [0, 'desc'])
-    .withDisplayLength(10)
-    //.withDOM('r<"H"lf><"datatable-scroll"t><"F"ip>')
-    .withOption('scrollX',true)
-
-    .withOption('autoWidth',false)
-    .withOption('responsive',true)
-    //.withOption('sScrollX','100%')
-    //.withOption('sScrollXInner' ,'100%')
-
-    .withOption('createdRow', $scope.createdDepRow);
-
-    $scope.nested.dtDepColumns = [];
-    if ($scope.el.length>0){
-        $scope.nested.dtDepColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '20%'))
-    }
-    $scope.nested.dtDepColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('Entry'),
-        DTColumnBuilder.newColumn('bank').withTitle('Bank'),
-        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account'),
-        //DTColumnBuilder.newColumn('account_name').withTitle('Account Name'),
-        DTColumnBuilder.newColumn('currency').withTitle('currency').withOption('width','200px'),
-        DTColumnBuilder.newColumn('check_no').withTitle('Check'),
-        DTColumnBuilder.newColumn('supplier_name').withTitle('supplier').withOption('width','200px'),
-        DTColumnBuilder.newColumn('issued_date').withTitle('date'),
-        DTColumnBuilder.newColumn('reconciled_date').withTitle('reconcile'),
-        DTColumnBuilder.newColumn('status_name').withTitle('status'),
-        DTColumnBuilder.newColumn('home_deposit_amount').withTitle('amount')
-    );*/
 
     $scope.filter = function(type,event) {
         if (type == 'search'){
@@ -252,11 +171,66 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         $scope.nested.runDetail(ids,type);
         $('#form-input').modal('show')
     }
+    $scope.recon = {date:''}
     $scope.reconcile = function(ids, type){
+        console.log($scope.selected.filter_year.selected.name)
+        $scope.minimum = $scope.selected.filter_year.selected.name+ '-'+$scope.selected.filter_month.selected.name+'-01'
         $scope.id = ids
         $scope.type = type
         //$scope.nested.runDetail();
         $('#modalReconcile').modal('show')
+    }
+    $scope.spanReconcile = false
+    $scope.execReconcile = function(ids,type){
+        console.log(ids)
+        console.log(type)
+        console.log($scope.recon.date)
+        if ($scope.recon.date.length>0){
+            var sql = ''
+            if (type=='payable'){
+                sql = 'update acc_cash_payment set status = 4, reconcile_date = \''+$scope.recon.date+'\' where id = '+ids
+            }
+            else if (type=='deposit'){
+                sql = 'update acc_cash_deposit set status = 4, reconcile_date = \''+$scope.recon.date+'\' where id = '+ids
+            }
+            queryService.post(sql,undefined)
+            .then(function (result){
+                console.log(result)
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Success Reconcile  '+ids,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+                if (type=='payable'){
+                    $scope.nested.reloadPayableTable();
+                }
+                else if (type=='deposit'){
+                    $scope.nested.reloadDepositTable();
+                }
+            },
+            function (err){
+                console.log(err)
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert: '+err.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
+        }
+        else {
+            $('body').pgNotification({
+                style: 'flip',
+                message: 'Cannot Execute, Reconcile Date is Empty',
+                position: 'top-right',
+                timeout: 3000,
+                type: 'danger'
+            }).show();
+        }
+
     }
     $scope.bankbook = function(obj, type){
         console.log(obj)
@@ -301,16 +275,58 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     timeout: 2000,
                     type: 'success'
                 }).show();
-                    /*$('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){}, false)
-                    $('body').pgNotification({
-                        style: 'flip',
-                        message: 'Success Entry to Bank Book ',
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'success'
-                    }).show();
-                    $scope.clear();*/
+            },
+            function (err2){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert: '+err2.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
+        },
+        function (err){
+            console.log(err)
+            $('#modalBankBookReplace').modal('show')
+
+        })
+
+    }
+    $scope.execBankBookReplace = function(id,type){
+        console.log('execbb')
+        console.log($scope.bbExec[id])
+        console.log(type)
+        var param = {
+            bank_account_id: $scope.bbExec[id].bank_account_id,
+        	book_date: $scope.bbExec[id].issued_date,
+        	customer_id: null,
+        	supplier_id: $scope.bbExec[id].supplier_id,
+        	check_no: $scope.bbExec[id].check_no,
+        	//notes: $scope.bbExec[id].notes
+        	//reference_no: ?
+        	transc_type: 'C',
+        	total_amount: $scope.bbExec[id].total_amount,
+        	status: '1',
+        	reconcile_date: $scope.bbExec[id].reconciled_date,
+        	reconcile_by: $scope.bbExec[id].reconciled_by
+        }
+        queryService.post('update acc_cash_bank_book SET ? where id='+id,param)
+        .then(function (result){
+            console.log(result)
+            var qstr = 'insert into acc_cash_bank_closing (bank_account_id,book_date,opening_amount,debit_amount,credit_amount,closing_amount) values ('+
+            $scope.bbExec[id].bank_account_id+', \''+globalFunction.currentDate()+'\', 0, 0,'+$scope.bbExec[id].total_amount+','+$scope.bbExec[id].total_amount+')'+
+            'on duplicate key update debit_amount = debit_amount + 0, credit_amount = credit_amount + '+$scope.bbExec[id].total_amount+', closing_amount = opening_amount + debit_amount - '+$scope.bbExec[id].total_amount
+
+            queryService.post(qstr,undefined)
+            .then(function (result2){
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Success Entry to Bank Book ',
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
             },
             function (err2){
                 $('#form-input').pgNotification({
@@ -360,10 +376,13 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                   'where table_name = \'acc_cash_payment\' '+
                     'and column_name = \'status\') e on e.value = a.status     '+
       'left join ref_currency f on f.id = b.currency_id                  '
-    var qwheredetail = ''
+    var qwheredetail = ' where a.issued_date between \''+$scope.selected.filter_year.selected.name+'-'+$scope.selected.filter_month.selected.name+'-01\' and '+
+     ' \''+$scope.selected.filter_year.selected.name+'-'+$scope.selected.filter_month.selected.name+'-'+$scope.selected.filter_month.selected.last+'\' '
     $scope.nested.reloadPayableTable = function(){
-        //qwheredetail = ' where t.supplier_id = '+$scope.id
-
+        qwheredetail = ' where a.issued_date between \''+$scope.selected.filter_year.selected.name+'-'+$scope.selected.filter_month.selected.name+'-01\' and '+
+         ' \''+$scope.selected.filter_year.selected.name+'-'+$scope.selected.filter_month.selected.name+'-'+$scope.selected.filter_month.selected.last+'\' '
+         console.log(qstringdetail)
+         console.log(qwheredetail)
         $scope.nested.dtPayableInstance.reloadData()
     }
     $scope.nested.dtPayableInstance = {}
@@ -402,7 +421,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.query = qstringdetail ;
+            data.query = qstringdetail + qwheredetail;
         }
     })
     .withDataProp('data')
@@ -440,7 +459,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.details = []
     var qstringdetail = 'select a.id,\'deposit\' as type,a.bank_account_id, b.name as bank_account, c.name as bank, f.name as currency, '+
           'a.check_no, a.supplier_id, d.name as supplier_name,  '+
-          'DATE_FORMAT(a.issued_date,\'%Y-%m-%d\') as issued_date, a.status, e.name as status_name, a.home_deposit_amount total_amount, a.reconcile_date reconciled_date '+
+          'DATE_FORMAT(a.issued_date,\'%Y-%m-%d\') as issued_date, a.status, e.name as status_name, a.home_deposit_amount total_amount, DATE_FORMAT(a.reconcile_date,\'%Y-%m-%d\') reconciled_date,reconcile_by reconciled_by '+
      'from acc_cash_deposit a '+
      'left join mst_cash_bank_account b on b.id = a.bank_account_id '+
      'left join mst_bank c on c.id = b.bank_id '+
@@ -449,10 +468,14 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                  'where table_name = \'acc_cash_deposit\' '+
                    'and column_name = \'status\') e on e.value = a.status     '+
      'left join ref_currency f on f.id = b.currency_id '
-    var qwheredetail = ''
+     var qwheredetail = ' where a.issued_date between \''+$scope.selected.filter_year.selected.name+'-'+$scope.selected.filter_month.selected.name+'-01\' and '+
+      ' \''+$scope.selected.filter_year.selected.name+'-'+$scope.selected.filter_month.selected.name+'-'+$scope.selected.filter_month.selected.last+'\' '
+
     $scope.nested.reloadDepositTable = function(){
         //qwheredetail = ' where t.supplier_id = '+$scope.id
         qstringdetail += ' '
+        qwheredetail = ' where a.issued_date between \''+$scope.selected.filter_year.selected.name+'-'+$scope.selected.filter_month.selected.name+'-01\' and '+
+         ' \''+$scope.selected.filter_year.selected.name+'-'+$scope.selected.filter_month.selected.name+'-'+$scope.selected.filter_month.selected.last+'\' '
         $scope.nested.dtDepositInstance.reloadData()
     }
     $scope.nested.dtDepositInstance = {}
@@ -490,7 +513,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.query = qstringdetail ;
+            data.query = qstringdetail+qwheredetail ;
         }
     })
     .withDataProp('data')

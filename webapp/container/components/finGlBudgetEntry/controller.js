@@ -28,9 +28,11 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
            'c.month10_budget_amount, c.month11_budget_amount, c.month12_budget_amount '+
       'from mst_ledger_account a '+
       'left join ref_ledger_account_type b on b.id = a.account_type_id '+
-      'left join acc_monthly_budget_alloc c on c.account_id = a.id and c.year = \'2016\' '+
-     'where a.status = 1 '
-    var qwhere = ""
+      'left join acc_monthly_budget_alloc c on c.account_id = a.id '
+      //and c.year = \'2016\' '+
+     //'where a.status = 1 '
+    var qwhere = ''
+    var qwhere2 = 'where a.status = 1 '
 
     $scope.rowdata = {}
     $scope.field = {
@@ -65,7 +67,19 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.selected = {
         account: {},
         status: {},
-        method: {}
+        method: {},
+        filter_year: {}
+    }
+    var year = ['2015','2016','2017','2018','2019']
+    $scope.listYear = []
+    var cd = new Date()
+    $scope.selected.filter_year['selected'] = {id: cd.getFullYear(),name:cd.getFullYear()}
+    qwhere = ' and c.year='+ cd.getFullYear() + ' '
+    for (var i=0;i<year.length;i++){
+        $scope.listYear.push({
+            id: year[i],
+            name: year[i]
+        })
     }
 
     $scope.arr = {
@@ -84,6 +98,12 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     .then(function(data){
         $scope.arr.account = data.data
     })
+
+    $scope.setPeriod = function(){
+
+        qwhere = ' and c.year='+ $scope.selected.filter_year.selected.name + ' '
+        $scope.dtInstance.reloadData()
+    }
 
     $scope.filterVal = {
         search: ''
@@ -128,7 +148,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.query = qstring + qwhere;
+            data.query = qstring + qwhere + qwhere2;
         }
     })
     .withDataProp('data')
@@ -269,7 +289,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             //exec update
 
             var param = {
-            	year: '2016',
+            	year: $scope.selected.filter_year.selected.name,
             	account_id: $scope.selected.account.selected.id,
             	total_budget_amount: $scope.field.total,
             	month1_budget_amount: $scope.field.jan,
@@ -304,13 +324,45 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     $scope.clear()
             },
             function (err){
-                $('#form-input').pgNotification({
-                    style: 'flip',
-                    message: 'Error Update: '+err.code,
-                    position: 'top-right',
-                    timeout: 2000,
-                    type: 'danger'
-                }).show();
+                console.log(err)
+                if (err.code == 'ER_DUP_ENTRY'){
+                    queryService.post('update acc_monthly_budget_alloc SET ? where year='+$scope.selected.filter_year.selected.name +' and account_id='+$scope.selected.account.selected.id ,param)
+                    .then(function (result2){
+                            $('#form-input').modal('hide')
+                            $scope.dtInstance.reloadData(function(obj){
+                                // console.log(obj)
+                            }, false)
+                            $('body').pgNotification({
+                                style: 'flip',
+                                message: 'Success Update Allocation for '+$scope.selected.account.selected.name,
+                                position: 'top-right',
+                                timeout: 2000,
+                                type: 'success'
+                            }).show();
+                            $scope.clear()
+                    },
+                    function (err2){
+                            $('#form-input').pgNotification({
+                                style: 'flip',
+                                message: 'Error Update: '+err.code,
+                                position: 'top-right',
+                                timeout: 2000,
+                                type: 'danger'
+                            }).show();
+
+
+                    })
+                }
+                else {
+                    $('#form-input').pgNotification({
+                        style: 'flip',
+                        message: 'Error Update: '+err.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'danger'
+                    }).show();
+                }
+
             })
         }
     }
@@ -319,7 +371,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         $('#form-input').modal('show');
         $scope.field.id = obj.id
 
-        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
+        queryService.get(qstring+ ' where a.id='+obj.id,undefined)
         .then(function(result){
             console.log($scope.selected)
             $scope.selected.account['selected']={
@@ -398,11 +450,16 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             initial_value: '',
             book_value: ''
         }
+        var cd = new Date()
+
 
         $scope.selected = {
             method: {},
             account: {},
-            status: {}
+            status: {},
+            filter_year: {
+                selected: {id: cd.getFullYear(),name:cd.getFullYear()}
+            }
         }
     }
 
