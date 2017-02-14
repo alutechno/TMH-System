@@ -12,7 +12,13 @@ module.exports = function(connection,jwt,log){
     app.get('/query', function (req, res) {
         log(req.headers,req.path,'query-request',JSON.stringify(req.query),JSON.stringify(req.body),'GET - Prepare query')
 		connection(req.query.query, req.query.values,function(err, rows, fields) {
-            log(req.headers,req.path,'query-response',JSON.stringify(req.query),JSON.stringify(req.body),JSON.stringify({err:err,rows:rows,fields:fields}))
+            if (!err){
+                log(req.headers,req.path,'query-response',JSON.stringify(req.query),JSON.stringify(req.body),JSON.stringify({err:err,rows:rows,fields:fields}))
+            }
+            else {
+                console.err(req.path+'|'+JSON.stringify(err))
+            }
+
             //res.send(JSON.stringify({err:err,rows:rows,fields:fields}))
             res.send({err:err,rows:rows,fields:fields})
         });
@@ -21,7 +27,12 @@ module.exports = function(connection,jwt,log){
 		//console.log(req.body)
         log(req.headers,req.path,'query-request',JSON.stringify(req.query),JSON.stringify(req.body),'POST - Prepare query')
 		connection(req.body.query, req.body.values,function(err, rows, fields) {
-            log(req.headers,req.path,'query-response',JSON.stringify(req.query),JSON.stringify(req.body),JSON.stringify({err:err,rows:rows,fields:fields}))
+            if (!err){
+                log(req.headers,req.path,'query-response',JSON.stringify(req.query),JSON.stringify(req.body),JSON.stringify({err:err,rows:rows,fields:fields}))
+            }
+            else{
+                console.err(req.path+'|'+JSON.stringify(err))
+            }
             res.send(JSON.stringify({err:err,rows:rows,fields:fields}))
         });
     });
@@ -56,6 +67,9 @@ module.exports = function(connection,jwt,log){
                         res.send(dtParam)
                     }
                 });
+            }
+            else{
+                console.err(req.path+'|'+JSON.stringify(err))
             }
         });
 
@@ -92,6 +106,9 @@ module.exports = function(connection,jwt,log){
                         res.send(dtParam)
                     }
                 });
+            }
+            else{
+                console.err(req.path+'|'+JSON.stringify(err))
             }
         });
 
