@@ -188,7 +188,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         if ($scope.recon.date.length>0){
             var sql = ''
             if (type=='payable'){
-                sql = 'update acc_cash_payment set status = 4, reconcile_date = \''+$scope.recon.date+'\' where id = '+ids
+                sql = 'update acc_cash_payment set status = 4, reconciled_date = \''+$scope.recon.date+'\' where id = '+ids
             }
             else if (type=='deposit'){
                 sql = 'update acc_cash_deposit set status = 4, reconcile_date = \''+$scope.recon.date+'\' where id = '+ids
