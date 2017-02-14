@@ -8,7 +8,7 @@
                 <div class="panel-title">Bank Account
                 </div>
                 <div class="pull-right" style="width: 60%;">
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Department</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Account</button>
 
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
@@ -39,7 +39,7 @@
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Department Information</div>
+       <div class="panel-title">Bank Account Information</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -76,12 +76,85 @@
                       </div>
                   </div>
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.dep.selected.$invalid && !selected.dep.selected.$pristine }">
-                        <label>Is Active</label>
-                        <ui-select ng-model="selected.dep.selected" theme="bootstrap" validate-attached-form-element required>
-                            <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                            <ui-select-choices repeat="item in arrActive | filter: $select.search">
+                      <div pg-form-group class="form-group form-group-default " >
+                          <label>Address 1</label>
+                          <input type="text" class="form-control" ng-model="department.address1" >
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default " >
+                          <label>Address 2</label>
+                          <input type="text" class="form-control" ng-model="department.address2" >
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default " >
+                          <label>Account Number</label>
+                          <input type="text" class="form-control" ng-model="department.bank_account" >
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.account_type.selected.$invalid && !selected.account_type.selected.$pristine }">
+                        <label>Account Type</label>
+                        <ui-select ng-model="selected.account_type.selected" theme="bootstrap" validate-attached-form-element required>
+                            <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in account_type | filter: $select.search">
                                 <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.bank.selected.$invalid && !selected.bank.selected.$pristine }">
+                        <label>Bank</label>
+                        <ui-select ng-model="selected.bank.selected" theme="bootstrap" validate-attached-form-element required>
+                            <ui-select-match placeholder="select bank">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in bank | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.currency.selected.$invalid && !selected.currency.selected.$pristine }">
+                        <label>Currency</label>
+                        <ui-select ng-model="selected.currency.selected" theme="bootstrap" validate-attached-form-element required>
+                            <ui-select-match placeholder="select cur">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in currency | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.gl_account.selected.$invalid && !selected.gl_account.selected.$pristine }">
+                        <label>G/L Account</label>
+                        <ui-select ng-model="selected.gl_account.selected" theme="bootstrap" validate-attached-form-element required>
+                            <ui-select-match placeholder="select account">{{$select.selected.code}}</ui-select-match>
+                            <ui-select-choices repeat="item in gl_account | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.ap_clearance.selected.$invalid && !selected.ap_clearance.selected.$pristine }">
+                        <label>AP Clearance</label>
+                        <ui-select ng-model="selected.ap_clearance.selected" theme="bootstrap" validate-attached-form-element required>
+                            <ui-select-match placeholder="select account">{{$select.selected.code}}</ui-select-match>
+                            <ui-select-choices repeat="item in gl_account | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.ar_clearance.selected.$invalid && !selected.ar_clearance.selected.$pristine }">
+                        <label>AR Clearance</label>
+                        <ui-select ng-model="selected.ar_clearance.selected" theme="bootstrap" validate-attached-form-element required>
+                            <ui-select-match placeholder="select account">{{$select.selected.code}}</ui-select-match>
+                            <ui-select-choices repeat="item in gl_account | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
                             </ui-select-choices>
                         </ui-select>
                     </div>
