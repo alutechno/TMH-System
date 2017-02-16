@@ -773,6 +773,28 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.inv.eod', {
+        url: "/fininveod",
+        templateUrl: "container/components/invEndOfDay/view.html",
+        controller: 'InvEndOfDayCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker',
+                    'daterangepicker',
+                    'tagsInput'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invEndOfDay/controller.js');
+                });
+
+            }]
+        }
+    })
 
     //Finance and Accounting Module
     .state('app.fin', {

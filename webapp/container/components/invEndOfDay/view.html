@@ -1,0 +1,252 @@
+
+<div class="full-height m-t-40">
+    <!-- TABLES VIEW -->
+    <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">End of Day Process
+                </div>
+                <div class="pull-right" style="width: 60%;">
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="processData()" ng-show="process"><i class="fa fa-flash"></i> Process</button>
+
+                    <!--<div class="input-group date col-sm-4 pull-right m-r-10">
+                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
+                    </div>-->
+
+                    <div class="btn-group pull-right m-r-5">
+                        <div class="btn-group form-group-default-select pull-left  m-r-5">
+                            <label class="m-t-5 m-r-5 m-l-5"><b>Period:</b></label>&nbsp;
+                        </div>
+                        <div class="btn-group form-group-default-select pull-left  m-r-5">
+                            <input type="text" class="form-control" ng-model="filter_period" name="date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ng-change="setPeriod()">
+                        </div>
+                     </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="tools">
+                    <a class="collapse" href="javascript:;"></a>
+                    <a class="config" data-toggle="modal" href="#grid-config"></a>
+                    <a class="reload" href="javascript:;"></a>
+                    <a class="remove" href="javascript:;"></a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <ul class="nav nav-tabs nav-tabs-fillup" pg-tab-dropdownfx>
+                    <li class="active">
+                        <a data-toggle="tab" pg-tab href="#tab-fillup1" ng-click="nested.reloadReceivingTable()"><span>Receiving</span></a>
+                    </li>
+                    <li >
+                        <a data-toggle="tab" pg-tab href="#tab-fillup2" ng-click="nested.reloadIssuingTable()"><span>Issuing</span></a>
+                    </li>
+                    <li >
+                        <a data-toggle="tab" pg-tab href="#tab-fillup3" ng-click="nested.reloadSoTable()"><span>Stock Opname</span></a>
+                    </li>
+                    <li >
+                        <a data-toggle="tab" pg-tab href="#tab-fillup4" ng-click="nested.reloadCtcTable()"><span>Credit to Cost</span></a>
+                    </li>
+
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tab-fillup1">
+                        <div class="row">
+                            <div class="clearfix" ng-controller="receivingCtrl">
+                                <table datatable=""  dt-options="nested.dtReceivingOptions" class="table table-hover " dt-columns="nested.dtReceivingColumns"  dt-instance="nested.dtReceivingInstance">
+                                    <tfoot>
+                                    <tr></tr>
+                                    </tfoot>
+                                </table>
+                                <script type="text/ng-template" id="tableFooterReceiving">
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th class="text-center">Total</th>
+                                    <th class="text-center">{{sumReceiving}}</th>
+                                </script>
+
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="tab-fillup2" >
+                        <div class=" clearfix" ng-controller="issuingCtrl">
+                            <table datatable=""  dt-options="nested.dtIssuingOptions" class="table table-hover " dt-columns="nested.dtIssuingColumns"  dt-instance="nested.dtIssuingInstance">
+                                <tfoot>
+                                <tr></tr>
+                                </tfoot>
+                            </table>
+                            <script type="text/ng-template" id="tableFooterIssuing">
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+
+                                <th class="text-center">Total</th>
+                                <th class="text-center">{{sumIssuing}}</th>
+                            </script>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="tab-fillup3" >
+                        <div class=" clearfix" ng-controller="soCtrl">
+                            <table datatable=""  dt-options="nested.dtSoOptions" class="table table-hover " dt-columns="nested.dtSoColumns"  dt-instance="nested.dtSoInstance">
+                                <tfoot>
+                                <tr></tr>
+                                </tfoot>
+                            </table>
+                            <script type="text/ng-template" id="tableFooterSo">
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th class="text-center">Total</th>
+                                <th class="text-center">{{sumSo}}</th>
+                            </script>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="tab-fillup4" >
+                        <div class=" clearfix" ng-controller="ctcCtrl">
+                            <table datatable=""  dt-options="nested.dtCtcOptions" class="table table-hover " dt-columns="nested.dtCtcColumns"  dt-instance="nested.dtCtcInstance">
+                                <tfoot>
+                                <tr></tr>
+                                </tfoot>
+                            </table>
+                            <script type="text/ng-template" id="tableFooterCtc">
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                
+                                <th class="text-center">Total</th>
+                                <th class="text-center">{{sumCtc}}</th>
+                            </script>
+                        </div>
+                    </div>
+
+
+                </div>
+
+        </div>
+    </div>
+    <!-- END PANEL -->
+</div>
+<!--START FORM INPUT-->
+
+<!--END FORM INPUT-->
+
+<!-- START MODAL CONTENT-->
+<div class="modal fade slide-up disable-scroll" id="modalProcess" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">End of Day Process will change Receiving, Issuing, Stock Opname and Credit to Cost status from "Release" to "Close"?</h4>
+                    <div class="col-sm-12">
+                        <div pg-form-group class="form-group form-group-default ">
+                            <label>Current Date</label>
+                            <!--<input type="text" class="form-control" ng-model="ap.date" name="date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" >-->
+                            <!--<input type="text" class="form-control" name="date" ng-model="ap.date" >-->
+                            <span>{{filter_period}}</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div pg-form-group class="form-group form-group-default ">
+                            <label>Step to</label>
+                            <!--<input type="text" class="form-control" ng-model="ap.date" name="date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" >-->
+                            <!--<input type="text" class="form-control" name="date" ng-model="ap.date" >-->
+                            <span>{{filter_period_plus}}</span>
+                        </div>
+                    </div>
+
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execProcess()">Execute</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{department.code}} ?</h4>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<!-- END MODAL CONTENT-->
+<div class="modal fade slide-up disable-scroll" id="modalReconcile" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Are you sure want to reconcile {{id}} from {{type}}?</h4>
+                    <div class="col-sm-12">
+                        <div pg-form-group class="form-group form-group-default ">
+                            <label>Minimum Date</label>
+                            <!--<input type="text" class="form-control" ng-model="ap.date" name="date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" >-->
+                            <!--<input type="text" class="form-control" name="date" ng-model="ap.date" >-->
+                            <span>{{minimum}}</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div pg-form-group class="form-group form-group-default ">
+                            <label>Date</label>
+                            <input type="text" class="form-control" ng-model="recon.date" name="recon" placeholder="Pick a date" id="startDate" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" >
+                            <!--<input type="text" class="form-control" name="date" ng-model="ap.date" >-->
+
+                        </div>
+                    </div>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execReconcile(id,type)">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<div class="modal fade slide-up disable-scroll" id="modalBankBook" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Are you sure want to export {{id}} from {{type}}?</h4>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execBankBook(id,type)">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="id=''">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+
+<div class="modal fade slide-up disable-scroll" id="modalBankBookReplace" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Data {{id}} Already Exists, Replace with New Data?</h4>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execBankBookReplace(id,type)">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="id=''">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>

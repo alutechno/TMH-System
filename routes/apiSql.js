@@ -16,7 +16,7 @@ module.exports = function(connection,jwt,log){
                 log(req.headers,req.path,'query-response',JSON.stringify(req.query),JSON.stringify(req.body),JSON.stringify({err:err,rows:rows,fields:fields}))
             }
             else {
-                console.err(req.path+'|'+JSON.stringify(err))
+                console.error(req.path+'|'+JSON.stringify(err))
             }
 
             //res.send(JSON.stringify({err:err,rows:rows,fields:fields}))
@@ -31,7 +31,7 @@ module.exports = function(connection,jwt,log){
                 log(req.headers,req.path,'query-response',JSON.stringify(req.query),JSON.stringify(req.body),JSON.stringify({err:err,rows:rows,fields:fields}))
             }
             else{
-                console.err(req.path+'|'+JSON.stringify(err))
+                console.error(req.path+'|'+JSON.stringify(err))
             }
             res.send(JSON.stringify({err:err,rows:rows,fields:fields}))
         });
@@ -69,7 +69,7 @@ module.exports = function(connection,jwt,log){
                 });
             }
             else{
-                console.err(req.path+'|'+JSON.stringify(err))
+                console.error(req.path+'|'+JSON.stringify(err))
             }
         });
 
@@ -108,7 +108,7 @@ module.exports = function(connection,jwt,log){
                 });
             }
             else{
-                console.err(req.path+'|'+JSON.stringify(err))
+                console.error(req.path+'|'+JSON.stringify(err))
             }
         });
 
