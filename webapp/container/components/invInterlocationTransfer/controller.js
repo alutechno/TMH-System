@@ -13,7 +13,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstring = 'select a.id,a.code,a.request_status,b.name request_status_name,a.transfer_date,a.orig_warehouse_id,d.name warehouse_orig_name,a.dest_warehouse_id,e.name warehouse_dest_name,a.total_amount '+
+    var qstring = 'select a.id,a.code,a.request_status,b.name request_status_name,DATE_FORMAT(a.transfer_date,\'%Y-%m-%d\') transfer_date,a.orig_warehouse_id,d.name warehouse_orig_name,a.dest_warehouse_id,e.name warehouse_dest_name,a.total_amount '+
         'from inv_inter_location_transfer a,(select value,name from table_ref where table_name=\'interlocation\' and column_name=\'request_status\') b,mst_warehouse d,mst_warehouse e '+
         'where a.request_status=b.value '+
         'and a.orig_warehouse_id=d.id '+

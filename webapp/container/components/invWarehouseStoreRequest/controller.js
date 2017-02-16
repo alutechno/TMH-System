@@ -13,7 +13,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstring = 'select a.id,a.code,a.request_status,c.name request_status_name,a.issued_status,b.name issued_status_name,a.required_date,a.origin_warehouse_id,d.name warehouse_name,a.dest_cost_center_id,e.name cost_center_name,a.request_notes '+
+    var qstring = 'select a.id,a.code,a.request_status,c.name request_status_name,a.issued_status,b.name issued_status_name,DATE_FORMAT(a.required_date,\'%Y-%m-%d\') required_date,a.origin_warehouse_id,d.name warehouse_name,a.dest_cost_center_id,e.name cost_center_name,a.request_notes '+
         'from inv_store_request a,(select value,name from table_ref where table_name=\'store_request\' and column_name=\'issued_status\') b, '+
         '(select value,name from table_ref where table_name=\'store_request\' and column_name=\'request_status\') c,mst_warehouse d,mst_cost_center e '+
         'where a.request_status=c.value '+
@@ -169,7 +169,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         .renderWith($scope.actionsHtml).withOption('width', '10%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('id'),
+        DTColumnBuilder.newColumn('id').withTitle('id').withOption('width', '8%'),
         DTColumnBuilder.newColumn('code').withTitle('code'),
         DTColumnBuilder.newColumn('request_status_name').withTitle('request status'),
         DTColumnBuilder.newColumn('issued_status_name').withTitle('issued'),
@@ -201,6 +201,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         if (state == 'add'){
             $scope.clear()
         }
+        $scope.items = []
+        $scope.itemsOri = []
+        
         $('#form-input').modal('show')
     }
 
@@ -308,6 +311,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             queryService.post(qstringdetail+ ' and c.id='+ids,undefined)
             .then(function(result2){
                 $('#form-input').modal('show');
+                $scope.items = []
+                $scope.itemsOri = []
                 console.log(result2.data)
                 for (var i=0;i<result2.data.length;i++){
                     result2.data[i]['id'] = i+1

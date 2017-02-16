@@ -16,12 +16,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstringCostCenter = 'select cast(concat(\'W-\',a.id) as char) _id,a.id,a.name,a.modified_date last_stock_opname,count(b.product_id) items,sum(b.stock_qty*c.price_per_unit) amount '+
+    var qstringCostCenter = 'select cast(concat(\'W-\',a.id) as char) _id,a.id,a.name,DATE_FORMAT(a.modified_date,\'%Y-%m-%d\') last_stock_opname,count(b.product_id) items,sum(b.stock_qty*c.price_per_unit) amount '+
         'from mst_cost_center a,inv_cost_center_stock b,mst_product c '+
         'where a.id=b.cost_center_id '+
         'and b.product_id=c.id '+
         'group by a.id,a.name,a.modified_date '
-    var qstringWarehouse = 'select cast(concat(\'W-\',a.id) as char) _id,a.id,a.name,a.modified_date last_stock_opname,count(b.product_id) items,sum(b.stock_qty*c.price_per_unit) amount '+
+    var qstringWarehouse = 'select cast(concat(\'W-\',a.id) as char) _id,a.id,a.name,DATE_FORMAT(a.modified_date,\'%Y-%m-%d\') last_stock_opname,count(b.product_id) items,sum(b.stock_qty*c.price_per_unit) amount '+
         'from mst_warehouse a,inv_warehouse_stock b,mst_product c '+
         'where a.id=b.warehouse_id '+
         'and b.product_id=c.id '+
