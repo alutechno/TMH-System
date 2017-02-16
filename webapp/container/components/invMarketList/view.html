@@ -305,7 +305,7 @@
 
                                         <!-- buttons -->
                                         <div class="btn-edit">
-                                          <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()">
+                                          <button type="button" class="btn btn-primary" ng-show="!tableform.$visible&&selected.doc_status.selected.id!=4" ng-click="tableform.$show()">
                                             Modify Item List
                                           </button>
                                         </div>
@@ -322,8 +322,8 @@
               <br>
               <div class="row divider"></div>
               <div class="clearfix"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
-              <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" ng-show="selected.doc_status.selected.id!=4">Save</button>
+              <button class="btn btn-default" ng-show="selected.doc_status.selected.id!=4"><i class="pg-close"></i> Clear</button>
           </form>
       </div>
       <!-- END FORM -->

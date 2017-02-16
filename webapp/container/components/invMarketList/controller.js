@@ -320,6 +320,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         }
         $('#form-input').modal('show')
         //$scope.show.itemTable=true
+        $scope.viewMode = false
         $scope.addDetail(0)
         $scope.selected.doc_status['selected'] = $scope.doc_status_def[0]
         $scope.statusState = true
