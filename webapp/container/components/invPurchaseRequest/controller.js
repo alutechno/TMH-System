@@ -235,20 +235,21 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '12%'))
+        .renderWith($scope.actionsHtml).withOption('width', '8%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('ID'),
+        DTColumnBuilder.newColumn('id').withTitle('ID').withOption('width', '5%'),
         DTColumnBuilder.newColumn('code').withTitle('PR Number'),
         DTColumnBuilder.newColumn('doc_status_name').withTitle('Status'),
         DTColumnBuilder.newColumn('status').withTitle('Approval'),
+        DTColumnBuilder.newColumn('created_date').withTitle('Created Date').withOption('width','15%'),
         DTColumnBuilder.newColumn('delivery_date').withTitle('Expected At'),
-        DTColumnBuilder.newColumn('cost_center_name').withTitle('Cost Center'),
-        DTColumnBuilder.newColumn('warehouse_name').withTitle('Store Location'),
-        DTColumnBuilder.newColumn('created_date').withTitle('Created Date'),
+        DTColumnBuilder.newColumn('cost_center_name').withTitle('Cost Center').withOption('width','15%'),
+        DTColumnBuilder.newColumn('warehouse_name').withTitle('Store Location').withOption('width','15%'),
+
         DTColumnBuilder.newColumn('created_by').withTitle('Created by'),
-        DTColumnBuilder.newColumn('department_name').withTitle('Created Dept'),
-        DTColumnBuilder.newColumn('Total').withTitle('Total')
+        DTColumnBuilder.newColumn('department_name').withTitle('Dept'),
+        DTColumnBuilder.newColumn('Total').withTitle('Total').withClass('text-right')
     );
 
     var qwhereobj = {
