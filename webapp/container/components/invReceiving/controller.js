@@ -22,7 +22,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     var qstring = 'select * from (select aa.*,g.name warehouse_name,h.name cost_center_name from( '+
         'select a.id,a.code,a.po_id,a.received_status status_id,c.name status_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\') as created_date,'+
         'a.currency_id,d.supplier_id,e.name supplier_name,f.code currency_code,format(a.total_amount,0)total_amount,a.receive_notes notes,d.warehouse_id,'+
-        'd.cost_center_id,d.delivery_date,a.home_currency_exchange '+
+        'd.cost_center_id,DATE_FORMAT(d.delivery_date,\'%Y-%m-%d\') delivery_date,a.home_currency_exchange '+
         'from inv_po_receive a,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f '+
         'where c.table_name=\'inv_po_receive\'  '+
         'and a.received_status=c.value  '+
