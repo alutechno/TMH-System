@@ -18,6 +18,32 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
         selected: []
     };
 
+    $scope.focusinControl = {};
+    $scope.fileName = "List User";
+    $scope.exportExcel = function(){
+        var sqlstr = 'select a.password,a.name as username, full_name as fullname, b.name as roles, a.id , GROUP_CONCAT(b.id) as rolesid '+
+        'from user a, role b, role_user c '+
+        'where a.id = c.user_id '+
+        'and b.id = c.role_id ' +
+        ' group by a.name ';
+
+        queryService.post('select username,fullname,roles from('+sqlstr+')aa',undefined)
+        .then(function(data){
+            $scope.exportData = [];
+            //Header
+            $scope.exportData.push(["User Name", "Full Name", "Roles"]);
+            //Data
+            for(var i=0;i<data.data.length;i++){
+                var arr = []
+                for (var key in data.data[i]){
+                    arr.push(data.data[i][key])
+                }
+                $scope.exportData.push(arr)
+            }
+            $scope.focusinControl.downloadExcel()
+        })
+    }
+
     $scope.roles = []
     $scope.users = []
     $scope.rolesFilter = []

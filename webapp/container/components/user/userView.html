@@ -53,6 +53,10 @@
                 </div>
                 <div class="pull-right" style="width: 60%;">
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add User</button>
+
+                    <span ng-click="exportExcel()">
+                        <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
+                    </span>
                    <div class="form-group pull-right m-r-5">
 
                        <ui-select ng-model="filterVal.role.selected" theme="bootstrap" on-select="filter('role',$item)">

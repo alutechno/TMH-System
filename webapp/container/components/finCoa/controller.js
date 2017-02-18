@@ -13,12 +13,13 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope[$scope.el[i]] = true;
     }
 
-    var qstring = "select a.*,b.code account_type_code, b.name account_type_name,c.name status_name "+
-        "from mst_ledger_account a, ref_ledger_account_type b, "+
-         "(select * from table_ref where table_name = 'ref_product_category' and column_name = 'status') c "+
-        "where a.account_type_id = b.id "+
-        "and a.status = c.value "+
-        "and a.status != '2' "
+    var qstring = "select a.*,b.code account_type_code, b.name account_type_name,c.name status_name, z.name dept_name, "+
+        "if(locate('-000',a.code)>0,'H','D') as is_header,if(locate('-000',a.code)>0,a.code,concat('  ',a.code)) as code_header "+
+        "from mst_ledger_account a "+
+        "left join ref_ledger_account_type b on a.account_type_id = b.id "+
+        "left join (select * from table_ref where table_name = 'ref_product_category' and column_name = 'status') c on a.status = c.value "+
+        "left join mst_department z on z.id = a.dept_id "+
+        "where a.status != '2' "
     var qwhere = ''
 
     $scope.users = []
@@ -47,7 +48,9 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         account_type: {},
         cost_center: {},
         report_level: {},
-        status: {}
+        status: {},
+        filter_department: {},
+        filter_account_type: {}
     }
 
     $scope.arrActive = [
@@ -80,6 +83,27 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope.account_types = data.data
     })
 
+    $scope.focusinControl = {};
+    $scope.fileName = "Chart of Account";
+    $scope.exportExcel = function(){
+
+        queryService.post('select code,short_name,name,report_level,account_type_name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
+        .then(function(data){
+            $scope.exportData = [];
+            //Header
+            $scope.exportData.push(["Code", "Short Name", "Name", 'Level','Account Type', 'Description','Status']);
+            //Data
+            for(var i=0;i<data.data.length;i++){
+                var arr = []
+                for (var key in data.data[i]){
+                    arr.push(data.data[i][key])
+                }
+                $scope.exportData.push(arr)
+            }
+            $scope.focusinControl.downloadExcel()
+        })
+    }
+
 
     $scope.filterVal = {
         search: ''
@@ -110,6 +134,12 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         }
         return html
     }
+    $scope.codeHtml = function(data, type, full, meta) {
+        if (full.is_header=='D'){
+            return '&nbsp;&nbsp;&nbsp;&nbsp;'+full.code
+        }
+        else return '<b>'+full.code+'</b>'
+    }
 
     $scope.createdRow = function(row, data, dataIndex) {
         // Recompiling so we can bind Angular directive to the DT
@@ -134,7 +164,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-    .withOption('order', [0, 'desc'])
+    .withOption('order', [1, 'asc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -142,21 +172,35 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
         .renderWith($scope.actionsHtml).withOption('width', '10%'))
     }
+    $scope.dtColumns.push(DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '12%')
+    .renderWith($scope.codeHtml))
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('code').withTitle('Code'),
-        DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
-        DTColumnBuilder.newColumn('name').withTitle('Name'),
+        //DTColumnBuilder.newColumn('code').withTitle('Code Ori').notVisible(),
+        //DTColumnBuilder.newColumn('code_header').withTitle('Code'),
+        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
+        DTColumnBuilder.newColumn('account_type_name').withTitle('Account Type'),
+        DTColumnBuilder.newColumn('dept_name').withTitle('Dept'),
         DTColumnBuilder.newColumn('report_level').withTitle('Level'),
-        DTColumnBuilder.newColumn('account_type_name').withTitle('A/C'),
+        DTColumnBuilder.newColumn('is_header').withTitle('H/D').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
 
+    var qwhereobj = {
+        text: '',
+        department: '',
+        account_type: ''
+    }
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
-                else qwhere = ''
+                if ($scope.filterVal.search.length>0) qwhereobj.text = ' lower(a.name) like \'%'+$scope.filterVal.search+'%\' '
+                else qwhereobj.text = ''
+                qwhere = setWhere()
+
+                //if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
+                //else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
                 }, false)
@@ -169,8 +213,45 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         }
     }
 
-    /*END AD ServerSide*/
+    $scope.applyFilter = function(){
+        //console.log($scope.selected.filter_status)
 
+        //console.log($scope.selected.filter_cost_center)
+        if ($scope.selected.filter_department.selected){
+            qwhereobj.department = ' a.dept_id = '+$scope.selected.filter_department.selected.id+ ' '
+        }
+        if ($scope.selected.filter_account_type.selected){
+            qwhereobj.account_type = ' a.account_type_id = '+$scope.selected.filter_account_type.selected.id+ ' '
+        }
+        //console.log(setWhere())
+        qwhere = setWhere()
+        $scope.dtInstance.reloadData(function(obj){
+            console.log(obj)
+        }, false)
+
+    }
+    function setWhere(){
+        var arrWhere = []
+        var strWhere = ''
+        for (var key in qwhereobj){
+            if (qwhereobj[key].length>0) arrWhere.push(qwhereobj[key])
+        }
+        if (arrWhere.length>0){
+            strWhere = ' and ' + arrWhere.join(' and ')
+        }
+        //console.log(strWhere)
+        return strWhere
+    }
+
+    /*END AD ServerSide*/
+    $scope.openAdvancedFilter = function(val){
+
+        $scope.showAdvance = val
+        if (val==false){
+            $scope.selected.filter_account_type = {}
+            $scope.selected.filter_department = {}
+        }
+    }
     $scope.openQuickView = function(state){
         if (state == 'add'){
             $scope.clear()
@@ -276,7 +357,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
-        $('#coa_code').prop('disabled', true);
+        //$('#coa_code').prop('disabled', true);
 
         // console.log(obj)
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
