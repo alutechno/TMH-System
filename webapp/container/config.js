@@ -204,160 +204,1065 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
         url: '/fo',
         template: '<div ui-view></div>'
     })
-    .state('app.fo.customer', {
-        url: "/customer",
-        templateUrl: "container/components/foCustomer/view.html",
-        controller: 'FoCustomerCtrl',
+    .state("app.fo.building", {
+        url: "/foBuilding",
+        templateUrl: "container/components/foBuilding/view.html",
+        controller: "FoBuildingCtrl",
         resolve: {
-            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
                 return $ocLazyLoad.load([
-                    'dataTables',
-                    'select'
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
                 ], {
-                    insertBefore: '#lazyload_placeholder'
+                    insertBefore: "#lazyload_placeholder"
                 })
                 .then(function() {
-                    return $ocLazyLoad.load('container/components/foCustomer/controller.js');
-                });
-
-            }]
-        }
-    })
-    .state('app.fo.customerContract', {
-        url: "/customerContract",
-        templateUrl: "container/components/foCustomerContract/view.html",
-        controller: 'FoCustomerContractCtrl',
-        resolve: {
-            deps: ['$ocLazyLoad', function($ocLazyLoad) {
-                return $ocLazyLoad.load([
-                    'dataTables',
-                    'select',
-                    'datepicker',
-                    'daterangepicker'
-
-                ], {
-                    insertBefore: '#lazyload_placeholder'
-                })
-                .then(function() {
-                    return $ocLazyLoad.load('container/components/foCustomerContract/controller.js');
-                });
-
-            }]
-        }
-    })
-    .state('app.fo.room', {
-        url: "/room",
-        templateUrl: "container/components/foRoom/view.html",
-        controller: 'FoRoomCtrl',
-        resolve: {
-            deps: ['$ocLazyLoad', function($ocLazyLoad) {
-                return $ocLazyLoad.load([
-                    'dataTables',
-                    'select'
-                ], {
-                    insertBefore: '#lazyload_placeholder'
-                })
-                .then(function() {
-                    return $ocLazyLoad.load('container/components/foRoom/controller.js');
+                    return $ocLazyLoad.load("container/components/foBuilding/controller.js");
                 });
             }]
         }
     })
-    .state('app.fo.roomType', {
-        url: "/roomType",
+    .state("app.fo.buildingFeature", {
+        url: "/foBuildingFeature",
+        templateUrl: "container/components/foBuildingFeature/view.html",
+        controller: "FoBuildingFeatureCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foBuildingFeature/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.buildingSection", {
+        url: "/foBuildingSection",
+        templateUrl: "container/components/foBuildingSection/view.html",
+        controller: "FoBuildingSectionCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foBuildingSection/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.roomBoy", {
+        url: "/foRoomBoy",
+        templateUrl: "container/components/foRoomBoy/view.html",
+        controller: "FoRoomBoyCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foRoomBoy/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.workingShift", {
+        url: "/foWorkingShift",
+        templateUrl: "container/components/foWorkingShift/view.html",
+        controller: "FoWorkingShiftCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foWorkingShift/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.items", {
+        url: "/foItems",
+        templateUrl: "container/components/foItems/view.html",
+        controller: "FoItemsCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foItems/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.roomType", {
+        url: "/foRoomType",
         templateUrl: "container/components/foRoomType/view.html",
-        controller: 'FoRoomTypeCtrl',
+        controller: "FoRoomTypeCtrl",
         resolve: {
-            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
                 return $ocLazyLoad.load([
-                    'dataTables',
-                    'select'
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
                 ], {
-                    insertBefore: '#lazyload_placeholder'
+                    insertBefore: "#lazyload_placeholder"
                 })
                 .then(function() {
-                    return $ocLazyLoad.load('container/components/foRoomType/controller.js');
+                    return $ocLazyLoad.load("container/components/foRoomType/controller.js");
                 });
-
             }]
         }
     })
-    .state('app.fo.roomRate', {
-        url: "/roomRate",
+    .state("app.fo.roomRate", {
+        url: "/foRoomRate",
         templateUrl: "container/components/foRoomRate/view.html",
-        controller: 'FoRoomRateCtrl',
+        controller: "FoRoomRateCtrl",
         resolve: {
-            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
                 return $ocLazyLoad.load([
-                    'dataTables',
-                    'select'
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
                 ], {
-                    insertBefore: '#lazyload_placeholder'
+                    insertBefore: "#lazyload_placeholder"
                 })
                 .then(function() {
-                    return $ocLazyLoad.load('container/components/foRoomRate/controller.js');
+                    return $ocLazyLoad.load("container/components/foRoomRate/controller.js");
                 });
-
             }]
         }
     })
-    .state('app.fo.roomStatus', {
-        url: "/roomStatus",
-        templateUrl: "container/components/foRoomStatus/view.html",
-        controller: 'FoRoomStatusCtrl',
+    .state("app.fo.roomFeature", {
+        url: "/foRoomFeature",
+        templateUrl: "container/components/foRoomFeature/view.html",
+        controller: "FoRoomFeatureCtrl",
         resolve: {
-            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
                 return $ocLazyLoad.load([
-                    'dataTables',
-                    'select'
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
                 ], {
-                    insertBefore: '#lazyload_placeholder'
+                    insertBefore: "#lazyload_placeholder"
                 })
                 .then(function() {
-                    return $ocLazyLoad.load('container/components/foRoomStatus/controller.js');
+                    return $ocLazyLoad.load("container/components/foRoomFeature/controller.js");
                 });
-
             }]
         }
     })
-    .state('app.fo.paymentMethod', {
-        url: "/paymentMethod",
+    .state("app.fo.room", {
+        url: "/foRoom",
+        templateUrl: "container/components/foRoom/view.html",
+        controller: "FoRoomCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foRoom/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.fos", {
+        url: "/foFrontOfficeSections",
+        templateUrl: "container/components/foFrontOfficeSections/view.html",
+        controller: "FoFrontOfficeSectionsCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foFrontOfficeSections/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.guestComplain", {
+        url: "/foGuestComplain",
+        templateUrl: "container/components/foGuestComplain/view.html",
+        controller: "FoGuestComplainCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foGuestComplain/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.fdFlag", {
+        url: "/foFlag",
+        templateUrl: "container/components/foFlag/view.html",
+        controller: "FoFlagCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foFlag/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.fdVip", {
+        url: "/foVIP",
+        templateUrl: "container/components/foVIP/view.html",
+        controller: "FoVIPCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foVIP/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.newspaper", {
+        url: "/foNewspaper",
+        templateUrl: "container/components/foNewspaper/view.html",
+        controller: "FoNewspaperCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foNewspaper/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.fdCt", {
+        url: "/foCancellationType",
+        templateUrl: "container/components/foCancellationType/view.html",
+        controller: "FoCancellationTypeCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foCancellationType/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.fdMrt", {
+        url: "/foMaintenanceRequestType",
+        templateUrl: "container/components/foMaintenanceRequestType/view.html",
+        controller: "FoMaintenanceRequestTypeCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foMaintenanceRequestType/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.fdMrl", {
+        url: "/foMaintenanceRequestLocation",
+        templateUrl: "container/components/foMaintenanceRequestLocation/view.html",
+        controller: "FoMaintenanceRequestLocationCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foMaintenanceRequestLocation/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.fdMrr", {
+        url: "/foMaintenanceRequestRequest",
+        templateUrl: "container/components/foMaintenanceRequestRequest/view.html",
+        controller: "FoMaintenanceRequestRequestCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foMaintenanceRequestRequest/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.fdOot", {
+        url: "/foOutofOrderType",
+        templateUrl: "container/components/foOutofOrderType/view.html",
+        controller: "FoOutofOrderTypeCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foOutofOrderType/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.fdBi", {
+        url: "/foBorrowedItem",
+        templateUrl: "container/components/foBorrowedItem/view.html",
+        controller: "FoBorrowedItemCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foBorrowedItem/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.fdDb", {
+        url: "/foDepositBox",
+        templateUrl: "container/components/foDepositBox/view.html",
+        controller: "FoDepositBoxCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foDepositBox/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.rCt", {
+        url: "/foCustomerType",
+        templateUrl: "container/components/foCustomerType/view.html",
+        controller: "FoCustomerTypeCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foCustomerType/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.rCg", {
+        url: "/foCustomerGrade",
+        templateUrl: "container/components/foCustomerGrade/view.html",
+        controller: "FoCustomerGradeCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foCustomerGrade/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.rGhrg", {
+        url: "/foGuestHistoryRevenueGrade",
+        templateUrl: "container/components/foGuestHistoryRevenueGrade/view.html",
+        controller: "FoGuestHistoryRevenueGradeCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foGuestHistoryRevenueGrade/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.rGhsg", {
+        url: "/foGuestHistoryStaysGrade",
+        templateUrl: "container/components/foGuestHistoryStaysGrade/view.html",
+        controller: "FoGuestHistoryStaysGradeCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foGuestHistoryStaysGrade/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.rGhrng", {
+        url: "/foGuestHistRoomNightsGrade",
+        templateUrl: "container/components/foGuestHistRoomNightsGrade/view.html",
+        controller: "FoGuestHistRoomNightsGradeCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foGuestHistRoomNightsGrade/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.salesAgent", {
+        url: "/foSalesAgent",
+        templateUrl: "container/components/foSalesAgent/view.html",
+        controller: "FoSalesAgentCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foSalesAgent/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.agentComission", {
+        url: "/foAgentComission",
+        templateUrl: "container/components/foAgentComission/view.html",
+        controller: "FoAgentComissionCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foAgentComission/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.rateType", {
+        url: "/foRateType",
+        templateUrl: "container/components/foRateType/view.html",
+        controller: "FoRateTypeCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foRateType/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.packageType", {
+        url: "/foPackageType",
+        templateUrl: "container/components/foPackageType/view.html",
+        controller: "FoPackageTypeCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foPackageType/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.packCat", {
+        url: "/foPackageCategory",
+        templateUrl: "container/components/foPackageCategory/view.html",
+        controller: "FoPackageCategoryCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foPackageCategory/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.pro", {
+        url: "/foPackageRateOperator",
+        templateUrl: "container/components/foPackageRateOperator/view.html",
+        controller: "FoPackageRateOperatorCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foPackageRateOperator/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.segment", {
+        url: "/foSegment",
+        templateUrl: "container/components/foSegment/view.html",
+        controller: "FoSegmentCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foSegment/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.sourceType", {
+        url: "/foSourceType",
+        templateUrl: "container/components/foSourceType/view.html",
+        controller: "FoSourceTypeCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foSourceType/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.dayType", {
+        url: "/foDayType",
+        templateUrl: "container/components/foDayType/view.html",
+        controller: "FoDayTypeCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foDayType/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.pensionType", {
+        url: "/foPensionType",
+        templateUrl: "container/components/foPensionType/view.html",
+        controller: "FoPensionTypeCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foPensionType/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.checkInBy", {
+        url: "/foCheckInBy",
+        templateUrl: "container/components/foCheckInBy/view.html",
+        controller: "FoCheckInByCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foCheckInBy/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.checkOutBy", {
+        url: "/foCheckOutBy",
+        templateUrl: "container/components/foCheckOutBy/view.html",
+        controller: "FoCheckOutByCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foCheckOutBy/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.venues", {
+        url: "/foVenues",
+        templateUrl: "container/components/foVenues/view.html",
+        controller: "FoVenuesCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foVenues/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.banquetType", {
+        url: "/foBanquetType",
+        templateUrl: "container/components/foBanquetType/view.html",
+        controller: "FoBanquetTypeCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foBanquetType/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.banquetMealPeriod", {
+        url: "/foBanquetMealPeriod",
+        templateUrl: "container/components/foBanquetMealPeriod/view.html",
+        controller: "FoBanquetMealPeriodCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foBanquetMealPeriod/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.banquetMealLoc", {
+        url: "/foBanquetMealLocation",
+        templateUrl: "container/components/foBanquetMealLocation/view.html",
+        controller: "FoBanquetMealLocationCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foBanquetMealLocation/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.oTc", {
+        url: "/foTransactionCategory",
+        templateUrl: "container/components/foTransactionCategory/view.html",
+        controller: "FoTransactionCategoryCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foTransactionCategory/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.otclass", {
+        url: "/foTransactionClass",
+        templateUrl: "container/components/foTransactionClass/view.html",
+        controller: "FoTransactionClassCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foTransactionClass/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.oChargeSetup", {
+        url: "/foChargeSetup",
+        templateUrl: "container/components/foChargeSetup/view.html",
+        controller: "FoChargeSetupCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foChargeSetup/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.oTax", {
+        url: "/foTax",
+        templateUrl: "container/components/foTax/view.html",
+        controller: "FoTaxCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foTax/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.oPm", {
+        url: "/foPaymentMethod",
         templateUrl: "container/components/foPaymentMethod/view.html",
-        controller: 'FoPaymentMethodCtrl',
+        controller: "FoPaymentMethodCtrl",
         resolve: {
-            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
                 return $ocLazyLoad.load([
-                    'dataTables',
-                    'select'
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
                 ], {
-                    insertBefore: '#lazyload_placeholder'
+                    insertBefore: "#lazyload_placeholder"
                 })
                 .then(function() {
-                    return $ocLazyLoad.load('container/components/foPaymentMethod/controller.js');
+                    return $ocLazyLoad.load("container/components/foPaymentMethod/controller.js");
                 });
-
             }]
         }
     })
-    .state('app.fo.reservation', {
-        url: "/reservation",
-        templateUrl: "container/components/foReservation/view.html",
-        controller: 'FoReservationCtrl',
-        resolve: {
-            deps: ['$ocLazyLoad', function($ocLazyLoad) {
-                return $ocLazyLoad.load([
-                    'dataTables',
-                    'select'
-                ], {
-                    insertBefore: '#lazyload_placeholder'
-                })
-                .then(function() {
-                    return $ocLazyLoad.load('container/components/foReservation/controller.js');
-                });
 
-            }]
-        }
-    })
+
+
 
     //Inventory Module
     .state('app.inv', {
