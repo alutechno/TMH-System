@@ -56,6 +56,9 @@ span.ui-select-match-text.pull-left {
 .itemtable tbody tr td {
     padding: 5px !important;
 }
+.itemtable tbody tr th {
+    padding: 5px !important;
+}
 
 .ui-select-match-close.select2-search-choice-close {
     color: #626262 !important;
@@ -143,6 +146,17 @@ span.ui-select-match-text.pull-left {
         left:0;
         top:0;
     }
+}
+
+.print_a4 {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 20mm;
+    margin: 10mm auto;
+    border: 1px #D3D3D3 solid;
+    border-radius: 5px;
+    background: white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
 .datatable-scroll {

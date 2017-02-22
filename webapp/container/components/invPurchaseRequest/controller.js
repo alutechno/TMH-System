@@ -19,6 +19,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     //$scope.role = false;
     $scope.rejectState = false;
     $scope.viewMode = false;
+    $scope.releaseState = true;
     console.log($scope.el)
     for (var i=0;i<$scope.el.length;i++){
 
@@ -91,6 +92,9 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     $scope.items = []
     $scope.itemsOri = []
     $scope.child = {}
+    $scope.totalQty = 0
+    $scope.totalPrice = 0
+    $scope.tAmt = 0
 
 
     $scope.id = '';
@@ -327,6 +331,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 
     $scope.openQuickView = function(state){
         if (state == 'add'){
+            $scope.releaseState = true;
             $scope.clear()
         }
         $('#form-input').modal('show')
@@ -823,6 +828,9 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                         supplier_id: data.data[i].supplier_id,
                         supplier_name: data.data[i].supplier_name
                     })
+                    $scope.totalQty += data.data[i].order_qty
+                    $scope.tAmt += data.data[i].order_amount
+
                 }
                 $scope.itemsOri = angular.copy($scope.items)
                 //$scope.items = data.data
@@ -948,9 +956,11 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     $scope.update = function(ids){
         $('#form-input').modal('show');
         $scope.pr.id = ids
+        $scope.releaseState = true
         console.log(qstring)
         console.log($scope.updateState)
         //$scope.updateState = true
+
         console.log($scope.updateState)
 
         queryService.post(qstring+' and a.id='+ids,undefined)
@@ -978,6 +988,9 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             }
             $scope.statusState = false
             $scope.doc_status = []
+            if (result.data[0].doc_status_id == 7){
+                $scope.releaseState = false
+            }
             if ($scope.el.indexOf('approvalDeptHead')>-1 && (result.data[0].doc_status_id == 1 && result.data[0].approval_status == 1)){
                 //$scope.doc_status.push($scope.doc_status_def[0])
                 $scope.doc_status.push($scope.doc_status_def[1])
@@ -1384,11 +1397,28 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     $scope.updatePrice = function(e,d,p){
         $scope.items[d-1].price = p
         $scope.items[d-1].amount = p * $scope.items[d-1].qty
+        $scope.totalPrice = 0
+        $scope.tAmt = 0
+        for (var i=0;i<$scope.items.length;i++){
+            $scope.totalPrice += parseFloat($scope.items[i].price)
+            $scope.tAmt += parseFloat($scope.items[i].amount)
+        }
+        if ($scope.tAmt.toString()=='NaN') $scope.tAmt = 0
+        if ($scope.totalQty.toString()=='NaN') $scope.totalQty = 0
     }
     $scope.updatePriceQty = function(e,d,q){
         console.log(q)
         $scope.items[d-1].qty = q
         $scope.items[d-1].amount = q * $scope.items[d-1].price
+        $scope.totalQty = 0
+        $scope.tAmt = 0
+        for (var i=0;i<$scope.items.length;i++){
+            $scope.totalQty += parseFloat($scope.items[i].qty)
+            $scope.tAmt += parseFloat($scope.items[i].amount)
+        }
+        if ($scope.tAmt.toString()=='NaN') $scope.tAmt = 0
+        if ($scope.totalQty.toString()=='NaN') $scope.totalQty = 0
+
     }
     function numberSep(val){
         console.log(parseFloat(val).toLocaleString())

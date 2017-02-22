@@ -68,20 +68,6 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.code.$invalid && !product.code.$pristine }">
-                          <label>Code</label>
-                          <input type="text" class="form-control" name="code" ng-model="product.code" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
-                      </div>
-                  </div>
-                  <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.barcode.$invalid && !product.barcode.$pristine }">
-                          <label>Barcode</label>
-                          <input type="text" class="form-control" name="barcode" ng-model="product.barcode" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
-                      </div>
-                  </div>
-              </div>
-              <div class="row clearfix">
-                  <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.category_id.selected.$invalid && !selected.category_id.selected.$pristine }">
                           <label>Category</label>
                           <ui-select ng-model="selected.category_id.selected" theme="bootstrap" on-select="getSubCategory($item)" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element required>
@@ -101,6 +87,20 @@
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                               </ui-select-choices>
                           </ui-select>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.code.$invalid && !product.code.$pristine }">
+                          <label>Code</label>
+                          <input type="text" class="form-control" name="code" ng-model="product.code" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element ng-readonly="true">
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.barcode.$invalid && !product.barcode.$pristine }">
+                          <label>Barcode</label>
+                          <input type="text" class="form-control" name="barcode" ng-model="product.barcode" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
                       </div>
                   </div>
               </div>

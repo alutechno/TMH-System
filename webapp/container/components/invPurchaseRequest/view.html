@@ -266,17 +266,17 @@
                                         </editable-ui-select-choices>
                                   </span>
                               </td>
-                              <td >
-                                  <span editable-number="item.qty" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updatePriceQty($event,item.id,$data)" >
+                              <td style="text-align: right;">
+                                  <span editable-text="item.qty" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updatePriceQty($event,item.id,$data)" >
                                       {{ item.qty }}
                                   </span>
                               </td>
-                              <td >
+                              <td style="text-align: right;">
                                   <span editable-text="item.price" e-form="tableform" data-e-ng-keyup="updatePrice($event,item.id,$data)">
                                       {{ item.price }}
                                   </span>
                               </td>
-                              <td >
+                              <td style="text-align: right;">
                                   <span editable-text="item.amount" e-form="tableform" onbeforesave="checkName($data, user.id)">
                                       {{ item.amount }}
                                   </span>
@@ -297,11 +297,21 @@
                               </td>
                           </tr>
                           </tbody>
+                          <tfooter >
+                              <tr>
+                                  <th width="10%" style="text-align: center;">Total</th>
+                                  <th width="30%">&nbsp;</th>
+                                  <th width="10%" style="text-align: right;"><span >{{totalQty}}</span></th>
+                                  <th width="10%">&nbsp;</th>
+                                  <th width="10%" style="text-align: right;"><span >{{tAmt}}</span></th>
+                                  <th width="30%">&nbsp;</th>
+                              </tr>
+                          </tfooter>
                       </table>
 
                       <!-- buttons -->
                       <div class="btn-edit">
-                        <button type="button" class="btn btn-primary" ng-show="!tableform.$visible&&selected.doc_status.selected.id!=7" ng-click="tableform.$show()">
+                        <button type="button" class="btn btn-primary" ng-show="!tableform.$visible&&releaseState" ng-click="tableform.$show()">
                           Modify Item List
                         </button>
                       </div>
@@ -319,7 +329,7 @@
               <br>
               <div class="row divider"></div>
               <div class="clearfix"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-show="selected.doc_status.selected.id!=7" ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-show="releaseState" ng-click="submit()" >Save</button>
               <button class="btn btn-default" ng-show="selected.doc_status.selected.id!=7"><i class="pg-close"></i> Clear</button>
           </form>
       </div>

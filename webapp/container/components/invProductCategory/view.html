@@ -60,6 +60,14 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : cat.short_name.$invalid && !cat.short_name.$pristine }">
+                          <label>Short Name</label>
+                          <input type="text" class="form-control" name="short_name" ng-model="cat.short_name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : cat.description.$invalid && !cat.description.$pristine }">
                           <label>Description</label>
                           <input type="text" class="form-control" name="name" ng-model="cat.description" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >

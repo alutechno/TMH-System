@@ -84,7 +84,7 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
     })
 
     $scope.arr.category_id = []
-    queryService.get('select id,name from ref_product_category where status != 2 order by name asc',undefined)
+    queryService.get('select id,name,short_name from ref_product_category where status != 2 order by name asc',undefined)
     .then(function(data){
         $scope.arr.category_id = data.data
     })
@@ -512,6 +512,11 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
         queryService.get('select id,name from ref_product_subcategory where category_id='+selectItem.id+' order by name',undefined)
         .then(function(data){
             $scope.arr.subcategory_id = data.data
+        })
+        queryService.post('select cast(concat(\''+selectItem.short_name+'\',\'-\', lpad(seq(\''+selectItem.short_name+'\',\'\'),4,\'0\')) as char) as code ',undefined)
+        .then(function(data){
+            console.log(data)
+            $scope.product.code = data.data[0].code
         })
     }
 

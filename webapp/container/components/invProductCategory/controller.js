@@ -13,7 +13,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstring = 'select id,name,description,status, b.status_name '+
+    var qstring = 'select id,name,description,status, b.status_name,a.short_name '+
         'from ref_product_category a, '+
         	'(select id as status_id, value as status_value,name as status_name '+
             'from table_ref '+
@@ -111,6 +111,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('name').withTitle('Name'),
+        DTColumnBuilder.newColumn('short_name').withTitle('Short'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
@@ -280,7 +281,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             id: '',
             name: '',
             description: '',
-            status: ''
+            status: '',
+            short_name: ''
         }
     }
 
