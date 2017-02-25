@@ -1293,12 +1293,12 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 
     $scope.products = []
 
-    queryService.get('select id,name,last_order_price from mst_product order by id limit 50 ',undefined)
+    queryService.get('select id,name,last_order_price from mst_product where is_ml=\'Y\' order by id limit 50 ',undefined)
     .then(function(data){
         $scope.products = data.data
     })
     $scope.productUp = function(text) {
-        queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
+        queryService.post('select id,name,last_order_price from mst_product where is_ml=\'Y\' and lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
         .then(function(data){
             $scope.products = data.data
         })
