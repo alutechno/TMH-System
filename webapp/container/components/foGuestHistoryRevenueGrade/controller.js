@@ -64,7 +64,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.fileName = "Guest History Revenue Grade";
     $scope.exportExcel = function(){
 
-        queryService.post('select code,name,description,status_name,total_spend_begin,total_spend_end from('+qstring + qwhere+')aa order by code',undefined)
+        queryService.post('select code,name,description,status_name,grade,total_spend_begin,total_spend_end from('+qstring + qwhere+')aa order by code',undefined)
         .then(function(data){
             $scope.exportData = [];
             //Header
