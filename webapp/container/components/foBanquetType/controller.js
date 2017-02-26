@@ -59,7 +59,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     };
 
     $scope.focusinControl = {};
-    $scope.fileName = "Banquet Type";
+    $scope.fileName = $scope.viewtitle
     $scope.exportExcel = function(){
 
         queryService.post('select code,name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
