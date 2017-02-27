@@ -3,6 +3,7 @@ var mysql = require('mysql');
 var bodyParser = require('body-parser');
 var multer  = require('multer')
 var upload = multer({ dest: __dirname+'/webapp/container/img/tmp/'})
+var cpuCount = require('os').cpus().length;
 var pool  = mysql.createPool({
     connectionLimit : 50,
      host            : '103.43.47.115',
@@ -23,7 +24,7 @@ var pool  = mysql.createPool({
 	multipleStatements : true
 });*/
 if (cluster.isMaster) {
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0; i < cpuCount; i++) {
         cluster.fork();
     }
 
