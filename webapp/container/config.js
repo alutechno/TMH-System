@@ -336,6 +336,50 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state("app.fo.itemRefPage", {
+        url: "/foItemRefPage",
+        templateUrl: "container/components/foItemRefPage/view.html",
+        controller: "FoItemRefPageCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foItemRefPage/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.itemRefType", {
+        url: "/foItemRefType",
+        templateUrl: "container/components/foItemRefType/view.html",
+        controller: "FoItemRefTypeCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foItemRefType/controller.js");
+                });
+            }]
+        }
+    })
     .state("app.fo.roomType", {
         url: "/foRoomType",
         templateUrl: "container/components/foRoomType/view.html",
