@@ -3,7 +3,6 @@ var userController = angular.module('app', []);
 userController
 .controller('FoItemsCtrl',
 function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
-
     $scope.el = [];
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
@@ -13,13 +12,12 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope[$scope.el[i]] = true;
     }
 
-    var qstring = "select a.*,b.code account_type_code, b.name account_type_name,c.name status_name, z.name dept_name, "+
-        "if(locate('-000',a.code)>0,'H','D') as is_header,if(locate('-000',a.code)>0,a.code,concat('  ',a.code)) as code_header "+
-        "from mst_ledger_account a "+
-        "left join ref_ledger_account_type b on a.account_type_id = b.id "+
-        "left join (select * from table_ref where table_name = 'ref_product_category' and column_name = 'status') c on a.status = c.value "+
-        "left join mst_department z on z.id = a.dept_id "+
-        "where a.status != '2' "
+    var qstring = "select a.id,if(a.is_in_out = 'Y','Yes','No') as is_in_out,a.code,a.short_name,a.name,a.description,a.status,a.hk_item_page_id,a.hm_item_type_id,b.status_name,c.name page_name,d.name type_name from mst_hk_items a, "+
+        "(select id as status_id, value as status_value,name as status_name  "+
+            "from table_ref  "+
+            "where table_name = 'ref_product_category' and column_name='status')b, "+
+            "ref_hk_item_page c, ref_hk_item_type d " +
+        "where a.status = b.status_value and a.status!=2 and a.hk_item_page_id = c.id and a.hm_item_type_id = d.id "
     var qwhere = ''
 
     $scope.users = []
@@ -34,64 +32,49 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         id: '',
         code: '',
         name: '',
-        short_name: '',
         description: '',
-        status: '',
-        report_level: '',
-        account_type_id: '',
-        dept_id: '',
-        cost_center_id: ''
+        status: ''
     }
 
     $scope.selected = {
-        dept: {},
-        account_type: {},
-        cost_center: {},
-        report_level: {},
         status: {},
         filter_department: {},
-        filter_account_type: {}
+        filter_account_type: {},
+        page: {},
+        type: {},
+        is_in_out: {}
     }
-
-    $scope.arrActive = [
-        {
-            id: 1,
-            name: 'Yes'
-        },
-        {
-            id: 0,
-            name: 'No'
-        }
+    $scope.arrIsInOut = [
+        {id: 'Y', name: 'Yes'},
+        {id: 'N', name: 'No'}
     ]
-    $scope.arrReportLevel = [
-        {id: 0,name: '0'},
-        {id: 1,name: '1'},
-        {id: 2,name: '2'},
-        {id: 3,name: '3'},
-        {id: 4,name: '4'},
-        {id: 5,name: '5'}
-    ]
+    $scope.selected.is_in_out['selected'] = $scope.arrIsInOut[0]
+    $scope.arrPage = []
+    $scope.arrType = []
 
-    $scope.departments = []
-    departmentService.get()
+    queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1) order by name asc',undefined)
     .then(function(data){
-        $scope.departments = data.data
+        $scope.arrActive = data.data
+        $scope.selected.status['selected'] = $scope.arrActive[0]
     })
-    $scope.account_types = []
-    accountTypeService.get()
+    queryService.get('select id,name from ref_hk_item_page where status!=2 order by name asc',undefined)
     .then(function(data){
-        $scope.account_types = data.data
+        $scope.arrPage = data.data
+    })
+    queryService.get('select id,name from ref_hk_item_type where status!=2 order by name asc',undefined)
+    .then(function(data){
+        $scope.arrType = data.data
     })
 
     $scope.focusinControl = {};
-    $scope.fileName = "Chart of Account";
+    $scope.fileName = "Housekeeping Items Reference";
     $scope.exportExcel = function(){
 
-        queryService.post('select code,short_name,name,report_level,account_type_name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
+        queryService.post('select page_name,type_name,code,short_name,name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
         .then(function(data){
             $scope.exportData = [];
             //Header
-            $scope.exportData.push(["Code", "Short Name", "Name", 'Level','Account Type', 'Description','Status']);
+            $scope.exportData.push(["Page","Type","Code","Short Name", "Name", 'Description','Status']);
             //Data
             for(var i=0;i<data.data.length;i++){
                 var arr = []
@@ -134,12 +117,6 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         }
         return html
     }
-    $scope.codeHtml = function(data, type, full, meta) {
-        if (full.is_header=='D'){
-            return '&nbsp;&nbsp;&nbsp;&nbsp;'+full.code
-        }
-        else return '<b>'+full.code+'</b>'
-    }
 
     $scope.createdRow = function(row, data, dataIndex) {
         // Recompiling so we can bind Angular directive to the DT
@@ -164,7 +141,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-    .withOption('order', [1, 'asc'])
+    .withOption('order', [0, 'asc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -172,17 +149,14 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
         .renderWith($scope.actionsHtml).withOption('width', '10%'))
     }
-    $scope.dtColumns.push(DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '12%')
-    .renderWith($scope.codeHtml))
     $scope.dtColumns.push(
         //DTColumnBuilder.newColumn('code').withTitle('Code Ori').notVisible(),
-        //DTColumnBuilder.newColumn('code_header').withTitle('Code'),
-        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
-        DTColumnBuilder.newColumn('account_type_name').withTitle('Account Type'),
-        DTColumnBuilder.newColumn('dept_name').withTitle('Dept'),
-        DTColumnBuilder.newColumn('report_level').withTitle('Level'),
-        DTColumnBuilder.newColumn('is_header').withTitle('H/D').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('code').withTitle('Code'),
+        DTColumnBuilder.newColumn('page_name').withTitle('page'),
+        DTColumnBuilder.newColumn('type_name').withTitle('Type'),
+        DTColumnBuilder.newColumn('is_in_out').withTitle('in/out'),
         DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
+        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
@@ -263,32 +237,22 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         if ($scope.coa.id.length==0){
             //exec creation
 
-            // $scope.coa.code = $scope.coa.code;
-            // $scope.coa.short_name = $scope.coa.short_name;
-            // $scope.coa.description = $scope.coa.description;
-            /*$scope.coa.status = $scope.selected.status.selected.id;
-            $scope.coa.report_level = $scope.selected.report_level.selected.id;
-            $scope.coa.account_type_id = $scope.selected.account_type.selected.id;
-            $scope.coa.dept_id = $scope.selected.dept.selected.id;
-            $scope.coa.cost_center_id = $scope.selected.cost_center.selected.id;
-            $scope.cat.status = $scope.selected.status.selected.id;
-            $scope.cat['created_by'] = $localStorage.currentUser.name.id;
-            $scope.cat['created_date'] = globalFunction.currentDate();*/
             var param = {
                 code: $scope.coa.code,
                 name: $scope.coa.name,
                 short_name: $scope.coa.short_name,
+                hk_item_page_id: $scope.selected.page.selected.id,
+                hm_item_type_id: $scope.selected.type.selected.id,
+                is_in_out: $scope.selected.is_in_out.selected.id,
                 description: $scope.coa.description,
+                cost: $scope.coa.cost,
                 status: $scope.selected.status.selected.id,
-                account_type_id: $scope.selected.account_type.selected.id,
-                report_level: $scope.selected.report_level.selected.id,
-                dept_id: $scope.selected.dept.selected.id,
                 created_date: globalFunction.currentDate(),
                 created_by: $localStorage.currentUser.name.id
             }
             console.log(param)
 
-            queryService.post('insert into mst_ledger_account SET ?',param)
+            queryService.post('insert into mst_hk_items SET ?',param)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -305,9 +269,10 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
             },
             function (err){
+                console.log(err)
                 $('#form-input').pgNotification({
                     style: 'flip',
-                    message: 'Error Insert: '+err.desc.code,
+                    message: 'Error Insert: '+err.code,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'danger'
@@ -317,28 +282,22 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         }
         else {
             //exec update
-            // $scope.coa.code = $scope.coa.code;
-            // $scope.coa.short_name = $scope.coa.short_name;
-            // $scope.coa.description = $scope.coa.description;
-            /*$scope.coa.status = $scope.selected.status.selected.id;
-            $scope.coa.report_level = $scope.selected.report_level.selected.id;
-            $scope.coa.account_type_id = $scope.selected.account_type.selected.id;
-            $scope.coa.dept_id = $scope.selected.dept.selected.id;
-            $scope.coa.cost_center_id = $scope.selected.cost_center.selected.id;*/
+
             var param = {
                 code: $scope.coa.code,
                 name: $scope.coa.name,
                 short_name: $scope.coa.short_name,
+                hk_item_page_id: $scope.selected.page.selected.id,
+                hm_item_type_id: $scope.selected.type.selected.id,
+                is_in_out: $scope.selected.is_in_out.selected.id,
                 description: $scope.coa.description,
                 status: $scope.selected.status.selected.id,
-                account_type_id: $scope.selected.account_type.selected.id,
-                report_level: $scope.selected.report_level.selected.id,
-                dept_id: $scope.selected.dept.selected.id,
+                cost: $scope.coa.cost,
                 modified_date: globalFunction.currentDate(),
                 modified_by: $localStorage.currentUser.name.id
             }
             console.log(param)
-            queryService.post('update mst_ledger_account SET ? WHERE id='+$scope.coa.id ,param)
+            queryService.post('update mst_hk_items SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Update')
@@ -346,6 +305,13 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
                     }, false)
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Update '+$scope.coa.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
                     $scope.clear()
                 }
                 else {
@@ -366,39 +332,16 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
             $scope.coa.id = result.data[0].id
             $scope.coa.code = result.data[0].code
-            $scope.coa.short_name = result.data[0].short_name
             $scope.coa.name = result.data[0].name
+            $scope.coa.cost = result.data[0].cost
+            $scope.coa.short_name = result.data[0].short_name
             $scope.coa.description = result.data[0].description
             $scope.coa.status = result.data[0].status
-            $scope.coa.report_level = result.data[0].report_level
-            $scope.coa.account_type_id = result.data[0].account_type_id
-            $scope.coa.dept_id = result.data[0].dept_id
-            $scope.coa.status = result.data[0].status
-            $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
+            $scope.selected.status.selected = {id: result.data[0].status,name:result.data[0].status_name}
+            $scope.selected.page.selected = {id: result.data[0].hk_item_page_id,name:result.data[0].page_name}
+            $scope.selected.type.selected = {id: result.data[0].hm_item_type_id,name:result.data[0].type_name}
+            $scope.selected.is_in_out.selected = (result.data[0].is_in_out=='Yes'?$scope.arrIsInOut[0]:$scope.arrIsInOut[1])
 
-            for (var i = $scope.departments.length - 1; i >= 0; i--) {
-                if ($scope.departments[i].id == result.data[0].dept_id){
-                    $scope.selected.dept.selected = {name: $scope.departments[i].name, id: $scope.departments[i].id}
-                }
-            };
-            for (var i = $scope.departments.length - 1; i >= 0; i--) {
-                if ($scope.departments[i].id == result.data[0].dept_id){
-                    $scope.selected.cost_center.selected = {name: $scope.departments[i].name, id: $scope.departments[i].id}
-                }
-            };
-            for (var i = $scope.account_types.length - 1; i >= 0; i--) {
-                if ($scope.account_types[i].id == result.data[0].account_type_id){
-                    $scope.selected.account_type.selected = {name: $scope.account_types[i].name, id: $scope.account_types[i].id}
-                }
-            };
-            for (var i = $scope.arrReportLevel.length - 1; i >= 0; i--) {
-                if ($scope.arrReportLevel[i].id == result.data[0].report_level){
-                    $scope.selected.report_level.selected = {name: $scope.arrReportLevel[i].name, id: $scope.arrReportLevel[i].id}
-                }
-            };
-
-            console.log($scope.coa)
-            console.log($scope.selected)
         })
     }
 
@@ -412,7 +355,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.execDelete = function(){
-        queryService.post('update mst_ledger_account SET status=\'2\', '+
+        queryService.post('update mst_hk_items SET status=\'2\', '+
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
         ' WHERE id='+$scope.coa.id ,undefined)
@@ -423,6 +366,13 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
                 }, false)
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Success Delete '+$scope.coa.name,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
                 $scope.clear()
             }
             else {
@@ -438,10 +388,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             name: '',
             short_name: '',
             description: '',
-            status: '',
-            report_level: '',
-            account_type_id: '',
-            dept_id: ''
+            status: ''
         }
     }
 
