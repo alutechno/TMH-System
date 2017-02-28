@@ -78,12 +78,12 @@
 </div>
 
 <!--START FORM INPUT-->
-<div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade slide-right form-input-full" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Check out By Information</div>
+       <div class="panel-title">Room Rate Information</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -95,44 +95,264 @@
       <div class="panel panel-transparent m-t-20">
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
-                  <div class="col-sm-6">
+                  <div class="col-sm-3">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.code.$invalid && !coa.code.$pristine }">
                           <label>Code</label>
                           <input type="text" class="form-control" name="code" id="coa_code" ng-model="coa.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
+                  <div class="col-sm-3">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                          <label>Rate Type</label>
+                          <ui-select ng-model="selected.rate_type.selected" theme="bootstrap">
+                              <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in rate_type | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default">
+                          <label>Cashier</label>
+                          <input type="text" class="form-control" name="cashier" ng-model="coa.cashier" >
+                      </div>
+                  </div>
               </div>
 
+
               <div class="row clearfix">
-                  <div class="col-sm-12">
+                  <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.name.$invalid && !coa.name.$pristine }">
                           <label>Name</label>
                           <input type="text" class="form-control" name="name" ng-model="coa.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
-              </div>
-
-              <div class="row clearfix">
-                  <div class="col-sm-12">
+                  <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default">
-                          <label>Desc</label>
-                          <input type="text" class="form-control" name="name" ng-model="coa.description" >
+                          <label>Check In</label>
+                          <input type="text" class="form-control" name="check_in" ng-model="coa.check_in" >
                       </div>
                   </div>
               </div>
               <div class="row clearfix">
-                <div class="col-sm-12">
+                <div class="col-sm-3">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.currency.selected.$invalid && !selected.currency.selected.$pristine }">
+                        <label>Currency</label>
+                        <ui-select ng-model="selected.currency.selected" theme="bootstrap" validate-attached-form-element required>
+                            <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in currency | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-3">
                     <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.status.selected.$invalid && !selected.status.selected.$pristine }">
                         <label>Status</label>
                         <ui-select ng-model="selected.status.selected" theme="bootstrap" validate-attached-form-element required>
                             <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                            <ui-select-choices repeat="item in arrActive | filter: $select.search">
+                            <ui-select-choices repeat="item in status | filter: $select.search">
                                 <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                             </ui-select-choices>
                         </ui-select>
                     </div>
                 </div>
             </div>
+            <div class="row clearfix">
+                <div class="col-sm-3">
+                    <div pg-form-group class="form-group form-group-default">
+                        <label>Valid Date From</label>
+                        <input type="text" class="form-control" ng-model="coa.valid_date_from" name="valid_date_from" placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker" >
+                        <!--<input type="text" class="form-control" name="valid_date_from" ng-model="coa.valid_date_from" >-->
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div pg-form-group class="form-group form-group-default">
+                        <label>Valid Date Until</label>
+                        <input type="text" class="form-control" ng-model="coa.valid_date_until" name="valid_date_until" placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker" >
+                        <!--<input type="text" class="form-control" name="valid_date_until" ng-model="coa.valid_date_until" >-->
+                    </div>
+                </div>
+            </div>
+            <div class="row clearfix">
+              <div class="col-sm-3">
+                  <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                      <label>Tax</label>
+                      <ui-select ng-model="selected.tax.selected" theme="bootstrap" >
+                          <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                          <ui-select-choices repeat="item in tax | filter: $select.search">
+                              <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                          </ui-select-choices>
+                      </ui-select>
+                  </div>
+              </div>
+              <div class="col-sm-3">
+                  <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                      <label>Rhythm Type</label>
+                      <ui-select ng-model="selected.rhythm_type.selected" theme="bootstrap" >
+                          <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                          <ui-select-choices repeat="item in rhythm_type | filter: $select.search">
+                              <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                          </ui-select-choices>
+                      </ui-select>
+                  </div>
+              </div>
+          </div>
+          <div class="row clearfix">
+              <div class="col-sm-3">
+                  <div pg-form-group class="form-group form-group-default">
+                      <label>Max Discount(%)</label>
+                      <input type="text" class="form-control" name="max_discount_prcn" ng-model="coa.max_discount_prcn" >
+                  </div>
+              </div>
+              <div class="col-sm-3">
+                  <div pg-form-group class="form-group form-group-default">
+                      <label>Extra Bed Cost</label>
+                      <input type="text" class="form-control" name="extra_bed_cost" ng-model="coa.extra_bed_cost" >
+                  </div>
+              </div>
+          </div>
+          <div class="row clearfix">
+              <div class="col-sm-3">
+                  <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                      <label>Pension</label>
+                      <ui-select ng-model="selected.pension.selected" theme="bootstrap" >
+                          <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                          <ui-select-choices repeat="item in pension | filter: $select.search">
+                              <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                          </ui-select-choices>
+                      </ui-select>
+                  </div>
+              </div>
+              <div class="col-sm-3">
+                  <div pg-form-group class="form-group form-group-default">
+                      <label>Day Period</label>
+                      <input type="number" class="form-control" name="day_period" ng-model="coa.day_period" >
+                  </div>
+              </div>
+              <div class="col-sm-6">
+                  <div pg-form-group class="form-group form-group-default">
+                      <label>Description</label>
+                      <input type="text" class="form-control" name="name" ng-model="coa.description" >
+                  </div>
+              </div>
+          </div>
+          <div class="row clearfix">
+            <div class="col-sm-3">
+                <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                    <label>Room Only Voucher</label>
+                    <ui-select ng-model="selected.is_room_only_voucher.selected" theme="bootstrap" >
+                        <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                        <ui-select-choices repeat="item in yesno | filter: $select.search">
+                            <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                    <label>Is Require Deposit</label>
+                    <ui-select ng-model="selected.is_require_deposit.selected" theme="bootstrap" >
+                        <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                        <ui-select-choices repeat="item in yesno | filter: $select.search">
+                            <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div pg-form-group class="form-group form-group-default">
+                    <label>User Display Description</label>
+                    <input type="text" class="form-control" name="name" ng-model="coa.user_display_description" >
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row clearfix">
+        <div class="col-sm-12">
+            <h4>Rate</h4>
+            <!--<div ng-if="show.itemTable" id="divItem" >-->
+            <div ng-controller="EditableTableRateCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()">
+
+
+                                  <!-- table -->
+                                  <table class="table  table-hover itemtable">
+                                      <thead>
+                                      <tr>
+                                          <th width="10%">Room Type</th>
+                                          <th width="10%">Rate 1 Person</th>
+                                          <th width="10%">Rate 2 Person</th>
+                                          <th width="10%">Rate 3 Person</th>
+                                          <th width="10%">Rate 4 Person</th>
+                                          <th width="10%">Additional Person</th>
+                                          <th width="10%">Additional Child</th>
+                                          <th width="10%">Late Check Out Charge</th>
+                                      </tr>
+                                      </thead>
+
+                                      <tbody>
+                                      <tr ng-repeat="item in items | filter:filterUser">
+                                          <td><span>{{item.name}}</span></td>
+
+                                          <td style="text-align: right;">
+                                              <span editable-text="item.rate_1_person" theme="bootstrap" e-form="tableform" data-e-ng-keyup="setVal($event,item.id,$data,'rate_1_person')">
+                                                  {{ item.rate_1_person||'Not valid' }}
+                                              </span>
+                                          </td>
+                                          <td style="text-align: right;">
+                                              <span editable-text="item.rate_2_person" theme="bootstrap" e-form="tableform" data-e-ng-keyup="setVal($event,item.id,$data,'rate_2_person')">
+                                                  {{ item.rate_2_person||'Not valid' }}
+                                              </span>
+                                          </td>
+                                          <td style="text-align: right;">
+                                              <span editable-text="item.rate_3_person" theme="bootstrap" e-form="tableform" data-e-ng-keyup="setVal($event,item.id,$data,'rate_3_person')">
+                                                  {{ item.rate_3_person||'Not valid' }}
+                                              </span>
+                                          </td>
+                                          <td style="text-align: right;">
+                                              <span editable-text="item.rate_4_person" theme="bootstrap" e-form="tableform" data-e-ng-keyup="setVal($event,item.id,$data,'rate_4_person')">
+                                                  {{ item.rate_4_person||'Not valid' }}
+                                              </span>
+                                          </td>
+                                          <td style="text-align: right;">
+                                              <span editable-text="item.additional_person" theme="bootstrap" e-form="tableform" data-e-ng-keyup="setVal($event,item.id,$data,'additional_person')">
+                                                  {{ item.additional_person||'Not valid' }}
+                                              </span>
+                                          </td>
+                                          <td style="text-align: right;">
+                                              <span editable-text="item.additional_child" theme="bootstrap" e-form="tableform" data-e-ng-keyup="setVal($event,item.id,$data,'additional_child')">
+                                                  {{ item.additional_child||'Not valid' }}
+                                              </span>
+                                          </td>
+                                          <td style="text-align: right;">
+                                              <span editable-text="item.late_checkout_charge" theme="bootstrap" e-form="tableform" data-e-ng-keyup="setVal($event,item.id,$data,'late_checkout_charge')">
+                                                  {{ item.late_checkout_charge||'Not valid' }}
+                                              </span>
+                                          </td>
+
+                                      </tr>
+                                      </tbody>
+                                  </table>
+
+                                  <!-- buttons -->
+                                  <div class="btn-edit">
+                                    <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()">
+                                      Modify Item List
+                                    </button>
+                                  </div>
+                                  <div class="btn-form" ng-show="tableform.$visible">
+
+                                    <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
+                                    <!--<button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>-->
+                                    <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
+                                  </div>
+
+            </div>
+        </div>
+        </div>
+
               </div>
 
               <br>
