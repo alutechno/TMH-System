@@ -12,7 +12,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope[$scope.el[i]] = true;
     }
 
-    var qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_vip_type a, "+
+    var qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_venue_layout a, "+
         "(select id as status_id, value as status_value,name as status_name  "+
             "from table_ref  "+
             "where table_name = 'ref_product_category' and column_name='status')b "+
@@ -48,14 +48,14 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     })
 
     $scope.focusinControl = {};
-    $scope.fileName = "VIP Type Reference";
+    $scope.fileName = "Room_Venue_Reference";
     $scope.exportExcel = function(){
 
-        queryService.post('select code,name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
+        queryService.post('select id,code,name,description,status_name from('+qstring + qwhere+')aa order by id',undefined)
         .then(function(data){
-            $scope.exportData = [];
+			$scope.exportData = [];
             //Header
-            $scope.exportData.push(["Code", "Name", 'Description','Status']);
+            $scope.exportData.push(["ID","Code", "Name", 'Description','Status']);
             //Data
             for(var i=0;i<data.data.length;i++){
                 var arr = []
@@ -112,7 +112,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.query = qstring + qwhere;
+            data.query = qstring + qwhere ;
         }
     })
     .withDataProp('data')
@@ -122,7 +122,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-    .withOption('order', [0, 'asc'])
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -153,13 +153,13 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 //if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
                 //else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
-                    console.log(obj)
+                    //console.log(obj)
                 }, false)
             }
         }
         else {
             $scope.dtInstance.reloadData(function(obj){
-                console.log(obj)
+                //console.log(obj)
             }, false)
         }
     }
@@ -177,7 +177,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         //console.log(setWhere())
         qwhere = setWhere()
         $scope.dtInstance.reloadData(function(obj){
-            console.log(obj)
+            //console.log(obj)
         }, false)
 
     }
@@ -222,13 +222,13 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 created_date: globalFunction.currentDate(),
                 created_by: $localStorage.currentUser.name.id
             }
-            console.log(param)
+            //console.log(param)
 
-            queryService.post('insert into ref_vip_type SET ?',param)
+            queryService.post('insert into ref_venue_layout SET ?',param)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
+                        //console.log(obj)
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
@@ -241,7 +241,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
             },
             function (err){
-                console.log(err)
+                //console.log(err)
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -263,14 +263,14 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 modified_date: globalFunction.currentDate(),
                 modified_by: $localStorage.currentUser.name.id
             }
-            console.log(param)
-            queryService.post('update ref_vip_type SET ? WHERE id='+$scope.coa.id ,param)
+            //console.log(param)
+            queryService.post('update ref_venue_layout SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
                 if (result.status = "200"){
-                    console.log('Success Update')
+                    //console.log('Success Update')
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
+                        //console.log(obj)
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
@@ -282,7 +282,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                     $scope.clear()
                 }
                 else {
-                    console.log('Failed Update')
+                    //console.log('Failed Update')
                 }
             })
         }
@@ -295,7 +295,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         // console.log(obj)
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-            console.log(result)
+            //console.log(result)
 
             $scope.coa.id = result.data[0].id
             $scope.coa.code = result.data[0].code
@@ -318,13 +318,13 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.execDelete = function(){
-        queryService.post('update ref_vip_type SET status=\'2\', '+
+        queryService.post('update ref_venue_layout SET status=\'2\', '+
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
         ' WHERE id='+$scope.coa.id ,undefined)
         .then(function (result){
             if (result.status = "200"){
-                console.log('Success Delete')
+                //console.log('Success Delete')
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
@@ -339,7 +339,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 $scope.clear()
             }
             else {
-                console.log('Delete Failed')
+                //console.log('Delete Failed')
             }
         })
     }
