@@ -5,11 +5,11 @@
         <!-- START PANEL -->
         <div class="panel panel-transparent">
             <div class="panel-heading">
-                <div class="panel-title">Room Rate
+                <div class="panel-title">Package
                 </div>
                 <div class="pull-right" style="width: 60%;">
                     <!--<button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>-->
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Rate</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Package</button>
                     <span ng-click="exportExcel()">
                         <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
                     </span>
@@ -83,7 +83,7 @@
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Room Rate Information</div>
+       <div class="panel-title">Package Information</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -103,21 +103,27 @@
                   </div>
                   <div class="col-sm-3">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  " >
-                          <label>Rate Type</label>
-                          <ui-select ng-model="selected.rate_type.selected" theme="bootstrap">
+                          <label>Type</label>
+                          <ui-select ng-model="selected.type.selected" theme="bootstrap">
                               <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in rate_type | filter: $select.search">
+                              <ui-select-choices repeat="item in type | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                               </ui-select-choices>
                           </ui-select>
                       </div>
                   </div>
-                  <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default">
-                          <label>Cashier</label>
-                          <input type="text" class="form-control" name="cashier" ng-model="coa.cashier" >
+                  <div class="col-sm-3">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.status.selected.$invalid && !selected.status.selected.$pristine }">
+                          <label>Status</label>
+                          <ui-select ng-model="selected.status.selected" theme="bootstrap" validate-attached-form-element required>
+                              <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in status | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
                       </div>
                   </div>
+
               </div>
 
 
@@ -128,14 +134,61 @@
                           <input type="text" class="form-control" name="name" ng-model="coa.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
-                  <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default">
-                          <label>Check In</label>
-                          <input type="text" class="form-control" name="check_in" ng-model="coa.check_in" >
+                  <div class="col-sm-3">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                          <label>Meal Coupon</label>
+                          <ui-select ng-model="selected.is_meal_coupon.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in yesno | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
                       </div>
                   </div>
               </div>
               <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.text_on_folio.$invalid && !coa.text_on_folio.$pristine }">
+                          <label>Text on Folio</label>
+                          <input type="text" class="form-control" name="text_on_folio" ng-model="coa.text_on_folio" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                  <div class="col-sm-3">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                          <label>Rate Operator</label>
+                          <ui-select ng-model="selected.rate_operator.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in rate_operator | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="row clearfix">
+                  <div class="col-sm-3">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                          <label>Package Type</label>
+                          <ui-select ng-model="selected.package_type.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in package_type | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                  <div class="col-sm-3">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                          <label>Package Category</label>
+                          <ui-select ng-model="selected.package_category.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in package_category | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
                 <div class="col-sm-3">
                     <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.currency.selected.$invalid && !selected.currency.selected.$pristine }">
                         <label>Currency</label>
@@ -147,134 +200,113 @@
                         </ui-select>
                     </div>
                 </div>
-                <div class="col-sm-3">
-                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.status.selected.$invalid && !selected.status.selected.$pristine }">
-                        <label>Status</label>
-                        <ui-select ng-model="selected.status.selected" theme="bootstrap" validate-attached-form-element required>
-                            <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                            <ui-select-choices repeat="item in status | filter: $select.search">
-                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                            </ui-select-choices>
-                        </ui-select>
-                    </div>
-                </div>
+
             </div>
-            <div class="row clearfix">
-                <div class="col-sm-3">
-                    <div pg-form-group class="form-group form-group-default">
-                        <label>Valid Date From</label>
-                        <input type="text" class="form-control" ng-model="coa.valid_date_from" name="valid_date_from" placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker" >
-                        <!--<input type="text" class="form-control" name="valid_date_from" ng-model="coa.valid_date_from" >-->
-                    </div>
-                </div>
-                <div class="col-sm-3">
-                    <div pg-form-group class="form-group form-group-default">
-                        <label>Valid Date Until</label>
-                        <input type="text" class="form-control" ng-model="coa.valid_date_until" name="valid_date_until" placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker" >
-                        <!--<input type="text" class="form-control" name="valid_date_until" ng-model="coa.valid_date_until" >-->
-                    </div>
-                </div>
-            </div>
-            <div class="row clearfix">
+
+
+          <div class="row clearfix">
               <div class="col-sm-3">
-                  <div pg-form-group class="form-group form-group-default form-group-default-select " >
-                      <label>Tax</label>
-                      <ui-select ng-model="selected.tax.selected" theme="bootstrap" >
+                  <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                      <label>Hidden for User Selection</label>
+                      <ui-select ng-model="selected.is_hidden_for_user_selection.selected" theme="bootstrap" >
                           <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
-                          <ui-select-choices repeat="item in tax | filter: $select.search">
+                          <ui-select-choices repeat="item in yesno | filter: $select.search">
                               <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                           </ui-select-choices>
                       </ui-select>
                   </div>
               </div>
               <div class="col-sm-3">
-                  <div pg-form-group class="form-group form-group-default form-group-default-select " >
-                      <label>Rhythm Type</label>
-                      <ui-select ng-model="selected.rhythm_type.selected" theme="bootstrap" >
+                  <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                      <label>Comission</label>
+                      <ui-select ng-model="selected.is_commission.selected" theme="bootstrap" >
                           <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
-                          <ui-select-choices repeat="item in rhythm_type | filter: $select.search">
-                              <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                          </ui-select-choices>
-                      </ui-select>
-                  </div>
-              </div>
-          </div>
-          <div class="row clearfix">
-              <div class="col-sm-3">
-                  <div pg-form-group class="form-group form-group-default">
-                      <label>Max Discount(%)</label>
-                      <input type="text" class="form-control" name="max_discount_prcn" ng-model="coa.max_discount_prcn" >
-                  </div>
-              </div>
-              <div class="col-sm-3">
-                  <div pg-form-group class="form-group form-group-default">
-                      <label>Extra Bed Cost</label>
-                      <input type="text" class="form-control" name="extra_bed_cost" ng-model="coa.extra_bed_cost" >
-                  </div>
-              </div>
-          </div>
-          <div class="row clearfix">
-              <div class="col-sm-3">
-                  <div pg-form-group class="form-group form-group-default form-group-default-select " >
-                      <label>Pension</label>
-                      <ui-select ng-model="selected.pension.selected" theme="bootstrap" >
-                          <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
-                          <ui-select-choices repeat="item in pension | filter: $select.search">
+                          <ui-select-choices repeat="item in yesno | filter: $select.search">
                               <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                           </ui-select-choices>
                       </ui-select>
                   </div>
               </div>
               <div class="col-sm-3">
-                  <div pg-form-group class="form-group form-group-default">
-                      <label>Day Period</label>
-                      <input type="number" class="form-control" name="day_period" ng-model="coa.day_period" >
+                  <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                      <label>Included Tax</label>
+                      <ui-select ng-model="selected.is_tax_included.selected" theme="bootstrap" >
+                          <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                          <ui-select-choices repeat="item in yesno | filter: $select.search">
+                              <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                          </ui-select-choices>
+                      </ui-select>
                   </div>
               </div>
-              <div class="col-sm-6">
-                  <div pg-form-group class="form-group form-group-default">
-                      <label>Description</label>
-                      <input type="text" class="form-control" name="name" ng-model="coa.description" >
-                  </div>
-              </div>
-          </div>
-          <div class="row clearfix">
+
+        </div>
+        <div class="row clearfix">
             <div class="col-sm-3">
-                <div pg-form-group class="form-group form-group-default form-group-default-select  " >
-                    <label>Room Only Voucher</label>
-                    <ui-select ng-model="selected.is_room_only_voucher.selected" theme="bootstrap" >
-                        <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
-                        <ui-select-choices repeat="item in yesno | filter: $select.search">
-                            <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                        </ui-select-choices>
-                    </ui-select>
+                <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : coa.flat_rate.$invalid && !coa.flat_rate.$pristine }">
+                    <label>Flat Rate</label>
+                    <input type="text" class="form-control" name="code" id="flat_rate" ng-model="coa.flat_rate">
                 </div>
             </div>
             <div class="col-sm-3">
-                <div pg-form-group class="form-group form-group-default form-group-default-select " >
-                    <label>Is Require Deposit</label>
-                    <ui-select ng-model="selected.is_require_deposit.selected" theme="bootstrap" >
-                        <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
-                        <ui-select-choices repeat="item in yesno | filter: $select.search">
-                            <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                        </ui-select-choices>
-                    </ui-select>
+                <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : coa.adult_rate.$invalid && !coa.adult_rate.$pristine }">
+                    <label>Adult Rate</label>
+                    <input type="text" class="form-control" name="code" id="adult_rate" ng-model="coa.adult_rate">
                 </div>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-3">
+                <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : coa.child_rate.$invalid && !coa.child_rate.$pristine }">
+                    <label>Child Rate</label>
+                    <input type="text" class="form-control" name="code" id="child_rate" ng-model="coa.child_rate">
+                </div>
+            </div>
+        </div>
+        <div class="row clearfix">
+            <div class="col-sm-3">
                 <div pg-form-group class="form-group form-group-default">
-                    <label>User Display Description</label>
-                    <input type="text" class="form-control" name="name" ng-model="coa.user_display_description" >
+                    <label>Valid Date From</label>
+                    <input type="text" class="form-control" ng-model="coa.valid_date_from" name="valid_date_from" placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker" >
+                    <!--<input type="text" class="form-control" name="valid_date_from" ng-model="coa.valid_date_from" >-->
                 </div>
+            </div>
+            <div class="col-sm-3">
+                <div pg-form-group class="form-group form-group-default">
+                    <label>Valid Date Until</label>
+                    <input type="text" class="form-control" ng-model="coa.valid_date_until" name="valid_date_until" placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker" >
+                    <!--<input type="text" class="form-control" name="valid_date_until" ng-model="coa.valid_date_until" >-->
+                </div>
+            </div>
+        </div>
+        <div class="row clearfix">
+            <div class="col-sm-12">
+                    <h4>Active Days</h4>
+                    <div class="checkbox check-primary" >
+
+                        <input type="checkbox" id="cbMonday" ng-checked="selected.day==1" ng-true-value="1" ng-model="selected.day" >
+                        <label for="cbMonday">Monday</label>
+                        <input type="checkbox" id="cbTuesday" ng-checked="selected.day==2" ng-true-value="2" ng-model="selected.day" >
+                        <label for="cbTuesday">Tuesday</label>
+                        <input type="checkbox" id="cbWednesday" ng-checked="selected.day==3" ng-true-value="3" ng-model="selected.day" >
+                        <label for="cbWednesday">Wednesday</label>
+                        <input type="checkbox" id="cbThursday" ng-checked="selected.day==4" ng-true-value="4" ng-model="selected.day" >
+                        <label for="cbThursday">Thursday</label>
+                        <input type="checkbox" id="cbFriday" ng-checked="selected.day==5" ng-true-value="5" ng-model="selected.day" >
+                        <label for="cbFriday">Friday</label>
+                        <input type="checkbox" id="cbSaturday" ng-checked="selected.day==6" ng-true-value="6" ng-model="selected.day" >
+                        <label for="cbSaturday">Saturday</label>
+                        <input type="checkbox" id="cbSunday" ng-checked="selected.day==7" ng-true-value="7" ng-model="selected.day" >
+                        <label for="cbSunday">Sunday</label>
+                    </div>
+
+
             </div>
         </div>
 
 
         <div class="row clearfix">
         <div class="col-sm-12">
-            <h4>Rate</h4>
+            <h4>Room Rate Package</h4>
             <!--<div ng-if="show.itemTable" id="divItem" >-->
-            <div ng-controller="EditableTableRateCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()">
+            <div ng-controller="EditableTablePkgCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()">
 
 
                                   <!-- table -->

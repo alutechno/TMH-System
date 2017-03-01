@@ -908,6 +908,28 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state("app.fo.package", {
+        url: "/foPackage",
+        templateUrl: "container/components/foPackage/view.html",
+        controller: "FoPackageCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foPackage/controller.js");
+                });
+            }]
+        }
+    })
     .state("app.fo.packageType", {
         url: "/foPackageType",
         templateUrl: "container/components/foPackageType/view.html",
@@ -1124,6 +1146,28 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                 })
                 .then(function() {
                     return $ocLazyLoad.load("container/components/foVenues/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fo.venuesRoomLayout", {
+        url: "/foVenueRoomLayout",
+        templateUrl: "container/components/foVenueRoomLayout/view.html",
+        controller: "FoVenueRoomLayoutCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foVenueRoomLayout/controller.js");
                 });
             }]
         }

@@ -1,7 +1,7 @@
 
 var userController = angular.module('app', []);
 userController
-.controller('FoDepositBoxCtrl',
+.controller('FoVenueRoomLayoutCtrl',
 function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
     $scope.el = [];
     $scope.el = $state.current.data;
