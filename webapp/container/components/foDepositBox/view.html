@@ -95,19 +95,10 @@
       <div class="panel panel-transparent m-t-20">
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
-                  <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.code.$invalid && !coa.code.$pristine }">
-                          <label>Code</label>
-                          <input type="text" class="form-control" name="code" id="coa_code" ng-model="coa.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
-                      </div>
-                  </div>
-              </div>
-
-              <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.name.$invalid && !coa.name.$pristine }">
-                          <label>Name</label>
-                          <input type="text" class="form-control" name="name" ng-model="coa.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.box_no.$invalid && !coa.box_no.$pristine }">
+                          <label>Box No</label>
+                          <input type="text" class="form-control" name="name" ng-model="coa.box_no" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
               </div>
@@ -160,7 +151,7 @@
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h4 class="no-margin p-b-10">Are you sure want to delete {{coa.name}} ?</h4>
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{coa.box_no}} ?</h4>
                     <div >
                         <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>

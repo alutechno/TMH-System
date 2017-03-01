@@ -12,7 +12,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope[$scope.el[i]] = true;
     }
 
-    var qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_vip_type a, "+
+    var qstring = "select a.id,a.box_no,a.description,a.status,b.status_name from mst_deposit_box a, "+
         "(select id as status_id, value as status_value,name as status_name  "+
             "from table_ref  "+
             "where table_name = 'ref_product_category' and column_name='status')b "+
@@ -29,8 +29,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.id = '';
     $scope.coa = {
         id: '',
-        code: '',
-        name: '',
+        box_no: '',
         description: '',
         status: ''
     }
@@ -48,14 +47,14 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     })
 
     $scope.focusinControl = {};
-    $scope.fileName = "VIP Type Reference";
+    $scope.fileName = "Deposit Box Reference";
     $scope.exportExcel = function(){
 
-        queryService.post('select code,name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
+        queryService.post('select id,box_no,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
         .then(function(data){
             $scope.exportData = [];
             //Header
-            $scope.exportData.push(["Code", "Name", 'Description','Status']);
+            $scope.exportData.push(["ID", "Box_no", 'Description','Status']);
             //Data
             for(var i=0;i<data.data.length;i++){
                 var arr = []
@@ -122,7 +121,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-    .withOption('order', [0, 'asc'])
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -132,8 +131,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
     $scope.dtColumns.push(
         //DTColumnBuilder.newColumn('code').withTitle('Code Ori').notVisible(),
-        DTColumnBuilder.newColumn('code').withTitle('Code'),
-        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
+        //DTColumnBuilder.newColumn('code').withTitle('Code'),
+        DTColumnBuilder.newColumn('box_no').withTitle('Box_no'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
@@ -146,7 +145,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhereobj.text = ' lower(a.name) like \'%'+$scope.filterVal.search+'%\' '
+                if ($scope.filterVal.search.length>0) qwhereobj.text = ' lower(a.box_no) like \'%'+$scope.filterVal.search+'%\' '
                 else qwhereobj.text = ''
                 qwhere = setWhere()
 
@@ -215,8 +214,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             //exec creation
 
             var param = {
-                code: $scope.coa.code,
-                name: $scope.coa.name,
+                box_no: $scope.coa.box_no,
                 description: $scope.coa.description,
                 status: $scope.selected.status.selected.id,
                 created_date: globalFunction.currentDate(),
@@ -224,7 +222,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             }
             console.log(param)
 
-            queryService.post('insert into ref_vip_type SET ?',param)
+            queryService.post('insert into mst_deposit_box SET ?',param)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -232,7 +230,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
-                        message: 'Success Insert '+$scope.coa.code,
+                        message: 'Success Insert '+$scope.coa.box_no,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'success'
@@ -256,15 +254,14 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             //exec update
 
             var param = {
-                code: $scope.coa.code,
-                name: $scope.coa.name,
+                name: $scope.coa.box_no,
                 description: $scope.coa.description,
                 status: $scope.selected.status.selected.id,
                 modified_date: globalFunction.currentDate(),
                 modified_by: $localStorage.currentUser.name.id
             }
             console.log(param)
-            queryService.post('update ref_vip_type SET ? WHERE id='+$scope.coa.id ,param)
+            queryService.post('update mst_deposit_box SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Update')
@@ -274,7 +271,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
-                        message: 'Success Update '+$scope.coa.code,
+                        message: 'Success Update '+$scope.coa.box_no,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'success'
@@ -298,8 +295,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             console.log(result)
 
             $scope.coa.id = result.data[0].id
-            $scope.coa.code = result.data[0].code
-            $scope.coa.name = result.data[0].name
+            $scope.coa.code = result.data[0].box_no
             $scope.coa.description = result.data[0].description
             $scope.coa.status = result.data[0].status
             $scope.coa.status = result.data[0].status
@@ -312,13 +308,13 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope.coa.id = obj.id;
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-            $scope.coa.name = result.data[0].name;
+            $scope.coa.box_no = result.data[0].box_no;
             $('#modalDelete').modal('show')
         })
     }
 
     $scope.execDelete = function(){
-        queryService.post('update ref_vip_type SET status=\'2\', '+
+        queryService.post('update mst_deposit_box SET status=\'2\', '+
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
         ' WHERE id='+$scope.coa.id ,undefined)
@@ -331,7 +327,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 }, false)
                 $('body').pgNotification({
                     style: 'flip',
-                    message: 'Success Delete '+$scope.coa.name,
+                    message: 'Success Delete '+$scope.coa.box_no,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'success'
@@ -347,8 +343,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.clear = function(){
         $scope.coa = {
             id: '',
-            code: '',
-            name: '',
+            box_no: '',
             description: '',
             status: ''
         }
