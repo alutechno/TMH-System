@@ -69,7 +69,7 @@
             </div>
             <div class="panel-body">
                 <div class="table-responsive">
-                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" >
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" width="1800px">
                     </table>
             </div>
         </div>
@@ -281,19 +281,19 @@
                     <h4>Active Days</h4>
                     <div class="checkbox check-primary" >
 
-                        <input type="checkbox" id="cbMonday" ng-checked="selected.day==1" ng-true-value="1" ng-model="selected.day" >
+                        <input type="checkbox" id="cbMonday" ng-checked="selected.is_monday_active==1" ng-true-value="1" ng-model="selected.is_monday_active" >
                         <label for="cbMonday">Monday</label>
-                        <input type="checkbox" id="cbTuesday" ng-checked="selected.day==2" ng-true-value="2" ng-model="selected.day" >
+                        <input type="checkbox" id="cbTuesday" ng-checked="selected.is_tuesday_active==1" ng-true-value="1" ng-model="selected.is_tuesday_active" >
                         <label for="cbTuesday">Tuesday</label>
-                        <input type="checkbox" id="cbWednesday" ng-checked="selected.day==3" ng-true-value="3" ng-model="selected.day" >
+                        <input type="checkbox" id="cbWednesday" ng-checked="selected.is_wednesday_active==1" ng-true-value="1" ng-model="selected.is_wednesday_active" >
                         <label for="cbWednesday">Wednesday</label>
-                        <input type="checkbox" id="cbThursday" ng-checked="selected.day==4" ng-true-value="4" ng-model="selected.day" >
+                        <input type="checkbox" id="cbThursday" ng-checked="selected.is_thursday_active==1" ng-true-value="1" ng-model="selected.is_thursday_active" >
                         <label for="cbThursday">Thursday</label>
-                        <input type="checkbox" id="cbFriday" ng-checked="selected.day==5" ng-true-value="5" ng-model="selected.day" >
+                        <input type="checkbox" id="cbFriday" ng-checked="selected.is_friday_active==1" ng-true-value="1" ng-model="selected.is_friday_active" >
                         <label for="cbFriday">Friday</label>
-                        <input type="checkbox" id="cbSaturday" ng-checked="selected.day==6" ng-true-value="6" ng-model="selected.day" >
+                        <input type="checkbox" id="cbSaturday" ng-checked="selected.is_saturday_active==1" ng-true-value="1" ng-model="selected.is_saturday_active" >
                         <label for="cbSaturday">Saturday</label>
-                        <input type="checkbox" id="cbSunday" ng-checked="selected.day==7" ng-true-value="7" ng-model="selected.day" >
+                        <input type="checkbox" id="cbSunday" ng-checked="selected.is_sunday_active==1" ng-true-value="1" ng-model="selected.is_sunday_active" >
                         <label for="cbSunday">Sunday</label>
                     </div>
 
@@ -313,57 +313,44 @@
                                   <table class="table  table-hover itemtable">
                                       <thead>
                                       <tr>
-                                          <th width="10%">Room Type</th>
-                                          <th width="10%">Rate 1 Person</th>
-                                          <th width="10%">Rate 2 Person</th>
-                                          <th width="10%">Rate 3 Person</th>
-                                          <th width="10%">Rate 4 Person</th>
-                                          <th width="10%">Additional Person</th>
-                                          <th width="10%">Additional Child</th>
-                                          <th width="10%">Late Check Out Charge</th>
+                                          <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
+                                          <th width="10%">Room Rate Code</th>
+                                          <th width="10%">Valid Date From</th>
+                                          <th width="10%">Valid Date Until</th>
                                       </tr>
                                       </thead>
 
                                       <tbody>
                                       <tr ng-repeat="item in items | filter:filterUser">
-                                          <td><span>{{item.name}}</span></td>
-
-                                          <td style="text-align: right;">
-                                              <span editable-text="item.rate_1_person" theme="bootstrap" e-form="tableform" data-e-ng-keyup="setVal($event,item.id,$data,'rate_1_person')" >
-                                                  {{ item.rate_1_person||'Not valid' }}
+                                          <td style="vertical-align: middle;">
+                                              <div class="btn-group btn-group-xs" ng-show="tableform.$visible">
+                                                  <button type="button" class="btn btn-default" ng-click="deleteUser(item.id)" ><i class="fa fa-trash-o"></i></button>
+                                              </div>
+                                          </td>
+                                          <td>
+                                              <span editable-ui-select="item.room_rate" theme="bootstrap" data-e-name="room_rate" name="room_rate" data-e-ng-model="selected.room_rate.selected"
+                                              data-e-form="tableform" data-e-ng-keyup="roomRateUp(item.id,$select.search)" data-e-on-select="getRoomRate($item,item.id)" >
+                                              {{item.room_rate}}
+                                                    <editable-ui-select-match placeholder="select rate" style="width: 300px" >
+                                                        <!--{{$select.selected.name}}-->
+                                                        {{item.room_rate || 'Empty'}}
+                                                    </editable-ui-select-match>
+                                                    <editable-ui-select-choices repeat="d in room_rate[item.id] | filter: $select.search">
+                                                        <div ng-bind-html="trustAsHtml((d.code | highlight: $select.search))"></div>
+                                                        <small ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></small>
+                                                    </editable-ui-select-choices>
                                               </span>
                                           </td>
-                                          <td style="text-align: right;">
-                                              <span editable-text="item.rate_2_person" theme="bootstrap" e-form="tableform" data-e-ng-keyup="setVal($event,item.id,$data,'rate_2_person')">
-                                                  {{ item.rate_2_person||'Not valid' }}
+                                          <td >
+                                              <span editable-text="item.valid_date_from" theme="bootstrap" e-form="tableform" data-e-ng-change="setVal($event,item.id,$data,'valid_date_from')" data-e-data-date-format="yyyy-mm-dd" data-e-ui-jq="datepicker">
+                                                  {{ item.valid_date_from||'Not valid' }}
                                               </span>
                                           </td>
-                                          <td style="text-align: right;">
-                                              <span editable-text="item.rate_3_person" theme="bootstrap" e-form="tableform" data-e-ng-keyup="setVal($event,item.id,$data,'rate_3_person')">
-                                                  {{ item.rate_3_person||'Not valid' }}
+                                          <td >
+                                              <span editable-text="item.valid_date_until" theme="bootstrap" e-form="tableform" data-e-ng-change="setVal($event,item.id,$data,'valid_date_until')" data-e-data-date-format="yyyy-mm-dd" data-e-ui-jq="datepicker">
+                                                  {{ item.valid_date_until||'Not valid' }}
                                               </span>
                                           </td>
-                                          <td style="text-align: right;">
-                                              <span editable-text="item.rate_4_person" theme="bootstrap" e-form="tableform" data-e-ng-keyup="setVal($event,item.id,$data,'rate_4_person')">
-                                                  {{ item.rate_4_person||'Not valid' }}
-                                              </span>
-                                          </td>
-                                          <td style="text-align: right;">
-                                              <span editable-text="item.additional_person" theme="bootstrap" e-form="tableform" data-e-ng-keyup="setVal($event,item.id,$data,'additional_person')">
-                                                  {{ item.additional_person||'Not valid' }}
-                                              </span>
-                                          </td>
-                                          <td style="text-align: right;">
-                                              <span editable-text="item.additional_child" theme="bootstrap" e-form="tableform" data-e-ng-keyup="setVal($event,item.id,$data,'additional_child')">
-                                                  {{ item.additional_child||'Not valid' }}
-                                              </span>
-                                          </td>
-                                          <td style="text-align: right;">
-                                              <span editable-text="item.late_checkout_charge" theme="bootstrap" e-form="tableform" data-e-ng-keyup="setVal($event,item.id,$data,'late_checkout_charge')">
-                                                  {{ item.late_checkout_charge||'Not valid' }}
-                                              </span>
-                                          </td>
-
                                       </tr>
                                       </tbody>
                                   </table>
@@ -377,7 +364,7 @@
                                   <div class="btn-form" ng-show="tableform.$visible">
 
                                     <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
-                                    <!--<button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>-->
+                                    <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
                                     <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
                                   </div>
 

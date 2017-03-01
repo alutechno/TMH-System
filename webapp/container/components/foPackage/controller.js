@@ -16,30 +16,31 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.items = []
     $scope.itemsOri = []
 
-    var qstring = "select a.id,a.code,a.name,a.description,a.user_display_description,a.status,a.rate_type_id,a.currency_id,a.valid_date_from,a.valid_date_until, "+
-    	"a.tax_id,a.rhythm_type,a.max_discount_prcn,a.extra_bed_cost,a.next_rate_id,a.day_period,a.pension_id,a.is_displayed, "+
-        "a.is_room_only_voucher,a.is_require_deposit,a.cashier,a.check_in, "+
-        "case when a.rhythm_type='D' then 'Daily' "+
-        "when a.rhythm_type = 'W' then 'Weekly' "+
-        "when a.rhythm_type = 'M' then 'Monthly' "+
-        "else 'No Rhythm' end as rhythm_name, "+
-        "if(is_room_only_voucher='Y','Yes','No') is_room_only_voucher_name,"+
-        "if(is_require_deposit='Y','Yes','No') is_require_deposit_name,"+
-        "b.name rate_type_name,c.name currency_name,d.name tax_name,e.name pension_name,f.status_name "+
-    "from mst_room_rate a "+
-    "left join ref_room_rate_type b on a.rate_type_id = b.id "+
-    "left join ref_currency c on a.currency_id = c.id "+
-    "left join mst_taxes d on a.tax_id = d.id "+
-    "left join ref_pension e on a.pension_id = e.id "+
-    "left join (select id as status_id, value as status_value,name as status_name  from table_ref  where table_name = 'ref_product_category' and column_name='status')f on a.status=f.status_value "+
+    var qstring = "select a.id, a.code, a.name, a.text_on_folio, a.status, a.is_meal_coupon, a.rate_operator_id, a.package_type_id, a.package_category_id, "+
+    	"a.currency_id, a.is_hidden_for_user_selection, a.is_commission, a.is_tax_included, a.flat_rate, a.adult_rate, a.child_rate,  "+
+        "date_format(a.valid_date_from,'%Y-%m-%d') valid_date_from, date_format(a.valid_date_until,'%Y-%m-%d') valid_date_until, a.is_monday_active, a.is_tuesday_active, a.is_wednesday_active, a.is_thursday_active,  "+
+        "a.is_friday_active, a.is_saturday_active, a.is_sunday_active, "+
+        "b.name package_category_name,c.name package_type_name,d.name rate_operator_name,e.name currency_name,f.status_name, "+
+        "if(is_meal_coupon='Y','Yes','No') is_meal_coupon_name,"+
+        "if(is_hidden_for_user_selection='Y','Yes','No') is_hidden_for_user_selection_name,"+
+        "if(is_commission='Y','Yes','No') is_commission_name,"+
+        "if(is_tax_included='Y','Yes','No') is_tax_included_name "+
+    "from mst_package a "+
+    "left join ref_package_category b on a.package_category_id=b.id "+
+    "left join ref_package_type c on a.package_type_id=c.id "+
+    "left join ref_package_rate_operator d on a.rate_operator_id=d.id "+
+    "left join ref_currency e on a.currency_id=e.id "+
+    "left join (select id as status_id, value as status_value,name as status_name   "+
+                "from table_ref   "+
+            "where table_name = 'ref_product_category' and column_name='status') f on a.status =f.status_value "+
     " where a.status!=2 "
     var qwhere = ''
-    var qstringdetail = 'select a.id room_type_id,a.code,a.name,b.id line_id,b.room_rate_id, '+
-    	'b.rate_1_person,b.rate_2_person,b.rate_3_person,b.rate_4_person,b.additional_person,b.additional_child,b.late_checkout_charge '+
-    'from ref_room_type a '+
-    'left join mst_room_rate_line_item b on a.id =b.room_type_id '
+    var qstringdetail = 'select a.id p_id,a.room_rate_id,c.name room_rate,a.package_id,date_format(a.valid_date_from,\'%Y-%m-%d\') valid_date_from,date_format(a.valid_date_until,\'%Y-%m-%d\') valid_date_until '+
+        'from mst_room_rate_package a, mst_package b, mst_room_rate c '+
+        'where a.package_id = b.id '+
+        'and a.room_rate_id = c.id '
 
-    var qwheredetail = 'where a.status!=2 '
+    var qwheredetail = ' '
 
     $scope.users = []
 
@@ -61,15 +62,24 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         status: {},
         filter_department: {},
         filter_account_type: {},
-        rate_type: {},
+        package_type: {},
+        is_meal_coupon: {},
+        rate_operator: {},
+        package_category: {},
         currency: {},
         tax: {},
-        rhythm_type: {},
-        pension: {},
-        is_room_only_voucher: {},
-        is_require_deposit: {}
+        is_hidden_for_user_selection: {},
+        is_commission: {},
+        is_tax_included: {},
+        day: {},
+        is_monday_active: '0',
+        is_tuesday_active: '0',
+        is_wednesday_active: '0',
+        is_thursday_active: '0',
+        is_friday_active: '0',
+        is_saturday_active: '0',
+        is_sunday_active: '0'
     }
-
 
     queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1) order by name asc',undefined)
     .then(function(data){
@@ -80,16 +90,13 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         {id: 'Y', name: 'Yes'},
         {id: 'N', name: 'No'}
     ]
-    $scope.rhythm_type = [
-        {id: 'D', name: 'Daily'},
-        {id: 'W', name: 'Weekly'},
-        {id: 'M', name: 'Monthly'}
-    ]
-    $scope.selected.is_room_only_voucher['selected'] = $scope.yesno[1]
-    $scope.selected.is_require_deposit['selected'] = $scope.yesno[1]
-    queryService.get('select id,name from ref_room_rate_type where status!=2 order by name asc',undefined)
+    $scope.selected.is_hidden_for_user_selection['selected'] = $scope.yesno[1]
+    $scope.selected.is_commission['selected'] = $scope.yesno[1]
+    $scope.selected.is_tax_included['selected'] = $scope.yesno[1]
+    $scope.selected.is_meal_coupon['selected'] = $scope.yesno[1]
+    queryService.get('select id,name from ref_package_category where status!=2 order by name asc',undefined)
     .then(function(data){
-        $scope.rate_type = data.data
+        $scope.package_category = data.data
     })
     queryService.get('select id,name from ref_currency where status!=2 order by name asc',undefined)
     .then(function(data){
@@ -100,20 +107,23 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     .then(function(data){
         $scope.tax = data.data
     })
-    queryService.get('select id,name from ref_pension where status!=2 order by name asc',undefined)
+    queryService.get('select id,name from ref_package_type where status!=2 order by name asc',undefined)
     .then(function(data){
-        $scope.pension = data.data
+        $scope.package_type = data.data
+    })
+    queryService.get('select id,name from ref_package_rate_operator where status!=2 order by name asc',undefined)
+    .then(function(data){
+        $scope.rate_operator = data.data
     })
 
     $scope.focusinControl = {};
-    $scope.fileName = "Check out By Reference";
+    $scope.fileName = "Package Reference";
     $scope.exportExcel = function(){
-
-        queryService.post('select code,name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
+        queryService.post('select code,name,status_name,package_category_name,package_type_name,rate_operator_name,currency_name,flat_rate,adult_rate,child_rate from('+qstring + qwhere+')aa order by code',undefined)
         .then(function(data){
             $scope.exportData = [];
             //Header
-            $scope.exportData.push(["Code", "Name", 'Description','Status']);
+            $scope.exportData.push(["Code", "Name", 'Status','Category','Type','Operator','Currency','Flat Rate','Adult Rate','Child Rate']);
             //Data
             for(var i=0;i<data.data.length;i++){
                 var arr = []
@@ -188,12 +198,19 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
         .renderWith($scope.actionsHtml).withOption('width', '10%'))
     }
+
     $scope.dtColumns.push(
-        //DTColumnBuilder.newColumn('code').withTitle('Code Ori').notVisible(),
         DTColumnBuilder.newColumn('code').withTitle('Code'),
-        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
-        DTColumnBuilder.newColumn('description').withTitle('Description'),
-        DTColumnBuilder.newColumn('status_name').withTitle('Status')
+        //DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
+        DTColumnBuilder.newColumn('name').withTitle('Name'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status'),
+        DTColumnBuilder.newColumn('package_category_name').withTitle('Category'),
+        DTColumnBuilder.newColumn('package_type_name').withTitle('Type'),
+        DTColumnBuilder.newColumn('rate_operator_name').withTitle('Operator'),
+        DTColumnBuilder.newColumn('currency_name').withTitle('currency'),
+        DTColumnBuilder.newColumn('flat_rate').withTitle('Flat Rate'),
+        DTColumnBuilder.newColumn('adult_rate').withTitle('Adult rate'),
+        DTColumnBuilder.newColumn('child_rate').withTitle('child rate')
     );
 
     var qwhereobj = {
@@ -267,7 +284,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         }
         $('#form-input').modal('show')
         $scope.items = []
-        queryService.post(qstringdetail+' and b.room_rate_id=0 '+qwheredetail,undefined)
+        $scope.itemsOri = []
+        /*queryService.post(qstringdetail+' and b.room_rate_id=0 '+qwheredetail,undefined)
         .then(function(data){
             for (var i=0;i<data.data.length;i++){
                 $scope.items.push({
@@ -289,7 +307,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             $scope.itemsOri = angular.copy($scope.items)
             console.log($scope.items)
             console.log($scope.itemsOri)
-        })
+        })*/
 
     }
 
@@ -300,29 +318,41 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             var param = {
                 code: $scope.coa.code,
                 name: $scope.coa.name,
-                description: $scope.coa.description,
-                user_display_description: $scope.coa.user_display_description,
+                text_on_folio: $scope.coa.text_on_folio,
                 status: $scope.selected.status.selected.id,
-                rate_type_id: ($scope.selected.rate_type.selected?$scope.selected.rate_type.selected.id:null),
+                is_meal_coupon: ($scope.selected.is_meal_coupon.selected?$scope.selected.is_meal_coupon.selected.id:null),
                 currency_id: $scope.selected.currency.selected.id,
+                package_type_id: ($scope.selected.package_type.selected?$scope.selected.package_type.selected.id:null),
+                package_category_id: ($scope.selected.package_category.selected?$scope.selected.package_category.selected.id:null),
+                rate_operator_id: ($scope.selected.rate_operator.selected?$scope.selected.rate_operator.selected.id:null),
+                is_hidden_for_user_selection: $scope.selected.is_hidden_for_user_selection.selected.id,
+                is_commission: $scope.selected.is_commission.selected.id,
+                is_tax_included: $scope.selected.is_tax_included.selected.id,
+                flat_rate: $scope.coa.flat_rate,
+                adult_rate: $scope.coa.adult_rate,
+                child_rate: $scope.coa.child_rate,
                 valid_date_from: $scope.coa.valid_date_from,
                 valid_date_until: $scope.coa.valid_date_until,
-                tax_id: ($scope.selected.tax.selected?$scope.selected.tax.selected.id:null),
-                rhythm_type: ($scope.selected.rhythm_type.selected?$scope.selected.rhythm_type.selected.id:null),
-                max_discount_prcn: $scope.coa.max_discount_prcn,
-                extra_bed_cost: $scope.coa.extra_bed_cost,
-                day_period: $scope.coa.day_period,
-                pension_id: ($scope.selected.pension.selected?$scope.selected.pension.selected.id:null),
-                is_room_only_voucher: $scope.selected.is_room_only_voucher.selected.id,
-                is_require_deposit: $scope.selected.is_require_deposit.selected.id,
-                cashier: $scope.coa.cashier,
-                check_in: $scope.coa.check_in,
+                is_monday_active:$scope.selected.is_monday_active,
+                is_tuesday_active:$scope.selected.is_tuesday_active,
+                is_wednesday_active:$scope.selected.is_wednesday_active,
+                is_thursday_active:$scope.selected.is_thursday_active,
+                is_friday_active:$scope.selected.is_friday_active,
+                is_saturday_active:$scope.selected.is_saturday_active,
+                is_sunday_active:$scope.selected.is_sunday_active,
                 created_date: globalFunction.currentDate(),
                 created_by: $localStorage.currentUser.name.id
             }
             console.log(param)
+            console.log($scope.selected.is_monday_active)
+            console.log($scope.selected.is_tuesday_active)
+            console.log($scope.selected.is_wednesday_active)
+            console.log($scope.selected.is_thursday_active)
+            console.log($scope.selected.is_friday_active)
+            console.log($scope.selected.is_saturday_active)
+            console.log($scope.selected.is_sunday_active)
 
-            queryService.post('insert into mst_room_rate SET ?',param)
+            queryService.post('insert into mst_package SET ?',param)
             .then(function (result){
                 var sqld = $scope.child.saveTable(result.data.insertId)
                 queryService.post(sqld.join(';'),undefined)
@@ -350,10 +380,6 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                         type: 'danger'
                     }).show();
                 })
-
-
-
-
             },
             function (err){
                 console.log(err)
@@ -373,28 +399,33 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             var param = {
                 code: $scope.coa.code,
                 name: $scope.coa.name,
-                description: $scope.coa.description,
-                user_display_description: $scope.coa.user_display_description,
+                text_on_folio: $scope.coa.text_on_folio,
                 status: $scope.selected.status.selected.id,
-                rate_type_id: ($scope.selected.rate_type.selected?$scope.selected.rate_type.selected.id:null),
+                is_meal_coupon: ($scope.selected.is_meal_coupon.selected?$scope.selected.is_meal_coupon.selected.id:null),
                 currency_id: $scope.selected.currency.selected.id,
+                package_type_id: ($scope.selected.package_type.selected?$scope.selected.package_type.selected.id:null),
+                package_category_id: ($scope.selected.package_category.selected?$scope.selected.package_category.selected.id:null),
+                rate_operator_id: ($scope.selected.rate_operator.selected?$scope.selected.rate_operator.selected.id:null),
+                is_hidden_for_user_selection: $scope.selected.is_hidden_for_user_selection.selected.id,
+                is_commission: $scope.selected.is_commission.selected.id,
+                is_tax_included: $scope.selected.is_tax_included.selected.id,
+                flat_rate: $scope.coa.flat_rate,
+                adult_rate: $scope.coa.adult_rate,
+                child_rate: $scope.coa.child_rate,
                 valid_date_from: $scope.coa.valid_date_from,
                 valid_date_until: $scope.coa.valid_date_until,
-                tax_id: ($scope.selected.tax.selected?$scope.selected.tax.selected.id:null),
-                rhythm_type: ($scope.selected.rhythm_type.selected?$scope.selected.rhythm_type.selected.id:null),
-                max_discount_prcn: $scope.coa.max_discount_prcn,
-                extra_bed_cost: $scope.coa.extra_bed_cost,
-                day_period: $scope.coa.day_period,
-                pension_id: ($scope.selected.pension.selected?$scope.selected.pension.selected.id:null),
-                is_room_only_voucher: $scope.selected.is_room_only_voucher.selected.id,
-                is_require_deposit: $scope.selected.is_require_deposit.selected.id,
-                cashier: $scope.coa.cashier,
-                check_in: $scope.coa.check_in,
+                is_monday_active:$scope.selected.is_monday_active,
+                is_tuesday_active:$scope.selected.is_tuesday_active,
+                is_wednesday_active:$scope.selected.is_wednesday_active,
+                is_thursday_active:$scope.selected.is_thursday_active,
+                is_friday_active:$scope.selected.is_friday_active,
+                is_saturday_active:$scope.selected.is_saturday_active,
+                is_sunday_active:$scope.selected.is_sunday_active,
                 modified_date: globalFunction.currentDate(),
                 modified_by: $localStorage.currentUser.name.id
             }
             console.log(param)
-            queryService.post('update mst_room_rate SET ? WHERE id='+$scope.coa.id ,param)
+            queryService.post('update mst_package SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
                 var sqld = $scope.child.saveTable($scope.coa.id)
                 queryService.post(sqld.join(';'),undefined)
@@ -431,50 +462,49 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         //$('#coa_code').prop('disabled', true);
 
         // console.log(obj)
-        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
+        queryService.post(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             console.log(result)
+
             $scope.coa.id = result.data[0].id
             $scope.coa.code = result.data[0].code
             $scope.coa.name = result.data[0].name
-            $scope.coa.description = result.data[0].description
-            $scope.coa.user_display_description = result.data[0].user_display_description
-            $scope.coa.status = result.data[0].status
-            $scope.selected.status.selected = {id: result.data[0].status,name:result.data[0].status_name}
-            $scope.selected.rate_type.selected = {id: result.data[0].rate_type_id,name:result.data[0].rate_type_name}
-            $scope.selected.currency.selected = {id: result.data[0].currency_id,name:result.data[0].currency_name}
+            $scope.coa.text_on_folio = result.data[0].text_on_folio
+            $scope.coa.flat_rate = result.data[0].flat_rate
+            $scope.coa.adult_rate = result.data[0].adult_rate
+            $scope.coa.child_rate = result.data[0].child_rate
             $scope.coa.valid_date_from = result.data[0].valid_date_from
             $scope.coa.valid_date_until = result.data[0].valid_date_until
-            $scope.selected.tax.selected = {id: result.data[0].tax_id,name:result.data[0].tax_name}
-            $scope.coa.max_discount_prcn = result.data[0].max_discount_prcn
-            $scope.coa.extra_bed_cost = result.data[0].extra_bed_cost
-            $scope.coa.day_period = result.data[0].day_period
-            $scope.coa.cashier = result.data[0].cashier
-            $scope.coa.check_in = result.data[0].check_in
-            $scope.selected.pension.selected = {id: result.data[0].pension_id,name:result.data[0].pension_name}
-            $scope.selected.rhythm_type.selected = {id: result.data[0].rhythm_type,name:result.data[0].rhythm_name}
-            $scope.selected.is_room_only_voucher.selected = {id: result.data[0].is_room_only_voucher,name:result.data[0].is_room_only_voucher_name}
-            $scope.selected.is_require_deposit.selected = {id: result.data[0].is_require_deposit,name:result.data[0].is_require_deposit_name}
+            $scope.selected.status.selected = {id: result.data[0].status,name:result.data[0].status_name}
+            $scope.selected.is_meal_coupon.selected = {id: result.data[0].is_meal_coupon,name:result.data[0].is_meal_coupon_name}
+            $scope.selected.currency.selected = {id: result.data[0].currency_id,name:result.data[0].currency_name}
+            $scope.selected.package_type.selected = {id: result.data[0].package_type_id,name:result.data[0].package_type_name}
+            $scope.selected.package_category.selected = {id: result.data[0].package_category_id,name:result.data[0].package_category_name}
+            $scope.selected.rate_operator.selected = {id: result.data[0].rate_operator_id,name:result.data[0].rate_operator_name}
+            $scope.selected.is_hidden_for_user_selection.selected = {id: result.data[0].is_hidden_for_user_selection,name:result.data[0].is_hidden_for_user_selection_name}
+            $scope.selected.is_commission.selected = {id: result.data[0].is_commission,name:result.data[0].is_commission_name}
+            $scope.selected.is_tax_included.selected = {id: result.data[0].is_tax_included,name:result.data[0].is_tax_included_name}
+            $scope.selected.is_monday_active = result.data[0].is_monday_active
+            $scope.selected.is_tuesday_active = result.data[0].is_tuesday_active
+            $scope.selected.is_wednesday_active = result.data[0].is_wednesday_active
+            $scope.selected.is_thursday_active = result.data[0].is_thursday_active
+            $scope.selected.is_friday_active = result.data[0].is_friday_active
+            $scope.selected.is_saturday_active = result.data[0].is_saturday_active
+            $scope.selected.is_sunday_active = result.data[0].is_sunday_active
+
 
             $scope.items = []
-            queryService.post(qstringdetail+' and b.room_rate_id='+obj.id+ ' '+qwheredetail,undefined)
+            queryService.post(qstringdetail+' and a.package_id='+obj.id+ ' '+qwheredetail,undefined)
             .then(function(data){
                 console.log(data)
                 for (var i=0;i<data.data.length;i++){
                     $scope.items.push({
                         id: i+1,
-                        room_type_id: data.data[i].room_type_id,
-                        code:data.data[i].code,
-                        name:data.data[i].name,
-                        line_id: data.data[i].line_id,
+                        p_id: data.data[i].p_id,
                         room_rate_id: data.data[i].room_rate_id,
-                        rate_1_person: data.data[i].rate_1_person,
-                        rate_2_person: data.data[i].rate_2_person,
-                        rate_3_person: data.data[i].rate_3_person,
-                        rate_4_person: data.data[i].rate_4_person,
-                        additional_person: data.data[i].additional_person,
-                        additional_child: data.data[i].additional_child,
-                        late_checkout_charge: data.data[i].late_checkout_charge
+                        room_rate: data.data[i].room_rate,
+                        valid_date_from: data.data[i].valid_date_from,
+                        valid_date_until: data.data[i].valid_date_until
                     })
                 }
                 $scope.itemsOri = angular.copy($scope.items)
@@ -528,6 +558,34 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             description: '',
             status: ''
         }
+        $scope.selected = {
+            status: {},
+            filter_department: {},
+            filter_account_type: {},
+            package_type: {},
+            is_meal_coupon: {},
+            rate_operator: {},
+            package_category: {},
+            currency: {},
+            tax: {},
+            is_hidden_for_user_selection: {},
+            is_commission: {},
+            is_tax_included: {},
+            day: {},
+            is_monday_active: '0',
+            is_tuesday_active: '0',
+            is_wednesday_active: '0',
+            is_thursday_active: '0',
+            is_friday_active: '0',
+            is_saturday_active: '0',
+            is_sunday_active: '0'
+        }
+        $scope.selected.is_hidden_for_user_selection['selected'] = $scope.yesno[1]
+        $scope.selected.is_commission['selected'] = $scope.yesno[1]
+        $scope.selected.is_tax_included['selected'] = $scope.yesno[1]
+        $scope.selected.is_meal_coupon['selected'] = $scope.yesno[1]
+        $scope.selected.status['selected'] = $scope.status[0]
+        $scope.selected.currency['selected'] = $scope.currency[0]
     }
 
 })
@@ -568,17 +626,13 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.addUser = function() {
         $scope.item = {
             id:($scope.items.length+1),
-            product_id:'',
-            product_name:'',
-            qty: 0,
-            price: 0,
-            amount: 0,
-            supplier_id: '',
-            supplier_name: '',
-            old_price: 0,
-            new_price: 0,
+            room_rate:'',
+            room_rate_id:'',
+            valid_date_from: '',
+            valid_date_until: '',
             isNew: true
         };
+        $scope.setRoomRate($scope.item.id);
         $scope.items.push($scope.item)
     };
 
@@ -608,26 +662,34 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
             console.log(user)
-            if (user.line_id != null){
-                sqlitem.push('update mst_room_rate_line_item set rate_1_person='+user.rate_1_person+','+
-                    'rate_2_person='+user.rate_2_person+',rate_3_person='+user.rate_3_person+','+
-                    'rate_4_person='+user.rate_4_person+',additional_person='+user.additional_person+','+
-                    'additional_child='+user.additional_child+','+
-                    'additional_child='+user.additional_child+','+
-                    ' modified_by = '+$localStorage.currentUser.name.id+',' +
-                    ' modified_date = \''+globalFunction.currentDate()+'\'' +
-                    ' where id='+user.line_id
-                )
+            if (user.isNew && !user.isDeleted){
+                sqlitem.push('insert into mst_room_rate_package (package_id,room_rate_id,valid_date_from,valid_date_until,created_by,created_date) values('+
+                pr_id+','+user.room_rate_id+',\''+user.valid_date_from+'\',\''+user.valid_date_until+'\','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
             }
-            else {
-                if ((user.rate_1_person+user.rate_2_person+user.rate_3_person+user.rate_4_person+user.additional_person+user.additional_child+user.late_checkout_charge).length>0 ){
-                    sqlitem.push('insert into mst_room_rate_line_item(room_rate_id,room_type_id,rate_1_person,rate_2_person,rate_3_person,rate_4_person,additional_person,additional_child,late_checkout_charge,created_by,created_date) values '+
-                    '('+pr_id+','+user.room_type_id+','+user.rate_1_person+','+user.rate_2_person+','+user.rate_3_person+','+user.rate_4_person+','+user.additional_person+','+user.additional_child+','+user.late_checkout_charge+','+$localStorage.currentUser.name.id+',\''+globalFunction.currentDate()+'\')')
+            else if(!user.isNew && user.isDeleted){
+                sqlitem.push('delete from mst_room_rate_package where id='+user.p_id)
+            }
+            else if(!user.isNew){
+                console.log(user)
+                for (var j=0;j<$scope.itemsOri.length;j++){
+                    if ($scope.itemsOri[j].p_id==user.p_id){
+                        var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].room_rate_id+$scope.itemsOri[j].valid_date_from+$scope.itemsOri[j].valid_date_until
+                        var d2 = user.p_id+user.room_rate_id+user.valid_date_from+user.valid_date_until
+                        if(d1 != d2){
+                            sqlitem.push('update mst_room_rate_package set '+
+                            ' room_rate_id = '+user.room_rate_id+',' +
+                            ' valid_date_from = \''+user.valid_date_from+'\',' +
+                            ' valid_date_until = \''+user.valid_date_until+'\',' +
+                            ' modified_by = '+$localStorage.currentUser.name.id+',' +
+                            ' modified_date = \''+globalFunction.currentDate()+'\'' +
+                            ' where id='+user.p_id)
+                        }
+                    }
                 }
             }
         }
-        //console.log($scope.items)
-        //console.log(sqlitem.join(';'))
+        console.log($scope.items)
+        console.log(sqlitem.join(';\n'))
         return sqlitem
         //return $q.all(results);
     };
@@ -646,6 +708,26 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope.items[d-1].price = e.price
         $scope.items[d-1].amount = e.price * $scope.items[d-1].qty*/
     }
+
+    $scope.room_rate = []
+    $scope.setRoomRate = function(id){
+        queryService.post('select id,code,name from mst_room_rate where status!=2 order by name asc limit 20',undefined)
+        .then(function(data){
+            $scope.room_rate[id] = data.data
+        })
+    }
+    $scope.getRoomRate = function(a,b){
+        console.log(a,b)
+        $scope.items[b-1].room_rate = a.name
+        $scope.items[b-1].room_rate_id = a.id
+    }
+    $scope.roomRateUp = function(id,name){
+        queryService.post('select id,code,name from mst_room_rate where status!=2 and name like \'%'+name+'%\' order by name asc limit 20',undefined)
+        .then(function(data){
+            $scope.room_rate[id] = data.data
+        })
+    }
+
 
 
 
