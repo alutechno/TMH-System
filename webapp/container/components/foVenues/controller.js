@@ -19,7 +19,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         "where a.status = b.status_value and a.status!=2 "
     var qwhere = ''
 	var qstringt = 'select a.*,b.name from mst_venue_layout_capacity a,ref_venue_layout b where a.venue_layout_id=b.id'
-	var qstringOver = 'select * from mst_overlapped_venue'
+	var qstringOver = 'select a.*,b.name from mst_overlapped_venue a,mst_venue b where a.overlapped_venue_id=b.id'
 
     $scope.users = []
 	$scope.items = []
@@ -243,8 +243,12 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             queryService.post('insert into mst_venue SET ?',param)
             .then(function (result){
 				var qstr = $scope.child.saveTableT(result.data.insertId);
-				if(qstr.length>0){
-	                queryService.post(qstr.join(';'),undefined)
+				var qstr2 = $scope.child.saveTableOver(result.data.insertId);
+				var qstr_all=qstr.concat(qstr2);
+				console.log(qstr2)
+				console.log(qstr_all)
+				if(qstr_all.length>0){
+	                queryService.post(qstr_all.join(';'),undefined)
 					.then(function (result2){
 	                        $('#form-input').modal('hide')
 	                        $scope.dtInstance.reloadData(function(obj){}, false)
@@ -312,8 +316,12 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             queryService.post('update mst_venue SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
 				var qstr = $scope.child.saveTableT($scope.coa.id);
-				if(qstr.length>0){
-	                queryService.post(qstr.join(';'),undefined)
+				var qstr2 = $scope.child.saveTableOver($scope.coa.id);
+				var qstr_all=qstr.concat(qstr2);
+				console.log(qstr2)
+				console.log(qstr_all)
+				if(qstr_all.length>0){
+	                queryService.post(qstr_all.join(';'),undefined)
 					.then(function (result2){
 	                        $('#form-input').modal('hide')
 	                        $scope.dtInstance.reloadData(function(obj){}, false)
@@ -412,7 +420,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 		})
 	}
 	$scope.getOver=function(id){
-		queryService.get(qstringOver+ ' where venue_id='+id,undefined)
+		queryService.get(qstringOver+ ' and venue_id='+id,undefined)
 		.then(function(result2){
 			var d = result2.data
 			$scope.transover = []
@@ -421,10 +429,12 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 					{
 						id:(i+1),
 						p_id: d[i].id,
+						name:d[i].name,
 						overlapped_venue_id:d[i].overlapped_venue_id
 					}
 				)
 			}
+			console.log($scope.transover)
 			$scope.transoverOri = angular.copy($scope.transover);
 		},function(err2){
 			$('body').pgNotification({
@@ -496,8 +506,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
     // mark user as deleted
     $scope.deleteUser = function(id) {
-        var filtered = $filter('filter')($scope.items, {id: id});
-        if (filtered.length) {
+        var filtered = $filter('filter')($scope.transover, {id: id});
+		if (filtered.length) {
             filtered[0].isDeleted = true;
         }
     };
@@ -535,7 +545,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     };
 
     // save edits
-    $scope.child.saveTableT = function(pr_id) {
+    $scope.child.saveTableOver = function(pr_id) {
         var results = [];
         var sqlitem = []
         for (var i = $scope.transover.length; i--;) {
@@ -551,7 +561,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             }
             else if(!user.isNew){
                 for (var j=0;j<$scope.transoverOri.length;j++){
-                    if ($scope.transOri[j].p_id==user.p_id){
+                    if ($scope.transoverOri[j].p_id==user.p_id){
                         var d1 = $scope.transoverOri[j].p_id+$scope.transoverOri[j].overlapped_venue_id
                         var d2 = user.p_id+user.overlapped_venue_id
                         if(d1 != d2){
@@ -584,10 +594,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         })
     }
     $scope.getOver = function(e,d){
-		console.log(e)
-		console.log(d)
-		console.log($scope.transover)
-        $scope.transover[d-1].name = e.name
+		$scope.transover[d-1].name = e.name
         $scope.transover[d-1].overlapped_venue_id = e.id
     }
 })
@@ -605,7 +612,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
     // mark user as deleted
     $scope.deleteUser = function(id) {
-        var filtered = $filter('filter')($scope.items, {id: id});
+        var filtered = $filter('filter')($scope.trans, {id: id});
         if (filtered.length) {
             filtered[0].isDeleted = true;
         }
@@ -699,10 +706,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.getVoucher = function(e,d){
-		console.log(e)
-		console.log(d)
-		console.log($scope.trans)
-        $scope.trans[d-1].name = e.name
+		$scope.trans[d-1].name = e.name
         $scope.trans[d-1].venue_layout_id = e.id
     }
 

@@ -217,20 +217,20 @@
 													  </tr>
 													  </thead>
 													  <tbody>
-													  <tr ng-repeat="item in trans | filter:filterUser">
+													  <tr ng-repeat="item in transover | filter:filterUser">
 
 														  <td style="vertical-align: middle;">
 															  <div class="btn-group btn-group-xs" ng-show="tableform.$visible">
-																  <button type="button" class="btn btn-default" ng-click="deleteUser(itemOver.id)" ><i class="fa fa-trash-o"></i></button>
+																  <button type="button" class="btn btn-default" ng-click="deleteUser(item.id)" ><i class="fa fa-trash-o"></i></button>
 															  </div>
 														  </td>
 														  <td >
-															  <span editable-ui-select="itemOver.name" theme="bootstrap" data-e-name="name" name="name" data-e-ng-model="selected.over.selected"
+															  <span editable-ui-select="item.name" theme="bootstrap" data-e-name="name" name="name" data-e-ng-model="selected.over.selected"
 															  data-e-form="tableform" data-e-ng-keyup="overUp($select.search)" data-e-on-select="getOver($item,item.id)" >
-															  {{itemOver.name}}
+															  {{item.name}}
 																	<editable-ui-select-match placeholder="select venue" style="width: 300px" >
 																		<!--{{$select.selected.name}}-->
-																		{{itemOver.name || 'Empty'}}
+																		{{item.name || 'Empty'}}
 																	</editable-ui-select-match>
 																	<editable-ui-select-choices repeat="d in over | filter: $select.search">
 																		<div ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></div>
