@@ -254,7 +254,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             //exec update
 
             var param = {
-                name: $scope.coa.box_no,
+                box_no: $scope.coa.box_no,
                 description: $scope.coa.description,
                 status: $scope.selected.status.selected.id,
                 modified_date: globalFunction.currentDate(),
@@ -295,7 +295,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             console.log(result)
 
             $scope.coa.id = result.data[0].id
-            $scope.coa.code = result.data[0].box_no
+            $scope.coa.box_no = result.data[0].box_no
             $scope.coa.description = result.data[0].description
             $scope.coa.status = result.data[0].status
             $scope.coa.status = result.data[0].status

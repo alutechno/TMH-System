@@ -5,11 +5,11 @@
         <!-- START PANEL -->
         <div class="panel panel-transparent">
             <div class="panel-heading">
-                <div class="panel-title">Venues
+                <div class="panel-title">Venue
                 </div>
                 <div class="pull-right" style="width: 60%;">
                     <!--<button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>-->
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Venues</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Venue</button>
                     <span ng-click="exportExcel()">
                         <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
                     </span>
@@ -26,6 +26,7 @@
                     <a class="reload" href="javascript:;"></a>
                     <a class="remove" href="javascript:;"></a>
                 </div>
+
             </div>
             <div class="panel-body">
                 <div class="table-responsive">
@@ -38,12 +39,12 @@
 </div>
 
 <!--START FORM INPUT-->
-<div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade slide-right form-input-big" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Venue Information</div>
+       <div class="panel-title">Deposit Box</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -55,31 +56,64 @@
       <div class="panel panel-transparent m-t-20">
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
-                  <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.code.$invalid && !coa.code.$pristine }">
-                          <label>Code</label>
-                          <input type="text" class="form-control" name="code" id="coa_code" ng-model="coa.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
-                      </div>
-                  </div>
-              </div>
-              <div class="row clearfix">
-                  <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.short_name.$invalid && !coa.short_name.$pristine }">
-                          <label>Short Name</label>
-                          <input type="text" class="form-control" name="short_name" id="short_name" ng-model="coa.short_name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
-                      </div>
-                  </div>
-              </div>
-
-              <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.name.$invalid && !coa.name.$pristine }">
-                          <label>Name</label>
-                          <input type="text" class="form-control" name="name" ng-model="coa.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
-                      </div>
+					  <div class="col-md-4">
+	                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.code.$invalid && !coa.code.$pristine }">
+	                          <label>Code</label>
+	                          <input type="text" class="form-control" name="name" ng-model="coa.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+	                      </div>
+ 					  </div>
+					  <div class="col-md-4">
+	                      <div pg-form-group class="form-group form-group-default">
+	                          <label>Width</label>
+							  <input type="text" class="form-control" name="name" ng-model="coa.width" >
+	                      </div>
+ 					  </div>
+					  <div class="col-md-4">
+	                      <div pg-form-group class="form-group form-group-default">
+	                          <label>Height</label>
+							  <input type="text" class="form-control" name="name" ng-model="coa.height" >
+	                      </div>
+ 					  </div>
                   </div>
               </div>
-
+			  <div class="row clearfix">
+				  <div class="col-sm-12">
+					  <div class="col-md-4">
+	                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.short_name.$invalid && !coa.short_name.$pristine }">
+	                          <label>Short Name</label>
+	                          <input type="text" class="form-control" name="name" ng-model="coa.short_name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+	                      </div>
+ 					  </div>
+					  <div class="col-md-4">
+						  <div pg-form-group class="form-group form-group-default">
+	                          <label>Length</label>
+							  <input type="text" class="form-control" name="name" ng-model="coa.length" >
+	                      </div>
+ 					  </div>
+                  </div>
+              </div>
+			  <div class="row clearfix">
+                  <div class="col-sm-12">
+					  <div class="col-md-4">
+	                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.name.$invalid && !coa.name.$pristine }">
+	                          <label>Name</label>
+	                          <input type="text" class="form-control" name="name" ng-model="coa.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+	                      </div>
+					  </div>
+					  <div class="col-md-4">
+						  <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+	                          <label>Outdoor</label>
+	                          <ui-select ng-init="selected.is_outdoor.selected ='N'" ng-model="selected.is_outdoor.selected" theme="bootstrap" >
+	                              <ui-select-match placeholder="select status">{{$select.selected}}</ui-select-match>
+	                              <ui-select-choices repeat="choice in ['Y', 'N']">
+	                                  <span ng-bind-html="trustAsHtml((choice | highlight: $select.search))"></span>
+	                              </ui-select-choices>
+	                          </ui-select>
+	                      </div>
+					  </div>
+                  </div>
+              </div>
               <div class="row clearfix">
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default">
@@ -87,9 +121,9 @@
                           <input type="text" class="form-control" name="name" ng-model="coa.description" >
                       </div>
                   </div>
-              </div>
+			  </div>
               <div class="row clearfix">
-                <div class="col-sm-12">
+                <div class="col-sm-4">
                     <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.status.selected.$invalid && !selected.status.selected.$pristine }">
                         <label>Status</label>
                         <ui-select ng-model="selected.status.selected" theme="bootstrap" validate-attached-form-element required>
@@ -101,8 +135,128 @@
                     </div>
                 </div>
             </div>
-              </div>
+			<div class="panel panel-transparent ">
+				<!-- Nav tabs -->
+				<ul class="nav nav-tabs nav-tabs-fillup" pg-tab-dropdownfx>
+					<li class="active">
+						<a data-toggle="tab" pg-tab href="#tab-fillup1"><span>Layout</span></a>
+					</li>
+					<li ng-show="selected.status.selected.id==1">
+						<a data-toggle="tab" pg-tab href="#tab-fillup2"><span>Overlapped</span></a>
+					</li>
+					<li ng-show="selected.status.selected.id==2">
+						<a data-toggle="tab" pg-tab href="#tab-fillup3"><span>Overlapped</span></a>
+					</li>
+				</ul>
+				<!-- Tab panes -->
+				<div class="tab-content">
+					<div class="tab-pane active" id="tab-fillup1">
+						<div class="row">
+							<div ng-controller="EditableTableApdtCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()">
+												  <!-- table -->
+												  <table class="table  table-hover itemtable">
+													  <thead>
+													  <tr>
+														  <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
+														  <th width="20%">Venue</th>
+														  <th width="20%">Capacity</th>
+													  </tr>
+													  </thead>
+													  <tbody>
+													  <tr ng-repeat="item in trans | filter:filterUser">
 
+														  <td style="vertical-align: middle;">
+															  <div class="btn-group btn-group-xs" ng-show="tableform.$visible">
+																  <button type="button" class="btn btn-default" ng-click="deleteUser(item.id)" ><i class="fa fa-trash-o"></i></button>
+															  </div>
+														  </td>
+														  <td >
+															  <span editable-ui-select="item.name" theme="bootstrap" data-e-name="name" name="name" data-e-ng-model="selected.voucher.selected"
+															  data-e-form="tableform" data-e-ng-keyup="voucherUp($select.search)" data-e-on-select="getVoucher($item,item.id)" >
+															  {{item.name}}
+																	<editable-ui-select-match placeholder="select layout" style="width: 300px" >
+																		<!--{{$select.selected.name}}-->
+																		{{item.name || 'Empty'}}
+																	</editable-ui-select-match>
+																	<editable-ui-select-choices repeat="d in voucher | filter: $select.search">
+																		<div ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></div>
+																	</editable-ui-select-choices>
+															  </span>
+														  </td>
+														  <td >
+															  <span editable-text="item.capacity" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data)">
+																  {{ item.capacity }}
+															  </span>
+														  </td>
+													  </tr>
+													  </tbody>
+												  </table>
+												  <!-- buttons -->
+												  <div class="btn-edit">
+													<button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()">
+													  Modify Layout List
+													</button>
+												  </div>
+												  <div class="btn-form" ng-show="tableform.$visible">
+													<button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTableT(0)" class="btn btn-primary"> Save Item</button>
+													<button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
+													<button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
+												  </div>
+							</div>
+						</div>
+					</div>
+					<div class="tab-pane" id="tab-fillup2">
+						<div class="row">
+							<div ng-controller="EditableTableOverCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()">
+												  <!-- table -->
+												  <table class="table  table-hover itemtable">
+													  <thead>
+													  <tr>
+														  <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
+														  <th width="20%">Venue</th>
+													  </tr>
+													  </thead>
+													  <tbody>
+													  <tr ng-repeat="item in trans | filter:filterUser">
+
+														  <td style="vertical-align: middle;">
+															  <div class="btn-group btn-group-xs" ng-show="tableform.$visible">
+																  <button type="button" class="btn btn-default" ng-click="deleteUser(itemOver.id)" ><i class="fa fa-trash-o"></i></button>
+															  </div>
+														  </td>
+														  <td >
+															  <span editable-ui-select="itemOver.name" theme="bootstrap" data-e-name="name" name="name" data-e-ng-model="selected.over.selected"
+															  data-e-form="tableform" data-e-ng-keyup="overUp($select.search)" data-e-on-select="getOver($item,item.id)" >
+															  {{itemOver.name}}
+																	<editable-ui-select-match placeholder="select venue" style="width: 300px" >
+																		<!--{{$select.selected.name}}-->
+																		{{itemOver.name || 'Empty'}}
+																	</editable-ui-select-match>
+																	<editable-ui-select-choices repeat="d in over | filter: $select.search">
+																		<div ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></div>
+																	</editable-ui-select-choices>
+															  </span>
+														  </td>
+													  </tr>
+													  </tbody>
+												  </table>
+												  <!-- buttons -->
+												  <div class="btn-edit">
+													<button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()">
+													  Modify Overlapped List
+													</button>
+												  </div>
+												  <div class="btn-form" ng-show="tableform.$visible">
+													<button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTableT(0)" class="btn btn-primary"> Save Item</button>
+													<button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
+													<button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
+												  </div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+              </div>
               <br>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>

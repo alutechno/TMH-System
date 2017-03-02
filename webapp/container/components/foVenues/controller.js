@@ -12,15 +12,22 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope[$scope.el[i]] = true;
     }
 
-    var qstring = "select a.id,a.code,a.short_name,a.name,a.description,a.status,b.status_name from ref_hk_item_page a, "+
+    var qstring = "select a.id,a.code,a.short_name,a.name,a.description,a.status,b.status_name,a.is_outdoor,a.room_length,a.room_width,a.room_height from mst_venue a, "+
         "(select id as status_id, value as status_value,name as status_name  "+
             "from table_ref  "+
             "where table_name = 'ref_product_category' and column_name='status')b "+
         "where a.status = b.status_value and a.status!=2 "
     var qwhere = ''
+	var qstringt = 'select a.*,b.name from mst_venue_layout_capacity a,ref_venue_layout b where a.venue_layout_id=b.id'
+	var qstringOver = 'select * from mst_overlapped_venue'
 
     $scope.users = []
-
+	$scope.items = []
+    $scope.trans = []
+    $scope.transOri = []
+	$scope.transover=[]
+	$scope.transoverOri=[]
+	$scope.child = {}
     $scope.role = {
         selected: []
     };
@@ -30,7 +37,12 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.coa = {
         id: '',
         code: '',
-        name: '',
+		short_name: '',
+		name: '',
+		length: '',
+		width: '',
+		height: '',
+		is_outdoor: '',
         description: '',
         status: ''
     }
@@ -48,14 +60,14 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     })
 
     $scope.focusinControl = {};
-    $scope.fileName = "Item Reference Page";
+    $scope.fileName = "Venue Reference";
     $scope.exportExcel = function(){
 
-        queryService.post('select code,short_name,name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
+        queryService.post('select id,code,short_name,name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
         .then(function(data){
             $scope.exportData = [];
             //Header
-            $scope.exportData.push(["Code","Short Name", "Name", 'Description','Status']);
+            $scope.exportData.push(['ID', 'code','short_name','name','Description','Status']);
             //Data
             for(var i=0;i<data.data.length;i++){
                 var arr = []
@@ -122,7 +134,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-    .withOption('order', [0, 'asc'])
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -133,8 +145,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.dtColumns.push(
         //DTColumnBuilder.newColumn('code').withTitle('Code Ori').notVisible(),
         DTColumnBuilder.newColumn('code').withTitle('Code'),
-        DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
-        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
+        DTColumnBuilder.newColumn('short_name').withTitle('Short_name'),
+		DTColumnBuilder.newColumn('name').withTitle('name'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
@@ -212,35 +224,62 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.submit = function(){
+
         if ($scope.coa.id.length==0){
             //exec creation
-
             var param = {
                 code: $scope.coa.code,
-                name: $scope.coa.name,
-                short_name: $scope.coa.short_name,
+				short_name: $scope.coa.short_name,
+				name: $scope.coa.name,
                 description: $scope.coa.description,
+				room_length:$scope.coa.length,
+				room_width: $scope.coa.width,
+				room_height: $scope.coa.height,
+				is_outdoor: $scope.selected.is_outdoor.selected,
                 status: $scope.selected.status.selected.id,
                 created_date: globalFunction.currentDate(),
                 created_by: $localStorage.currentUser.name.id
             }
-            console.log(param)
-
-            queryService.post('insert into ref_hk_item_page SET ?',param)
+            queryService.post('insert into mst_venue SET ?',param)
             .then(function (result){
-                    $('#form-input').modal('hide')
+				var qstr = $scope.child.saveTableT(result.data.insertId);
+				if(qstr.length>0){
+	                queryService.post(qstr.join(';'),undefined)
+					.then(function (result2){
+	                        $('#form-input').modal('hide')
+	                        $scope.dtInstance.reloadData(function(obj){}, false)
+	                        $('body').pgNotification({
+	                            style: 'flip',
+	                            message: 'Success Insert '+$scope.coa.name,
+	                            position: 'top-right',
+	                            timeout: 2000,
+	                            type: 'success'
+	                        }).show();
+	                        $scope.clear();
+	                },
+	                function (err2){
+	                    $('#form-input').pgNotification({
+	                        style: 'flip',
+	                        message: 'Error Insert: '+err2.code,
+	                        position: 'top-right',
+	                        timeout: 2000,
+	                        type: 'danger'
+	                    }).show();
+	                })
+				}else{
+					$('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
-                        message: 'Success Insert '+$scope.coa.code,
+                        message: 'Success Insert '+$scope.coa.name,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'success'
                     }).show();
                     $scope.clear()
-
+				}
             },
             function (err){
                 console.log(err)
@@ -258,36 +297,67 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             //exec update
 
             var param = {
-                code: $scope.coa.code,
-                name: $scope.coa.name,
-                short_name: $scope.coa.short_name,
+				code: $scope.coa.code,
+				short_name: $scope.coa.short_name,
+				name: $scope.coa.name,
                 description: $scope.coa.description,
+				room_length:$scope.coa.length,
+				room_width: $scope.coa.width,
+				room_height: $scope.coa.height,
+				is_outdoor: $scope.selected.is_outdoor.selected,
                 status: $scope.selected.status.selected.id,
                 modified_date: globalFunction.currentDate(),
                 modified_by: $localStorage.currentUser.name.id
             }
-            console.log(param)
-            queryService.post('update ref_hk_item_page SET ? WHERE id='+$scope.coa.id ,param)
+            queryService.post('update mst_venue SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
-                if (result.status = "200"){
-                    console.log('Success Update')
-                    $('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
-                    }, false)
-                    $('body').pgNotification({
-                        style: 'flip',
-                        message: 'Success Update '+$scope.coa.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'success'
-                    }).show();
-                    $scope.clear()
-                }
-                else {
-                    console.log('Failed Update')
-                }
-            })
+				var qstr = $scope.child.saveTableT($scope.coa.id);
+				if(qstr.length>0){
+	                queryService.post(qstr.join(';'),undefined)
+					.then(function (result2){
+	                        $('#form-input').modal('hide')
+	                        $scope.dtInstance.reloadData(function(obj){}, false)
+	                        $('body').pgNotification({
+	                            style: 'flip',
+	                            message: 'Success Insert '+$scope.coa.name,
+	                            position: 'top-right',
+	                            timeout: 2000,
+	                            type: 'success'
+	                        }).show();
+	                        $scope.clear();
+	                },
+	                function (err2){
+	                    $('#form-input').pgNotification({
+	                        style: 'flip',
+	                        message: 'Error Insert: '+err2.code,
+	                        position: 'top-right',
+	                        timeout: 2000,
+	                        type: 'danger'
+	                    }).show();
+	                })
+				}else{
+					if (result.status = "200"){
+	                    console.log('Success Update')
+	                    $('#form-input').modal('hide')
+	                    $scope.dtInstance.reloadData(function(obj){
+	                        console.log(obj)
+	                    }, false)
+	                    $('body').pgNotification({
+	                        style: 'flip',
+	                        message: 'Success Update '+$scope.coa.name,
+	                        position: 'top-right',
+	                        timeout: 2000,
+	                        type: 'success'
+	                    }).show();
+	                    $scope.clear()
+	                }
+	                else {
+	                    console.log('Failed Update')
+	                }
+				}
+            },function(err){
+				console.log(err)
+			})
         }
     }
 
@@ -298,20 +368,74 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         // console.log(obj)
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-            console.log(result)
-
             $scope.coa.id = result.data[0].id
             $scope.coa.code = result.data[0].code
-            $scope.coa.name = result.data[0].name
-            $scope.coa.short_name = result.data[0].short_name
+			$scope.coa.short_name = result.data[0].short_name
+			$scope.coa.name = result.data[0].name
+			$scope.coa.length = result.data[0].room_length
+			$scope.coa.width = result.data[0].room_width
+			$scope.coa.height = result.data[0].room_height
+			$scope.selected.is_outdoor.selected = result.data[0].is_outdoor
             $scope.coa.description = result.data[0].description
             $scope.coa.status = result.data[0].status
-            $scope.coa.status = result.data[0].status
             $scope.selected.status.selected = {id: result.data[0].status,name:result.data[0].status_name}
-
+			$scope.getLayout(obj.id)
+			$scope.getOver(obj.id)
         })
     }
-
+	$scope.getLayout=function(id){
+		queryService.get(qstringt+ ' and a.venue_id='+id,undefined)
+		.then(function(result2){
+			var d = result2.data
+			$scope.trans = []
+			for (var i=0;i<d.length;i++){
+				$scope.trans.push(
+					{
+						id:(i+1),
+						p_id: d[i].id,
+						name:d[i].name,
+						venue_id: d[i].venue_id,
+						venue_layout_id:d[i].venue_layout_id,
+						capacity:d[i].room_capacity,
+					}
+				)
+			}
+			$scope.transOri = angular.copy($scope.trans);
+		},function(err2){
+			$('body').pgNotification({
+				style: 'flip',
+				message: 'Failed Fetch Data: '+err2.code,
+				position: 'top-right',
+				timeout: 2000,
+				type: 'danger'
+			}).show();
+		})
+	}
+	$scope.getOver=function(id){
+		queryService.get(qstringOver+ ' where venue_id='+id,undefined)
+		.then(function(result2){
+			var d = result2.data
+			$scope.transover = []
+			for (var i=0;i<d.length;i++){
+				$scope.transover.push(
+					{
+						id:(i+1),
+						p_id: d[i].id,
+						overlapped_venue_id:d[i].overlapped_venue_id
+					}
+				)
+			}
+			$scope.transoverOri = angular.copy($scope.transover);
+		},function(err2){
+			$('body').pgNotification({
+				style: 'flip',
+				message: 'Failed Fetch Data: '+err2.code,
+				position: 'top-right',
+				timeout: 2000,
+				type: 'danger'
+			}).show();
+		})
+	}
     $scope.delete = function(obj){
         $scope.coa.id = obj.id;
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
@@ -322,7 +446,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.execDelete = function(){
-        queryService.post('update ref_hk_item_page SET status=\'2\', '+
+        queryService.post('update mst_venue SET status=\'2\', '+
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
         ' WHERE id='+$scope.coa.id ,undefined)
@@ -335,7 +459,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 }, false)
                 $('body').pgNotification({
                     style: 'flip',
-                    message: 'Success Delete '+$scope.coa.name,
+                    message: 'Success Delete '+$scope.coa.box_no,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'success'
@@ -351,12 +475,239 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.clear = function(){
         $scope.coa = {
             id: '',
-            code: '',
-            name: '',
-            short_name: '',
+            box_no: '',
             description: '',
             status: ''
         }
+    }
+
+})
+.controller('EditableTableOverCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {
+    $scope.checkName = function(data, id) {
+        if (id === 2 && data !== 'awesome') {
+            return "Username 2 should be `awesome`";
+        }
+    };
+
+    // filter users to show
+    $scope.filterUser = function(user) {
+        return user.isDeleted !== true;
+    };
+
+    // mark user as deleted
+    $scope.deleteUser = function(id) {
+        var filtered = $filter('filter')($scope.items, {id: id});
+        if (filtered.length) {
+            filtered[0].isDeleted = true;
+        }
+    };
+
+    // add user
+    $scope.over = []
+	queryService.get('select * from mst_venue where status=1',undefined)
+	.then(function(data){
+		$scope.over = data.data
+	})
+    $scope.addUser = function() {
+        $scope.itemOver = {
+            id:($scope.transover.length+1),
+			p_id: '',
+            venue_id: '',
+            overlapped_venue_id:'',
+            isNew: true
+        };
+        $scope.transover.push($scope.itemOver)
+    };
+
+    // cancel all changes
+    $scope.cancel = function() {
+        for (var i = $scope.transover.length; i--;) {
+            var user = $scope.transover[i];
+            // undelete
+            if (user.isDeleted) {
+                delete user.isDeleted;
+            }
+            // remove new
+            if (user.isNew) {
+                $scope.transover.splice(i, 1);
+            }
+        };
+    };
+
+    // save edits
+    $scope.child.saveTableT = function(pr_id) {
+        var results = [];
+        var sqlitem = []
+        for (var i = $scope.transover.length; i--;) {
+            var user = $scope.transover[i];
+            // send on server
+            //results.push($http.post('/saveUser', user));
+            if (user.isNew && !user.isDeleted){
+                sqlitem.push('insert into mst_overlapped_venue (venue_id,overlapped_venue_id,created_by,created_date,status) values('+
+                pr_id+','+user.overlapped_venue_id+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',1)')
+            }
+            else if(!user.isNew && user.isDeleted){
+                sqlitem.push('delete from mst_overlapped_venue where id='+user.p_id)
+            }
+            else if(!user.isNew){
+                for (var j=0;j<$scope.transoverOri.length;j++){
+                    if ($scope.transOri[j].p_id==user.p_id){
+                        var d1 = $scope.transoverOri[j].p_id+$scope.transoverOri[j].overlapped_venue_id
+                        var d2 = user.p_id+user.overlapped_venue_id
+                        if(d1 != d2){
+                            sqlitem.push('update mst_overlapped_venue set '+
+                            ' overlapped_venue_id = '+user.overlapped_venue_id+',' +
+                            ' modified_by = '+$localStorage.currentUser.name.id+',' +
+                            ' modified_date = \''+globalFunction.currentDate()+'\'' +
+                            ' where id='+user.p_id)
+                        }
+                    }
+                }
+            }
+        }
+        return sqlitem
+        //return $q.all(results);
+    };
+    $scope.trustAsHtml = function(value) {
+        return $sce.trustAsHtml(value);
+    };
+
+    $scope.products = []
+
+    $scope.overUp = function(text) {
+        //queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
+        queryService.post('select * from mst_venue where status=1'+
+            'and lower(name) like \''+text.toLowerCase()+'%\' '+
+            'order by id limit 20 ',undefined)
+        .then(function(data){
+            $scope.over = data.data
+        })
+    }
+    $scope.getOver = function(e,d){
+		console.log(e)
+		console.log(d)
+		console.log($scope.transover)
+        $scope.transover[d-1].name = e.name
+        $scope.transover[d-1].overlapped_venue_id = e.id
+    }
+})
+.controller('EditableTableApdtCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {
+    $scope.checkName = function(data, id) {
+        if (id === 2 && data !== 'awesome') {
+            return "Username 2 should be `awesome`";
+        }
+    };
+
+    // filter users to show
+    $scope.filterUser = function(user) {
+        return user.isDeleted !== true;
+    };
+
+    // mark user as deleted
+    $scope.deleteUser = function(id) {
+        var filtered = $filter('filter')($scope.items, {id: id});
+        if (filtered.length) {
+            filtered[0].isDeleted = true;
+        }
+    };
+
+    // add user
+    $scope.voucher = []
+	queryService.get('select * from ref_venue_layout where status=1',undefined)
+	.then(function(data){
+		$scope.voucher = data.data
+	})
+    $scope.addUser = function() {
+        $scope.item = {
+            id:($scope.trans.length+1),
+			p_id: '',
+            venue_id: '',
+            venue_layout_id:'',
+            capacity:'',
+            isNew: true
+        };
+        $scope.trans.push($scope.item)
+    };
+
+    // cancel all changes
+    $scope.cancel = function() {
+        for (var i = $scope.trans.length; i--;) {
+            var user = $scope.trans[i];
+            // undelete
+            if (user.isDeleted) {
+                delete user.isDeleted;
+            }
+            // remove new
+            if (user.isNew) {
+                $scope.trans.splice(i, 1);
+            }
+        };
+    };
+
+
+    // save edits
+    $scope.child.saveTableT = function(pr_id) {
+        var results = [];
+        var sqlitem = []
+        for (var i = $scope.trans.length; i--;) {
+            var user = $scope.trans[i];
+
+            // send on server
+            //results.push($http.post('/saveUser', user));
+            if (user.isNew && !user.isDeleted){
+                sqlitem.push('insert into mst_venue_layout_capacity (venue_id,venue_layout_id,room_capacity,created_by,created_date,status) values('+
+                pr_id+','+user.venue_layout_id+','+user.capacity+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',1)')
+            }
+            else if(!user.isNew && user.isDeleted){
+                sqlitem.push('delete from mst_venue_layout_capacity where id='+user.p_id)
+            }
+            else if(!user.isNew){
+                for (var j=0;j<$scope.transOri.length;j++){
+                    if ($scope.transOri[j].p_id==user.p_id){
+                        var d1 = $scope.transOri[j].p_id+$scope.transOri[j].venue_layout_id+$scope.transOri[j].capacity
+                        var d2 = user.p_id+user.venue_layout_id+user.capacity
+                        if(d1 != d2){
+                            sqlitem.push('update mst_venue_layout_capacity set '+
+                            ' venue_layout_id = '+user.venue_layout_id+',' +
+                            ' room_capacity = '+user.capacity+',' +
+                            ' modified_by = '+$localStorage.currentUser.name.id+',' +
+                            ' modified_date = \''+globalFunction.currentDate()+'\'' +
+                            ' where id='+user.p_id)
+                        }
+                    }
+                }
+            }
+
+        }
+        return sqlitem
+        //return $q.all(results);
+    };
+    $scope.trustAsHtml = function(value) {
+        return $sce.trustAsHtml(value);
+    };
+
+    $scope.products = []
+
+    $scope.voucherUp = function(text) {
+        //queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
+        queryService.post('select * from ref_venue_layout where status=1'+
+            'and lower(name) like \''+text.toLowerCase()+'%\' '+
+            'order by id limit 20 ',undefined)
+        .then(function(data){
+            $scope.voucher = data.data
+        })
+    }
+
+    $scope.getVoucher = function(e,d){
+		console.log(e)
+		console.log(d)
+		console.log($scope.trans)
+        $scope.trans[d-1].name = e.name
+        $scope.trans[d-1].venue_layout_id = e.id
+    }
+
+    $scope.setValue = function(e,d,p){
+        $scope.trans[d-1].capacity = p
     }
 
 })
