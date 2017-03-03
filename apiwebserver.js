@@ -220,6 +220,13 @@ if (cluster.isMaster) {
         res.send(retval)
     });
 
+	app.post('/uploadBudget', upload.array('budget'), function (req, res, next) {
+		console.log(req)
+		var retval = req.file;
+		console.log(retval)
+		retval['pth'] = 'container/budget/tmp/'+req.file.filename
+		res.send(retval)
+	});
 
 	app.post('/authenticate_old', function (req, res) {
 	    console.log(req.body)

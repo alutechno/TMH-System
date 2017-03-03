@@ -199,6 +199,10 @@ module.exports = function(connection,jwt){
         });
     });
 
+	app.post('/uploadBudget', function (req, res) {
+		var fs = require('fs');
+		console.log(req)
+	});
 
     return app;
 

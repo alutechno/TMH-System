@@ -12,7 +12,28 @@
 
 
                     <div class="btn-group pull-right m-r-5">
-                        <div class="btn-group form-group-default-select pull-left  m-r-5">
+						<div class="btn-group form-group-default-select pull-left  m-r-5">
+							<input type="file" ng-model-instant id="fileToUpload" multiple onchange="angular.element(this).scope().setFiles(this)" />
+							<!--<label for="files" class="btn">Upload Budget</label>
+							<input type="file" style="visibility:hidden;display:none" ng-model-instant id="files" multiple onchange="angular.element(this).scope().setFiles(this)" />-->
+							<div ng-show="files.length">
+							   <div ng-repeat="file in files.slice(0)">
+								   <span>{{file.webkitRelativePath || file.name}}</span>
+								   (<span ng-switch="file.size > 1024*1024">
+									   <span ng-switch-when="true">{{file.size / 1024 / 1024 | number:2}} MB</span>
+									   <span ng-switch-default>{{file.size / 1024 | number:2}} kB</span>
+								   </span>)
+							   </div>
+							   <input type="button" ng-click="uploadFile()" value="Upload" />
+							   <div ng-show="progressVisible">
+								   <div class="percent">{{progress}}%</div>
+								   <div class="progress-bar">
+									   <div class="uploaded" ng-style="{'width': progress+'%'}"></div>
+								   </div>
+							   </div>
+							</div>
+                        </div>
+						<div class="btn-group form-group-default-select pull-left  m-r-5">
                             <label class="m-t-5 m-r-5 m-l-5"><b>Period:</b></label>&nbsp;
                         </div>
                         <div class="btn-group form-group-default-select pull-left  m-r-5">
@@ -23,10 +44,7 @@
                                 </ui-select-choices>
                             </ui-select>
                         </div>
-
-
                      </div>
-
                 </div>
                 <div class="clearfix"></div>
                 <div class="tools">

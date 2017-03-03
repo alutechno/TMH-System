@@ -91,8 +91,28 @@ function($q, $http, $timeout, $localStorage,API_URL) {
                 defer.reject(response)
             })
             return defer.promise;
-
-
+        }
+    }
+}
+])
+.factory('uploadBudget', ['$q', '$http', '$timeout', '$localStorage', 'API_URL',
+function($q, $http, $timeout, $localStorage,API_URL) {
+	console.log(API_URL)
+    return {
+        save: function(body) {
+            var defer = $q.defer();
+            $http.post('uploadBudget/apioth/uploadBudget', body)
+            .then(function(response){
+                if (response.data.err==null) {
+                    var rsp = {data:response.data.rows, status:200}
+                    defer.resolve(rsp)
+                }
+                else defer.reject(response.data.err)
+            },
+            function(response){
+                defer.reject(response)
+            })
+            return defer.promise;
         }
     }
 }
