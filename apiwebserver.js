@@ -3,6 +3,8 @@ var mysql = require('mysql');
 var bodyParser = require('body-parser');
 var multer  = require('multer')
 var upload = multer({ dest: __dirname+'/webapp/container/img/tmp/'})
+var XLSX = require('xlsx');
+
 var cpuCount = require('os').cpus().length;
 var pool  = mysql.createPool({
     connectionLimit : 50,
@@ -75,10 +77,10 @@ if (cluster.isMaster) {
 	                connection.release();
 	                //console.dir(sql);
 	                if(err) {
-	                    console.log('err:' + err);
+	                    //console.log('err:' + err);
 	                    callback(err, rows,fields);
 	                }else{
-	                    console.log( rows );
+	                    //console.log( rows );
 	                    callback(err, rows,fields);
 	                }
 	            });
@@ -214,19 +216,63 @@ if (cluster.isMaster) {
         res.render('index');
     });
 
-    app.post('/upload', upload.single('image'), function (req, res, next) {
+	app.post('/upload', upload.single('image'), function (req, res, next) {
         var retval = req.file;
         retval['pth'] = 'container/img/tmp/'+req.file.filename
         res.send(retval)
     });
 
-	app.post('/uploadBudget', upload.array('budget'), function (req, res, next) {
+	app.post('/uploadBudget', upload.any(), function (req, res, next) {
+		try{
+			var workbook = XLSX.readFile(req.files[0].path);
+			var sqlstr='START TRANSACTION;'
+			var array=[]
+			for (var key in workbook.Sheets){
+				var sheet=workbook.Sheets[key]
+				for(var i in sheet){
+					if(i[0] === '!') continue;
+					if(i[0] === 'A'&& !isNaN(sheet[i].v)){
+						if(sql!=undefined){
+							sqlstr+=sql+') '+sqlupdate+',modified_date=now();';
+						}
+						var int=0;
+						var sqlupdate='';
+						//var sql='insert into acc_monthly_budget_alloc set ? ON DUPLICATE KEY UPDATE ?;'
+						var sql='insert into acc_monthly_budget_alloc (year,account_id,total_budget_amount,month1_budget_amount,month2_budget_amount,month3_budget_amount,month4_budget_amount,month5_budget_amount,month6_budget_amount,month7_budget_amount,month8_budget_amount,month9_budget_amount,month10_budget_amount,month11_budget_amount,month12_budget_amount) values('+
+						sheet[i].v
+					}else if(i[0] === 'B' && sql!=undefined){
+						sql+=',(select id from mst_ledger_account where code="'+sheet[i].v+'")'
+					}else if( sql!=undefined &&i[0]!='C'){
+						if(int==0){
+							sqlupdate+='ON DUPLICATE KEY UPDATE '
+							sqlupdate+='total_budget_amount='+sheet[i].v
+						}else{
+							sqlupdate+=',month'+int+'_budget_amount='+sheet[i].v
+						}
+						int++;
+						sql+=','+sheet[i].v
+					}
+				}
+			}
+			sqlstr+=sql+') '+sqlupdate+',modified_date=now();'+'commit;';
+			connection(sqlstr,undefined, function(err, rows, fields) {
+				if(err)
+					res.end(err.toString());
+				else
+					res.end('upload sukses');
+			})
+		}catch(e){
+			res.end(e.toString());
+		}
+	});
+
+	/*app.post('/uploadBudget', upload.array('budget'), function (req, res, next) {
 		console.log(req)
 		var retval = req.file;
 		console.log(retval)
 		retval['pth'] = 'container/budget/tmp/'+req.file.filename
 		res.send(retval)
-	});
+	});*/
 
 	app.post('/authenticate_old', function (req, res) {
 	    console.log(req.body)
@@ -245,7 +291,6 @@ if (cluster.isMaster) {
 
 
 	    connection(sqlstr,undefined, function(err, rows, fields) {
-	        console.log(err)
 	        var obj = {
 	            isAuthenticated: false,
 	            data: {}

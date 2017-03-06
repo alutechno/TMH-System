@@ -8,12 +8,14 @@
                 <div class="panel-title">Budget Entry
                 </div>
                 <div class="pull-right" style="width: 60%;">
-                    <!--<button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Budget</button>-->
+
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Budget</button>
 
 
                     <div class="btn-group pull-right m-r-5">
 						<div class="btn-group form-group-default-select pull-left  m-r-5">
-							<input type="file" ng-model-instant id="fileToUpload" multiple onchange="angular.element(this).scope().setFiles(this)" />
+							<input type="file" ng-model-instant id="fileToUpload" onchange="angular.element(this).scope().setFiles(this)" />
+
 							<!--<label for="files" class="btn">Upload Budget</label>
 							<input type="file" style="visibility:hidden;display:none" ng-model-instant id="files" multiple onchange="angular.element(this).scope().setFiles(this)" />-->
 							<div ng-show="files.length">

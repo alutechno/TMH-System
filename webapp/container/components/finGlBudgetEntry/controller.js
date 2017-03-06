@@ -106,7 +106,7 @@ function($scope, $state, $sce, uploadBudget,queryService, DTOptionsBuilder, DTCo
     }
 	$scope.setFiles = function(element){
 		$scope.$apply(function(scope) {
-	      console.log('files:', element.files);
+	      //console.log('files:', element.files);
 	        $scope.files = []
 	        for (var i = 0; i < element.files.length; i++) {
 	          $scope.files.push(element.files[i])
@@ -115,21 +115,29 @@ function($scope, $state, $sce, uploadBudget,queryService, DTOptionsBuilder, DTCo
       	});
     };
 
+	$scope.test = function(){
+		console.log($scope.dddd)
+		var fd = new FormData()
+	}
+
+
 	$scope.uploadFile = function() {
         var fd = new FormData()
-        for (var i in $scope.files) {
-            fd.append("uploadedFile", $scope.files[i])
+        for (var i=0; i<$scope.files.length;i++) {
+            fd.append("file", $scope.files[i])
         }
-        /*var xhr = new XMLHttpRequest()
-        xhr.upload.addEventListener("progress", uploadProgress, false)
+        var xhr = new XMLHttpRequest()
+		xhr.upload.addEventListener("progress", uploadProgress, false)
         xhr.addEventListener("load", uploadComplete, false)
         xhr.addEventListener("error", uploadFailed, false)
         xhr.addEventListener("abort", uploadCanceled, false)
-        xhr.open("POST", "/uploadBudget")
+        xhr.open("POST", "/uploadBudget",true);
 		xhr.setRequestHeader("authorization", 'Basic ' + $localStorage.mediaToken);
-        $scope.progressVisible = true
-        xhr.send(fd)*/
-		uploadBudget.save($scope.files)
+		//xhr.setRequestHeader('Content-Type', 'multipart/form-data')
+        $scope.progressVisible = true;
+		console.log(fd)
+        xhr.send(fd);
+		/*uploadBudget.save($scope.files)
         .then(function (result){
             $('body').pgNotification({
                 style: 'flip',
@@ -147,7 +155,7 @@ function($scope, $state, $sce, uploadBudget,queryService, DTOptionsBuilder, DTCo
                 timeout: 2000,
                 type: 'danger'
             }).show();
-        })
+        })*/
     }
 
 	function uploadProgress(evt) {
