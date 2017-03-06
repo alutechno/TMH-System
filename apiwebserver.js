@@ -4,7 +4,7 @@ var bodyParser = require('body-parser');
 var multer  = require('multer')
 var upload = multer({ dest: __dirname+'/webapp/container/img/tmp/'})
 var XLSX = require('xlsx');
-
+var fs=require('fs');
 var cpuCount = require('os').cpus().length;
 var pool  = mysql.createPool({
     connectionLimit : 50,
@@ -225,6 +225,7 @@ if (cluster.isMaster) {
 	app.post('/uploadBudget', upload.any(), function (req, res, next) {
 		try{
 			var workbook = XLSX.readFile(req.files[0].path);
+			fs.unlinkSync(req.files[0].path)
 			var sqlstr='START TRANSACTION;'
 			var array=[]
 			for (var key in workbook.Sheets){
@@ -265,14 +266,6 @@ if (cluster.isMaster) {
 			res.end(e.toString());
 		}
 	});
-
-	/*app.post('/uploadBudget', upload.array('budget'), function (req, res, next) {
-		console.log(req)
-		var retval = req.file;
-		console.log(retval)
-		retval['pth'] = 'container/budget/tmp/'+req.file.filename
-		res.send(retval)
-	});*/
 
 	app.post('/authenticate_old', function (req, res) {
 	    console.log(req.body)
