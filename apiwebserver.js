@@ -267,6 +267,37 @@ if (cluster.isMaster) {
 		}
 	});
 
+	app.post('/uploadJurnal', upload.any(), function (req, res, next) {
+		try{
+			var workbook = XLSX.readFile(req.files[0].path);
+			var array=['id','code','name','debit','credit'];
+			var docs=[]
+			fs.unlinkSync(req.files[0].path)
+			for (var key in workbook.Sheets){
+				var sheet=workbook.Sheets[key]
+				for(var i in sheet){
+					if(i[0] === '!') continue;
+					if(i[0] === 'A'&& !isNaN(sheet[i].v)){
+						var int=0;
+						if(data!=undefined){
+							docs.push(data);
+						}
+						var data={}
+						data[array[int]]=sheet[i].v
+						int++
+					}else if(data!=undefined){
+						data[array[int]]=sheet[i].v
+						int++;
+					}
+				}
+			}
+			docs.push(data)
+			res.end(JSON.stringify(docs))
+		}catch(e){
+			res.end(e.toString());
+		}
+	});
+
 	app.post('/authenticate_old', function (req, res) {
 	    console.log(req.body)
 	    var sqlstr = 'select a.name as username, a.password, a.token, c.name as rolename, e.name as menuname, e.module, e.state, f.object, f.custom, a.default_module '+

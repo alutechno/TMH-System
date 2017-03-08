@@ -76,7 +76,86 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             $scope.period.push({id:year[i]+month[j],name:year[i]+'-'+month[j]})
         }
     }*/
-    console.log($scope.period)
+	$scope.setFiles = function(element){
+		$scope.$apply(function(scope) {
+	      //console.log('files:', element.files);
+	        $scope.files = []
+	        for (var i = 0; i < element.files.length; i++) {
+	          $scope.files.push(element.files[i])
+	        }
+	      $scope.progressVisible = false
+      	});
+    };
+
+	$scope.uploadFile = function() {
+        var fd = new FormData()
+        for (var i=0; i<$scope.files.length;i++) {
+            fd.append("file", $scope.files[i])
+        }
+        var xhr = new XMLHttpRequest()
+		xhr.upload.addEventListener("progress", uploadProgress, false)
+        xhr.addEventListener("load", uploadComplete, false)
+        xhr.addEventListener("error", uploadFailed, false)
+        xhr.addEventListener("abort", uploadCanceled, false)
+        xhr.open("POST", "/uploadJurnal",true);
+		xhr.setRequestHeader("authorization", 'Basic ' + $localStorage.mediaToken);
+        $scope.progressVisible = true;
+		console.log(fd)
+        xhr.send(fd);
+    }
+
+	function uploadProgress(evt) {
+		$scope.$apply(function(){
+			if (evt.lengthComputable) {
+				$scope.progress = Math.round(evt.loaded * 100 / evt.total)
+			} else {
+				$scope.progress = 'unable to compute'
+			}
+		})
+	}
+
+	function uploadComplete(evt) {
+		/* This event is raised when the server send back a response */
+		console.log(evt)
+		var d=JSON.parse(evt.target.response)
+		var d1=0
+		var c1=0
+		for(var i=0;i<d.length;i++){
+			$scope.items.push(
+				{
+					id:$scope.items.length+i,
+					isNew: true,
+					p_id:1,
+					account_id:d[i].id,
+					account_code:d[i].code,
+					account_name: d[i].name,
+					debit: d[i].debit,
+					credit: d[i].credit
+				}
+			)
+			d1+=d[i].debit!=undefined?d[i].debit:0
+			c1+=d[i].credit!=undefined?d[i].credit:0
+		}
+		$scope.total_debit += d1
+		$scope.total_credit += c1
+		$scope.ap.debit += d1
+		$scope.ap.credit += c1
+		$scope.ap.balance = $scope.total_debit-$scope.total_credit
+		$scope.itemsOri = angular.copy($scope.items)
+		console.log($scope)
+		alert('Upload sukses')
+	}
+
+	function uploadFailed(evt) {
+		alert("There was an error attempting to upload the file.")
+	}
+
+	function uploadCanceled(evt) {
+		$scope.$apply(function(){
+			$scope.progressVisible = false
+		})
+		alert("The upload has been canceled by the user or the browser dropped the connection.")
+	}
 
     $scope.role = {
         selected: []

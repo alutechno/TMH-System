@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinGlBudgetEntryCtrl',
-function($scope, $state, $sce, uploadBudget,queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -115,12 +115,6 @@ function($scope, $state, $sce, uploadBudget,queryService, DTOptionsBuilder, DTCo
       	});
     };
 
-	$scope.test = function(){
-		console.log($scope.dddd)
-		var fd = new FormData()
-	}
-
-
 	$scope.uploadFile = function() {
         var fd = new FormData()
         for (var i=0; i<$scope.files.length;i++) {
@@ -133,29 +127,9 @@ function($scope, $state, $sce, uploadBudget,queryService, DTOptionsBuilder, DTCo
         xhr.addEventListener("abort", uploadCanceled, false)
         xhr.open("POST", "/uploadBudget",true);
 		xhr.setRequestHeader("authorization", 'Basic ' + $localStorage.mediaToken);
-		//xhr.setRequestHeader('Content-Type', 'multipart/form-data')
         $scope.progressVisible = true;
 		console.log(fd)
         xhr.send(fd);
-		/*uploadBudget.save($scope.files)
-        .then(function (result){
-            $('body').pgNotification({
-                style: 'flip',
-                message: 'Successfully Update Your Budget ',
-                position: 'top-right',
-                timeout: 2000,
-                type: 'success'
-            }).show();
-        },
-        function (err){
-            $('#body').pgNotification({
-                style: 'flip',
-                message: 'Error Update: '+err.code,
-                position: 'top-right',
-                timeout: 2000,
-                type: 'danger'
-            }).show();
-        })*/
     }
 
 	function uploadProgress(evt) {
