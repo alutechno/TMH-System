@@ -120,29 +120,31 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 		var d=JSON.parse(evt.target.response)
 		var d1=0
 		var c1=0
-		for(var i=0;i<d.length;i++){
-			$scope.items.push(
-				{
-					id:$scope.items.length+i,
-					isNew: true,
-					p_id:1,
-					account_id:d[i].id,
-					account_code:d[i].code,
-					account_name: d[i].name,
-					debit: d[i].debit,
-					credit: d[i].credit
-				}
-			)
-			d1+=d[i].debit!=undefined?d[i].debit:0
-			c1+=d[i].credit!=undefined?d[i].credit:0
-		}
-		$scope.total_debit += d1
-		$scope.total_credit += c1
-		$scope.ap.debit += d1
-		$scope.ap.credit += c1
-		$scope.ap.balance = $scope.total_debit-$scope.total_credit
-		$scope.itemsOri = angular.copy($scope.items)
-		console.log($scope)
+		$scope.$apply(function() {    
+			for(var i=0;i<d.length;i++){
+				$scope.items.push(
+					{
+						id:$scope.items.length+i,
+						isNew: true,
+						p_id:1,
+						account_id:d[i].id,
+						account_code:d[i].code,
+						account_name: d[i].name,
+						debit: d[i].debit,
+						credit: d[i].credit
+					}
+				)
+				d1+=d[i].debit!=undefined?d[i].debit:0
+				c1+=d[i].credit!=undefined?d[i].credit:0
+			}
+			$scope.total_debit += d1
+			$scope.total_credit += c1
+			$scope.ap.debit += d1
+			$scope.ap.credit += c1
+			$scope.ap.balance = $scope.total_debit-$scope.total_credit
+			$scope.itemsOri = angular.copy($scope.items)
+			console.log($scope)
+		})
 		alert('Upload sukses')
 	}
 
