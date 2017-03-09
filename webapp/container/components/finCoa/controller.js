@@ -87,11 +87,11 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.fileName = "Chart of Account";
     $scope.exportExcel = function(){
 
-        queryService.post('select code,short_name,name,report_level,account_type_name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
+        queryService.post('select id,code,short_name,name,report_level,account_type_name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
         .then(function(data){
             $scope.exportData = [];
             //Header
-            $scope.exportData.push(["Code", "Short Name", "Name", 'Level','Account Type', 'Description','Status']);
+            $scope.exportData.push(["ID","Code", "Short Name", "Name", 'Level','Account Type', 'Description','Status']);
             //Data
             for(var i=0;i<data.data.length;i++){
                 var arr = []
