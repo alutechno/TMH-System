@@ -58,7 +58,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         building_floor: {},
         connected_room: {},
         is_condo: {},
-        is_apartment: {}
+        is_apartment: {},
+        feature: []
     }
 
     $scope.yesno = [
@@ -96,6 +97,12 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     queryService.get('select id,name from mst_room where status!=2 order by name asc',undefined)
     .then(function(data){
         $scope.connected_room = data.data
+    })
+
+    $scope.feature = []
+    queryService.get('select id,name from ref_building_feature where status!=2 order by name asc',undefined)
+    .then(function(data){
+        $scope.feature = data.data
     })
 
     $scope.focusinControl = {};
@@ -301,6 +308,38 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
             queryService.post('insert into mst_room SET ?',param)
             .then(function (result){
+                if ($scope.selected.feature.length>0){
+                    var param_f = []
+                    for (var i = 0;i<$scope.selected.feature.length;i++){
+                        param_f.push([result.data.insertId,$scope.selected.feature[i].id,globalFunction.currentDate(),$localStorage.currentUser.name.id])
+                    }
+                    console.log(JSON.stringify(param_f,null,2))
+                    queryService.post('insert into mst_room_owned_feature(room_id,feature_id,created_date,created_by) VALUES ?',[param_f])
+                    .then(function (result2){
+                        $('#form-input').modal('hide')
+                        $scope.dtInstance.reloadData(function(obj){
+                            console.log(obj)
+                        }, false)
+                        $('body').pgNotification({
+                            style: 'flip',
+                            message: 'Success Insert '+$scope.coa.code,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'success'
+                        }).show();
+                        $scope.clear()
+                    },
+                    function(err2){
+                        $('#form-input').pgNotification({
+                            style: 'flip',
+                            message: 'Error Insert: '+err2.code,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'danger'
+                        }).show();
+                    })
+                }
+                else {
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
@@ -313,6 +352,10 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                         type: 'success'
                     }).show();
                     $scope.clear()
+                }
+
+
+
 
             },
             function (err){
@@ -360,24 +403,55 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             console.log(param)
             queryService.post('update mst_room SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
-                if (result.status = "200"){
-                    console.log('Success Update')
+                if ($scope.selected.feature.length>0){
+                    var param_f = []
+                    for (var i = 0;i<$scope.selected.feature.length;i++){
+                        param_f.push([$scope.coa.id,$scope.selected.feature[i].id,globalFunction.currentDate(),$localStorage.currentUser.name.id])
+                    }
+                    console.log(JSON.stringify(param_f,null,2))
+                    queryService.post('delete from mst_room_owned_feature where room_id='+$scope.coa.id+'; insert into mst_room_owned_feature(room_id,feature_id,created_date,created_by) VALUES ?',[param_f])
+                    .then(function (result2){
+                        $('#form-input').modal('hide')
+                        $scope.dtInstance.reloadData(function(obj){
+                            console.log(obj)
+                        }, false)
+                        $('body').pgNotification({
+                            style: 'flip',
+                            message: 'Success Insert '+$scope.coa.code,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'success'
+                        }).show();
+                        $scope.clear()
+                    },
+                    function(err2){
+                        $('#form-input').pgNotification({
+                            style: 'flip',
+                            message: 'Error Insert: '+err.code,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'danger'
+                        }).show();
+                    })
+                }
+                else {
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
-                        message: 'Success Update '+$scope.coa.code,
+                        message: 'Success Insert '+$scope.coa.code,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'success'
                     }).show();
                     $scope.clear()
                 }
-                else {
-                    console.log('Failed Update')
-                }
+            },
+            function(err){
+                console.log(err)
+
             })
         }
     }
@@ -418,6 +492,15 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
 
         })
+        queryService.get('select a.feature_id id,b.name from mst_room_owned_feature a,ref_building_feature b where a.feature_id = b.id and a.room_id='+obj.id,undefined)
+        .then(function(result){
+            var d = result.data;
+            console.log(result.data)
+            $scope.selected.feature = result.data
+            /*for(var i=0;i<d.length;i++){
+                $scope.selected.feature.push({id:d[i].id,name:d[i].name})
+            }*/
+        })
     }
 
     $scope.delete = function(obj){
@@ -433,7 +516,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         queryService.post('update mst_room SET status=\'D\', '+
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
-        ' WHERE id='+$scope.coa.id ,undefined)
+        ' WHERE id='+$scope.coa.id+';delete from mst_room_owned_feature where room_id='+$scope.coa.id,undefined)
         .then(function (result){
             if (result.status = "200"){
                 console.log('Success Delete')

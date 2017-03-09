@@ -252,6 +252,20 @@
                       </div>
                   </div>
               </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  ">
+                          <label>Room Feature</label><br />
+                          <ui-select multiple ng-model="selected.feature" theme="select2"  style="width: 300px;" >
+                              <ui-select-match placeholder="Add feature...">{{$item.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in feature | filter:$select.search">
+                                  {{item.name}}
+                              </ui-select-choices>
+                          </ui-select>
+                       </div>
+                  </div>
+
+              </div>
               </div>
 
               <br>

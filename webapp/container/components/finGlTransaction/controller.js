@@ -71,6 +71,35 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         })
     }
 
+    $scope.generateCode = function(a){
+        console.log(a)
+        queryService.post("select cast(concat('"+a.code+"',lpad(seq('"+a.code+"','"+a.code+"'),8,'0')) as char) as code ",undefined)
+        .then(function(data){
+            console.log(data)
+            $scope.ap.code = data.data[0].code
+        })
+    }
+    $scope.focusinControl = {};
+    $scope.fileName = "Journal Entry";
+    $scope.exportExcel = function(){
+
+        queryService.post('select id,code,journal_type_code,bookkeeping_date,status_name,notes,ref_account,debit_amount,credit_amount,balance from('+qstring + qwhere+qgroup+')aa order by id desc',undefined)
+        .then(function(data){
+            $scope.exportData = [];
+            //Header
+            $scope.exportData.push(["Transc#", "Document#", 'Journal Code','Date','Status','Notes','Ref Account','Total Debit','Total Credit','Balance']);
+            //Data
+            for(var i=0;i<data.data.length;i++){
+                var arr = []
+                for (var key in data.data[i]){
+                    arr.push(data.data[i][key])
+                }
+                $scope.exportData.push(arr)
+            }
+            $scope.focusinControl.downloadExcel()
+        })
+    }
+
     /*for (var i=0;i<year.length;i++){
         for (var j=0;j<month.length;j++){
             $scope.period.push({id:year[i]+month[j],name:year[i]+'-'+month[j]})
@@ -120,7 +149,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 		var d=JSON.parse(evt.target.response)
 		var d1=0
 		var c1=0
-		$scope.$apply(function() {    
+		$scope.$apply(function() {
 			for(var i=0;i<d.length;i++){
 				$scope.items.push(
 					{
@@ -130,6 +159,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 						account_id:d[i].id,
 						account_code:d[i].code,
 						account_name: d[i].name,
+                        notes: d[i].notes,
 						debit: d[i].debit,
 						credit: d[i].credit
 					}
@@ -257,9 +287,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
+                /*html+='<button class="btn btn-default" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
-                '</button>';
+                '</button>';*/
             }
             html += '</div>'
         }
@@ -313,11 +343,11 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml).withOption('width', '5%'))
     }
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('id').withTitle('Transc#'),
-        DTColumnBuilder.newColumn('code').withTitle('Document#').withOption('width', '20%'),
+        DTColumnBuilder.newColumn('code').withTitle('Document#').withOption('width', '15%'),
         DTColumnBuilder.newColumn('journal_type_code').withTitle('Journal Code').withOption('width', '10%'),
         DTColumnBuilder.newColumn('bookkeeping_date').withTitle('Date').withOption('width', '10%'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '5%'),
@@ -552,6 +582,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                             account_id:d[i].account_id,
                             account_code:d[i].account_code,
                             account_name: d[i].account_name,
+                            notes: d[i].notes,
                             debit: d[i].transc_type=='D'?d[i].amount:'',
                             credit: d[i].transc_type=='C'?d[i].amount:''
                         }
@@ -567,6 +598,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 $scope.ap.credit = c1
                 $scope.ap.balance = d1-c1
                 $scope.itemsOri = angular.copy($scope.items)
+                console.log($scope.items)
 
             },
             function(err2){
@@ -638,6 +670,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         account_id:'',
         account_code:'',
         account_name: '',
+        notes: '',
         debit: '',
         credit: ''
     };
@@ -670,6 +703,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             account_id:'',
             account_code:'',
             account_name: '',
+            notes: '',
             debit: '',
             credit: '',
             isNew: true
@@ -725,12 +759,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             if (user.isNew && !user.isDeleted){
 
                 if (user.debit>0){
-                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
-                    pr_id+','+user.account_id+',\'D\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
+                    pr_id+','+user.account_id+',\'D\',\''+user.notes+'\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }
                 else if (user.credit>0){
-                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
-                    pr_id+','+user.account_id+',\'C\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
+                    pr_id+','+user.account_id+',\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }
 
             }
@@ -741,12 +775,13 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 console.log(user)
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
-                        var d1 = $scope.itemsOri._id+$scope.itemsOri[j].account_id+$scope.itemsOri[j].debit+$scope.itemsOri[j].credit
-                        var d2 = user.pid+user.account_id+user.debit+user.credit
+                        var d1 = $scope.itemsOri._id+$scope.itemsOri[j].account_id+$scope.itemsOri[j].debit+$scope.itemsOri[j].credit+$scope.itemsOri[j].notes
+                        var d2 = user.pid+user.account_id+user.debit+user.credit+user.notes
                         if(d1 != d2){
                             sqlitem.push('update acc_gl_journal set '+
                             ' account_id = '+user.account_id+',' +
                             ' transc_type = \''+(user.debit>0?'D':'C')+'\',' +
+                            ' notes = \''+user.notes+'\',' +
                             ' amount = '+(user.debit>0?user.debit:user.credit)+',' +
                             ' modified_by = '+$localStorage.currentUser.name.id+',' +
                             ' modified_date = \''+globalFunction.currentDate()+'\'' +
@@ -832,6 +867,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         if (t=='credit') {
             $scope.items[d-1].credit = p
             //$scope.total_credit += $scope.total_credit+parseFloat(p)
+        }
+        if (t=='notes'){
+            $scope.items[d-1].notes = p
         }
         for (var i=0;i<$scope.items.length;i++){
             console.log('debit:'+$scope.items[i].debit+';credit:'+$scope.items[i].credit)

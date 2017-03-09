@@ -88,7 +88,8 @@
             </div>
             <div class="panel-body">
                 <div class="table-responsive">
-                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" >
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" width="1500px">
+
                     </table>
             </div>
         </div>
@@ -97,12 +98,12 @@
 </div>
 
 <!--START FORM INPUT-->
-<div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade slide-right form-input-full" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Check in By Information</div>
+       <div class="panel-title">Reservation Data</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -111,55 +112,832 @@
             <div class="modal-body col-xs-height col-top">
 
       <!-- START FORM -->
-      <div class="panel panel-transparent m-t-20">
-          <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
-              <div class="row clearfix">
-                  <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.code.$invalid && !coa.code.$pristine }">
-                          <label>Code</label>
-                          <input type="text" class="form-control" name="code" id="coa_code" ng-model="coa.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+      <div class="panel panel-transparent m-t-0">
+          <div class="panel-body">
+              <ul class="nav nav-tabs nav-tabs-fillup" pg-tab-dropdownfx>
+                  <li class="active">
+                      <a data-toggle="tab" pg-tab href="#tab-fillup1"><span>Profile</span></a>
+                  </li>
+                  <li ng-show="updateState">
+                      <a data-toggle="tab" pg-tab href="#tab-fillup2" ><span>Remarks</span></a>
+                  </li>
+                  <li ng-show="updateState">
+                      <a data-toggle="tab" pg-tab href="#tab-fillup3" ><span>Additional</span></a>
+                  </li>
+
+              </ul>
+              <div class="tab-content">
+                  <div class="tab-pane active" id="tab-fillup1">
+                      <div class="row">
+                          <div class="clearfix" ng-controller="FoReservationProfileCtrl">
+                              <div class="row clearfix">
+                                  <div class="col-sm-6">
+                                      <h5>Arrival Information</h5>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : gf.arrival_date.$invalid && !gf.arrival_date.$pristine }">
+                                                  <label>Arrival</label>
+                                                  <input type="text" class="form-control" ng-model="gf.arrival_date" name="arrival_date" ng-change="setNights()" placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker" validate-attached-form-element required>
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default bootstrap-timepicker required" ng-class="{ 'has-error' : gf.check_in_time.$invalid && !gf.check_in_time.$pristine }">
+                                                  <label>C/I Time</label>
+                                                  <input type="text" class="form-control" ng-model="gf.check_in_time" data-time-format="HH:mm" data-show-meridian="false" timepicker validate-attached-form-element required>
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default " >
+                                                  <label>Nights</label>
+                                                  <input type="number" class="form-control" ng-model="gf.night" name="night" ng-readonly="true">
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default bootstrap-timepicker " ng-class="{ 'has-error' : gf.check_in_limit_time.$invalid && !gf.check_in_limit_time.$pristine }">
+                                                  <label>C/I Limit Time</label>
+                                                  <input type="text" class="form-control" ng-model="gf.check_in_limit_time" data-time-format="HH:mm" data-show-meridian="false" timepicker >
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : gf.departure_date.$invalid && !gf.code.$pristine }">
+                                                  <label>Departure</label>
+                                                  <input type="text" class="form-control" ng-model="gf.departure_date" name="departure_date" ng-change="setNights()" placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker" validate-attached-form-element required>
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default bootstrap-timepicker required" ng-class="{ 'has-error' : gf.check_out_time.$invalid && !gf.check_out_time.$pristine }">
+                                                  <label>C/O Time</label>
+                                                  <input type="text" class="form-control" ng-model="gf.check_out_time" data-time-format="HH:mm" data-show-meridian="false" timepicker>
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Status</label>
+                                                  <ui-select ng-model="selected.reservation_status.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in reservation_status | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Actual C/I</label>
+                                                  <input type="text" class="form-control" ng-model="gf.actual_check_in_time">
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Member</label>
+                                                  <ui-select ng-model="selected.member.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in member | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Actual C/O</label>
+                                                  <input type="text" class="form-control" ng-model="gf.actual_check_out_time">
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-6">
+                                      <h5>Room Information</h5>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Reservation Type</label>
+                                                  <ui-select ng-model="selected.reservation_type.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in reservation_type | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>MICE No.</label>
+                                                  <input type="text" class="form-control" ng-model="gf.mice_id">
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Room Type</label>
+                                                  <ui-select ng-model="selected.room_type.selected" theme="bootstrap" on-select="updateRoomList()">
+                                                      <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in room_type | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Folio No.</label>
+                                                  <input type="text" class="form-control" ng-model="gf.code" ng-readonly="true">
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Status</label>
+                                                  <input type="text" class="form-control" ng-model="gf.unk2">
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Upgrade To</label>
+                                                  <ui-select ng-model="selected.prev_room_type.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in room_type | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Stays</label>
+                                                  <input type="text" class="form-control" ng-model="gf.num_of_stays">
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Night</label>
+                                                  <input type="text" class="form-control" ng-model="gf.num_of_nights">
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Block</label>
+                                                  <ui-select ng-model="selected.block.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in block | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Deposit No</label>
+                                                  <input type="text" class="form-control" ng-model="gf.unk3">
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Room Feature</label>
+
+                                                  <ui-select multiple ng-model="selected.room_feature" theme="select2"  style="width: 250px;" on-select="updateRoomList()" on-remove="updateRoomList()">
+                                                      <ui-select-match placeholder="Add feature...">{{$item.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in room_feature | filter:$select.search">
+                                                          {{item.name}}
+                                                      </ui-select-choices>
+                                                  </ui-select>
+
+                                                  <!--<ui-select multiple ng-model="selected.room_feature" theme="select2" style="width: 100px;" >
+                                                      <ui-select-match placeholder="select type">{{$item.name}</ui-select-match>
+                                                      <ui-select-choices repeat="item in room_feature | filter: $select.search">
+                                                          {{item.name}}
+                                                      </ui-select-choices>
+                                                  </ui-select>-->
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Room</label>
+                                                  <!--<input type="text" class="form-control" ng-model="gf.room" ng-focus="showRoom()">-->
+                                                  <ui-select ng-model="selected.room.selected" theme="bootstrap" ng-click="showRoom()">
+                                                      <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in room | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span><br/>
+                                                          <small ng-bind-html="trustAsHtml((item.status_name | highlight: $select.search))"></small>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="row clearfix">
+                                  <div class="col-sm-6">
+                                      <h5>Guest Info</h5>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Customer</label>
+                                                  <ui-select ng-model="selected.customer.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select customer">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in customer | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-5">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>First Name</label>
+                                                  <input type="text" class="form-control" ng-model="gf.first_name">
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-5">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Last Name</label>
+                                                  <input type="text" class="form-control" ng-model="gf.last_name">
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-2">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Title</label>
+                                                  <ui-select ng-model="selected.title.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select title">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in title | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Pax</label>
+                                                  <input type="text" class="form-control" ng-model="gf.num_of_pax">
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Child</label>
+                                                  <input type="text" class="form-control" ng-model="gf.num_of_child">
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>VIP</label>
+                                                  <ui-select ng-model="selected.vip_type.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select ">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in vip_type | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Birth Date</label>
+                                                  <input type="text" class="form-control" ng-model="gf.birth_date" name="birth_date" placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker" >
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                      <h5>Company Info</h5>
+                                      <div class="row clearfix">
+
+
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Company</label>
+                                                  <ui-select ng-model="selected.company.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select title">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in company | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+
+                                      </div>
+                                      <h5>Room Rating</h5>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Rate Code</label>
+                                                  <ui-select ng-model="selected.room_rate.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select rate">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in room_rate | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Room Rating</label>
+                                                  <input type="text" class="form-control" ng-model="gf.room_rate_amount" name="room_rate_amount" placeholder="rate" >
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Extra Bed</label>
+                                                  <input type="text" class="form-control" ng-model="gf.num_of_extra_bed" name="num_of_extra_bed" placeholder="#" >
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Charge Extra Bed</label>
+                                                  <input type="text" class="form-control" ng-model="gf.extra_bed_charge_amount" name="extra_bed_charge_amount" placeholder="charge" >
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Late C/O</label>
+                                                  <ui-select ng-model="selected.late_co.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select ">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in yesno | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Charge Late C/O</label>
+                                                  <input type="text" class="form-control" ng-model="gf.late_check_out_charge" name="late_check_out_charge" placeholder="Charge" ng-disabled="!selected.late_co.selected.id=='Y'">
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Discount(%)</label>
+                                                  <input type="text" class="form-control" ng-model="gf.discount_percent" name="discount_percent" placeholder="%" >
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Discount(Amt)</label>
+                                                  <input type="text" class="form-control" ng-model="gf.discount_amount" name="discount_amount" placeholder="Amount" >
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Room Only</label>
+                                                  <ui-select ng-model="selected.is_room_only.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select ">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in yesno | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-3">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Compliment Extra Bed</label>
+                                                  <ui-select ng-model="selected.is_comp_extra_bed.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select ">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in yesno | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Comission</label>
+                                                  <input type="text" class="form-control" ng-model="gf.commission_amount" name="commission_amount" placeholder="comission" >
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Agent</label>
+                                                  <ui-select ng-model="selected.agent.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select title">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in agent | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-6">
+                                      <h5>Payment Info</h5>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Payment Method</label>
+                                                  <ui-select ng-model="selected.payment_type.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select ">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in payment_type | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Currency</label>
+                                                  <ui-select ng-model="selected.currency.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select ">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in currency | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Credit Limit</label>
+                                                  <input type="text" class="form-control" ng-model="gf.unk5" name="unk5" placeholder="limit" >
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Card No</label>
+                                                  <input type="text" class="form-control" ng-model="gf.card_no" name="card_no" placeholder="Card no" >
+                                              </div>
+                                          </div>
+
+
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Valid Month</label>
+                                                  <ui-select ng-model="selected.card_valid_until_month.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select title">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in month | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Valid Year</label>
+                                                  <ui-select ng-model="selected.card_valid_until_year.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select title">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in year | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                      </div>
+
+                                      <h5>Customer Segment</h5>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Segment</label>
+                                                  <ui-select ng-model="selected.segment_type.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select segment">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in segment_type | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Source Info</label>
+                                                  <ui-select ng-model="selected.source_type.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select title">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in source_type | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Nationality</label>
+                                                  <ui-select ng-model="selected.origin_country.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select ">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in country | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Is Honeymoon</label>
+                                                  <ui-select ng-model="selected.is_honeymoon.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in yesno | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Origin City</label>
+                                                  <ui-select ng-model="selected.origin_city.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select title">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in city | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Destination City</label>
+                                                  <ui-select ng-model="selected.dest_city.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select title">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in city | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Check In By</label>
+                                                  <ui-select ng-model="selected.check_in_type.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select title">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in check_in_type | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Check Out By</label>
+                                                  <ui-select ng-model="selected.check_out_type.selected" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select title">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in check_out_type | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Phone</label>
+                                                  <input type="text" class="form-control" ng-model="gf.phone" name="phone" placeholder="phone" >
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Mobile No</label>
+                                                  <input type="text" class="form-control" ng-model="gf.mobile_phone" name="mobile_phone" placeholder="mobile" >
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Email</label>
+                                                  <input type="text" class="form-control" ng-model="gf.email" name="email" placeholder="email" >
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="row clearfix">
+                                  <div class="col-sm-12">
+                                      <h5>Remarks</h5>
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Cashier Remarks</label>
+                                                  <textarea rows="4" style="width:100%;border:none;" ng-model="gf.remarks_cashier"></textarea>
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Check In Remarks</label>
+                                                  <textarea rows="4" style="width:100%;border:none;" ng-model="gf.remarks_check_in"></textarea>
+
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                  </div>
+
+                              </div>
+                          </div>
+
+                      </div>
+                      <br>
+                      <!--<button class="btn btn-default"><i class="pg-close"></i> Clear</button>-->
+                  </div>
+                  <div class="tab-pane" id="tab-fillup2" >
+                      <div class="row">
+                          <div class="clearfix" ng-controller="FoReservationRemarksCtrl">
+                              <div class="row clearfix">
+                                  <div class="col-sm-6">
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6>Guest Name<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 >: {{gf.guest_name}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Company Name<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{gf.company_name}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Room<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{gf.room_no}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Room Type<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{gf.room_type_name}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="row clearfix">
+                                              <div class="col-sm-11 m-r-30 m-l-15">
+                                                  <div pg-form-group class="form-group form-group-default" >
+                                                      <label>Cashier Remarks</label>
+                                                      <textarea rows="4" style="width:100%;border:none;" ng-model="gf.remarks_cashier"></textarea>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                          <div class="row clearfix">
+                                              <div class="col-sm-11 m-r-30 m-l-15">
+                                                  <div pg-form-group class="form-group form-group-default" >
+                                                      <label>Check In Remarks</label>
+                                                      <textarea rows="4" style="width:100%;border:none;" ng-model="gf.remarks_check_in"></textarea>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                          <div class="row clearfix">
+                                              <div class="col-sm-11 m-r-30 m-l-15">
+                                                  <div pg-form-group class="form-group form-group-default" >
+                                                      <label>Drop</label>
+                                                      <textarea rows="4" style="width:100%;border:none;" ng-model="gf.remarks_drop"></textarea>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                          <div class="row clearfix">
+                                              <div class="col-sm-11 m-r-30 m-l-15">
+                                                  <div pg-form-group class="form-group form-group-default" >
+                                                      <label>Locator</label>
+                                                      <textarea rows="4" style="width:100%;border:none;" ng-model="gf.remarks_locator"></textarea>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-6">
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6>Arrival<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6>: {{gf.arrival_date}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Departure<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{gf.departure_date}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Status<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{gf.reservation_status_name}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Pax/Child<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{gf.num_of_pax}}/{{gf.num_of_child}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="row clearfix">
+                                              <div class="col-sm-10 m-r-30 m-l-5">
+                                                  <div pg-form-group class="form-group form-group-default" >
+                                                      <label>Prefered</label>
+                                                      <textarea rows="7" style="width:100%;border:none;" ng-model="gf.remarks_prefered"></textarea>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                          <div class="row clearfix">
+                                              <div class="col-sm-10 m-r-30 m-l-5">
+                                                  <div pg-form-group class="form-group form-group-default" >
+                                                      <label>Pickup</label>
+                                                      <textarea rows="5" style="width:100%;border:none;" ng-model="gf.remarks_pickup"></textarea>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                          <div class="row clearfix">
+                                              <div class="col-sm-10 m-r-30 m-l-5">
+                                                  <div pg-form-group class="form-group form-group-default" >
+                                                      <label>Room Message</label>
+                                                      <textarea rows="4" style="width:100%;border:none;" ng-model="gf.remarks_room_message"></textarea>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
                       </div>
                   </div>
-              </div>
-
-              <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.name.$invalid && !coa.name.$pristine }">
-                          <label>Name</label>
-                          <input type="text" class="form-control" name="name" ng-model="coa.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                  <div class="tab-pane" id="tab-fillup3" >
+                      <div class="row clearfix" ng-controller="FoReservationAdditionalCtrl">
+                          Additional
                       </div>
                   </div>
-              </div>
 
-              <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default">
-                          <label>Desc</label>
-                          <input type="text" class="form-control" name="name" ng-model="coa.description" >
-                      </div>
-                  </div>
               </div>
-              <div class="row clearfix">
-                <div class="col-sm-12">
-                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.status.selected.$invalid && !selected.status.selected.$pristine }">
-                        <label>Status</label>
-                        <ui-select ng-model="selected.status.selected" theme="bootstrap" validate-attached-form-element required>
-                            <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                            <ui-select-choices repeat="item in arrActive | filter: $select.search">
-                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                            </ui-select-choices>
-                        </ui-select>
-                    </div>
-                </div>
-            </div>
-              </div>
-
-              <br>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
-              <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
-          </form>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" data-target="#form-input" data-dismiss="modal" ng-click="checkInModal()" >Check In</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Check Out</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Cancel Reservation</button>
+
+
       </div>
+
       <!-- END FORM -->
 
             </div>
@@ -171,6 +949,7 @@
   </div>
   <!-- /.modal-dialog -->
 </div>
+</div>
 <!--END FORM INPUT-->
 
 <!-- START MODAL CONTENT-->
@@ -179,7 +958,65 @@
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h4 class="no-margin p-b-10">Are you sure want to delete {{coa.name}} ?</h4>
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{gf.name}} ?</h4>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<div class="modal fade slide-up" id="modalCheckIn" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:scroll;">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h5 class="no-margin p-b-10">Check in Guest {{gf.guest_name}} , {{gf.title}} ?</h5>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execCheckIn()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<div class="modal fade slide-up disable-scroll" id="modalRoom" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <!--<h4 class="no-margin p-b-10">Are you sure want to delete {{gf.name}} ?</h4>-->
+                    <div class="checkbox check-primary" >
+                        <input type="checkbox" id="cbApprove" ng-checked="selected.approval==1" ng-true-value="1" ng-model="selected.approval" ng-disabled="updateState || approveState ||viewMode">
+                        <label for="cbApprove">Approve</label>
+                        <input type="checkbox" id="cbReject" ng-checked="selected.approval==2" ng-true-value="2" ng-model="selected.approval" ng-disabled="updateState || rejectState || viewMode">
+                        <label for="cbReject">Reject</label>
+                    </div>
+                    <table class="table hover condensed">
+                        <thead>
+                            <th>Room</th>
+                            <th>Connected</th>
+                            <th>Type</th>
+                            <th>Features</th>
+                            <th>Status</th>
+                            <th>Room Info</th>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="r in roomItem">
+                                <td>{{r.room_name}}</td>
+                                <td>{{r.connected}}</td>
+                                <td>{{r.room_type}}</td>
+                                <td>{{r.room_features}}</td>
+                                <td>{{r.hk_status}}</td>
+                                <td>{{r.room_info}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <div >
                         <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>

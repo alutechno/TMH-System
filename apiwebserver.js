@@ -270,12 +270,13 @@ if (cluster.isMaster) {
 	app.post('/uploadJurnal', upload.any(), function (req, res, next) {
 		try{
 			var workbook = XLSX.readFile(req.files[0].path);
-			var array=['id','code','name','debit','credit'];
+			var array=['id','code','name','notes','debit','credit'];
 			var docs=[]
 			fs.unlinkSync(req.files[0].path)
 			for (var key in workbook.Sheets){
 				var sheet=workbook.Sheets[key]
 				for(var i in sheet){
+                    console.log(sheet[i].v)
 					if(i[0] === '!') continue;
 					if(i[0] === 'A'&& !isNaN(sheet[i].v)){
 						var int=0;
@@ -291,6 +292,7 @@ if (cluster.isMaster) {
 					}
 				}
 			}
+            console.log(data)
 			docs.push(data)
 			res.end(JSON.stringify(docs))
 		}catch(e){

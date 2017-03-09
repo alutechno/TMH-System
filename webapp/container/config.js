@@ -1359,13 +1359,17 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                     "select",
                     "datepicker",
                     "daterangepicker",
+                    'timepicker',
                     "tagsInput",
                     "autonumeric"
                 ], {
                     insertBefore: "#lazyload_placeholder"
                 })
                 .then(function() {
-                    return $ocLazyLoad.load("container/components/foReservation/controller.js");
+                    return $ocLazyLoad.load([
+                        "container/components/foReservation/controller.js",
+                        //"container/components/foReservation/controllerProfile.js"
+                    ]);
                 });
             }]
         }

@@ -11,6 +11,9 @@
 
                     <button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Transaction</button>
+                    <span ng-click="exportExcel()">
+                        <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
+                    </span>
                     <!--<button class="btn btn-primary" ng-print print-element-id="printThisElement" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>-->
 
 
@@ -133,7 +136,7 @@
             </div>
             <div class="panel-body">
                 <div class="table-responsive" id="printThisElement">
-                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" width="1000px">
                     </table>
             </div>
         </div>
@@ -160,15 +163,9 @@
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
                   <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.code.$invalid && !ap.code.$pristine }">
-                          <label>Document No</label>
-                          <input type="text" class="form-control" name="name" ng-model="ap.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
-                      </div>
-                  </div>
-                  <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.journal_type.selected.$invalid && !selected.journal_type.selected.$pristine }">
                           <label>Journal Code</label>
-                          <ui-select ng-model="selected.journal_type.selected" theme="bootstrap" validate-attached-form-element required>
+                          <ui-select ng-model="selected.journal_type.selected" theme="bootstrap" validate-attached-form-element required on-select="generateCode($item)">
                               <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in journal_type | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -176,6 +173,13 @@
                           </ui-select>
                       </div>
                   </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.code.$invalid && !ap.code.$pristine }">
+                          <label>Document No</label>
+                          <input type="text" class="form-control" name="name" ng-model="ap.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-readonly="true">
+                      </div>
+                  </div>
+
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.bookkeeping_date.$invalid && !ap.bookkeeping_date.$pristine }">
                           <label>Date</label>
@@ -235,8 +239,9 @@
                                         <thead>
                                         <tr>
                                             <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
-                                            <th width="20%">Account ID</th>
-                                            <th width="40%">Account Name</th>
+                                            <th width="15%">Account ID</th>
+                                            <th width="20%">Account Name</th>
+                                            <th width="25%">Notes</th>
                                             <th width="15%">Debit</th>
                                             <th width="15%">Credit</th>
                                         </tr>
@@ -267,6 +272,11 @@
                                             </td>
                                             <td><span>{{item.account_name}}</span></td>
                                             <td >
+                                                <span editable-text="item.notes" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'notes')">
+                                                    {{ item.notes }}
+                                                </span>
+                                            </td>
+                                            <td >
                                                 <span editable-text="item.debit" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')">
                                                     {{ item.debit }}
                                                 </span>
@@ -280,6 +290,7 @@
                                         <tr>
                                             <td>&nbsp;</td>
                                             <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
                                             <td>Total</td>
                                             <td><span>{{total_debit}}</span></td>
                                             <td><span>{{total_credit}}</span></td>

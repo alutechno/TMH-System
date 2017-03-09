@@ -52,3 +52,17 @@ angular.module('app')
         }
     }
 })
+.directive('timepicker', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, elem, attrs) {
+            console.log('asd')
+            $(elem).timepicker().on('show.timepicker', function(e) {
+                console.log('show')
+                var widget = $('.bootstrap-timepicker-widget');
+                widget.find('.glyphicon-chevron-up').removeClass().addClass('pg-arrow_maximize');
+                widget.find('.glyphicon-chevron-down').removeClass().addClass('pg-arrow_minimize');
+            });
+        }
+    }
+});
