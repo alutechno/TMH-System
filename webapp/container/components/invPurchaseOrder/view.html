@@ -1,3 +1,202 @@
+<div id="printSection">
+    <div class="row">
+        <table width="98%">
+            <tr>
+                <td width="50%" align="center">
+                    <div class="brand inline text-center center">
+                        <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="200" height="40">
+                    </div>
+                    <br><br><br>
+                    <span class="text-center" style="align:center;">JL. GUNUNG SAHARI RAYA NO.3 JAKARTA 10720</span>
+                    <br>
+                    <span class="text-center">PHONE : (62-21) 626 3001</span>&nbsp;&nbsp;
+                    <span class="text-center">FAX : (62-21) 626 3024</span>
+                    <br><br>
+                    <span class="text-center">OWNED BY PT.GRAHASAHARI SURYAJAYA</span>
+                    <br>
+                    <span class="text-center">NPWP. 01.573.522.8-026.000</span>
+                </td>
+                <td width="50%">
+                    <span>
+                        <i>Pengiriman ke The Media Hotel & Towers di tempat</i>
+                    </span>
+                    <br>
+                    <span>
+                        <i>penerimaan di Jalan Industri Entrance Weekdays - 8.30 AM to 3.00 PM</i>
+                    </span>
+                    <br><br>
+                    <span>
+                        <i>Delivery to the Media Hotel & Towers receiving bay at</i>
+                    </span>
+                    <br>
+                    <span>
+                        <i>Jalan Industri Entrance Weekdays - 8.30 AM to 3.00 PM</i>
+                    </span>
+                    <br><br>
+                    <span>
+                        <i>Invoice asli untuk pihak Hotel</i>
+                    </span>
+                    <br>
+                    <span>
+                        <i>Original Invoice/Statement to Hotel</i>
+                    </span>
+                    <br><br>
+                    <span>
+                        <i>No.PO ini harus tertera pada setiap pak, slip pengepakan, perintah pengiriman dan invoice</i>
+                    </span>
+                    <br>
+                    <span>
+                        <i>This Order Number must appear on each package, packing slip, Delivery Note and Invoice</i>
+                    </span>
+                    <br>
+                </td>
+            </tr>
+            <br>
+            <tr>
+                <td>&nbsp;</td>
+                <td align="center"> <b>Purchase Order</b> </td>
+            </tr>
+            <tr>
+                <td>
+                    <table border="1" width="80%" align="center">
+                        <tr>
+                            <td align="center" style="background-color: #000000;color: white;"><b>SUPPLIER ADDRESS</b></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                {{po.supplier_name}}<br>
+                                {{po.supplier_address}}<br>
+                                Contact Person: {{po.supplier_cp}}
+                            </td>
+                        </tr>
+                    </table>
+                    <br>
+                    <table border="1" width="80%" align="center">
+                        <tr>
+                            <td align="center" style="background-color: #000000;color: white;"><b>PHONE NO.</b></td>
+                            <td align="center" style="background-color: #000000;color: white;"><b>FAX NO.</b></td>
+                        </tr>
+                        <tr>
+                            <td align="center">{{po.supplier_phone}}</td>
+                            <td align="center">{{po.supplier_fax}}</td>
+                        </tr>
+                    </table>
+                </td>
+                <td>
+                    <table border="1" width="80%" align="center">
+                        <tr>
+                            <td align="center" style="background-color: #000000;color: white;"><b>DATE OF ORDER</b></td>
+                            <td align="center" style="background-color: #000000;color: white;"><b>DATE REQUIRED</b></td>
+                            <td align="center" style="background-color: #000000;color: white;"><b>PO NO.</b></td>
+                        </tr>
+                        <tr>
+                            <td align="center">{{po.created_date}}</td>
+                            <td align="center">{{po.delivery_date}}</td>
+                            <td align="center">{{po.code}}</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <table border="1" width="80%" align="center">
+                        <tr>
+                            <td align="center" style="background-color: #000000;color: white;"><b>REQUESTED BY DEPT</b></td>
+                        </tr>
+                        <tr>
+                            <td align="center" >{{po.dept}}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <br>
+        <table width="89%" cellpadding="5" border="1" align="center">
+            <thead>
+            <tr>
+
+                <td width="50%" align="center">PRODUCT</th>
+                <td width="15%" align="center">UNIT</th>
+                <td width="10%" align="center">QTY</th>
+                <td width="10%" align="center">PRICE</th>
+                <td width="10%" align="center">AMOUNT</th>
+
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr ng-repeat="item in items | filter:filterUser">
+
+                <td>{{item.product_name}}
+                </td>
+                <td > {{item.unit_name}}
+                </td>
+                <td style="text-align: right;">
+                        {{ item.qty }}
+
+                </td>
+                <td style="text-align: right;">
+                        {{ item.price }}
+
+                </td>
+                <td style="text-align: right;">
+                        {{ item.amount }}
+
+                </td>
+
+            </tr>
+            </tbody>
+            <tfooter width="80%" border="1" align="center">
+                <tr>
+                    <td width="10%" style="text-align: center;">Total</th>
+                    <td width="30%">&nbsp;</th>
+                    <td width="10%" style="text-align: right;"><span >{{totalQty}}</span></th>
+                    <td width="10%">&nbsp;</th>
+                    <td width="10%" style="text-align: right;"><span >{{tAmt}}</span></th>
+
+                </tr>
+            </tfooter>
+        </table>
+        <br><br><br><br>
+        <table width="89%" cellpadding="5" border="0" align="center">
+            <tr>
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                    <br><br><br><br><br>
+                </td>
+                <td>&nbsp;</td>
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                    <br><br><br><br><br>
+                </td>
+                <td>&nbsp;</td>
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                    <br><br><br><br><br>
+                </td>
+                <td>&nbsp;</td>
+                <td valign="top">
+
+                    <br><br><br><br><br>
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    Purchasing Manager
+                </td>
+                <td>&nbsp;</td>
+                <td align="center">
+                    Financial Controller
+                </td>
+                <td>&nbsp;</td>
+                <td align="center">
+                    General Manager
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+
+</div>
 
 <div class="full-height m-t-40">
     <!-- TABLES VIEW -->
@@ -431,6 +630,7 @@
               <div class="row divider"></div>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>
       </div>

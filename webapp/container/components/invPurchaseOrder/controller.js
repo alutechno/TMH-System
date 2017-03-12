@@ -19,15 +19,17 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         $scope[$scope.el[i]] = true;
     }
 
-    var qstring = 'select a.id,a.code,a.pr_id,a.ml_id,a.created_date,DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date,a.po_source,a.supplier_id, a.warehouse_id, a.cost_center_id, a.notes, '+
+    var qstring = 'select a.id,a.code,a.pr_id,a.ml_id,DATE_FORMAT(a.created_date,\'%Y-%m-%d\') created_date,DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date,a.po_source,a.supplier_id, a.warehouse_id, a.cost_center_id, a.notes, '+
         	'a.doc_submission_date, a.delivery_type,a.delivery_status,a.receive_status, a.payment_type,a.due_days,a.currency_id, '+
-        	'b.name supplier_name,c.name cost_center_name,d.name warehouse_name, '+
+        	'b.name supplier_name,c.name cost_center_name,d.name warehouse_name,e.dept, '+
+            'b.address supplier_address,b.contact_person supplier_cp,b.phone_number supplier_phone,b.fax_number supplier_fax,'+
             'format((SELECT SUM(amount) FROM inv_po_line_item item WHERE item.po_id = a.id),0) AS \'Total\', '+
             '(select name from table_ref r where table_name = \'inv_purchase_order\' and column_name = \'delivery_status\' and value=a.delivery_status) as delivery_status_name '+
         'from inv_purchase_order a '+
         'left join mst_supplier b on a.supplier_id=b.id '+
         'left join mst_cost_center c on a.cost_center_id=c.id '+
-        'left join mst_warehouse d on a.warehouse_id = d.id '
+        'left join mst_warehouse d on a.warehouse_id = d.id '+
+        'left join (select m.id,m.name,n.name dept from user m,mst_department n where m.department_id=n.id) e on a.created_by=e.id '
     var qwhere = '';
     var qstringdetail = 'select a.id as p_id,a.product_id,b.name as product_name,a.order_qty qty,a.price,a.amount,c.name unit_name '+
         'from inv_po_line_item a '+
@@ -851,6 +853,8 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             $scope.itemsOri = []
             queryService.post(qstringdetail+' where a.po_id='+ids,undefined)
             .then(function (result2){
+                $scope.totalQty = 0
+                $scope.tAmt = 0
                 for (var i=0;i<result2.data.length;i++){
                     $scope.items.push({
                         id:(i+1),
@@ -862,6 +866,8 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                         amount: result2.data[i].amount,
                         unit_name: result2.data[i].unit_name
                     })
+                    $scope.totalQty += result2.data[i].qty
+                    $scope.tAmt  += result2.data[i].amount
                 }
                 $scope.itemsOri = angular.copy($scope.items)
             },

@@ -1,0 +1,174 @@
+
+<div class="full-height m-t-40">
+    <!-- TABLES VIEW -->
+    <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">Trial Balance
+                </div>
+                <div class="pull-right" style="width: 60%;">
+                    <!--<button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>-->
+                    <!--<button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Person</button>-->
+                    <span ng-click="exportExcel()">
+                        <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
+                    </span>
+
+                    <div class="input-group date col-sm-4 pull-right m-r-10">
+                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search name..." ng-keyup="filter('search',$event)" ng-model="filterVal.search">
+                    </div>
+
+                </div>
+                <div class="clearfix"></div>
+                <div class="tools">
+                    <a class="collapse" href="javascript:;"></a>
+                    <a class="config" data-toggle="modal" href="#grid-config"></a>
+                    <a class="reload" href="javascript:;"></a>
+                    <a class="remove" href="javascript:;"></a>
+                </div>
+                <!--<div class="panel panel-default m-t-5" pg-portlet ng-show="showAdvance">
+                    <div class="panel-heading">
+                        <div class="panel-title">Advanced Search
+                        </div>
+                        <div class="panel-controls">
+                            <ul>
+                                <li><a href="" ng-click="openAdvancedFilter(false)"><i class="portlet-icon portlet-icon-close"></i></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="panel-body" >
+                        <div class="btn-group form-group-default-select pull-left  m-r-5">
+                            <label>Department:</label><br />
+                            <ui-select ng-model="selected.filter_department.selected" theme="bootstrap"  style="width:150px;">
+                                <ui-select-match placeholder="Select Department">{{$select.selected.name}}</ui-select-match>
+                                <ui-select-choices repeat="item in departments | filter: $select.search">
+                                    <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                         </div>
+                         <div class="btn-group form-group-default-select pull-left  m-r-5">
+                             <label>Account Type:</label><br />
+                             <ui-select ng-model="selected.filter_account_type.selected" theme="bootstrap" style="width:150px;">
+                                 <ui-select-match placeholder="Select Type">{{$select.selected.name}}</ui-select-match>
+                                 <ui-select-choices repeat="item in account_types | filter: $select.search">
+                                     <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+
+                                 </ui-select-choices>
+                             </ui-select>
+                          </div>
+
+                         <div class="btn-group dropdown-default  m-r-5" >
+                             <label>&nbsp;</label><br />
+                           <button id="show-modal" class="btn btn-primary pull-right m-r-5" ng-click="applyFilter()" ><i class="fa fa-search"></i> Apply</button>
+
+                          </div>
+
+                    </div>
+                </div>-->
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" >
+                    </table>
+            </div>
+        </div>
+    </div>
+    <!-- END PANEL -->
+</div>
+
+<!--START FORM INPUT-->
+<div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content-wrapper">
+      <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
+      <div class="panel-heading">
+       <div class="panel-title">Room Boy Information</div>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
+        </button>
+       </div>
+        <div class="container-xs-height full-height">
+          <div class="row-xs-height">
+            <div class="modal-body col-xs-height col-top">
+
+      <!-- START FORM -->
+      <div class="panel panel-transparent m-t-20">
+          <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.code.$invalid && !coa.code.$pristine }">
+                          <label>Code</label>
+                          <input type="text" class="form-control" name="code" id="coa_code" ng-model="coa.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.name.$invalid && !coa.name.$pristine }">
+                          <label>Name</label>
+                          <input type="text" class="form-control" name="name" ng-model="coa.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default">
+                          <label>Desc</label>
+                          <input type="text" class="form-control" name="name" ng-model="coa.description" >
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                <div class="col-sm-12">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.status.selected.$invalid && !selected.status.selected.$pristine }">
+                        <label>Status</label>
+                        <ui-select ng-model="selected.status.selected" theme="bootstrap" validate-attached-form-element required>
+                            <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arrActive | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+              </div>
+
+              <br>
+              <div class="clearfix"></div>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
+              <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
+          </form>
+      </div>
+      <!-- END FORM -->
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!--END FORM INPUT-->
+
+<!-- START MODAL CONTENT-->
+<div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{coa.name}} ?</h4>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<!-- END MODAL CONTENT-->

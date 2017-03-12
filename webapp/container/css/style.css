@@ -146,9 +146,22 @@ span.ui-select-match-text.pull-left {
         left:0;
         top:0;
     }
+    .print_a4 {
+        width: 210mm;
+        min-height: 297mm;
+        border: 1px #D3D3D3 solid;
+    }
+    .center {
+        display: flex;
+        align-items: center;
+    }
+    td {
+        padding-left: 10px;
+        padding-right:10px;
+    }
 }
 
-.print_a4 {
+/*.print_a4 {
     width: 210mm;
     min-height: 297mm;
     padding: 20mm;
@@ -157,7 +170,7 @@ span.ui-select-match-text.pull-left {
     border-radius: 5px;
     background: white;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-}
+}*/
 
 .datatable-scroll {
     overflow-x: auto;

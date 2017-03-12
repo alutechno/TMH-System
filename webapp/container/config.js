@@ -2334,6 +2334,94 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state("app.fin.rptTrialBalance", {
+        url: "/finRptTrialBalance",
+        templateUrl: "container/components/finRptTrialBalance/view.html",
+        controller: "FinRptTrialBalance",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/finRptTrialBalance/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fin.rptBalanceSheet", {
+        url: "/finRptBalanceSheet",
+        templateUrl: "container/components/finRptBalanceSheet/view.html",
+        controller: "FinRptBalanceSheet",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/finRptBalanceSheet/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fin.rptPnl", {
+        url: "/finRptPnl",
+        templateUrl: "container/components/finRptPnl/view.html",
+        controller: "FinRptPnl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/finRptPnl/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fin.eop", {
+        url: "/finGlEop",
+        templateUrl: "container/components/finGlEop/view.html",
+        controller: "FinGlEop",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/finGlEop/controller.js");
+                });
+            }]
+        }
+    })
 
     // Extra - Others
     .state('access', {

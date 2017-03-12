@@ -923,8 +923,255 @@
                       </div>
                   </div>
                   <div class="tab-pane" id="tab-fillup3" >
-                      <div class="row clearfix" ng-controller="FoReservationAdditionalCtrl">
-                          Additional
+                      <div class="row m-l-10">
+                          <div class="clearfix" ng-controller="FoReservationAdditionalCtrl">
+                              <div class="row clearfix">
+                                  <div class="col-sm-6">
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6>Guest Name<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 >: {{gf.guest_name}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Company Name<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{gf.company_name}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Room<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{gf.room_no}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Room Type<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{gf.room_type_name}}</h6>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-6">
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6>Arrival<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6>: {{gf.arrival_date}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Departure<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{gf.departure_date}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Status<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{gf.reservation_status_name}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Pax/Child<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{gf.num_of_pax}}/{{gf.num_of_child}}</h6>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="row clearfix">
+                                  <div class="col-sm-4">
+
+                                      <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                                          <label>Internet Code</label>
+                                          <ui-select ng-model="selected.internet_code.selected" theme="bootstrap" on-select="additional.param.internet_code_status=$item.id">
+                                              <ui-select-match placeholder="">{{$select.selected.name}}</ui-select-match>
+                                              <ui-select-choices repeat="item in internetCode | filter: $select.search">
+                                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                              </ui-select-choices>
+                                          </ui-select>
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-4">
+                                      <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                                          <label>Pay TV</label>
+                                          <ui-select ng-model="selected.pay_tv.selected" theme="bootstrap" on-select="additional.param.pay_tv_status=$item.id">
+                                              <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                                              <ui-select-choices repeat="item in payTv | filter: $select.search">
+                                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                              </ui-select-choices>
+                                          </ui-select>
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-4">
+                                      <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                                          <label>Newspaper</label>
+                                          <ui-select ng-model="selected.newspaper.selected" theme="bootstrap" on-select="additional.param.newspaper_id=$item.id">
+                                              <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                                              <ui-select-choices repeat="item in newspaper | filter: $select.search">
+                                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                              </ui-select-choices>
+                                          </ui-select>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="row clearfix">
+                                  <!--<div class="col-sm-4">
+                                      <div pg-form-group class="form-group form-group-default " >
+                                          <label>Welcoming Code</label>
+                                          <input type="text" class="form-control" name="ref_account" ng-model="ap.ref_account" >
+                                      </div>
+                                  </div>-->
+                                  <div class="col-sm-4">
+                                      <div pg-form-group class="form-group form-group-default " >
+                                          <label>Amenities</label>
+                                          <input type="text" class="form-control" name="ref_account" ng-model="additional.param.amenities_notes" >
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-4">
+                                      <div pg-form-group class="form-group form-group-default " >
+                                          <label>Fruits</label>
+                                          <input type="text" class="form-control" name="ref_account" ng-model="additional.param.fruits_notes" >
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="row clearfix">
+                                  <!--<div class="col-sm-4">
+                                      <div pg-form-group class="form-group form-group-default " >
+                                          <label>Fax No</label>
+                                          <input type="text" class="form-control" name="ref_account" ng-model="ap.ref_account" >
+                                      </div>
+                                  </div>-->
+                                  <div class="col-sm-4">
+                                      <div pg-form-group class="form-group form-group-default " >
+                                          <label>Total Car</label>
+                                          <input type="text" class="form-control" name="ref_account" ng-model="additional.param.total_car" >
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-4">
+                                      <div pg-form-group class="form-group form-group-default " >
+                                          <label>Car No</label>
+                                          <input type="text" class="form-control" name="ref_account" ng-model="additional.param.car_no" >
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="row clearfix">
+                                  <div class="col-sm-4">
+                                      <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                                          <label>Deposit Box</label>
+                                          <ui-select ng-model="selected.status.selected" theme="bootstrap" on-select="additional.param.deposit_box_id=$item.id">
+                                              <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                                              <ui-select-choices repeat="item in statusShow | filter: $select.search">
+                                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                              </ui-select-choices>
+                                          </ui-select>
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-4">
+                                      <div pg-form-group class="form-group form-group-default " >
+                                          <label>Deposit Remark</label>
+                                          <input type="text" class="form-control" name="ref_account" ng-model="additional.param.deposit_box_notes" >
+                                      </div>
+                                  </div>
+                                  <!--<div class="col-sm-4">
+                                      <div pg-form-group class="form-group form-group-default " >
+                                          <label>Others Remark</label>
+                                          <input type="text" class="form-control" name="ref_account" ng-model="ap.ref_account" >
+                                      </div>
+                                  </div>-->
+                              </div>
+                              <div class="row clearfix">
+                                  <div class="row">
+                                      <div class="col-sm-2">
+                                          <div class="checkbox check-primary" >
+                                              <input type="checkbox" id="cbApprove" ng-checked="additional.param.is_incognito==1" ng-true-value="1" ng-model="additional.param.is_incognito" >
+                                              <label for="cbApprove">No Info (Incognito)</label>
+                                          </div>
+                                      </div>
+                                      <div class="col-sm-2">
+                                          <div class="checkbox check-primary" >
+                                              <input type="checkbox" id="cb1" ng-checked="additional.param.is_closed_transc==1" ng-true-value="1" ng-model="additional.param.is_closed_transc" >
+                                              <label for="cb1">Closed Transaction <br/ >(no transaction allowed)</label>
+                                          </div>
+                                      </div>
+                                      <div class="col-sm-2">
+                                          <div class="checkbox check-primary" >
+                                              <input type="checkbox" id="cb2" ng-checked="additional.param.is_lock_minibar==1" ng-true-value="1" ng-model="additional.param.is_lock_minibar" >
+                                              <label for="cb2">Lock Minibar</label>
+                                          </div>
+                                      </div>
+                                      <div class="col-sm-2">
+                                          <div class="checkbox check-primary" >
+                                              <input type="checkbox" id="cb3" ng-checked="additional.param.is_no_alcohol_in_pos==1" ng-true-value="1" ng-model="additional.param.is_no_alcohol_in_pos" >
+                                              <label for="cb3">No Alcohol in POS</label>
+                                          </div>
+                                      </div>
+                                      <div class="col-sm-2">
+                                          <div class="checkbox check-primary" >
+                                              <input type="checkbox" id="cb4" ng-checked="additional.param.is_sick_guest==1" ng-true-value="1" ng-model="additional.param.is_sick_guest" >
+                                              <label for="cb4">Sick Guest</label>
+                                          </div>
+                                      </div>
+                                      <div class="col-sm-2">
+                                          <div class="checkbox check-primary" >
+                                              <input type="checkbox" id="cb5" ng-checked="additional.param.is_reject_for_cleaning==1" ng-true-value="1" ng-model="additional.param.is_reject_for_cleaning" >
+                                              <label for="cb5">Reject for Cleaning</label>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="row">
+                                      <div class="col-sm-2">
+                                          <div class="checkbox check-primary" >
+                                              <input type="checkbox" id="cb6" ng-checked="additional.param.is_sleep_out==1" ng-true-value="1" ng-model="additional.param.is_sleep_out" >
+                                              <label for="cb6">Sleep Out</label>
+                                          </div>
+                                      </div>
+                                      <div class="col-sm-2">
+                                          <div class="checkbox check-primary" >
+                                              <input type="checkbox" id="cb7" ng-checked="additional.param.is_cash_transc_only==1" ng-true-value="1" ng-model="additional.param.is_cash_transc_only" >
+                                              <label for="cb7">Cash Transaction Only <br /> (Cash Basis)</label>
+                                          </div>
+                                      </div>
+                                      <div class="col-sm-2">
+                                          <div class="checkbox check-primary" >
+                                              <input type="checkbox" id="cb8" ng-checked="additional.param.is_block_phone==1" ng-true-value="1" ng-model="additional.param.is_block_phone" >
+                                              <label for="cb8">Block Phone</label>
+                                          </div>
+                                      </div>
+                                      <div class="col-sm-2">
+                                          &nbsp;
+                                      </div>
+                                      <div class="col-sm-2">
+                                          <div class="checkbox check-primary" >
+                                              <input type="checkbox" id="cb9" ng-checked="additional.param.is_handicap_guest==1" ng-true-value="1" ng-model="additional.param.is_handicap_guest" >
+                                              <label for="cb9">Handicap Guest</label>
+                                          </div>
+                                      </div>
+                                      <div class="col-sm-2">
+                                          <div class="checkbox check-primary" >
+                                              <input type="checkbox" id="cb10" ng-checked="additional.param.is_door_double_lock==1" ng-true-value="1" ng-model="additional.param.is_door_double_lock" >
+                                              <label for="cb10">Door Double Lock</label>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
                       </div>
                   </div>
 
@@ -932,8 +1179,10 @@
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" data-target="#form-input" data-dismiss="modal" ng-click="checkInModal()" >Check In</button>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Check Out</button>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Cancel Reservation</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" data-target="#form-input" data-dismiss="modal" ng-click="checkOutModal()" >Check Out</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" data-target="#form-input" data-dismiss="modal" ng-click="cancelModal()" >Cancel Reservation</button>
+              <!--<button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Cancel Reservation</button>-->
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="test()" >Test</button>
 
 
       </div>
@@ -985,6 +1234,41 @@
         <!-- /.modal-content -->
     </div>
 </div>
+
+<div class="modal fade slide-up" id="modalCheckOut" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:scroll;">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h5 class="no-margin p-b-10">Check Out Guest {{gf.guest_name}} , {{gf.title}} ?</h5>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execCheckIn()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+
+<div class="modal fade slide-up" id="modalCancel" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:scroll;">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h5 class="no-margin p-b-10">Cancel Guest {{gf.guest_name}} , {{gf.title}} ?</h5>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execCheckIn()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+
 <div class="modal fade slide-up disable-scroll" id="modalRoom" tabindex="-1" role="dialog" aria-hidden="false">
     <div class="modal-dialog modal-sm">
         <div class="modal-content-wrapper">

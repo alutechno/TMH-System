@@ -12,6 +12,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
+    $scope.additional = {}
     var qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
       "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
       "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
@@ -201,9 +202,9 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope.activeClass[a] = 'active'
 
         if (a=='reservation'){
-            qstring = "select a.id folio_id, concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
-              "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time,  "+
-              "a.arrival_date,a.departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
+            qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
+              "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
+              "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
               "if(reservation_type='I','Individual','House Guest') reservation_type_name,a.commission_amount,a.agent_id,a.payment_type_id, "+
               "a.member_id,a.customer_id,a.address,a.vip_type_id,a.cust_company_id,a.is_inside_allotment,a.is_comp_extra_bed, "+
               "a.room_rate_id,a.num_of_extra_bed,a.extra_bed_charge_amount,a.late_check_out_charge,a.discount_percent,a.is_room_only, "+
@@ -212,15 +213,19 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
               "a.num_of_nights,a.num_of_stays, a.num_of_pax, a.num_of_child, a.reservation_status,  "+
               "w.name reservation_status_name, g.code room_rate_code, a.room_rate_amount, a.discount_amount,  "+
               "k.name cust_segment, n.name nationality, a.reservation_type, a.mice_id, t.closing_amount balance, "+
-              "c.name company_name, f.name vip_type, a.cancellation_type_id, r.name cancellation_type_name, "+
-              "u.remarks guest_check_in_remarks, x.check_in_remarks mice_check_in_remarks, "+
+              "if(isnull(c.name),'Individual',c.name) company_name, f.name vip_type, a.cancellation_type_id, r.name cancellation_type_name, "+
+              "u.remarks guest_check_in_remarks,ae.remarks guest_cashier_remarks, x.check_in_remarks mice_check_in_remarks,ad.name source_type_name, "+
               "if(a.is_room_only='Y','Yes','No')is_room_only_name,if(a.is_comp_extra_bed='Y','Yes','No')is_comp_extra_bed_name, "+
-              "if(a.is_honeymoon='Y','Yes','No')is_honeymoon_name,if(a.late_check_out_charge>0,'Yes','No')late_co, "+
-              "y.name check_in_type_name,z.name check_out_type_name "+
+              "if(a.is_honeymoon='Y','Yes','No')is_honeymoon_name,if(a.late_check_out_charge>0,'Yes','No')late_co, ab.name origin_city,ac.name dest_city, "+
+              "y.name check_in_type_name,z.name check_out_type_name,a.prev_room_type_id,p.name prev_room_type_name,b.title,i.name payment_type_name,aa.name currency_name, "+
+              "u.remarks remarks_cashier,u.id remarks_cashier_id,ae.remarks remarks_check_in,ae.id remarks_check_in_id, "+
+              "af.remarks remarks_drop,af.id remarks_drop_id,ag.remarks remarks_locator,ag.id remarks_locator_id,ah.remarks remarks_prefered,ah.id remarks_prefered_id, "+
+              "ai.remarks remarks_pickup,ai.id remarks_pickup_id,aj.remarks remarks_room_message,aj.id remarks_room_message_id "+
               "from fd_guest_folio a "+
               "left join mst_customer b on a.customer_id = b.id "+
               "left join mst_cust_company c on a.cust_company_id = c.id "+
               "left join ref_room_type d on a.room_type_id = d.id "+
+              "left join ref_room_type p on a.prev_room_type_id = p.id "+
               "left join mst_room e on a.room_id = e.id "+
               "left join ref_vip_type f on a.vip_type_id = f.id "+
               "left join mst_room_rate g on a.room_rate_id = g.id "+
@@ -231,36 +236,188 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
               "left join ref_cancellation_type r on a.cancellation_type_id = r.id "+
               "left join fd_mice_reservation s on a.mice_id = s.id "+
               "left join fd_mice_deposit t on a.mice_id = t.mice_id "+
-              "left join (select a.folio_id, remarks "+
-            "	from fd_folio_remarks a "+
-            "    where a.remark_type_id = 1) u on a.id = u.folio_id "+
-             " left join (select a.folio_id,  "+
-            "    group_concat(concat_ws('|', b.name, b.legend_image_name,  "+
-            "    b.legend_image_uri, b.legend_image_path),',') legend "+
-            "    from fd_folio_legend a "+
-             " left join ref_guest_legend b on a.legend_id = b.id "+
-            	"group by a.folio_id) v on a.id = v.folio_id         "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 1) u on a.id = u.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 2) ae on a.id = ae.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 3) af on a.id = af.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 4) ag on a.id = ag.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 5) ah on a.id = ah.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 6) ai on a.id = ai.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 7) aj on a.id = aj.folio_id "+
+              " left join (select a.id, a.folio_id,  "+
+              "    group_concat(concat_ws('|', b.name, b.legend_image_name,  "+
+              "    b.legend_image_uri, b.legend_image_path),',') legend "+
+              "    from fd_folio_legend a "+
+              " left join ref_guest_legend b on a.legend_id = b.id "+
+                "group by a.folio_id) v on a.id = v.folio_id         "+
               "left join (select value, name from table_ref where table_name = 'fd_guest_folio' "+
-            	"and column_name = 'reservation_status') w on a.reservation_status = w.value "+
+                "and column_name = 'reservation_status') w on a.reservation_status = w.value "+
               "left join fd_mice_remarks x on a.mice_id = x.mice_id "+
               "left join ref_check_in y on a.check_in_type_id = y.id "+
-              "left join ref_check_in z on a.check_out_type_id = z.id ";
+              "left join ref_check_in z on a.check_out_type_id = z.id "+
+              "left join ref_currency aa on a.currency_id = aa.id "+
+              "left join ref_kabupaten ab on a.origin_city_id = ab.id "+
+              "left join ref_kabupaten ac on a.dest_city_id = ac.id "+
+              "left join ref_source_type ad on a.source_type_id = ad.id ";
               console.log(qstring)
             $scope.gf.folio_type = '1'
         }
         else if (a=='inhouse'){
-            qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_check_out a, "+
-                "(select id as status_id, value as status_value,name as status_name  "+
-                    "from table_ref  "+
-                    "where table_name = 'ref_product_category' and column_name='status')b "+
-                "where a.status = b.status_value and a.status!=2 "
+            qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
+              "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
+              "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
+              "if(reservation_type='I','Individual','House Guest') reservation_type_name,a.commission_amount,a.agent_id,a.payment_type_id, "+
+              "a.member_id,a.customer_id,a.address,a.vip_type_id,a.cust_company_id,a.is_inside_allotment,a.is_comp_extra_bed, "+
+              "a.room_rate_id,a.num_of_extra_bed,a.extra_bed_charge_amount,a.late_check_out_charge,a.discount_percent,a.is_room_only, "+
+              "a.currency_id,a.card_no,a.card_valid_until_year,a.card_valid_until_month, a.voucher,a.segment_type_id, a.source_type_id, "+
+              "a.is_honeymoon,a.origin_country_id,a.origin_city_id,a.dest_city_id,a.check_in_type_id,a.check_out_type_id,b.mobile_phone,b.phone_no phone,b.email, "+
+              "a.num_of_nights,a.num_of_stays, a.num_of_pax, a.num_of_child, a.reservation_status,  "+
+              "w.name reservation_status_name, g.code room_rate_code, a.room_rate_amount, a.discount_amount,  "+
+              "k.name cust_segment, n.name nationality, a.reservation_type, a.mice_id, t.closing_amount balance, "+
+              "if(isnull(c.name),'Individual',c.name) company_name, f.name vip_type, a.cancellation_type_id, r.name cancellation_type_name, "+
+              "u.remarks guest_check_in_remarks,ae.remarks guest_cashier_remarks, x.check_in_remarks mice_check_in_remarks,ad.name source_type_name, "+
+              "if(a.is_room_only='Y','Yes','No')is_room_only_name,if(a.is_comp_extra_bed='Y','Yes','No')is_comp_extra_bed_name, "+
+              "if(a.is_honeymoon='Y','Yes','No')is_honeymoon_name,if(a.late_check_out_charge>0,'Yes','No')late_co, ab.name origin_city,ac.name dest_city, "+
+              "y.name check_in_type_name,z.name check_out_type_name,a.prev_room_type_id,p.name prev_room_type_name,b.title,i.name payment_type_name,aa.name currency_name, "+
+              "u.remarks remarks_cashier,u.id remarks_cashier_id,ae.remarks remarks_check_in,ae.id remarks_check_in_id, "+
+              "af.remarks remarks_drop,af.id remarks_drop_id,ag.remarks remarks_locator,ag.id remarks_locator_id,ah.remarks remarks_prefered,ah.id remarks_prefered_id, "+
+              "ai.remarks remarks_pickup,ai.id remarks_pickup_id,aj.remarks remarks_room_message,aj.id remarks_room_message_id "+
+              "from fd_guest_folio a "+
+              "left join mst_customer b on a.customer_id = b.id "+
+              "left join mst_cust_company c on a.cust_company_id = c.id "+
+              "left join ref_room_type d on a.room_type_id = d.id "+
+              "left join ref_room_type p on a.prev_room_type_id = p.id "+
+              "left join mst_room e on a.room_id = e.id "+
+              "left join ref_vip_type f on a.vip_type_id = f.id "+
+              "left join mst_room_rate g on a.room_rate_id = g.id "+
+              "left join mst_room_rate_line_item h on a.room_type_id = h.room_type_id and a.room_rate_id = h.room_rate_id "+
+              "left join ref_payment_method i on a.payment_type_id = i.id "+
+              "left join ref_segment_type k on a.segment_type_id = k.id "+
+              "left join ref_country n on a.origin_country_id = n.id "+
+              "left join ref_cancellation_type r on a.cancellation_type_id = r.id "+
+              "left join fd_mice_reservation s on a.mice_id = s.id "+
+              "left join fd_mice_deposit t on a.mice_id = t.mice_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 1) u on a.id = u.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 2) ae on a.id = ae.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 3) af on a.id = af.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 4) ag on a.id = ag.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 5) ah on a.id = ah.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 6) ai on a.id = ai.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 7) aj on a.id = aj.folio_id "+
+              " left join (select a.id, a.folio_id,  "+
+              "    group_concat(concat_ws('|', b.name, b.legend_image_name,  "+
+              "    b.legend_image_uri, b.legend_image_path),',') legend "+
+              "    from fd_folio_legend a "+
+              " left join ref_guest_legend b on a.legend_id = b.id "+
+                "group by a.folio_id) v on a.id = v.folio_id         "+
+              "left join (select value, name from table_ref where table_name = 'fd_guest_folio' "+
+                "and column_name = 'reservation_status') w on a.reservation_status = w.value "+
+              "left join fd_mice_remarks x on a.mice_id = x.mice_id "+
+              "left join ref_check_in y on a.check_in_type_id = y.id "+
+              "left join ref_check_in z on a.check_out_type_id = z.id "+
+              "left join ref_currency aa on a.currency_id = aa.id "+
+              "left join ref_kabupaten ab on a.origin_city_id = ab.id "+
+              "left join ref_kabupaten ac on a.dest_city_id = ac.id "+
+              "left join ref_source_type ad on a.source_type_id = ad.id where a.reservation_status=4 ";
         }
         else if (a=='checkout'){
-            qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_check_in a, "+
-                "(select id as status_id, value as status_value,name as status_name  "+
-                    "from table_ref  "+
-                    "where table_name = 'ref_product_category' and column_name='status')b "+
-                "where a.status = b.status_value and a.status!=2 "
+            qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
+              "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
+              "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
+              "if(reservation_type='I','Individual','House Guest') reservation_type_name,a.commission_amount,a.agent_id,a.payment_type_id, "+
+              "a.member_id,a.customer_id,a.address,a.vip_type_id,a.cust_company_id,a.is_inside_allotment,a.is_comp_extra_bed, "+
+              "a.room_rate_id,a.num_of_extra_bed,a.extra_bed_charge_amount,a.late_check_out_charge,a.discount_percent,a.is_room_only, "+
+              "a.currency_id,a.card_no,a.card_valid_until_year,a.card_valid_until_month, a.voucher,a.segment_type_id, a.source_type_id, "+
+              "a.is_honeymoon,a.origin_country_id,a.origin_city_id,a.dest_city_id,a.check_in_type_id,a.check_out_type_id,b.mobile_phone,b.phone_no phone,b.email, "+
+              "a.num_of_nights,a.num_of_stays, a.num_of_pax, a.num_of_child, a.reservation_status,  "+
+              "w.name reservation_status_name, g.code room_rate_code, a.room_rate_amount, a.discount_amount,  "+
+              "k.name cust_segment, n.name nationality, a.reservation_type, a.mice_id, t.closing_amount balance, "+
+              "if(isnull(c.name),'Individual',c.name) company_name, f.name vip_type, a.cancellation_type_id, r.name cancellation_type_name, "+
+              "u.remarks guest_check_in_remarks,ae.remarks guest_cashier_remarks, x.check_in_remarks mice_check_in_remarks,ad.name source_type_name, "+
+              "if(a.is_room_only='Y','Yes','No')is_room_only_name,if(a.is_comp_extra_bed='Y','Yes','No')is_comp_extra_bed_name, "+
+              "if(a.is_honeymoon='Y','Yes','No')is_honeymoon_name,if(a.late_check_out_charge>0,'Yes','No')late_co, ab.name origin_city,ac.name dest_city, "+
+              "y.name check_in_type_name,z.name check_out_type_name,a.prev_room_type_id,p.name prev_room_type_name,b.title,i.name payment_type_name,aa.name currency_name, "+
+              "u.remarks remarks_cashier,u.id remarks_cashier_id,ae.remarks remarks_check_in,ae.id remarks_check_in_id, "+
+              "af.remarks remarks_drop,af.id remarks_drop_id,ag.remarks remarks_locator,ag.id remarks_locator_id,ah.remarks remarks_prefered,ah.id remarks_prefered_id, "+
+              "ai.remarks remarks_pickup,ai.id remarks_pickup_id,aj.remarks remarks_room_message,aj.id remarks_room_message_id "+
+              "from fd_guest_folio a "+
+              "left join mst_customer b on a.customer_id = b.id "+
+              "left join mst_cust_company c on a.cust_company_id = c.id "+
+              "left join ref_room_type d on a.room_type_id = d.id "+
+              "left join ref_room_type p on a.prev_room_type_id = p.id "+
+              "left join mst_room e on a.room_id = e.id "+
+              "left join ref_vip_type f on a.vip_type_id = f.id "+
+              "left join mst_room_rate g on a.room_rate_id = g.id "+
+              "left join mst_room_rate_line_item h on a.room_type_id = h.room_type_id and a.room_rate_id = h.room_rate_id "+
+              "left join ref_payment_method i on a.payment_type_id = i.id "+
+              "left join ref_segment_type k on a.segment_type_id = k.id "+
+              "left join ref_country n on a.origin_country_id = n.id "+
+              "left join ref_cancellation_type r on a.cancellation_type_id = r.id "+
+              "left join fd_mice_reservation s on a.mice_id = s.id "+
+              "left join fd_mice_deposit t on a.mice_id = t.mice_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 1) u on a.id = u.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 2) ae on a.id = ae.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 3) af on a.id = af.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 4) ag on a.id = ag.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 5) ah on a.id = ah.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 6) ai on a.id = ai.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 7) aj on a.id = aj.folio_id "+
+              " left join (select a.id, a.folio_id,  "+
+              "    group_concat(concat_ws('|', b.name, b.legend_image_name,  "+
+              "    b.legend_image_uri, b.legend_image_path),',') legend "+
+              "    from fd_folio_legend a "+
+              " left join ref_guest_legend b on a.legend_id = b.id "+
+                "group by a.folio_id) v on a.id = v.folio_id         "+
+              "left join (select value, name from table_ref where table_name = 'fd_guest_folio' "+
+                "and column_name = 'reservation_status') w on a.reservation_status = w.value "+
+              "left join fd_mice_remarks x on a.mice_id = x.mice_id "+
+              "left join ref_check_in y on a.check_in_type_id = y.id "+
+              "left join ref_check_in z on a.check_out_type_id = z.id "+
+              "left join ref_currency aa on a.currency_id = aa.id "+
+              "left join ref_kabupaten ab on a.origin_city_id = ab.id "+
+              "left join ref_kabupaten ac on a.dest_city_id = ac.id "+
+              "left join ref_source_type ad on a.source_type_id = ad.id where a.reservation_status=5 ";
         }
         else if (a=='house'){
             qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_check_in a, "+
@@ -270,11 +427,76 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 "where a.status = b.status_value and a.status!=2 "
         }
         else if (a=='canceled'){
-            qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_check_in a, "+
-                "(select id as status_id, value as status_value,name as status_name  "+
-                    "from table_ref  "+
-                    "where table_name = 'ref_product_category' and column_name='status')b "+
-                "where a.status = b.status_value and a.status!=2 "
+            qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
+              "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
+              "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
+              "if(reservation_type='I','Individual','House Guest') reservation_type_name,a.commission_amount,a.agent_id,a.payment_type_id, "+
+              "a.member_id,a.customer_id,a.address,a.vip_type_id,a.cust_company_id,a.is_inside_allotment,a.is_comp_extra_bed, "+
+              "a.room_rate_id,a.num_of_extra_bed,a.extra_bed_charge_amount,a.late_check_out_charge,a.discount_percent,a.is_room_only, "+
+              "a.currency_id,a.card_no,a.card_valid_until_year,a.card_valid_until_month, a.voucher,a.segment_type_id, a.source_type_id, "+
+              "a.is_honeymoon,a.origin_country_id,a.origin_city_id,a.dest_city_id,a.check_in_type_id,a.check_out_type_id,b.mobile_phone,b.phone_no phone,b.email, "+
+              "a.num_of_nights,a.num_of_stays, a.num_of_pax, a.num_of_child, a.reservation_status,  "+
+              "w.name reservation_status_name, g.code room_rate_code, a.room_rate_amount, a.discount_amount,  "+
+              "k.name cust_segment, n.name nationality, a.reservation_type, a.mice_id, t.closing_amount balance, "+
+              "if(isnull(c.name),'Individual',c.name) company_name, f.name vip_type, a.cancellation_type_id, r.name cancellation_type_name, "+
+              "u.remarks guest_check_in_remarks,ae.remarks guest_cashier_remarks, x.check_in_remarks mice_check_in_remarks,ad.name source_type_name, "+
+              "if(a.is_room_only='Y','Yes','No')is_room_only_name,if(a.is_comp_extra_bed='Y','Yes','No')is_comp_extra_bed_name, "+
+              "if(a.is_honeymoon='Y','Yes','No')is_honeymoon_name,if(a.late_check_out_charge>0,'Yes','No')late_co, ab.name origin_city,ac.name dest_city, "+
+              "y.name check_in_type_name,z.name check_out_type_name,a.prev_room_type_id,p.name prev_room_type_name,b.title,i.name payment_type_name,aa.name currency_name, "+
+              "u.remarks remarks_cashier,u.id remarks_cashier_id,ae.remarks remarks_check_in,ae.id remarks_check_in_id, "+
+              "af.remarks remarks_drop,af.id remarks_drop_id,ag.remarks remarks_locator,ag.id remarks_locator_id,ah.remarks remarks_prefered,ah.id remarks_prefered_id, "+
+              "ai.remarks remarks_pickup,ai.id remarks_pickup_id,aj.remarks remarks_room_message,aj.id remarks_room_message_id "+
+              "from fd_guest_folio a "+
+              "left join mst_customer b on a.customer_id = b.id "+
+              "left join mst_cust_company c on a.cust_company_id = c.id "+
+              "left join ref_room_type d on a.room_type_id = d.id "+
+              "left join ref_room_type p on a.prev_room_type_id = p.id "+
+              "left join mst_room e on a.room_id = e.id "+
+              "left join ref_vip_type f on a.vip_type_id = f.id "+
+              "left join mst_room_rate g on a.room_rate_id = g.id "+
+              "left join mst_room_rate_line_item h on a.room_type_id = h.room_type_id and a.room_rate_id = h.room_rate_id "+
+              "left join ref_payment_method i on a.payment_type_id = i.id "+
+              "left join ref_segment_type k on a.segment_type_id = k.id "+
+              "left join ref_country n on a.origin_country_id = n.id "+
+              "left join ref_cancellation_type r on a.cancellation_type_id = r.id "+
+              "left join fd_mice_reservation s on a.mice_id = s.id "+
+              "left join fd_mice_deposit t on a.mice_id = t.mice_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 1) u on a.id = u.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 2) ae on a.id = ae.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 3) af on a.id = af.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 4) ag on a.id = ag.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 5) ah on a.id = ah.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 6) ai on a.id = ai.folio_id "+
+              "left join (select a.id, a.folio_id, remarks "+
+              "	from fd_folio_remarks a "+
+              "    where a.remark_type_id = 7) aj on a.id = aj.folio_id "+
+              " left join (select a.id, a.folio_id,  "+
+              "    group_concat(concat_ws('|', b.name, b.legend_image_name,  "+
+              "    b.legend_image_uri, b.legend_image_path),',') legend "+
+              "    from fd_folio_legend a "+
+              " left join ref_guest_legend b on a.legend_id = b.id "+
+                "group by a.folio_id) v on a.id = v.folio_id         "+
+              "left join (select value, name from table_ref where table_name = 'fd_guest_folio' "+
+                "and column_name = 'reservation_status') w on a.reservation_status = w.value "+
+              "left join fd_mice_remarks x on a.mice_id = x.mice_id "+
+              "left join ref_check_in y on a.check_in_type_id = y.id "+
+              "left join ref_check_in z on a.check_out_type_id = z.id "+
+              "left join ref_currency aa on a.currency_id = aa.id "+
+              "left join ref_kabupaten ab on a.origin_city_id = ab.id "+
+              "left join ref_kabupaten ac on a.dest_city_id = ac.id "+
+              "left join ref_source_type ad on a.source_type_id = ad.id where a.reservation_status=6 ";
         }
 
         $scope.dtInstance.reloadData(function(obj){}, false)
@@ -724,13 +946,22 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
     $scope.checkInModal = function(){
         console.log($scope.gf)
-
-        //$('#form-input').modal('hide')
-        //$('#form-input').modal({show:false})
-        //setTimeout(function(){$('#modalCheckIn').modal('show')},3000)
         $('#modalCheckIn').modal('show')
 
+    }
+    $scope.checkOutModal = function(){
+        console.log($scope.gf)
+        $('#modalCheckOut').modal('show')
 
+    }
+    $scope.cancelModal = function(){
+        console.log($scope.gf)
+        $('#modalCancel').modal('show')
+
+    }
+    $scope.test = function(){
+        console.log($scope.gf.id)
+        console.log($scope.additional.param)
     }
 
     $scope.submit = function(){
@@ -922,7 +1153,6 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         else {
             //exec update
 
-console.log($scope.gf.num_of_nights)
             var param = {
                 code: $scope.gf.code,
                 folio_type: '1',
@@ -1266,11 +1496,12 @@ console.log($scope.gf.num_of_nights)
         })
     }
     $scope.execCheckIn = function(){
-        queryService.post('update fd_guest_folio SET status=\'4\', '+
+        queryService.post('update fd_guest_folio SET reservation_status=\'4\', '+
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
         ' WHERE id='+$scope.gf.id ,undefined)
         .then(function (result){
+            console.log(result)
             if (result.status = "200"){
                 console.log('Success Delete')
                 $('#form-input').modal('hide')
@@ -1289,6 +1520,69 @@ console.log($scope.gf.num_of_nights)
             else {
                 console.log('check in Failed')
             }
+        },
+        function err(err){
+            console.log(err)
+        })
+    }
+    $scope.execCheckOut = function(){
+        queryService.post('update fd_guest_folio SET reservation_status=\'5\', '+
+        ' modified_by='+$localStorage.currentUser.name.id+', ' +
+        ' modified_date=\''+globalFunction.currentDate()+'\' ' +
+        ' WHERE id='+$scope.gf.id ,undefined)
+        .then(function (result){
+            console.log(result)
+            if (result.status = "200"){
+                console.log('Success Delete')
+                $('#form-input').modal('hide')
+                $scope.dtInstance.reloadData(function(obj){
+                    // console.log(obj)
+                }, false)
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Guest '+$scope.gf.guest_name+' success Check In',
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+                $scope.clear()
+            }
+            else {
+                console.log('check in Failed')
+            }
+        },
+        function err(err){
+            console.log(err)
+        })
+    }
+    $scope.execCancel = function(){
+        queryService.post('update fd_guest_folio SET reservation_status=\'6\', '+
+        ' modified_by='+$localStorage.currentUser.name.id+', ' +
+        ' modified_date=\''+globalFunction.currentDate()+'\' ' +
+        ' WHERE id='+$scope.gf.id ,undefined)
+        .then(function (result){
+            console.log(result)
+            if (result.status = "200"){
+                console.log('Success Delete')
+                $('#form-input').modal('hide')
+                $scope.dtInstance.reloadData(function(obj){
+                    // console.log(obj)
+                }, false)
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Guest '+$scope.gf.guest_name+' success Check In',
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+                $scope.clear()
+            }
+            else {
+                console.log('check in Failed')
+            }
+        },
+        function err(err){
+            console.log(err)
         })
     }
 
@@ -1405,20 +1699,45 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 })
 .controller('FoReservationAdditionalCtrl',
 function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
-    $scope.el = [];
-    $scope.el = $state.current.data;
-    $scope.buttonCreate = false;
-    $scope.buttonUpdate = false;
-    $scope.buttonDelete = false;
-    for (var i=0;i<$scope.el.length;i++){
-        $scope[$scope.el[i]] = true;
+    $scope.additional.param = {
+        folio_id: '',
+        transfer_folio_id: '',
+        internet_code_status: '',
+        pay_tv_status: '',
+        deposit_box_id: '',
+        deposit_box_notes: '',
+        newspaper_id: '',
+        car_no: '',
+        total_car: '',
+        amenities_notes: '',
+        fruit_notes: '',
+        is_closed_transc: '0',
+        is_cash_transc_only: '0',
+        is_incognito: '0',
+        is_sleep_out: '0',
+        is_lock_minibar: '0',
+        is_block_phone: '0',
+        is_no_alcohol_in_pos: '0',
+        is_sick_guest: '0',
+        is_handicap_guest: '0',
+        is_reject_for_cleaning: '0',
+        is_door_double_lock: '0'
+
     }
-    var qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_check_in a, "+
-        "(select id as status_id, value as status_value,name as status_name  "+
-            "from table_ref  "+
-            "where table_name = 'ref_product_category' and column_name='status')b "+
-        "where a.status = b.status_value and a.status!=2 "
-    var qwhere = ''
+    $scope.internetCode = [
+        {id:'1',name: 'Blocked'},
+        {id:'2',name: 'Pre Paid'},
+        {id:'3',name: 'Post Paid'}
+    ]
+    $scope.payTv = [
+        {id:'1',name:'Allow'},
+        {id:'1',name:'Blocked'}
+    ]
+    $scope.newspaper = []
+    queryService.get('select id,code,name from mst_newspaper where status!=2 order by id  ',undefined)
+    .then(function(data){
+        $scope.newspaper = data.data
+    })
 })
 .controller('FoReservationRemarksCtrl',
 function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
