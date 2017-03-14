@@ -27,11 +27,15 @@
                 <div class="table-responsive">
                     <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
                     </table>
+                </div>
+                <!--<div >
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" width="100%">
+                    </table>
+                </div>-->
             </div>
         </div>
-    </div>
     <!-- END PANEL -->
-</div>
+    </div>
 
 <div class="modal fade slide-right form-input-full" id="form-input" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:scroll;">
   <div class="modal-dialog modal-sm">
@@ -98,20 +102,20 @@
 
                         <tbody>
                         <tr ng-repeat="item in items | filter:filterUser">
-                            <td><span>{{item.w_id}}</span></td>
-                            <td><span>{{item.item}}</span></td>
-                            <td><span>{{item.stock_qty}}</span></td>
-                            <td><span>{{item.stock_unit}}</span></td>
-                            <td><span>{{item.stock_qty_l}}</span></td>
-                            <td><span>{{item.stock_unit2}}</span></td>
-                            <td>
+                            <td style="vertical-align: middle;"><span>{{item.w_id}}</span></td>
+                            <td style="vertical-align: middle;"><span>{{item.item}}</span></td>
+                            <td style="text-align: right;vertical-align: middle;"><span>{{item.stock_qty| number : fractionSize}}</span></td>
+                            <td style="vertical-align: middle;"><span>{{item.stock_unit}}</span></td>
+                            <td style="text-align: right;vertical-align: middle;"><span>{{item.stock_qty_l| number : fractionSize}}</span></td>
+                            <td style="vertical-align: middle;"><span>{{item.stock_unit2}}</span></td>
+                            <td style="text-align: right;vertical-align: middle;">
                                 <span editable-text="item.real_stock" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'rs')">
-                                    {{ item.real_stock }}
+                                    {{ item.real_stock | number : fractionSize}}
                                 </span>
                             </td>
-                            <td>
+                            <td style="text-align: right;vertical-align: middle;">
                                 <span editable-text="item.real_stock_l" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'rsl')">
-                                    {{ item.real_stock_l }}
+                                    {{ item.real_stock_l | number : fractionSize}}
                                 </span>
                             </td>
                         </tr>
@@ -126,7 +130,7 @@
                     </div>
                     <div class="btn-form" ng-show="tableform.$visible">
 
-                      <button type="submit" ng-disabled="tableform.$waiting" ng-click="child.saveTable(0)" class="btn btn-primary"> Save Item</button>
+                      <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
                       <!--<button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>-->
                       <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
                     </div>

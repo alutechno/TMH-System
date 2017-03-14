@@ -8,7 +8,7 @@
                 <div class="panel-title">Receiving
                 </div>
                 <div class="pull-right" style="width: 60%;">
-                    <!--<button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-if="show.prTable" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Receiving</button>-->
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-if="show.prTable" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Receiving</button>
                     <!--<button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickViewItem('add')" ng-if="show.itemTable" ng-show="addItem"><i class="fa fa-plus"></i> Add Item</button>-->
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
@@ -59,17 +59,18 @@
                       <div class="col-sm-12">
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : po.code.$invalid && !po.code.$pristine }">
-                                  <label>PO Number</label>
-                                  <input type="text" class="form-control" name="code" ng-model="po.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
+                                  <label>Receiving Number</label>
+                                  <input type="text" class="form-control" name="code" ng-model="po.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-readonly="updateState">
                               </div>
                           </div>
                           <div class="col-md-3">
-                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : po.delivery_status.$invalid && !po.delivery_status.$pristine }" >
-                                  <label>Status</label>
-                                  <ui-select ng-model="selected.delivery_status.selected" theme="bootstrap" on-select="po.delivery_status=$select.selected.id">
-                                      <ui-select-match placeholder="Select Status">{{$select.selected.name}}</ui-select-match>
-                                      <ui-select-choices repeat="item in delivery_status | filter: $select.search">
-                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.po.selected.$invalid && !selected.po.selected.$pristine }" >
+                                  <label>PO Number</label>
+                                  <ui-select ng-model="selected.po.selected" theme="bootstrap" on-select="updateListItem()" ng-disabled="updateState">
+                                      <ui-select-match placeholder="Select PO">{{$select.selected.code}}</ui-select-match>
+                                      <ui-select-choices repeat="item in po_data | filter: $select.search">
+                                          <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
+                                          <small ng-bind-html="trustAsHtml((item.supplier_name | highlight: $select.search))"></small>
                                       </ui-select-choices>
                                   </ui-select>
                               </div>
@@ -77,7 +78,7 @@
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default form-group-default-select " >
                                   <label>Location</label>
-                                  <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  on-select="po.warehouse_id=selected.warehouse.selected.id">
+                                  <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  on-select="po.warehouse_id=selected.warehouse.selected.id" ng-disabled="!updateState">
                                       <ui-select-match placeholder="Select Warehouse">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in warehouse | filter: $select.search">
                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -97,7 +98,7 @@
                               </div>-->
                               <div pg-form-group class="form-group form-group-default form-group-default-select ">
                                   <label>Cost Center</label>
-                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
+                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="!updateState" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
                                       <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in cost_center | filter: $select.search">
                                           <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
@@ -111,15 +112,26 @@
                       </div>
                       <div class="col-sm-12">
                           <div class="col-md-3">
+                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : po.delivery_status.$invalid && !po.delivery_status.$pristine }" >
+                                  <label>Status</label>
+                                  <ui-select ng-model="selected.delivery_status.selected" theme="bootstrap" on-select="po.delivery_status=$select.selected.id" ng-disabled="!updateState">
+                                      <ui-select-match placeholder="Select Status">{{$select.selected.name}}</ui-select-match>
+                                      <ui-select-choices repeat="item in delivery_status | filter: $select.search">
+                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                      </ui-select-choices>
+                                  </ui-select>
+                              </div>
+                          </div>
+                          <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : po.delivery_date.$invalid && !po.delivery_date.$pristine }">
                                   <label>Delivery Date</label>
-                                  <input type="text" class="form-control" ng-model="po.delivery_date" name="delivery_date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
+                                  <input type="text" class="form-control" ng-model="po.delivery_date" name="delivery_date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="!updateState">
                               </div>
                           </div>
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : po.supplier_id.$invalid && !po.supplier_id.$pristine }">
                                   <label>Supplier</label>
-                                  <ui-select ng-model="selected.supplier.selected" theme="bootstrap" ng-disabled="viewMode" on-select="po.supplier_id=selected.supplier.selected.id" ng-keyup="supplierUp($select.search)" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                                  <ui-select ng-model="selected.supplier.selected" theme="bootstrap"  on-select="po.supplier_id=selected.supplier.selected.id" ng-keyup="supplierUp($select.search)" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="true">
                                       <ui-select-match placeholder="Pick Supplier">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in supplier | filter: $select.search">
                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -127,10 +139,10 @@
                                   </ui-select>
                               </div>
                           </div>
-                          <div class="col-md-6">
+                          <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default" >
                                   <label>Notes</label>
-                                  <input type="text" class="form-control" name="notes" ng-model="po.notes" >
+                                  <input type="text" class="form-control" name="notes" ng-model="po.notes" ng-disabled="!updateState">
                               </div>
                           </div>
                       </div>
@@ -176,20 +188,20 @@
                                                           </editable-ui-select-choices>
                                                     </span>
                                                 </td>-->
-                                                <td><span>{{item.product_name}}</span></td>
-                                                <td><span>{{item.qty}}</span></td>
-                                                <td>
+                                                <td style="vertical-align: middle;"><span>{{item.product_name}}</span></td>
+                                                <td style="text-align: right;vertical-align: middle;"><span>{{item.qty | number : fractionSize}}</span></td>
+                                                <td style="text-align: right;">
                                                     <span editable-text="item.rcv_qty" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'qty')" >
-                                                        {{ item.rcv_qty }}
+                                                        {{ item.rcv_qty | number : fractionSize}}
                                                     </span>
-                                                </td>
-                                                <td><span>{{item.price}}</span></td>
-                                                <td >
+                                                </td >
+                                                <td style="text-align: right;vertical-align: middle;"><span>{{item.price | number : fractionSize}}</span></td>
+                                                <td style="text-align: right;">
                                                     <span editable-text="item.rcv_price" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'price')">
-                                                        {{ item.rcv_price }}
+                                                        {{ item.rcv_price | number : fractionSize}}
                                                     </span>
                                                 </td>
-                                                <td><span>{{item.amount}}</span></td>
+                                                <td style="text-align: right;vertical-align: middle;"><span>{{item.amount | number : fractionSize}}</span></td>
 
                                             </tr>
 
@@ -308,7 +320,7 @@
               <br>
               <div class="row divider"></div>
               <div class="clearfix"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="(dodol.$invalid)" ng-click="submit()" >Save</button>
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>
       </div>

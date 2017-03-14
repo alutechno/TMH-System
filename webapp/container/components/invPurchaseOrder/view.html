@@ -129,15 +129,15 @@
                 <td > {{item.unit_name}}
                 </td>
                 <td style="text-align: right;">
-                        {{ item.qty }}
+                        {{ item.qty | number : fractionSize}}
 
                 </td>
                 <td style="text-align: right;">
-                        {{ item.price }}
+                        {{ item.price | number : fractionSize}}
 
                 </td>
                 <td style="text-align: right;">
-                        {{ item.amount }}
+                        {{ item.amount | number : fractionSize}}
 
                 </td>
 
@@ -147,9 +147,9 @@
                 <tr>
                     <td width="10%" style="text-align: center;">Total</th>
                     <td width="30%">&nbsp;</th>
-                    <td width="10%" style="text-align: right;"><span >{{totalQty}}</span></th>
+                    <td width="10%" style="text-align: right;"><span >{{totalQty| number : fractionSize}}</span></th>
                     <td width="10%">&nbsp;</th>
-                    <td width="10%" style="text-align: right;"><span >{{tAmt}}</span></th>
+                    <td width="10%" style="text-align: right;"><span >{{tAmt| number : fractionSize}}</span></th>
 
                 </tr>
             </tfooter>
@@ -346,7 +346,7 @@
                       <div class="col-sm-12">
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : po.code.$invalid && !po.code.$pristine }">
-                                  <label>Code</label>
+                                  <label>PO Number</label>
                                   <input type="text" class="form-control" name="code" ng-model="po.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
                               </div>
                           </div>
@@ -521,14 +521,14 @@
                                                 <td><span>{{item.unit_name}}</span></td>
                                                 <td>
                                                     <span editable-text="item.qty" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'qty')">
-                                                        {{ item.qty }}
+                                                        {{ item.qty | number : fractionSize}}
                                                     </span></td>
                                                 <td >
                                                     <span editable-text="item.price" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'price')">
-                                                        {{ item.price }}
+                                                        {{ item.price | number : fractionSize}}
                                                     </span>
                                                 </td>
-                                                <td><span>{{item.amount}}</span></td>
+                                                <td><span>{{item.amount | number : fractionSize}}</span></td>
 
                                             </tr>
 

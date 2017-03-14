@@ -73,10 +73,11 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         'on a.created_by = e.id '+
     'where a.doc_status_id=b.id '
     var qwhere = '';
-    var qstringdetail = 'select a.id as p_id,a.product_id,b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name '+
+    var qstringdetail = 'select a.id as p_id,a.product_id,b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,d.name unit_name '+
         'from inv_ml_line_item a '+
         'left join mst_product b on a.product_id = b.id '+
-        'left join mst_supplier c on a.supplier_id = c.id '
+        'left join mst_supplier c on a.supplier_id = c.id '+
+        'left join ref_product_unit d on b.unit_type_id = d.id';
     $scope.users = []
 
     $scope.role = {
@@ -485,7 +486,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             //exec update
             var param = [{
                 code: $scope.pr.code,
-                ml_notes: $scope.pr.ml_notes,
+                ml_notes: $scope.pr.purchase_notes,
                 delivery_date:$scope.pr.delivery_date,
                 doc_status_id:($scope.selected.approval==2?1:$scope.selected.doc_status.selected.id),
                 warehouse_id:$scope.selected.warehouse.selected.id,
@@ -826,7 +827,8 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                         price: data.data[i].net_price,
                         amount: data.data[i].order_amount,
                         supplier_id: data.data[i].supplier_id,
-                        supplier_name: data.data[i].supplier_name
+                        supplier_name: data.data[i].supplier_name,
+                        unit_name:data.data[i].unit_name
                     })
                     $scope.totalQty += data.data[i].order_qty
                     $scope.tAmt += data.data[i].order_amount
@@ -975,7 +977,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             $scope.pr.purchase_notes = result.data[0].ml_notes
             $scope.statusState = false
             $scope.doc_status = []
-            if (result.data[0].doc_status_id == 3){
+            if (result.data[0].doc_status_id == 4){
                 $scope.releaseState = false
             }
             if ($scope.el.indexOf('approvalDeptHead')>-1 && (result.data[0].doc_status_id == 1 && result.data[0].approval_status == 1)){

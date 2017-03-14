@@ -13,7 +13,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstring = 'select a.id,b.name warehouse,a.product_id,c.name product,a.stock_qty,d.name stock_unit,a.stock_qty_l,e.name lowest_stock_unit,(a.stock_qty_l*c.price_per_lowest_unit) amount '+
+    var qstring = 'select a.id,b.name warehouse,a.product_id,c.name product,format(a.stock_qty,0)stock_qty,d.name stock_unit,format(a.stock_qty_l,0)stock_qty_l,e.name lowest_stock_unit,format(a.stock_qty_l*c.price_per_lowest_unit,0) amount '+
         'from inv_warehouse_stock a,mst_warehouse b, mst_product c,ref_product_unit d,ref_product_unit e '+
         'where a.warehouse_id=b.id '+
         'and a.product_id=c.id '+
@@ -42,17 +42,17 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.warehouse = []
-    queryService.get('select id,name from mst_warehouse order by name',undefined)
+    queryService.get('select id,name from mst_warehouse where status!=2 order by name',undefined)
     .then(function(data){
         $scope.warehouse = data.data
     })
     $scope.product = []
-    queryService.get('select id,name,lowest_unit_conversion from mst_product order by id limit 50',undefined)
+    queryService.get('select id,name,lowest_unit_conversion from mst_product where status!=2 order by id limit 50',undefined)
     .then(function(data){
         $scope.product = data.data
     })
     $scope.productUp = function(text) {
-        queryService.post('select id,name,lowest_unit_conversion from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
+        queryService.post('select id,name,lowest_unit_conversion from mst_product where status!=2 and lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
         .then(function(data){
             $scope.product = data.data
         })
@@ -117,18 +117,18 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml).withOption('width', '5%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('id'),
+        DTColumnBuilder.newColumn('id').withTitle('id').withOption('width', '5%'),
         DTColumnBuilder.newColumn('warehouse').withTitle('Warehouse'),
         DTColumnBuilder.newColumn('product_id').withTitle('Product Id'),
-        DTColumnBuilder.newColumn('product').withTitle('Product Name'),
-        DTColumnBuilder.newColumn('stock_qty').withTitle('Stock Qty'),
+        DTColumnBuilder.newColumn('product').withTitle('Product Name').withOption('width', '20%'),
+        DTColumnBuilder.newColumn('stock_qty').withTitle('Stock Qty').withClass('text-right'),
         DTColumnBuilder.newColumn('stock_unit').withTitle('Stock Unit'),
-        DTColumnBuilder.newColumn('stock_qty_l').withTitle('stock qty lowest'),
-        DTColumnBuilder.newColumn('lowest_stock_unit').withTitle('stock qty lowest unit'),
-        DTColumnBuilder.newColumn('amount').withTitle('Amount')
+        DTColumnBuilder.newColumn('stock_qty_l').withTitle('stock qty lowest').withClass('text-right'),
+        DTColumnBuilder.newColumn('lowest_stock_unit').withTitle('lowest unit'),
+        DTColumnBuilder.newColumn('amount').withTitle('Amount').withClass('text-right')
     );
 
     $scope.filter = function(type,event) {

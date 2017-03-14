@@ -12,5 +12,6 @@ angular.module('app', [
     'ui.utils',
     'ngResource',
     'oc.lazyLoad',
-    'xeditable'
+    'xeditable',
+    'fcsa-number'
 ]);

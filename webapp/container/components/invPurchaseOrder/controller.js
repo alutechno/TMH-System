@@ -175,7 +175,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         $scope.warehouse = data.data
         //$scope.selected.warehouse['selected'] = $scope.warehouse[0]
     })
-    queryService.get('select value as id,name from table_ref where table_name = \'inv_purchase_order\' and column_name = \'delivery_status\' order by id',undefined)
+    queryService.get('select value as id,name from table_ref where table_name = \'inv_purchase_order\' and column_name = \'delivery_status\' and value in(0,1,2) order by id',undefined)
     .then(function(data){
         console.log(data)
         $scope.delivery_status = data.data
@@ -394,7 +394,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                     code: $scope.po.code,
                     delivery_status: $scope.selected.delivery_status.selected.id,
                     delivery_date: $scope.po.delivery_date,
-                    po_source: 'PO',
+                    //po_source: 'PO',
                     //pr_id: $scope.po.pr_id,
                     //ml_id: $scope.po.ml_id,
                     warehouse_id: $scope.selected.warehouse.selected?$scope.selected.warehouse.selected.id:null,
@@ -473,7 +473,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 code: $scope.po.code,
                 delivery_status: $scope.po.delivery_status,
                 delivery_date: $scope.po.delivery_date,
-                po_source: 'PO',
+                //po_source: 'PO',
                 pr_id: $scope.po.pr_id,
                 ml_id: $scope.po.ml_id,
                 warehouse_id: $scope.po.warehouse_id,

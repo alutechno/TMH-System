@@ -13,7 +13,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstring = 'select a.id,a.code,a.request_status,b.name request_status_name,DATE_FORMAT(a.transfer_date,\'%Y-%m-%d\') transfer_date,a.orig_warehouse_id,d.name warehouse_orig_name,a.dest_warehouse_id,e.name warehouse_dest_name,a.total_amount '+
+    var qstring = 'select a.id,a.code,a.request_status,b.name request_status_name,DATE_FORMAT(a.transfer_date,\'%Y-%m-%d\') transfer_date,a.orig_warehouse_id,d.name warehouse_orig_name,a.dest_warehouse_id,e.name warehouse_dest_name,format(a.total_amount,0)total_amount,a.notes '+
         'from inv_inter_location_transfer a,(select value,name from table_ref where table_name=\'interlocation\' and column_name=\'request_status\') b,mst_warehouse d,mst_warehouse e '+
         'where a.request_status=b.value '+
         'and a.orig_warehouse_id=d.id '+
@@ -54,7 +54,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
     $scope.warehouse_origin = []
     $scope.warehouse_dest = []
-    queryService.get('select id,name from mst_warehouse order by name',undefined)
+    queryService.get('select id,name from mst_warehouse where status!=2 order by name',undefined)
     .then(function(data){
         $scope.warehouse_origin = data.data
         $scope.warehouse_dest = data.data
@@ -134,7 +134,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         DTColumnBuilder.newColumn('transfer_date').withTitle('date'),
         DTColumnBuilder.newColumn('warehouse_orig_name').withTitle('Origin'),
         DTColumnBuilder.newColumn('warehouse_dest_name').withTitle('Destination'),
-        DTColumnBuilder.newColumn('total_amount').withTitle('amount')
+        DTColumnBuilder.newColumn('total_amount').withTitle('amount').withClass('text-right')
     );
 
     $scope.filter = function(type,event) {
@@ -260,6 +260,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             console.log(result.data)
             $scope.it = result.data[0]
             $scope.it.date = $scope.it.transfer_date
+            $scope.it.request_notes = result.data[0].notes
             $scope.selected.warehouse_origin['selected'] = {id:$scope.it.orig_warehouse_id,name:$scope.it.warehouse_orig_name}
             $scope.selected.warehouse_dest['selected'] = {id:$scope.it.dest_warehouse_id,name:$scope.it.warehouse_dest_name}
             $scope.selected.request_status['selected'] = {id:$scope.it.request_status,name:$scope.it.request_status_name}
@@ -268,6 +269,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             .then(function(result2){
                 $('#form-input').modal('show');
                 $scope.items = []
+                $scope.itemsOri = []
                 console.log(result2.data)
                 for (var i=0;i<result2.data.length;i++){
                     result2.data[i]['id'] = i+1

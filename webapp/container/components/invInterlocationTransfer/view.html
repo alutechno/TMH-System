@@ -128,7 +128,7 @@
 
                         <tbody>
                         <tr ng-repeat="item in items | filter:filterUser">
-                            <td >
+                            <td style="vertical-align: middle;">
                                 <span editable-ui-select="item.product_name" theme="bootstrap" data-e-name="product_name" name="product_name" data-e-ng-model="selected.product.selected"
                                 data-e-form="tableform" data-e-ng-keyup="productUp($select.search)" data-e-on-select="getProductPrice($item,item.id)" >
                                 {{item.product_name}}
@@ -141,22 +141,22 @@
                                       </editable-ui-select-choices>
                                 </span>
                             </td>
-                            <td><span>{{item.stock_in_hand}}</span></td>
-                            <td>
+                            <td style="vertical-align: middle;text-align: right;"><span>{{item.stock_in_hand| number : fractionSize}}</span></td>
+                            <td style="vertical-align: middle;text-align: right;">
                                 <span editable-text="item.request_qty" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'rq')" ng-disabled="!buttonCreate">
-                                    {{ item.request_qty }}
+                                    {{ item.request_qty| number : fractionSize }}
                                 </span>
                             </td>
-                            <td><span>{{item.unit_name}}</span></td>
+                            <td style="vertical-align: middle;text-align: right;"><span>{{item.unit_name}}</span></td>
 
-                            <td>
+                            <td style="vertical-align: middle;text-align: right;">
                                 <span editable-text="item.issued_qty_n" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'iq')" ng-disabled="!issuing">
-                                    {{ item.issued_qty_n }}
+                                    {{ item.issued_qty_n| number : fractionSize  }}
                                 </span>
                             </td>
 
-                            <td><span>{{item.price_per_unit}}</span></td>
-                            <td><span>{{item.amount}}</span></td>
+                            <td style="vertical-align: middle;text-align: right;"><span>{{item.price_per_unit| number : fractionSize}}</span></td>
+                            <td style="vertical-align: middle;text-align: right;"><span>{{item.amount| number : fractionSize}}</span></td>
                         </tr>
                         </tbody>
                     </table>
@@ -167,7 +167,7 @@
                       </button>
                     </div>
                     <div class="btn-form" ng-show="tableform.$visible">
-                      <button type="submit" ng-disabled="tableform.$waiting" ng-click="child.saveTable(0)" class="btn btn-primary"> Save Item</button>
+                      <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
                       <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
                       <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
                     </div>
