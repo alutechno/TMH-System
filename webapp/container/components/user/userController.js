@@ -18,7 +18,7 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
         selected: []
     };
 
-    $scope.focusinControl = {};
+	$scope.focusinControl = {};
     $scope.fileName = "List User";
     $scope.exportExcel = function(){
         var sqlstr = 'select a.password,a.name as username, full_name as fullname, b.name as roles, a.id , GROUP_CONCAT(b.id) as rolesid '+
@@ -86,11 +86,10 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
     }
 
     $scope.getModule = function(){
-        console.log($scope.role.selected)
+        console.log($scope.role)
         var rid = []
-        for (var i=0;i<$scope.role.selected.length;i++){
-            rid.push($scope.role.selected[i].id)
-        }
+		var where=""
+
         var qStrModule = 'select e.id, e.name '+
             'from user a, role_user b, role_menu c, menu f, group_menu d, module e '+
             'where a.id = b.user_id '+
@@ -101,7 +100,31 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
             'and b.role_id in('+rid.join(',')+') '+
             //'and a.name = \''+$localStorage.currentUser.name.name+'\' '+
             'group by e.id, e.name order by e.name asc'
-        console.log(qStrModule)
+		if($scope.role.selected!=undefined){
+			for (var i=0;i<$scope.role.selected.length;i++){
+				rid.push($scope.role.selected[i].id)
+			}
+			where=" and b.role_id in("+rid.join(',')+") "
+			var query="select c.id,c.name menu_name,c.group_id,d.name group_name,e.id modul_id,e.name module_name,GROUP_CONCAT(f.label separator ',')action "+
+				"from role_menu b,menu c,group_menu d,module e,menu_detail f "+
+				"where b.menu_id=c.id "+
+				"and c.group_id=d.id "+
+				"and d.module_id=e.id "+
+				"and b.menu_detail_id=f.id "+where+
+				"group by e.id,c.group_id,c.id "+
+				"order by e.id,c.group_id,c.id;"
+	        console.log(qStrModule)
+			queryService.post(query,undefined)
+	        .then(function(result){
+				$scope.menu_detail=result.data
+				console.log($scope.menu_detail)
+			},function(err){
+				console.log(err)
+			})
+		}else{
+			$scope.menu_detail=[]
+		}
+
         queryService.get(qStrModule,undefined)
         .then(function(result){
             $scope.modules = result.data

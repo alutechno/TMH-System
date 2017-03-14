@@ -98,7 +98,7 @@
 </div>
 
 <!--START FORM INPUT-->
-<div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade slide-right form-input-full" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
@@ -115,31 +115,13 @@
       <div class="panel panel-transparent m-t-20">
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
-                <div class="col-sm-12">
+                <div class="col-sm-4">
                     <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.fullname.$invalid && !user.fullname.$pristine }">
                         <label>Full name</label>
                         <input type="text" class="form-control" name="fullname" ng-model="user.fullname" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                     </div>
                 </div>
-              </div>
-              <div class="row clearfix">
-                <div class="col-sm-12">
-                    <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.username.$invalid && !user.username.$pristine }">
-                        <label>User name</label>
-                        <input type="text" class="form-control" name="name" ng-model="user.username" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
-                    </div>
-                </div>
-              </div>
-              <div class="row clearfix">
-                <div class="col-sm-12">
-                    <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.password.$invalid && !user.password.$pristine }">
-                        <label>Password</label>
-                        <input type="text" class="form-control" name="password" ng-model="user.password" validate-attached-form-element required placeholder="Minimum of 4 characters.">
-                    </div>
-                </div>
-              </div>
-              <div class="row clearfix">
-                <div class="col-sm-12">
+				<div class="col-sm-4">
                     <div pg-form-group class="form-group form-group-default" >
                         <label>Mobile</label>
                         <input type="text" class="form-control" name="mobile" ng-model="user.mobile" >
@@ -147,33 +129,27 @@
                 </div>
               </div>
               <div class="row clearfix">
-                <div class="col-sm-12">
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.username.$invalid && !user.username.$pristine }">
+                        <label>User name</label>
+                        <input type="text" class="form-control" name="name" ng-model="user.username" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                    </div>
+                </div>
+				<div class="col-sm-4">
                     <div pg-form-group class="form-group form-group-default" >
                         <label>Email</label>
                         <input type="text" class="form-control" name="email" ng-model="user.email" >
                     </div>
                 </div>
               </div>
-
-
-
               <div class="row clearfix">
-                <div class="col-sm-12">
-                    <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : role.selected.$invalid && !role.selected.$pristine }">
-                        <label>Roles</label>
-                        <ui-select multiple name="roleName" class="form-control" require-multiple ng-model="role.selected" theme="select2" ng-disabled="disabled" style="width:100%" validate-attached-form-element required on-select="getModule($item.id)">
-                            <ui-select-match placeholder="Select role...">{{$item.name}}</ui-select-match>
-                            <ui-select-choices repeat="item in roles | filter: {name: $select.search}" >
-                                <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
-                                <small ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></small>
-                            </ui-select-choices>
-                        </ui-select>
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.password.$invalid && !user.password.$pristine }">
+                        <label>Password</label>
+                        <input type="text" class="form-control" name="password" ng-model="user.password" validate-attached-form-element required placeholder="Minimum of 4 characters.">
                     </div>
                 </div>
-              </div>
-
-              <div class="row clearfix">
-                <div class="col-sm-12">
+				<div class="col-sm-4">
                     <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : user.default_module.$invalid && !user.default_module.$pristine }">
                         <label>Default Module</label>
                         <ui-select ng-model="selected.module.selected" theme="bootstrap" on-select="getMenu($item.id,undefined)">
@@ -187,7 +163,19 @@
               </div>
 
               <div class="row clearfix">
-                <div class="col-sm-12">
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : role.selected.$invalid && !role.selected.$pristine }">
+                        <label>Roles</label>
+                        <ui-select multiple name="roleName" class="form-control" require-multiple ng-model="role.selected" theme="select2" ng-disabled="disabled" style="width:100%" validate-attached-form-element required on-select="getModule($item.id)" on-remove="getModule($item.id)">
+                            <ui-select-match placeholder="Select role...">{{$item.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in roles | filter: {name: $select.search}" >
+                                <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                                <small ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></small>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+				<div class="col-sm-4">
                     <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : user.default_menu.$invalid && !user.default_menu.$pristine }">
                         <label>Default Menu</label>
                         <ui-select ng-model="selected.menu.selected" theme="bootstrap" >
@@ -200,7 +188,26 @@
                 </div>
               </div>
 
-
+			  <div class="row clearfix">
+				<table class="table border hover" border="1">
+				<tr >
+				<th  title="Module" class="text-center">Module</th>
+				<th  title="Menu" class="text-center">Menu</th>
+				<th  title="Action" class="text-center">Action</th>
+				</tr>
+				<tr ng-repeat="date in menu_detail">
+				 	<td >
+				     {{ date.module_name }}
+					</td>
+					<td >
+				     {{ date.menu_name }}
+					</td>
+					<td >
+				     {{ date.action }}
+					</td>
+				</tr>
+				</table>
+			  </div>
 
               <br>
               <div class="clearfix"></div>
