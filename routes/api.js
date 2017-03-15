@@ -200,18 +200,27 @@ module.exports = function(connection,jwt){
     });
 
     app.get('/getRoles', function (req, res) {
-        console.log(req.query)
-        console.log(req.headers)
         var dtParam = req.query
         var where = '';
         if (req.query.id){
             where = ' where id='+req.query.id
         }
-        connection('SELECT id,name from role'+where, undefined,function(err, rows, fields) {
-            if (err) throw err;
-            console.log(rows)
-            dtParam['data'] = rows
-            res.send(dtParam)
+		var limit = ' limit '+req.query.start+','+req.query.length
+        var order = '';
+        order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
+
+        var sqlstr = 'SELECT id,name from role'+where
+		connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
+            if (!err){
+                dtParam['recordsFiltered'] = rows[0].cnt
+                connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
+                    if (!err2){
+                        dtParam['recordsTotal'] = rows2.length
+                        dtParam['data'] = rows2
+                        res.send(dtParam)
+                    }
+                });
+            }
         });
     });
 
@@ -263,8 +272,6 @@ module.exports = function(connection,jwt){
     });
 
     app.get('/getUsers', function (req, res) {
-        //res.send('Hello World!');
-		console.log('aaaaa')
         var dtParam = req.query
         var where = '';
         if (req.query.id){
@@ -287,7 +294,6 @@ module.exports = function(connection,jwt){
         'where a.id = c.user_id '+
         'and b.id = c.role_id '+ where +
         ' group by a.name '
-        console.log(sqlstr)
 
         connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
             if (!err){
@@ -304,6 +310,7 @@ module.exports = function(connection,jwt){
     });
 
     app.get('/getUser', function (req, res) {
+		console.log('bbb')
         var dtParam = req.query
         var where = '';
         if (req.query.id){
@@ -402,18 +409,29 @@ module.exports = function(connection,jwt){
         var dtParam = req.query
         var where = '';
         if (req.query.id){
-            where = ' where id='+req.query.id
+            where = ' and a.id='+req.query.id
         }
         var sqlstr = 'select c.name as module,c.description as module_desc,b.name as group_name, a.id, a.parent as parent_id,d.name as parent,a.name, a.state, b.id as group_id,c.id as module_id, a.sequence '+
         'from menu a, group_menu b, module c, menu d '+
         'where a.group_id = b.id '+
         'and b.module_id = c.id '+
-        'and a.parent = d.id '+
-        'order by parent,sequence';
-        connection(sqlstr, undefined,function(err, rows, fields) {
-            if (err) throw err;
-            dtParam['data'] = rows
-            res.send(dtParam)
+        'and a.parent = d.id '+ where ;
+
+		var limit = ' limit '+req.query.start+','+req.query.length
+        var order = '';
+        order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
+
+        connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
+            if (!err){
+                dtParam['recordsFiltered'] = rows[0].cnt
+                connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
+                    if (!err2){
+                        dtParam['recordsTotal'] = rows2.length
+                        dtParam['data'] = rows2
+                        res.send(dtParam)
+                    }
+                });
+            }
         });
     });
 
@@ -621,19 +639,6 @@ module.exports = function(connection,jwt){
         });
         res.send({status:'200'})
     })
-
-    app.get('/getRoles', function (req, res) {
-        var dtParam = req.query
-        var where = '';
-        if (req.query.id){
-            where = ' where id='+req.query.id
-        }
-        connection('SELECT id,name from role'+where, undefined,function(err, rows, fields) {
-            if (err) throw err;
-            dtParam['data'] = rows
-            res.send(dtParam)
-        });
-    });
 
     return app;
 }
