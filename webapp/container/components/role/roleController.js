@@ -4,7 +4,6 @@ roleController
 .controller('RoleCtrl',
 function($scope, $state, $sce, roleService,
     DTOptionsBuilder, DTColumnBuilder, $compile, $localStorage, API_URL) {
-
         $scope.id = '';
         $scope.role = {
             id: '',
@@ -68,7 +67,6 @@ function($scope, $state, $sce, roleService,
         .withOption('createdRow', $scope.createdRow);
         $scope.dtColumns = [
             DTColumnBuilder.newColumn('name').withTitle('Role Name')
-
         ];
         if ($scope.el.length>0){
             $scope.dtColumns.push(
@@ -105,7 +103,6 @@ function($scope, $state, $sce, roleService,
                             timeout: 2000,
                             type: 'success'
                         }).show();
-
                 },
                 function (err){
                     $('#form-input').pgNotification({
@@ -179,7 +176,6 @@ function($scope, $state, $sce, roleService,
                         id: '',
                         name: ''
                     }
-
             },
             function (err){
                 $('#form-input').pgNotification({

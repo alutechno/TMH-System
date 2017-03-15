@@ -4,7 +4,6 @@ angular.module('app')
 function($q, $http, $timeout, $localStorage,API_URL) {
     return {
         getRole: function(vid) {
-            console.log('aa:'+API_URL)
             var defer = $q.defer();
             var url= API_URL+"/api/getRole";
             if (vid){
@@ -94,7 +93,7 @@ function($q, $http, $timeout, $localStorage, API_URL) {
         getUser: function(vid) {
             var defer = $q.defer();
             //var url= "http://localhost:3000/getUsers";
-            var url= API_URL+"/api/getUser";
+			var url= API_URL+"/api/getUser";
             if (vid){
                 url +=  "?id="+vid
             }

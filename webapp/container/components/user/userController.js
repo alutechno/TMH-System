@@ -76,7 +76,6 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
 
     roleService.getRole()
     .then(function(data){
-        console.log(data)
         $scope.roles = data.data
         $scope.rolesFilter = data.data
     })
@@ -113,11 +112,9 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
 				"and b.menu_detail_id=f.id "+where+
 				"group by e.id,c.group_id,c.id "+
 				"order by e.id,c.group_id,c.id;"
-	        console.log(qStrModule)
 			queryService.post(query,undefined)
 	        .then(function(result){
 				$scope.menu_detail=result.data
-				console.log($scope.menu_detail)
 			},function(err){
 				console.log(err)
 			})
@@ -128,23 +125,17 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
         queryService.get(qStrModule,undefined)
         .then(function(result){
             $scope.modules = result.data
-            console.log($scope.user.default_module)
-            console.log($scope.modules)
             if ($scope.user.default_module == undefined || $scope.user.default_module.length==0){
-                console.log('aaa')
                 $scope.selected.module['selected'] = $scope.modules[0]
             }
             else {
-                console.log('bbb:'+$scope.user.default_module)
                 for (var i=0;i<$scope.modules.length;i++){
                     if ($scope.user.default_module == $scope.modules[i].id){
-                        console.log('ketemu')
                         $scope.selected.module['selected'] = $scope.modules[i]
                         $scope.getMenu($scope.selected.module['selected'].id,$scope.user.default_menu)
                     }
                 }
             }
-            console.log($scope.selected.module['selected'] )
         },function(err){
             console.log(err)
         })
@@ -153,8 +144,6 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
 
 
     $scope.getMenu = function(module_id,menu_id){
-        console.log(module_id)
-        console.log(menu_id)
         var rid = []
         for (var i=0;i<$scope.role.selected.length;i++){
             rid.push($scope.role.selected[i].id)
@@ -171,7 +160,6 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
             'and b.role_id in('+rid.join(',')+') '+
             //'and a.name = \''+$localStorage.currentUser.name.name+'\' '+
             'group by f.id, f.name,d.name order by d.name,f.name'
-            console.log(qStrMenu)
 
         queryService.get(qStrMenu,undefined)
         .then(function(result){
@@ -193,7 +181,6 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        console.log(data)
         $scope.users[data.id] = data;
         var html = ''
         if ($scope.el.length>0){
@@ -240,7 +227,6 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
     .withDisplayLength(10)
 
     .withOption('createdRow', $scope.createdRow);
-
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
@@ -260,15 +246,11 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                $scope.dtInstance.reloadData(function(obj){
-                    console.log(obj)
-                }, false)
+                $scope.dtInstance.reloadData(function(obj){}, false)
             }
         }
         else {
-            $scope.dtInstance.reloadData(function(obj){
-                console.log(obj)
-            }, false)
+            $scope.dtInstance.reloadData(function(obj){}, false)
         }
     }
 
@@ -285,7 +267,6 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
     };
 
     $scope.submit = function(){
-        console.log($scope.user)
         if ($scope.user.id.length==0){
             //exec creation
             $scope.user.roles = ''
@@ -299,11 +280,8 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
             userService.createUser($scope.user)
             .then(function (result){
                 if (result.status = "200"){
-                    console.log('Success Insert')
                     $('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
-                    }, false)
+                    $scope.dtInstance.reloadData(function(obj){}, false)
                 }
                 else {
                     console.log('Failed Insert')
@@ -320,11 +298,8 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
             userService.updateUser($scope.user)
             .then(function (result){
                 if (result.status = "200"){
-                    console.log('Success Update')
                     $('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
-                    }, false)
+                    $scope.dtInstance.reloadData(function(obj){}, false)
                 }
                 else {
                     console.log('Failed Update')
@@ -334,17 +309,14 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
     }
 
     $scope.update = function(obj){
-        console.log(obj)
         $('#form-input').modal('show');
         userService.getUser(obj)
         .then(function(result){
-            console.log(result)
             $scope.user = result.data.data[0]
             $scope.role.selected = []
             $scope.roles = []
             roleService.getRole()
             .then(function(data){
-                console.log(data)
                 $scope.roles = data.data
                 var xx = []
                 for (var i=0;i<result.data.data[0].roles.split(',').length;i++){
@@ -353,11 +325,9 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
                         name:result.data.data[0].roles.split(',')[i]
                     })
                 }
-                console.log(xx)
                 $scope.role.selected = xx
                 $scope.getModule();
             })
-
         })
     }
 
@@ -366,11 +336,8 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
 
         userService.getUser(obj)
         .then(function(result){
-            console.log(result)
             //$scope.user.name = obj.username;
             $scope.user = result.data.data[0]
-
-
         })
         $('#modalDelete').modal('show')
     }
@@ -380,7 +347,6 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
         .then(function (result){
             if (result.status = "200"){
                 console.log('Success Delete')
-                //Re-init $scope.user
                 $scope.user = {
                     id: '',
                     username: '',
@@ -390,9 +356,7 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
                 }
                 $scope.role.selected = []
                 $scope.clear()
-                $scope.dtInstance.reloadData(function(obj){
-                    console.log(obj)
-                }, false)
+                $scope.dtInstance.reloadData(function(obj){}, false)
             }
             else {
                 console.log('Failed Update')
@@ -421,7 +385,4 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
         $scope.modules = []
         $scope.menus = []
     }
-
-
-
 })
