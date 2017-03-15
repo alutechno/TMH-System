@@ -25,7 +25,6 @@ roleController
         /*Authorize Element*/
         $scope.el = [];
         $scope.el = $state.current.data;
-        console.log($scope.el)
         $scope.buttonCreate = false;
         $scope.buttonUpdate = false;
         $scope.buttonDelete = false;
@@ -50,36 +49,28 @@ roleController
             selected: ''
         }
 
-
         menuService.getMenuModule()
         .then(function(data){
             $scope.modules = data.data
         })
 
         $scope.getGroupModule = function(selectItem){
-            console.log('getGroupModule')
-            console.log(selectItem)
             menuService.getMenuGroup(selectItem.id)
             .then(function(data){
                 $scope.groups = data.data
             })
         }
         $scope.getParent = function(selectItem){
-            console.log('getParent')
-            console.log(selectItem)
             menuService.getMenu(undefined,selectItem.id,undefined)
             .then(function(data){
                 $scope.parents = data.data
                 $scope.menus = data.data
             })
-
         }
 
         /*START AD ServerSide*/
         $scope.dtInstance = {} //Use for reloadData
         $scope.actionsHtml = function(data, type, full, meta) {
-            console.log($scope.el)
-            console.log(data)
             $scope.menuDatas[data.id] = data;
             var html = ''
             if ($scope.el.length>0){
@@ -101,7 +92,6 @@ roleController
         }
 
         $scope.createdRow = function(row, data, dataIndex) {
-            // Recompiling so we can bind Angular directive to the DT
             $compile(angular.element(row).contents())($scope);
         }
 
@@ -111,7 +101,10 @@ roleController
              type: 'GET',
              headers: {
                 "authorization":  'Basic ' + $localStorage.mediaToken
-            }
+            },
+			data: function (data) {
+	            data.customSearch = $scope.filterVal.search;
+	        }
          })
          .withDataProp('data')
             .withOption('processing', true)
@@ -149,17 +142,10 @@ roleController
         $scope.submit = function(){
             if ($scope.menuData.id.length==0){
                 //exec creation
-                console.log('Start Create')
-                console.log($scope.module.selected)
-                console.log($scope.group.selected)
-                console.log($scope.parent.selected)
-
-
                 var obj = $scope.menuData;
                 obj['group'] = $scope.group.selected.id;
                 obj['parent'] = $scope.parent.selected.id;
                 //obj['menu'] = $scope.menu.selected.id;
-                console.log(obj)
                 menuService.createMenu(obj)
                 .then(function (result){
                         $('#form-input').modal('hide')
@@ -173,7 +159,6 @@ roleController
                             timeout: 2000,
                             type: 'success'
                         }).show();
-
                 },
                 function (err){
                     $('#form-input').pgNotification({
@@ -186,9 +171,6 @@ roleController
                 })
             }
             else {
-                //exec update
-                console.log('Update')
-                console.log($scope.menuData)
                 menuService.updateMenu($scope.menuData)
                 .then(function (result){
                         $('#form-input').modal('hide')
@@ -202,7 +184,6 @@ roleController
                             timeout: 2000,
                             type: 'success'
                         }).show();
-
                 },
                 function (err){
                     $('#form-input').pgNotification({
@@ -217,8 +198,6 @@ roleController
         }
 
         $scope.update = function(obj){
-            console.log('exec Update:'+JSON.stringify(obj))
-            console.log($scope.module.selected)
             $('#form-input').modal('show')
             $scope.menuData = obj
             $scope.menuData['menu'] = obj.name
@@ -245,13 +224,10 @@ roleController
         }
 
         $scope.execDelete = function(){
-            console.log($scope.menuData.id)
-
             menuService.deleteMenu($scope.menuData)
             .then(function (result){
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
-                    console.log(obj)
                 }, false)
                 $('body').pgNotification({
                     style: 'flip',
@@ -266,7 +242,6 @@ roleController
                     state: '',
                     sequence: ''
                 }
-
             },
             function (err){
                 $('#form-input').pgNotification({
@@ -277,7 +252,6 @@ roleController
                     type: 'danger'
                 }).show();
             })
-
         }
 
         $scope.clear = function(){
@@ -303,7 +277,6 @@ roleController
 .controller('MenuDetailCtrl',
     function($scope, $state, $sce, menuService,
         DTOptionsBuilder, DTColumnBuilder, $compile, $localStorage,API_URL) {
-
         $scope.sideMenu = {
             main: true,
             detail: false
@@ -324,7 +297,6 @@ roleController
         /*Authorize Element*/
         $scope.el = [];
         $scope.el = $state.current.data;
-        console.log($scope.el)
         $scope.buttonCreate = false;
         $scope.buttonUpdate = false;
         $scope.buttonDelete = false;
@@ -356,29 +328,22 @@ roleController
         })
 
         $scope.getGroupModule = function(selectItem){
-            console.log('getGroupModule')
-            console.log(selectItem)
             menuService.getMenuGroup(selectItem.id)
             .then(function(data){
                 $scope.groups = data.data
             })
         }
         $scope.getParent = function(selectItem){
-            console.log('getParent')
-            console.log(selectItem)
             menuService.getMenu(undefined,selectItem.id,undefined)
             .then(function(data){
                 $scope.parents = data.data
                 $scope.menus = data.data
             })
-
         }
 
         /*START AD ServerSide*/
         $scope.dtInstance = {} //Use for reloadData
         $scope.actionsHtml = function(data, type, full, meta) {
-            console.log($scope.el)
-            console.log(data)
             $scope.menuDatas[data.id] = data;
             var html = ''
             if ($scope.el.length>0){
@@ -447,24 +412,14 @@ roleController
 
         $scope.submit = function(){
             if ($scope.menuData.id.length==0){
-                //exec creation
-                console.log('Start Create')
-                console.log($scope.module.selected)
-                console.log($scope.group.selected)
-                console.log($scope.parent.selected)
-
-
                 var obj = $scope.menuData;
                 obj['group'] = $scope.group.selected.id;
                 obj['parent'] = $scope.parent.selected.id;
                 //obj['menu'] = $scope.menu.selected.id;
-                console.log(obj)
                 menuService.createMenu(obj)
                 .then(function (result){
                     if (result.status = "200"){
-                        console.log('Success Insert')
                         $scope.dtInstance.reloadData(function(obj){
-                            console.log(obj)
                         }, false)
                     }
                     else {
@@ -473,15 +428,10 @@ roleController
                 })
             }
             else {
-                //exec update
-                console.log('Update')
-                console.log($scope.menuData)
                 menuService.updateMenu($scope.menuData)
                 .then(function (result){
                     if (result.status = "200"){
-                        console.log('Success Update')
                         $scope.dtInstance.reloadData(function(obj){
-                            console.log(obj)
                         }, false)
                     }
                     else {
@@ -492,8 +442,6 @@ roleController
         }
 
         $scope.update = function(obj){
-            console.log('exec Update:'+JSON.stringify(obj))
-            console.log($scope.module.selected)
             $('#form-input').addClass('open');
             $scope.menuData = obj
             $scope.menuData['menu'] = obj.name
@@ -513,19 +461,15 @@ roleController
         }
 
         $scope.delete = function(obj){
-            console.log(obj)
             $scope.menuData.id = obj.id;
             $scope.menuData.name = obj.name;
             $('#modalDelete').modal('show')
         }
 
         $scope.execDelete = function(){
-            console.log($scope.menuData.id)
-
             menuService.deleteMenu($scope.menuData)
             .then(function (result){
                 if (result.status = "200"){
-                    console.log('Success Delete')
                     //Re-init $scope.role
                     $scope.menuData = {
                         id: '',
