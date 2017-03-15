@@ -9,9 +9,12 @@
                 </div>
                 <div class="pull-right" style="width: 60%;">
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Item</button>
+                    <span ng-click="exportExcel()">
+                        <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
+                    </span>
 
                     <div class="input-group date col-sm-4 pull-right m-r-10">
-                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
+                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search name/category/subcategory/status .." ng-keyup="filter('search',$event)" ng-model="filterVal.search">
                     </div>
 
                 </div>
@@ -25,7 +28,7 @@
             </div>
             <div class="panel-body">
                 <div class="table-responsive">
-                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" width="3500px">
                     </table>
             </div>
         </div>
@@ -70,7 +73,7 @@
                   <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.category_id.selected.$invalid && !selected.category_id.selected.$pristine }">
                           <label>Category</label>
-                          <ui-select ng-model="selected.category_id.selected" theme="bootstrap" on-select="getSubCategory($item)" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element required>
+                          <ui-select ng-model="selected.category_id.selected" theme="bootstrap" on-select="getSubCategory($item,'change')" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element required>
                               <ui-select-match placeholder="Select Category">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in arr.category_id | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -145,7 +148,7 @@
               <div class="row clearfix">
                   <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.unit_type_id.selected.$invalid && !selected.unit_type_id.selected.$pristine }">
-                          <label>Unit Type</label>
+                          <label>Order Unit</label>
                           <ui-select ng-model="selected.unit_type_id.selected" theme="bootstrap" on-select="setUnit($item)" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element required>
                               <ui-select-match placeholder="Select Unit">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in arr.unit_type_id | filter: $select.search">
@@ -212,7 +215,7 @@
               <div class="row clearfix">
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : product.lowest_unit_type_id.$invalid && !product.lowest_unit_type_id.$pristine }">
-                          <label>Lowest Unit</label>
+                          <label>Inventory Unit</label>
                           <ui-select ng-model="selected.lowest_unit_type_id.selected" theme="bootstrap" >
                               <ui-select-match placeholder="Select Lowest Unit">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in arr.recipe_unit_type_id | filter: $select.search">
@@ -229,7 +232,7 @@
                   </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.price_per_lowest_unit.$invalid && !product.price_per_lowest_unit.$pristine }">
-                          <label>Price Per Lowest Unit</label>
+                          <label>Price Inventory Unit</label>
                           <input type="text" class="form-control" name="price_per_lowest_unit" ng-model="product.price_per_lowest_unit" ng-readonly="true" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
@@ -254,7 +257,7 @@
                   </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.price_per_recipe_unit.$invalid && !product.price_per_recipe_unit.$pristine }">
-                          <label>Price Per Recipe</label>
+                          <label>Price Recipe Unit</label>
                           <input type="text" class="form-control" name="price_per_recipe_unit" ng-model="product.price_per_recipe_unit" ng-readonly="true" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>

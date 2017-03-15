@@ -1,4 +1,61 @@
+<div id="printSection">
+    <div class="header-inner ">
+        <h3 class="text-center">Purchase Request</h3>
+        <div class="brand inline text-center center">
+            <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="156" height="32">
+         </div>
+    </div>
+    <div>
+        <table class="table  table-hover">
+            <thead>
+            <tr>
 
+                <th width="30%">Product</th>
+                <th width="10%">Qty</th>
+                <th width="10%">Price</th>
+                <th width="10%">Amount</th>
+                <th width="30%">Supplier</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr ng-repeat="item in items | filter:filterUser">
+
+                <td >{{item.product_name}}
+                </td>
+                <td style="text-align: right;">
+                        {{ item.qty | number : fractionSize }}
+
+                </td>
+                <td style="text-align: right;">
+                        {{ item.price | number : fractionSize }}
+
+                </td>
+                <td style="text-align: right;">
+                        {{ item.amount | number : fractionSize }}
+
+                </td>
+                <td >
+                    {{item.supplier_name}}
+
+                </td>
+            </tr>
+            </tbody>
+            <tfooter >
+                <tr>
+                    <th width="10%" style="text-align: center;">Total</th>
+                    <th width="30%">&nbsp;</th>
+                    <th width="10%" style="text-align: right;"><span >{{totalQty | number : fractionSize}}</span></th>
+                    <th width="10%">&nbsp;</th>
+                    <th width="10%" style="text-align: right;"><span >{{tAmt | number : fractionSize}}</span></th>
+                    <th width="30%">&nbsp;</th>
+                </tr>
+            </tfooter>
+        </table>
+
+    </div>
+
+</div>
 <div class="full-height m-t-40">
     <!-- TABLES VIEW -->
     <div class="container-fluid container-fixed-lg">
@@ -91,6 +148,7 @@
                     <table class="table table-hover table-condensed " id="prTable" name="prTable" datatable dt-options="dtOptions" dt-columns="dtColumns" dt-instance="nested.dtInstance">
                     </table>
                 </div>
+
                 <!--<div class="col-sm-12" ng-show="show.itemTable">
                     <label>PR Code: <span name="itemPrCode" ng-bind="pr.code"></span></label><br/>
                     <label>Approval Status: <span ng-bind="pr.doc_status_name"></span></label><br/>
@@ -268,17 +326,17 @@
                               </td>
                               <td style="text-align: right;">
                                   <span editable-text="item.qty" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updatePriceQty($event,item.id,$data)" >
-                                      {{ item.qty }}
+                                      {{ item.qty | number : fractionSize}}
                                   </span>
                               </td>
                               <td style="text-align: right;">
                                   <span editable-text="item.price" e-form="tableform" data-e-ng-keyup="updatePrice($event,item.id,$data)">
-                                      {{ item.price }}
+                                      {{ item.price | number : fractionSize}}
                                   </span>
                               </td>
                               <td style="text-align: right;">
                                   <span editable-text="item.amount" e-form="tableform" onbeforesave="checkName($data, user.id)">
-                                      {{ item.amount }}
+                                      {{ item.amount | number : fractionSize}}
                                   </span>
                               </td>
                               <td >
@@ -301,9 +359,9 @@
                               <tr>
                                   <th width="10%" style="text-align: center;">Total</th>
                                   <th width="30%">&nbsp;</th>
-                                  <th width="10%" style="text-align: right;"><span >{{totalQty}}</span></th>
+                                  <th width="10%" style="text-align: right;"><span >{{totalQty | number : fractionSize}}</span></th>
                                   <th width="10%">&nbsp;</th>
-                                  <th width="10%" style="text-align: right;"><span >{{tAmt}}</span></th>
+                                  <th width="10%" style="text-align: right;"><span >{{tAmt | number : fractionSize}}</span></th>
                                   <th width="30%">&nbsp;</th>
                               </tr>
                           </tfooter>
@@ -322,6 +380,7 @@
                         <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
                       </div>
 
+
 </div>
 
               </div>
@@ -330,6 +389,7 @@
               <div class="row divider"></div>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-show="releaseState" ng-click="submit()" >Save</button>
+              <!--<button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>-->
               <button class="btn btn-default" ng-show="selected.doc_status.selected.id!=7"><i class="pg-close"></i> Clear</button>
           </form>
       </div>

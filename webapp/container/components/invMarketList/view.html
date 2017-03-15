@@ -1,3 +1,151 @@
+<div id="printSection">
+    <div class="row">
+        <h2 align="center">MARKET LIST</h2>
+        <br>
+        <table width="98%">
+            <tr>
+                <td width="50%" align="center">
+                    <div class="brand inline text-center center">
+                        <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="200" height="40">
+                    </div>
+                    <br><br><br>
+                    <span class="text-center" style="align:center;">JL. GUNUNG SAHARI RAYA NO.3 JAKARTA 10720</span>
+                    <br>
+                    <span class="text-center">PHONE : (62-21) 626 3001</span>&nbsp;&nbsp;
+                    <span class="text-center">FAX : (62-21) 626 3024</span>
+                    <br><br>
+                    <span class="text-center">OWNED BY PT.GRAHASAHARI SURYAJAYA</span>
+                    <br>
+                    <span class="text-center">NPWP. 01.573.522.8-026.000</span>
+                </td>
+                <td width="50%">
+                    <span>
+                        <b>Cost Center:{{selected.cost_center.selected.name}}</b>
+                    </span>
+                    <br>
+                    <span>
+                        <b>Location:{{selected.warehouse.selected.name}}</b>
+                    </span>
+                    <br><br>
+                    <span>
+                        <b>Doc No:{{pr.code}}</b>
+                    </span>
+                    <br>
+                    <span>
+                        <b>Request Date:{{pr.created_date}}</b>
+                    </span>
+                    <br>
+                    <span>
+                        <b>Delivery Date:{{pr.delivery_date}}</b>
+                    </span>
+                    <br>
+                    <span>
+                        <b>Request By:{{pr.created_by}}</b>
+                    </span>
+                    <br>
+                    <span>
+                        <b>Notes:{{pr.ml_notes}}</b>
+                    </span>
+
+                    <br>
+                </td>
+            </tr>
+            <br>
+            <tr>
+                <td>&nbsp;</td>
+                <td align="center"> &nbsp; </td>
+            </tr>
+        </table>
+        <br>
+        <table width="89%" cellpadding="5" border="1" align="center">
+            <thead>
+            <tr>
+
+                <td width="50%" align="center">PRODUCT</th>
+                <td width="15%" align="center">UNIT</th>
+                <td width="10%" align="center">QTY</th>
+                <td width="10%" align="center">PRICE</th>
+                <td width="10%" align="center">AMOUNT</th>
+
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr ng-repeat="item in items | filter:filterUser">
+
+                <td>{{item.product_name}}
+                </td>
+                <td > {{item.unit_name}}
+                </td>
+                <td style="text-align: right;">
+                        {{ item.qty | number : fractionSize}}
+
+                </td>
+                <td style="text-align: right;">
+                        {{ item.price | number : fractionSize}}
+
+                </td>
+                <td style="text-align: right;">
+                        {{ item.amount | number : fractionSize}}
+
+                </td>
+
+            </tr>
+            </tbody>
+            <tfooter width="80%" border="1" align="center">
+                <tr>
+                    <td width="10%" style="text-align: center;">Total</th>
+                    <td width="30%">&nbsp;</th>
+                    <td width="10%" style="text-align: right;"><span >{{totalQty| number : fractionSize}}</span></th>
+                    <td width="10%">&nbsp;</th>
+                    <td width="10%" style="text-align: right;"><span >{{tAmt| number : fractionSize}}</span></th>
+
+                </tr>
+            </tfooter>
+        </table>
+        <br><br><br><br>
+        <table width="89%" cellpadding="5" border="0" align="center">
+            <tr>
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                    <br><br><br><br><br>
+                </td>
+                <td>&nbsp;</td>
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                    <br><br><br><br><br>
+                </td>
+                <td>&nbsp;</td>
+                <td >
+                    &nbsp;
+                </td>
+                <td>&nbsp;</td>
+                <td valign="top">
+
+                    <br><br><br><br><br>
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    Authorised By
+                </td>
+                <td>&nbsp;</td>
+                <td align="center">
+                    Purchasing Manager
+                </td>
+                <td>&nbsp;</td>
+                <td align="center">
+                    &nbsp;
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+
+</div>
 
 <div class="full-height m-t-40">
     <!-- TABLES VIEW -->
@@ -272,17 +420,17 @@
                                                 </td>
                                                 <td style="text-align: right;">
                                                     <span editable-text="item.qty" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updatePriceQty($event,item.id,$data)">
-                                                        {{ item.qty }}
+                                                        {{ item.qty | number : fractionSize}}
                                                     </span>
                                                 </td>
                                                 <td style="text-align: right;">
                                                     <span editable-text="item.price" e-form="tableform" data-e-ng-keyup="updatePrice($event,item.id,$data)">
-                                                        {{ item.price }}
+                                                        {{ item.price | number : fractionSize}}
                                                     </span>
                                                 </td>
                                                 <td style="text-align: right;">
                                                     <span editable-text="item.amount" e-form="tableform" onbeforesave="checkName($data, user.id)">
-                                                        {{ item.amount }}
+                                                        {{ item.amount | number : fractionSize}}
                                                     </span>
                                                 </td>
                                                 <td >
@@ -305,9 +453,9 @@
                                                 <tr>
                                                     <th width="10%" style="text-align: center;">Total</th>
                                                     <th width="30%">&nbsp;</th>
-                                                    <th width="10%" style="text-align: right;"><span >{{totalQty}}</span></th>
+                                                    <th width="10%" style="text-align: right;"><span >{{totalQty| number : fractionSize}}</span></th>
                                                     <th width="10%">&nbsp;</th>
-                                                    <th width="10%" style="text-align: right;"><span >{{tAmt}}</span></th>
+                                                    <th width="10%" style="text-align: right;"><span >{{tAmt| number : fractionSize}}</span></th>
                                                     <th width="30%">&nbsp;</th>
                                                 </tr>
                                             </tfooter>
@@ -315,7 +463,7 @@
 
                                         <!-- buttons -->
                                         <div class="btn-edit">
-                                          <button type="button" class="btn btn-primary" ng-show="!tableform.$visible&&selected.doc_status.selected.id!=4" ng-click="tableform.$show()">
+                                          <button type="button" class="btn btn-primary" ng-show="!tableform.$visible&&releaseState" ng-click="tableform.$show()">
                                             Modify Item List
                                           </button>
                                         </div>
@@ -332,7 +480,8 @@
               <br>
               <div class="row divider"></div>
               <div class="clearfix"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" ng-show="selected.doc_status.selected.id!=4">Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" ng-show="releaseState">Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
               <button class="btn btn-default" ng-show="selected.doc_status.selected.id!=4"><i class="pg-close"></i> Clear</button>
           </form>
       </div>

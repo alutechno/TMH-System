@@ -16,12 +16,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstringCostCenter = 'select cast(concat(\'W-\',a.id) as char) _id,a.id,a.name,DATE_FORMAT(a.modified_date,\'%Y-%m-%d\') last_stock_opname,count(b.product_id) items,sum(b.stock_qty*c.price_per_unit) amount '+
+    var qstringCostCenter = 'select cast(concat(\'W-\',a.id) as char) _id,a.id,a.name,DATE_FORMAT(a.modified_date,\'%Y-%m-%d\') last_stock_opname,count(b.product_id) items,format(sum(b.stock_qty*c.price_per_unit),0) amount '+
         'from mst_cost_center a,inv_cost_center_stock b,mst_product c '+
         'where a.id=b.cost_center_id '+
         'and b.product_id=c.id '+
         'group by a.id,a.name,a.modified_date '
-    var qstringWarehouse = 'select cast(concat(\'W-\',a.id) as char) _id,a.id,a.name,DATE_FORMAT(a.modified_date,\'%Y-%m-%d\') last_stock_opname,count(b.product_id) items,sum(b.stock_qty*c.price_per_unit) amount '+
+    var qstringWarehouse = 'select cast(concat(\'W-\',a.id) as char) _id,a.id,a.name,DATE_FORMAT(a.modified_date,\'%Y-%m-%d\') last_stock_opname,count(b.product_id) items,format(sum(b.stock_qty*c.price_per_unit),0) amount '+
         'from mst_warehouse a,inv_warehouse_stock b,mst_product c '+
         'where a.id=b.warehouse_id '+
         'and b.product_id=c.id '+
@@ -34,12 +34,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.items = []
 
     $scope.warehouse = []
-    queryService.get('select id,name from mst_warehouse order by name',undefined)
+    queryService.get('select id,name from mst_warehouse where status!=2 order by name',undefined)
     .then(function(data){
         $scope.warehouse = data.data
     })
     $scope.cost_center = []
-    queryService.get('select id,name from mst_cost_center order by name',undefined)
+    queryService.get('select id,name from mst_cost_center where status!=2 order by name',undefined)
     .then(function(data){
         $scope.cost_center = data.data
     })
@@ -100,6 +100,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -108,10 +109,10 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         .renderWith($scope.actionsHtml).withOption('width', '10%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('id'),
+        DTColumnBuilder.newColumn('id').withTitle('id').withOption('width', '5%'),
         DTColumnBuilder.newColumn('name').withTitle('Warehouse'),
         DTColumnBuilder.newColumn('last_stock_opname').withTitle('last stock opname date'),
-        DTColumnBuilder.newColumn('amount').withTitle('amount')
+        DTColumnBuilder.newColumn('amount').withTitle('amount').withClass('text-right')
     );
 
     $scope.filter = function(type,event) {

@@ -197,6 +197,7 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
     }
 
     var qstring = "select a.*,b.name as category,c.name as subcategory,d.name as unit_name,a.price_per_unit as unit_price,g.status_name, "
+                +"e.name inv_unit,f.name recipe_unit,h.name supplier_name,"
                 +"if(a.is_stockable = 'Y','Yes','No') as stockable, "
                 +"if(a.is_pr = 'Y','Yes','No') as pr, "
                 +"if(a.is_ml = 'Y','Yes','No') as ml, "
@@ -209,8 +210,53 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
                 +"left join ref_product_unit e on a.recipe_unit_type_id = e.id "
                 +"left join ref_product_unit f on a.lowest_unit_type_id = f.id "
                 +"left join (select id as status_id, value as status_value,name as status_name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\') g on a.status = g.status_value "
+                +"left join mst_supplier h on a.last_supplier = h.id "
                 +"where a.status!=2 "
     var qwhere = ""
+
+    $scope.focusinControl = {};
+    $scope.fileName = "Master Product";
+    $scope.exportExcel = function(){
+        DTColumnBuilder.newColumn('code').withTitle('Code'),
+        DTColumnBuilder.newColumn('name').withTitle('Name'),
+        DTColumnBuilder.newColumn('category').withTitle('Category'),
+        DTColumnBuilder.newColumn('subcategory').withTitle('Sub Category'),
+        DTColumnBuilder.newColumn('stockable').withTitle('Stockable'),
+        DTColumnBuilder.newColumn('minimum_stock').withTitle('Min Stock'),
+        DTColumnBuilder.newColumn('maximum_stock').withTitle('Max Stock'),
+        DTColumnBuilder.newColumn('unit_name').withTitle('Order Unit'),
+        DTColumnBuilder.newColumn('unit_price').withTitle('Order Price'),
+        DTColumnBuilder.newColumn('inv_unit').withTitle('Inv Unit'),
+        DTColumnBuilder.newColumn('lowest_unit_conversion').withTitle('Inv Unit Conversion'),
+        DTColumnBuilder.newColumn('price_per_lowest_unit').withTitle('Inv Price'),
+        DTColumnBuilder.newColumn('recipe_unit').withTitle('Recipe Unit'),
+        DTColumnBuilder.newColumn('recipe_unit_conversion').withTitle('Recipe Unit Conversion'),
+        DTColumnBuilder.newColumn('price_per_recipe_unit').withTitle('Recipe Price'),
+        DTColumnBuilder.newColumn('supplier_name').withTitle('Last Supplier'),
+        DTColumnBuilder.newColumn('last_received_date').withTitle('Last Rcv Date'),
+        DTColumnBuilder.newColumn('last_received_qty').withTitle('Last Rcv Qty'),
+        DTColumnBuilder.newColumn('last_received_price').withTitle('Last Rcv Price'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status')
+
+        queryService.post('select code,name,category,subcategory,stockable,minimum_stock,maximum_stock,unit_name,unit_price,inv_unit,lowest_unit_conversion,price_per_lowest_unit,recipe_unit,'+
+            'recipe_unit_conversion,price_per_recipe_unit,supplier_name,last_received_date,last_received_qty,last_received_price,status_name from('+qstring + qwhere+')aa order by code',undefined)
+        .then(function(data){
+            $scope.exportData = [];
+            //Header
+            $scope.exportData.push(["Code", "Name", 'Category','SubCategory','is Stockable','Min Stock','Max Stock','Order Unit','Order Price','Inv Unit',
+                'Inv Unit Conversion','Inv Price','Recipe Unit','Recipe Unit Conversion','Recipe Price','Last Supplier','Last Rcv Date','Last Rcv Qty','Last Rcv Price','Status']);
+            //Data
+            for(var i=0;i<data.data.length;i++){
+                var arr = []
+                for (var key in data.data[i]){
+                    arr.push(data.data[i][key])
+                }
+                $scope.exportData.push(arr)
+            }
+            $scope.focusinControl.downloadExcel()
+        })
+    }
+
 
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
@@ -237,28 +283,47 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml).withOption('width', '5%'))
     }
     $scope.dtColumns.push(
+        DTColumnBuilder.newColumn('code').withTitle('Code'),
         DTColumnBuilder.newColumn('name').withTitle('Name'),
         DTColumnBuilder.newColumn('category').withTitle('Category'),
         DTColumnBuilder.newColumn('subcategory').withTitle('Sub Category'),
         DTColumnBuilder.newColumn('stockable').withTitle('Stockable'),
-        DTColumnBuilder.newColumn('unit_name').withTitle('Unit'),
-        DTColumnBuilder.newColumn('unit_price').withTitle('Price'),
+        DTColumnBuilder.newColumn('minimum_stock').withTitle('Min Stock'),
+        DTColumnBuilder.newColumn('maximum_stock').withTitle('Max Stock'),
+        DTColumnBuilder.newColumn('unit_name').withTitle('Order Unit'),
+        DTColumnBuilder.newColumn('unit_price').withTitle('Order Price'),
+        DTColumnBuilder.newColumn('inv_unit').withTitle('Inv Unit'),
+        DTColumnBuilder.newColumn('lowest_unit_conversion').withTitle('Inv Unit Conversion'),
+        DTColumnBuilder.newColumn('price_per_lowest_unit').withTitle('Inv Price'),
+        DTColumnBuilder.newColumn('recipe_unit').withTitle('Recipe Unit'),
+        DTColumnBuilder.newColumn('recipe_unit_conversion').withTitle('Recipe Unit Conversion'),
+        DTColumnBuilder.newColumn('price_per_recipe_unit').withTitle('Recipe Price'),
+        DTColumnBuilder.newColumn('supplier_name').withTitle('Last Supplier'),
+        DTColumnBuilder.newColumn('last_received_date').withTitle('Last Rcv Date'),
+        DTColumnBuilder.newColumn('last_received_qty').withTitle('Last Rcv Qty'),
+        DTColumnBuilder.newColumn('last_received_price').withTitle('Last Rcv Price'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
 
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
+                if ($scope.filterVal.search.length>0)
+                    qwhere = ' and (lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'+
+                    ' or lower(b.name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                    ' or lower(c.name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                    ' or lower(g.status_name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                    ')'
                 else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
                 }, false)
             }
         }
+
         else {
             $scope.dtInstance.reloadData(function(obj){
                 console.log(obj)
@@ -409,7 +474,7 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
                     $scope.selected.category_id.selected = {name: $scope.arr.category_id[i].name, id: $scope.arr.category_id[i].id}
                 }
             }
-            $scope.getSubCategory({id:$scope.product.category_id})
+            $scope.getSubCategory({id:$scope.product.category_id},'new')
 
             /*for (var i = $scope.arr.subcategory_id.length - 1; i >= 0; i--) {
                 if ($scope.arr.subcategory_id[i].id == result.data[0].subcategory_id){
@@ -507,17 +572,20 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
         }
     }
 
-    $scope.getSubCategory = function(selectItem){
+    $scope.getSubCategory = function(selectItem,stat){
         // console.log(selectItem)
         queryService.get('select id,name from ref_product_subcategory where category_id='+selectItem.id+' order by name',undefined)
         .then(function(data){
             $scope.arr.subcategory_id = data.data
         })
-        queryService.post('select cast(concat(\''+selectItem.short_name+'\',\'-\', lpad(seq(\''+selectItem.short_name+'\',\'\'),4,\'0\')) as char) as code ',undefined)
-        .then(function(data){
-            console.log(data)
-            $scope.product.code = data.data[0].code
-        })
+        if (stat!='new'){
+            queryService.post('select cast(concat(\''+selectItem.short_name+'\',\'-\', lpad(seq(\''+selectItem.short_name+'\',\'\'),4,\'0\')) as char) as code ',undefined)
+            .then(function(data){
+                console.log(data)
+                $scope.product.code = data.data[0].code
+            })
+        }
+
     }
 
 })

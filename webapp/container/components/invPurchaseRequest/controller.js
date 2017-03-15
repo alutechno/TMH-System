@@ -1,5 +1,5 @@
 
-var userController = angular.module('app', ["xeditable"]);
+var userController = angular.module('app', ["xeditable",'fcsa-number']);
 
 userController.run(function(editableOptions) {
   editableOptions.theme = 'bs3';
