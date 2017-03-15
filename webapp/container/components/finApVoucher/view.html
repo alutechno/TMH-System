@@ -10,8 +10,12 @@
                 <div class="pull-right" style="width: 100%;">
 
                     <button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>
+                    <span ng-click="exportExcel()">
+                        <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
+                    </span>
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Voucher</button>
-                    <!--<button class="btn btn-primary" ng-print print-element-id="printThisElement" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>-->
+
+                    <!--<button class="btn btn-primary" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>-->
 
 
                     <!--<div class="input-group date col-sm-6 pull-right m-r-10">
@@ -51,8 +55,71 @@
                     <a class="remove" href="javascript:;"></a>
                 </div>
 
-
                 <div class="panel panel-default m-t-5" pg-portlet ng-show="showAdvance">
+                    <div class="panel-heading">
+                        <div class="panel-title">Advanced Search
+                        </div>
+                        <div class="panel-controls">
+                            <ul>
+                                <li><a href="" ng-click="openAdvancedFilter(false)"><i class="portlet-icon portlet-icon-close"></i></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="panel-body" >
+                        <div class="btn-group form-group-default-select pull-left  m-r-5">
+                            <label>Status:</label><br />
+                            <ui-select multiple ng-model="selected.filter_status" theme="select2" ng-disabled="disabled" style="width: 300px;" >
+                                <ui-select-match placeholder="Filter Status...">{{$item.name}}</ui-select-match>
+                                <ui-select-choices repeat="item in status | filter:$select.search">
+                                    {{item.name}}
+                                </ui-select-choices>
+                            </ui-select>
+                         </div>
+
+                          <div class="btn-group form-group-default-select pull-left  m-r-5" style="width:200px;">
+                              <label>Due Date:</label><br />
+                              <input type="text" class="form-control" ng-model="selected.filter_due_date" name="filter_date" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" >
+                              <!--<input date-range-picker placeholder="Filter due date" class="form-control date-picker" type="text" ng-model="filter_due_date" ng-change="changeDate()" on-apply="changeDate()" />-->
+                           </div>
+                           <div class="btn-group pull-left m-r-5">
+                               <label>Period:</label><br />
+                               <div class="btn-group form-group-default-select pull-left  m-r-5" >
+                                   <ui-select ng-model="selected.filter_month.selected" theme="bootstrap" style="width:80px;" >
+                                       <ui-select-match placeholder=" Month">{{$select.selected.name}}</ui-select-match>
+                                       <ui-select-choices repeat="item in listMonth | filter: $select.search">
+                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                       </ui-select-choices>
+                                   </ui-select>
+                               </div>
+                               <div class="btn-group form-group-default-select pull-left  m-r-5">
+                                   <ui-select ng-model="selected.filter_year.selected" theme="bootstrap" style="width:80px;" >
+                                       <ui-select-match placeholder=" Year">{{$select.selected.name}}</ui-select-match>
+                                       <ui-select-choices repeat="item in listYear | filter: $select.search">
+                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                       </ui-select-choices>
+                                   </ui-select>
+                               </div>
+
+                            </div>
+                            <div class="btn-group form-group-default-select pull-left  m-r-5">
+                                <label>Supplier</label><br />
+                                <ui-select ng-model="selected.filter_supplier.selected" theme="bootstrap" ng-keyup="findSupplier($select.search)" style="width:200px;" >
+                                    <ui-select-match placeholder="select supplier">{{$select.selected.supplier_name}}</ui-select-match>
+                                    <ui-select-choices repeat="item in supplier | filter: $select.search">
+                                        <span ng-bind-html="trustAsHtml((item.supplier_name | highlight: $select.search))"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                             </div>
+
+                         <div class="btn-group dropdown-default  m-r-5" >
+                             <label>&nbsp;</label><br />
+                             <button id="show-modal" class="btn btn-primary pull-right m-r-5" ng-click="applyFilter()" ><i class="fa fa-search"></i> Apply</button>
+                          </div>
+                    </div>
+                </div>
+
+                <!--<div class="panel panel-default m-t-5" pg-portlet ng-show="showAdvance">
                     <div class="panel-heading">
                         <div class="panel-title">Advanced Search
                         </div>
@@ -75,9 +142,9 @@
                          </div>
                          <div class="input-prepend input-group pull-left m-r-5" style="width: 220px;" >
                              <label>Due Date:</label><br />
-                            <input date-range-picker placeholder="Filter due date" class="form-control date-picker lDate" type="text" ng-model="date" />
+                            <input date-range-picker placeholder="Filter due date" class="form-control date-picker lDate" type="text" ng-model="date" />-->
                             <!--<span class="add-on input-group-addon bDate"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i></span>-->
-                        </div>
+                        <!--</div>
                         <div class="btn-group dropdown-default pull-left m-r-5" >
                             <label>Period:</label><br />
                           <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">{{selected.period.name}}<span class="caret"></span></button>
@@ -89,7 +156,7 @@
                          <div class="btn-group dropdown-default pull-left m-r-5" >
                              <label>&nbsp;</label><br />
                            <button id="show-modal" class="btn btn-primary pull-right" ng-click="applyFilter()" ng-show="buttonCreate"><i class="fa fa-search"></i> Apply</button>
-                          </div>
+                       </div>-->
 
 
 
@@ -100,15 +167,19 @@
 
 
 
-                    </div>
-                </div>
+                    <!--</div>
+                </div>-->
             </div>
             <div class="panel-body">
-                <div class="table-responsive" id="printThisElement">
+                <div class="table-responsive" >
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" width="3000px">
+                    </table>
+                </div>
+                <div class="table-responsive print_a4" id="printSection" >
                     <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
                     </table>
+                </div>
             </div>
-        </div>
     </div>
     <!-- END PANEL -->
 </div>
@@ -132,12 +203,6 @@
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
                   <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.code.$invalid && !ap.code.$pristine }">
-                          <label>Document No</label>
-                          <input type="text" class="form-control" name="name" ng-model="ap.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
-                      </div>
-                  </div>
-                  <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.source.$invalid && !ap.source.$pristine }">
                           <label>Source</label>
                           <ui-select ng-model="selected.source.selected" theme="bootstrap" on-select="setSource($item)">
@@ -149,6 +214,13 @@
                       </div>
                   </div>
                   <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.code.$invalid && !ap.code.$pristine }">
+                          <label>Document No</label>
+                          <input type="text" class="form-control" name="name" ng-model="ap.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-readonly="true">
+                      </div>
+                  </div>
+
+                  <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.source_no.$invalid && !ap.source_no.$pristine }">
                           <label>Source No</label>
                           <ui-select ng-model="selected.source_no.selected" theme="bootstrap" on-select="setReceiving($item)" ng-disabled="isReceiving" ng-keyup="findReceiving($select.search)">
@@ -156,7 +228,8 @@
                               <ui-select-choices repeat="item in source_no | filter: $select.search">
 
                                   <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
-                                  <small ng-bind-html="trustAsHtml((item.total_amount | highlight: $select.search))"></small>
+                                  <small ng-bind-html="trustAsHtml((item.total_amount | highlight: $select.search))"></small><br>
+                                  <small ng-bind-html="trustAsHtml((item.sname | highlight: $select.search))"></small>
                               </ui-select-choices>
                           </ui-select>
                       </div>
@@ -177,13 +250,13 @@
                 <div class="col-sm-4">
                     <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.open_date.$invalid && !ap.open_date.$pristine }">
                         <label>Open Date</label>
-                        <input type="text" class="form-control" ng-model="ap.open_date" name="open_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
+                        <input type="text" class="form-control" ng-model="ap.open_date" name="open_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker"  data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
                     </div>
                 </div>
                 <div class="col-sm-4">
                     <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.due_date.$invalid && !ap.due_date.$pristine }">
                         <label>Due Date</label>
-                        <input type="text" class="form-control" ng-model="ap.due_date" name="due_date" placeholder="Pick a date" id="dueDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
+                        <input type="text" class="form-control" ng-model="ap.due_date" name="due_date" placeholder="Pick a date" id="dueDate" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
                     </div>
                 </div>
               </div>
@@ -206,51 +279,42 @@
                     </div>
                 </div>
               </div>
+
+              <h5>Payment Detail</h5><br>
               <div class="row clearfix">
-                <div class="col-sm-4">
-                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.currency_id.$invalid && !ap.currency_id.$pristine }">
-                        <label>Currency</label>
-                        <ui-select ng-model="selected.currency.selected" theme="bootstrap" on-select="ap.currency_id=selected.currency.selected.currency_id" ng-readonly="isReceiving">
-                            <ui-select-match placeholder="select currency">{{$select.selected.currency_name}}</ui-select-match>
-                            <ui-select-choices repeat="item in currency | filter: $select.search">
-                                <span ng-bind-html="trustAsHtml((item.currency_name | highlight: $select.search))"></span>
-                            </ui-select-choices>
-                        </ui-select>
-                    </div>
-                </div>
-                <div class="col-sm-4">
-                    <div pg-form-group class="form-group form-group-default" >
-                        <label>Forex</label>
-                        <input type="text" class="form-control" name="forex" ng-model="ap.forex" >
-                    </div>
-                </div>
-                <div class="col-sm-4">
-                    <div pg-form-group class="form-group form-group-default" >
-                        <label>Exchange (in IDR)</label>
-                        <input type="text" class="form-control" name="exchange" ng-model="ap.exchange" >
-                    </div>
-                </div>
+                  <div class="col-sm-4">
+                      <p class="text-center m-b-0"><b>Foreign Currency</b></p>
+                  </div>
+                  <div class="col-sm-4">
+                      <p class="text-center m-b-0"><b>IDR</b></p>
+                  </div>
               </div>
-              <h4>Payment</h4>
+              <br>
               <div class="row clearfix">
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Total</label>
-                          <input type="text" class="form-control" name="total_home" ng-model="ap.total_home" >
+                          <label>Voucher Amount</label>
+                          <input type="text" class="form-control" name="total_home" ng-model="ap.total_home" ng-disabled="selected.currency.selected.currency_id==1" ng-keyup="setAmt()">
                       </div>
                   </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Total IDR</label>
-                          <input type="text" class="form-control" name="total_idr" ng-model="ap.total_idr" >
+                          <label>Voucher Amount (IDR)</label>
+                          <input type="text" class="form-control" name="total_idr" ng-model="ap.total_idr" ng-disabled="selected.currency.selected.currency_id==2" ng-keyup="setAmt()">
                       </div>
                   </div>
               </div>
               <div class="row clearfix">
+                  <div class="col-md-4">
+                      <div class="checkbox check-primary" >
+                          <input type="checkbox" id="cbDeposit" ng-checked="selected.depositStat==1" ng-true-value="1" ng-model="selected.depositStat" >
+                          <label for="cbDeposit">Require Deposit</label>
+                      </div>
+                  </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  ">
                           <label>Deposit</label>
-                          <ui-select ng-model="selected.deposit.selected" theme="bootstrap" >
+                          <ui-select ng-model="selected.deposit.selected" theme="bootstrap" ng-disabled="selected.depositStat==0">
                               <ui-select-match placeholder="select deposit">{{$select.selected.code}}</ui-select-match>
                               <ui-select-choices repeat="item in deposit | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
@@ -258,24 +322,34 @@
                           </ui-select>
                       </div>
                   </div>
-                  <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default " >
-                          <label>Deposit Home</label>
-                          <input type="text" class="form-control" name="deposit_home" ng-model="ap.deposit_home" ng-disabled="!selected.deposit.selected">
-                      </div>
-                  </div>
-                  <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default " >
-                          <label>Deposit IDR</label>
-                          <input type="text" class="form-control" name="deposit_idr" ng-model="ap.deposit_idr" ng-disabled="!selected.deposit.selected">
-                      </div>
-                  </div>
               </div>
               <div class="row clearfix">
+
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default " >
+                          <label>Deposit Amount</label>
+                          <input type="text" class="form-control" name="deposit_home" ng-model="ap.deposit_home" ng-disabled="selected.depositStat==0||selected.currency.selected.currency_id==1" ng-keyup="setAmt()">
+                      </div>
+                  </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default " >
+                          <label>Deposit Amount (IDR)</label>
+                          <input type="text" class="form-control" name="deposit_idr" ng-model="ap.deposit_idr" ng-disabled="selected.depositStat==0||selected.currency.selected.currency_id==2" ng-keyup="setAmt()">
+                      </div>
+                  </div>
+
+              </div>
+              <div class="row clearfix">
+                  <div class="col-md-4">
+                      <div class="checkbox check-primary" >
+                          <input type="checkbox" id="cbTax" ng-checked="selected.taxStat==1" ng-true-value="1" ng-model="selected.taxStat" >
+                          <label for="cbTax">Require Tax</label>
+                      </div>
+                  </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                           <label>Tax</label>
-                          <ui-select ng-model="selected.tax.selected" theme="bootstrap" >
+                          <ui-select ng-model="selected.tax.selected" theme="bootstrap" ng-disabled="selected.taxStat==0">
                               <ui-select-match placeholder="select tax">{{$select.selected.code}}</ui-select-match>
                               <ui-select-choices repeat="item in tax | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
@@ -283,44 +357,48 @@
                           </ui-select>
                       </div>
                   </div>
+              </div>
+              <div class="row clearfix">
+
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Home</label>
-                          <input type="text" class="form-control" name="tax_home" ng-model="ap.tax_home" ng-disabled="!selected.tax.selected">
+                          <label>Tax Amount</label>
+                          <input type="text" class="form-control" name="tax_home" ng-model="ap.tax_home" ng-disabled="selected.taxStat==0||selected.currency.selected.currency_id==1">
                       </div>
                   </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>IDR</label>
-                          <input type="text" class="form-control" name="tax_idr" ng-model="ap.tax_idr" ng-disabled="!selected.tax.selected">
+                          <label>Tax Amount (IDR)</label>
+                          <input type="text" class="form-control" name="tax_idr" ng-model="ap.tax_idr" ng-disabled="selected.taxStat==0||selected.currency.selected.currency_id==2">
+                      </div>
+                  </div>
+
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default " >
+                          <label>Total Due Amount</label>
+                          <input type="text" class="form-control" name="total_due_home" ng-model="ap.total_due_home" ng-disabled="true">
+                      </div>
+                  </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default " >
+                          <label>Total Due Amount (IDR)</label>
+                          <input type="text" class="form-control" name="total_due_idr" ng-model="ap.total_due_idr" ng-disabled="true">
                       </div>
                   </div>
               </div>
               <div class="row clearfix">
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Total Due</label>
-                          <input type="text" class="form-control" name="total_due_home" ng-model="ap.total_due_home" >
+                          <label>Payment Amount</label>
+                          <input type="text" class="form-control" name="payment_home" ng-model="ap.payment_home" ng-disabled="selected.currency.selected.currency_id==1">
                       </div>
                   </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Total Due IDR</label>
-                          <input type="text" class="form-control" name="total_due_idr" ng-model="ap.total_due_idr" >
-                      </div>
-                  </div>
-              </div>
-              <div class="row clearfix">
-                  <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default " >
-                          <label>Payment</label>
-                          <input type="text" class="form-control" name="payment_home" ng-model="ap.payment_home" >
-                      </div>
-                  </div>
-                  <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default " >
-                          <label>Payment IDR</label>
-                          <input type="text" class="form-control" name="payment_idr" ng-model="ap.payment_idr" >
+                          <label>Payment Amount (IDR)</label>
+                          <input type="text" class="form-control" name="payment_idr" ng-model="ap.payment_idr" ng-disabled="selected.currency.selected.currency_id==2">
                       </div>
                   </div>
               </div>
@@ -328,15 +406,42 @@
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
                           <label>Current Due</label>
-                          <input type="text" class="form-control" name="current_due_home" ng-model="ap.current_due_home" >
+                          <input type="text" class="form-control" name="current_due_home" ng-model="ap.current_due_home" ng-disabled="selected.currency.selected.currency_id==1">
                       </div>
                   </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
                           <label>Current Due IDR</label>
-                          <input type="text" class="form-control" name="current_due_idr" ng-model="ap.current_due_idr" >
+                          <input type="text" class="form-control" name="current_due_idr" ng-model="ap.current_due_idr" ng-disabled="selected.currency.selected.currency_id==2">
                       </div>
                   </div>
+              </div>
+
+              <h5>Currency</h5>
+              <div class="row clearfix">
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.currency_id.$invalid && !ap.currency_id.$pristine }">
+                        <label>Currency</label>
+                        <ui-select ng-model="selected.currency.selected" theme="bootstrap" on-select="ap.currency_id=selected.currency.selected.currency_id;ap.exchange=$item.home_currency_exchange" ng-readonly="isReceiving">
+                            <ui-select-match placeholder="select currency">{{$select.selected.currency_name}}</ui-select-match>
+                            <ui-select-choices repeat="item in currency | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.currency_name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <!--<div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default" >
+                        <label>Forex</label>
+                        <input type="text" class="form-control" name="forex" ng-model="ap.forex" >
+                    </div>
+                </div>-->
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default" >
+                        <label>Exchange (in IDR)</label>
+                        <input type="text" class="form-control" name="exchange" ng-model="ap.exchange" >
+                    </div>
+                </div>
               </div>
 
               <div ng-controller="EditableTableApvCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()" ng-show="selected.status.selected.id==1">
@@ -401,12 +506,12 @@
                                                 </span>
                                             </td>
                                         </tr>
-                                        <tr>
+                                        <tr ng-show="items.length>0">
                                             <td>&nbsp;</td>
                                             <td>&nbsp;</td>
                                             <td>Total</td>
-                                            <td><span>{{total_debit}}</span></td>
-                                            <td><span>{{total_credit}}</span></td>
+                                            <td><span>{{totaldebit}}</span></td>
+                                            <td><span>{{totalcredit}}</span></td>
                                         </tr>
                                         </tbody>
                                     </table>

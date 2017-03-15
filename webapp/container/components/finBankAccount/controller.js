@@ -76,11 +76,19 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     })
 
     $scope.gl_account = []
-    queryService.get('select * from mst_ledger_account order by id ',undefined)
+    queryService.get('select * from mst_ledger_account order by id limit 50 ',undefined)
     .then(function(data){
         $scope.gl_account = data.data
 
     })
+    $scope.accountKeyUp = function(text){
+        queryService.post("select * from mst_ledger_account where lower(name) like '%"+text.toLowerCase()+"%' or lower(code) like '%"+text.toLowerCase()+"%'  order by id limit 50 ",undefined)
+        .then(function(data){
+            $scope.gl_account = data.data
+
+        })
+
+    }
 
     $scope.bank = []
     queryService.get('select * from mst_cash_bank order by id ',undefined)
@@ -97,6 +105,36 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
     };
+
+    $scope.focusinControl = {};
+    $scope.fileName = "Master Bank Account";
+    $scope.exportExcel = function(){
+        DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '15%'),
+        DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
+        //DTColumnBuilder.newColumn('account_type_name').withTitle('Type'),
+        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account#'),
+        DTColumnBuilder.newColumn('bank_name').withTitle('Bank Name'),
+        DTColumnBuilder.newColumn('currency_name').withTitle('Currency'),
+        DTColumnBuilder.newColumn('gl_account_code').withTitle('G/L Account'),
+        DTColumnBuilder.newColumn('ap_account_code').withTitle('A/P Clearance'),
+        DTColumnBuilder.newColumn('ar_account_code').withTitle('A/R Clearance'),
+        queryService.post('select code,name,short_name,bank_account,bank_name,currency_name,gl_account_code,ap_account_code,ar_account_code from('+qstring + qwhere+')aa order by id desc',undefined)
+        .then(function(data){
+            $scope.exportData = [];
+            //Header
+            $scope.exportData.push(['Code','Name','Short Name','Bank Account#','Bank Name','Currency','G/L Account','A/P Clearance','A/R Clearance']);
+            //Data
+            for(var i=0;i<data.data.length;i++){
+                var arr = []
+                for (var key in data.data[i]){
+                    arr.push(data.data[i][key])
+                }
+                $scope.exportData.push(arr)
+            }
+            $scope.focusinControl.downloadExcel()
+        })
+    }
 
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
@@ -153,19 +191,19 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml).withOption('width', '5%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('code').withTitle('Code'),
-        DTColumnBuilder.newColumn('name').withTitle('Name'),
+        DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '15%'),
         DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
-        DTColumnBuilder.newColumn('account_type_name').withTitle('Type'),
-        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account'),
+        //DTColumnBuilder.newColumn('account_type_name').withTitle('Type'),
+        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account#'),
         DTColumnBuilder.newColumn('bank_name').withTitle('Bank Name'),
         DTColumnBuilder.newColumn('currency_name').withTitle('Currency'),
-        DTColumnBuilder.newColumn('gl_account_code').withTitle('GL Code'),
-        DTColumnBuilder.newColumn('ap_account_code').withTitle('AP Clearance'),
-        DTColumnBuilder.newColumn('ar_account_code').withTitle('AR Clearance'),
+        DTColumnBuilder.newColumn('gl_account_code').withTitle('G/L Account'),
+        DTColumnBuilder.newColumn('ap_account_code').withTitle('A/P Clearance'),
+        DTColumnBuilder.newColumn('ar_account_code').withTitle('A/R Clearance'),
     );
 
     $scope.filter = function(type,event) {
@@ -192,7 +230,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.clear()
         }
         $('#form-input').modal('show')
-        $('#dept_code').prop('disabled', false);
+        //$('#dept_code').prop('disabled', false);
     }
 
     $scope.submit = function(){
@@ -207,7 +245,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                 description: $scope.department.description,
                 address1: $scope.department.address1,
                 address2: $scope.department.address2,
-                account_type: $scope.selected.account_type.selected.id,
+                //account_type: $scope.selected.account_type.selected.id,
                 bank_id: $scope.selected.bank.selected.id,
                 bank_account: $scope.department.bank_account,
                 currency_id: $scope.selected.currency.selected.id,
@@ -254,7 +292,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                 description: $scope.department.description,
                 address1: $scope.department.address1,
                 address2: $scope.department.address2,
-                account_type: $scope.selected.account_type.selected.id,
+                //account_type: $scope.selected.account_type.selected.id,
                 bank_id: $scope.selected.bank.selected.id,
                 bank_account: $scope.department.bank_account,
                 currency_id: $scope.selected.currency.selected.id,
@@ -283,7 +321,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
-        $('#dept_code').prop('disabled', true);
+        //$('#dept_code').prop('disabled', true);
 
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
@@ -297,7 +335,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.department.short_name = result.data[0].short_name
             $scope.department.description = result.data[0].description
             $scope.department.status = result.data[0].status
-            $scope.selected.account_type.selected = {name: result.data[0].account_type_name , id: result.data[0].account_type}
+            //$scope.selected.account_type.selected = {name: result.data[0].account_type_name , id: result.data[0].account_type}
             $scope.selected.bank.selected = {name: result.data[0].bank_name , id: result.data[0].bank_id}
             $scope.selected.currency.selected = {name: result.data[0].currency_name , id: result.data[0].currency_id}
             for (var i=0;i<$scope.gl_account.length;i++){

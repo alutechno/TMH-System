@@ -24,7 +24,10 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                'a.supplier_id, e.name as \'supplier_name\', a.used_currency_id, f.name as \'currency\', '+
                'a.home_deposit_amount, a.home_applied_amount, a.home_balance_amount,  '+
                'a.tot_deposit_amount, a.tot_applied_amount, a.tot_balance_amount, '+
-               'd.id bank_id,d.name bank_name '+
+               'format(a.home_deposit_amount,0)hda, format(a.home_applied_amount,0)haa, format(a.home_balance_amount,0)hba,  '+
+               'format(a.tot_deposit_amount,0)tda, format(a.tot_applied_amount,0)taa, format(a.tot_balance_amount,0)tba, '+
+               'd.id bank_id,d.name bank_name,if(a.used_currency_id=1,\'-\',format(home_deposit_amount,0))hda2, '+
+               'DATE_FORMAT(a.issued_date,\'%Y-%m-%d\')issued_date,g.name issued_by_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\')created_date,h.name created_by_name '+
           'from acc_cash_deposit a '+
           'left join (select value, name from table_ref  '+
                      'where table_name = \'acc_cash_deposit\'  '+
@@ -32,7 +35,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
           'left join mst_cash_bank_account c on a.bank_account_id = c.id '+
           'left join mst_cash_bank d on c.bank_id = d.id '+
           'left join mst_supplier e on a.supplier_id = e.id '+
-          'left join ref_currency f on a.used_currency_id = f.id  '
+          'left join ref_currency f on a.used_currency_id = f.id  '+
+          'left join user g on a.issued_by=g.id '+
+          'left join user h on a.created_by=h.id '
         //'where a.status in (:status1,:status2,:status3)  '+
         //'and a.open_date beetween :date1 and :date2  '+
         //'and a.due_date between :date1and :date2'
@@ -75,7 +80,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         supplier: {},
         currency: {},
         bank: {},
-        bank_account: {}
+        bank_account: {},
+        filter_status: [],
+        filter_due_date: '',
+        filter_month: {},
+        filter_year: {},
+        filter_supplier: {},
     }
     $scope.selected.period = $scope.period[0]
     $scope.status = [
@@ -219,6 +229,26 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         return $sce.trustAsHtml(value);
     };
 
+    $scope.focusinControl = {};
+    $scope.fileName = "AP Deposit";
+    $scope.exportExcel = function(){
+        queryService.post('select id,code,open_date,status_name,supplier_name,bank_name,bank_account,currency,issued_date,issued_by_name,created_date,created_by_name,tda,hda2,taa,tba from('+qstring + qwhere+')aa order by id desc',undefined)
+        .then(function(data){
+            $scope.exportData = [];
+            //Header
+            $scope.exportData.push(["ID","Code", "Open Date", 'Status','Supplier', 'Bank','Bank Account','Currency','Issued Date','Issued By','Created Date','Created By','Total(IDR)','Total(Foreign Exchange)','Applied','Balance']);
+            //Data
+            for(var i=0;i<data.data.length;i++){
+                var arr = []
+                for (var key in data.data[i]){
+                    arr.push(data.data[i][key])
+                }
+                $scope.exportData.push(arr)
+            }
+            $scope.focusinControl.downloadExcel()
+        })
+    }
+
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
@@ -289,29 +319,48 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml).withOption('width', '5%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('Transc No'),
-        DTColumnBuilder.newColumn('code').withTitle('Doc No').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('open_date').withTitle('Open Date').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('status_name').withTitle('Status'),
-        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '20%'),
+        DTColumnBuilder.newColumn('id').withTitle('Transc No').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('code').withTitle('Doc No').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('open_date').withTitle('Open Date').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '4%'),
+        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '15%'),
         //DTColumnBuilder.newColumn('age').withTitle('Age'),
-        DTColumnBuilder.newColumn('bank_name').withTitle('Bank'),
-        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account'),
-        DTColumnBuilder.newColumn('currency').withTitle('Currency'),
-        DTColumnBuilder.newColumn('home_deposit_amount').withTitle('Forex Total'),
-        DTColumnBuilder.newColumn('tot_deposit_amount').withTitle('Total'),
-        DTColumnBuilder.newColumn('tot_applied_amount').withTitle('Applied'),
-        DTColumnBuilder.newColumn('tot_balance_amount').withTitle('Balance')
+        DTColumnBuilder.newColumn('bank_name').withTitle('Bank').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('currency').withTitle('Currency').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('issued_date').withTitle('Issued Date').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('issued_by_name').withTitle('Issued By').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('created_date').withTitle('Created Date').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('created_by_name').withTitle('Created By').withOption('width', '5%'),
+        //DTColumnBuilder.newColumn('tot_deposit_amount').withTitle('Total(IDR)'),
+        //DTColumnBuilder.newColumn('home_deposit_amount').withTitle('Total Amount'),
+        //DTColumnBuilder.newColumn('tot_applied_amount').withTitle('Applied'),
+        //DTColumnBuilder.newColumn('tot_balance_amount').withTitle('Balance')
+        DTColumnBuilder.newColumn('tda').withTitle('Total(IDR)').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('hda2').withTitle('Total Amount').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('taa').withTitle('Applied').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('tba').withTitle('Balance').withOption('width', '5%')
     );
 
+    var qwhereobj = {
+        text: '',
+        status: '',
+        due_date: '',
+        period: '',
+        supplier: ''
+    }
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere += ' where name="'+$scope.filterVal.search+'"'
-                else qwhere = ''
+                if ($scope.filterVal.search.length>0) qwhereobj.text = ' lower(a.code) like \'%'+$scope.filterVal.search+'%\' '
+                else qwhereobj.text = ''
+                qwhere = setWhere()
+
+                //if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
+                //else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
                 }, false)
@@ -322,6 +371,50 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 console.log(obj)
             }, false)
         }
+    }
+
+    $scope.applyFilter = function(){
+        console.log($scope.selected.filter_due_date)
+        console.log($scope.filter_due_date)
+
+        //console.log($scope.selected.filter_cost_center)
+        if($scope.selected.filter_status.length>0){
+            var ids = []
+            for (var i=0;i<$scope.selected.filter_status.length;i++){
+                ids.push($scope.selected.filter_status[i].id)
+            }
+            qwhereobj.status= ' a.status in ('+ids.join(',')+') '
+        }
+        if ($scope.selected.filter_month.selected && $scope.selected.filter_year.selected){
+            qwhereobj.period = ' (a.open_date between \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-01\' and '+
+            ' \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-'+$scope.selected.filter_month.selected.last+'\') '
+        }
+        if ($scope.selected.filter_due_date.length>0){
+            var s= $scope.selected.filter_due_date.split(' - ')[0],d=$scope.selected.filter_due_date.split(' - ')[0];
+            qwhereobj.due_date = ' a.open_date between \''+s+' 00:00:00\' and \''+d+' 23:59:59\' '
+        }
+        if ($scope.selected.filter_supplier.selected){
+            qwhereobj.supplier = ' a.supplier_id= '+$scope.selected.filter_supplier.selected.supplier_id+' '
+        }
+
+        console.log(setWhere())
+        qwhere = setWhere()
+        $scope.dtInstance.reloadData(function(obj){
+            console.log(obj)
+        }, false)
+
+    }
+    function setWhere(){
+        var arrWhere = []
+        var strWhere = ''
+        for (var key in qwhereobj){
+            if (qwhereobj[key].length>0) arrWhere.push(qwhereobj[key])
+        }
+        if (arrWhere.length>0){
+            strWhere = ' where ' + arrWhere.join(' and ')
+        }
+        //console.log(strWhere)
+        return strWhere
     }
 
     /*END AD ServerSide*/

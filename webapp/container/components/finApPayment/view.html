@@ -10,6 +10,9 @@
                 <div class="pull-right" style="width: 100%;">
 
                     <button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>
+                    <span ng-click="exportExcel()">
+                        <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
+                    </span>
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Payment</button>
                     <!--<button class="btn btn-primary" ng-print print-element-id="printThisElement" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>-->
 
@@ -64,48 +67,61 @@
                         </div>
                     </div>
                     <div class="panel-body" >
-                        <div class="btn-group dropdown-default pull-left lDate m-r-5">
+                        <div class="btn-group form-group-default-select pull-left  m-r-5">
                             <label>Status:</label><br />
-                            <ui-select multiple ng-model="selected.status" theme="select2" ng-disabled="disabled" style="width: 300px;" >
+                            <ui-select multiple ng-model="selected.filter_status" theme="select2" ng-disabled="disabled" style="width: 300px;" >
                                 <ui-select-match placeholder="Filter Status...">{{$item.name}}</ui-select-match>
                                 <ui-select-choices repeat="item in status | filter:$select.search">
                                     {{item.name}}
                                 </ui-select-choices>
                             </ui-select>
                          </div>
-                         <div class="input-prepend input-group pull-left m-r-5" style="width: 220px;" >
-                             <label>Due Date:</label><br />
-                            <input date-range-picker placeholder="Filter due date" class="form-control date-picker lDate" type="text" ng-model="date" />
-                            <!--<span class="add-on input-group-addon bDate"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i></span>-->
-                        </div>
-                        <div class="btn-group dropdown-default pull-left m-r-5" >
-                            <label>Period:</label><br />
-                          <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">{{selected.period.name}}<span class="caret"></span></button>
-                            <ul class="dropdown-menu" role="menu">
-                              <li><a href="javascript:;" ng-click="setPeriod(0)">Current Month</a></li>
-                              <li><a href="javascript:;" ng-click="setPeriod(1)">Last Month</a></li>
-                            </ul>
-                         </div>
-                         <div class="btn-group dropdown-default pull-left m-r-5" >
+
+                          <div class="btn-group form-group-default-select pull-left  m-r-5" style="width:200px;">
+                              <label>Check Due Date:</label><br />
+                              <input type="text" class="form-control" ng-model="selected.filter_due_date" name="filter_date" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" >
+                              <!--<input date-range-picker placeholder="Filter due date" class="form-control date-picker" type="text" ng-model="filter_due_date" ng-change="changeDate()" on-apply="changeDate()" />-->
+                           </div>
+                           <div class="btn-group pull-left m-r-5">
+                               <label>Open Date Period:</label><br />
+                               <div class="btn-group form-group-default-select pull-left  m-r-5" >
+                                   <ui-select ng-model="selected.filter_month.selected" theme="bootstrap" style="width:80px;" >
+                                       <ui-select-match placeholder=" Month">{{$select.selected.name}}</ui-select-match>
+                                       <ui-select-choices repeat="item in listMonth | filter: $select.search">
+                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                       </ui-select-choices>
+                                   </ui-select>
+                               </div>
+                               <div class="btn-group form-group-default-select pull-left  m-r-5">
+                                   <ui-select ng-model="selected.filter_year.selected" theme="bootstrap" style="width:80px;" >
+                                       <ui-select-match placeholder=" Year">{{$select.selected.name}}</ui-select-match>
+                                       <ui-select-choices repeat="item in listYear | filter: $select.search">
+                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                       </ui-select-choices>
+                                   </ui-select>
+                               </div>
+
+                            </div>
+                            <div class="btn-group form-group-default-select pull-left  m-r-5">
+                                <label>Supplier</label><br />
+                                <ui-select ng-model="selected.filter_supplier.selected" theme="bootstrap" ng-keyup="findSupplier($select.search)" style="width:200px;" >
+                                    <ui-select-match placeholder="select supplier">{{$select.selected.supplier_name}}</ui-select-match>
+                                    <ui-select-choices repeat="item in supplier | filter: $select.search">
+                                        <span ng-bind-html="trustAsHtml((item.supplier_name | highlight: $select.search))"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                             </div>
+
+                         <div class="btn-group dropdown-default  m-r-5" >
                              <label>&nbsp;</label><br />
-                           <button id="show-modal" class="btn btn-primary pull-right" ng-click="applyFilter()" ng-show="buttonCreate"><i class="fa fa-search"></i> Apply</button>
+                             <button id="show-modal" class="btn btn-primary pull-right m-r-5" ng-click="applyFilter()" ><i class="fa fa-search"></i> Apply</button>
                           </div>
-
-
-
-                        <!--<div class="input-prepend input-group date col-sm-4 pull-right m-r-5" style="width: 250px;" >
-                          <input date-range-picker type="text" placeholder="filter due date" class="form-control date-picker lDate">
-                          <span class="add-on input-group-addon bDate"><i class="fa fa-calendar"></i></span>
-                      </div>-->
-
-
-
                     </div>
                 </div>
             </div>
             <div class="panel-body">
                 <div class="table-responsive" id="printThisElement">
-                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" width="3800px">
                     </table>
             </div>
         </div>
@@ -138,9 +154,14 @@
                       </div>
                   </div>
                   <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.code.$invalid && !ap.code.$pristine }">
-                          <label>Check No</label>
-                          <input type="text" class="form-control" name="name" ng-model="ap.check" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.status.$invalid && !ap.status.$pristine }">
+                          <label>Status</label>
+                          <ui-select ng-model="selected.status.selected" theme="bootstrap" on-select="ap.status=selected.status.selected.id" validate-attached-form-element required >
+                              <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in statusShow | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
                       </div>
                   </div>
                   <!--<div class="col-sm-4">
@@ -151,30 +172,9 @@
                   </div>-->
 
               </div>
-              <div class="row clearfix">
-                  <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.open_date.$invalid && !ap.open_date.$pristine }">
-                          <label>Open Date</label>
-                          <input type="text" class="form-control" ng-model="ap.open_date" name="open_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required >
-                      </div>
-                  </div>
-                  <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.due_date.$invalid && !ap.due_date.$pristine }">
-                          <label>Due Date</label>
-                          <input type="text" class="form-control" ng-model="ap.due_date" name="due_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker"  data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required >
-                      </div>
-                  </div>
-                  <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.prepared_date.$invalid && !ap.prepared_date.$pristine }">
-                          <label>Prepared Date</label>
-                          <input type="text" class="form-control" ng-model="ap.prepared_date" name="prepared_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker"  data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required >
-                      </div>
-                  </div>
 
-
-              </div>
               <div class="row clearfix">
-                  <div class="col-sm-4">
+                  <!--<div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.payment_method.selected.$invalid && !selected.payment_method.selected.$pristine }">
                           <label>Payment Method</label>
                           <ui-select ng-model="selected.payment_method.selected" theme="bootstrap" validate-attached-form-element required >
@@ -184,7 +184,7 @@
                               </ui-select-choices>
                           </ui-select>
                       </div>
-                  </div>
+                  </div>-->
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.bank.selected.$invalid && !selected.bank.selected.$pristine }">
                           <label>Bank</label>
@@ -212,16 +212,34 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.status.$invalid && !ap.status.$pristine }">
-                          <label>Status</label>
-                          <ui-select ng-model="selected.status.selected" theme="bootstrap" on-select="ap.status=selected.status.selected.id" validate-attached-form-element required >
-                              <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in statusShow | filter: $select.search">
-                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                              </ui-select-choices>
-                          </ui-select>
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.open_date.$invalid && !ap.open_date.$pristine }">
+                          <label>Open Date</label>
+                          <input type="text" class="form-control" ng-model="ap.open_date" name="open_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required >
                       </div>
                   </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.due_date.$invalid && !ap.due_date.$pristine }">
+                          <label>Check Due Date</label>
+                          <input type="text" class="form-control" ng-model="ap.due_date" name="due_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker"  data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required >
+                      </div>
+                  </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.prepared_date.$invalid && !ap.prepared_date.$pristine }">
+                          <label>Prepared Date</label>
+                          <input type="text" class="form-control" ng-model="ap.prepared_date" name="prepared_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker"  data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required >
+                      </div>
+                  </div>
+
+
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.code.$invalid && !ap.code.$pristine }">
+                          <label>Check No</label>
+                          <input type="text" class="form-control" name="name" ng-model="ap.check" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+
                 <div class="col-sm-4">
                     <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.currency_id.$invalid && !ap.currency_id.$pristine }">
                         <label>Currency</label>

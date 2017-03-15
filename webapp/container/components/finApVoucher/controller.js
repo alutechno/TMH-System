@@ -5,6 +5,7 @@ userController
 function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
+    $scope.printMode =  false;
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
@@ -16,12 +17,19 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.items = []
     $scope.itemsOri = []
     $scope.child = {}
-    var qstring = 'select a.id, a.code, a.open_date, a.due_date,DATE_FORMAT(a.due_date,\'%Y-%m-%d\') as due, a.status, a.supplier_id, '+
-        'c.name supplier_name, a.source, b.code as receive_no, '+
-        'a.receive_id, a.currency_id, a.total_amount, a.home_total_amount,a.voucher_notes '+
+    $scope.totaldebit = 0
+    $scope.totalkredit = 0
+    var qstring = 'select a.id, a.code, DATE_FORMAT(a.open_date,\'%Y-%m-%d\')open_date, DATE_FORMAT(a.due_date,\'%Y-%m-%d\')due_date,DATE_FORMAT(a.due_date,\'%Y-%m-%d\') as due, a.status, a.supplier_id, '+
+        'c.name supplier_name, a.source, b.code as receive_no, d.name status_name,a.currency_exchange exchange, '+
+        'a.receive_id, a.currency_id, a.total_amount, format(a.total_amount,0)ta, a.home_total_amount,format(a.home_total_amount,0)hta,a.voucher_notes, '+
+        'e.name currency_name,e.code currency_code,f.name created_by_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\')created_date '+
         'from acc_ap_voucher a  '+
         'left join inv_po_receive b on a.receive_id = b.id  '+
-        'left join mst_supplier c on a.supplier_id = c.id  '
+        'left join mst_supplier c on a.supplier_id = c.id  '+
+        'left join (select * from table_ref where table_name = \'acc_ap_voucher\' '+
+             ' and column_name = \'status\') d on a.status = d.value '+
+        'left join ref_currency e on a.currency_id=e.id '+
+        'left join user f on a.created_by = f.id '
         //'where a.status in (:status1,:status2,:status3)  '+
         //'and a.open_date beetween :date1 and :date2  '+
         //'and a.due_date between :date1and :date2'
@@ -50,7 +58,30 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.ap = {
         id: '',
         code: '',
-        notes: ''
+        notes: '',
+        source: '',
+        source_no: '',
+        status: '',
+        open_date: '',
+        due_date: '',
+        supplier: '',
+        notes: '',
+        total_home: '',
+        total_idr: '',
+        deposit: '',
+        deposit_home: '',
+        deposit_idr: '',
+        tax: '',
+        tax_home: '',
+        tax_idr: '',
+        total_due_home: '',
+        total_due_idr: '',
+        payment_home: '',
+        payment_idr: '',
+        current_due_home: '',
+        current_due_idr: '',
+        currency: '',
+        exchange: ''
     }
 
     $scope.selected = {
@@ -62,8 +93,16 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         currency: {},
         deposit: {},
         source: {},
-        source_no: {}
+        source_no: {},
+        filter_status: [],
+        filter_due_date: '',
+        filter_month: {},
+        filter_year: {},
+        filter_supplier: {},
+        deposit: 0,
+        taxStat: 0
     }
+
     $scope.selected.period = $scope.period[0]
     /*$scope.status = [
         {id: 0, name: 'Open'},
@@ -88,7 +127,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     })*/
 
     $scope.source = []
-    queryService.get('select value id, value, name from table_ref where table_name = \'acc_ap_voucher\' and column_name = \'source\' order by id ',undefined)
+    queryService.get('select value id, value, name from table_ref where table_name = \'acc_ap_voucher\' and column_name = \'source\' and value in(\'MT\',\'RR\') order by id ',undefined)
     .then(function(data){
         $scope.source = data.data
     })
@@ -103,7 +142,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope.source = data.data
     })*/
     $scope.currency = []
-    queryService.get('select  id currency_id,code currency_code,name currency_name from ref_currency order by id asc',undefined)
+    queryService.get('select  id currency_id,code currency_code,name currency_name,home_currency_exchange from ref_currency order by id asc',undefined)
     .then(function(data){
         $scope.currency = data.data
     })
@@ -113,6 +152,36 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     .then(function(data){
         $scope.tax = data.data
     })
+
+    var year = ['2015','2016','2017','2018','2019']
+    var month = [
+        {id:'01',last:'31'},
+        {id:'02',last:'28'},
+        {id:'03',last:'31'},
+        {id:'04',last:'30'},
+        {id:'05',last:'31'},
+        {id:'06',last:'30'},
+        {id:'07',last:'31'},
+        {id:'08',last:'31'},
+        {id:'09',last:'30'},
+        {id:'10',last:'31'},
+        {id:'11',last:'30'},
+        {id:'12',last:'31'}]
+    $scope.listYear = []
+    $scope.listMonth = []
+    for (var i=0;i<year.length;i++){
+        $scope.listYear.push({
+            id: year[i],
+            name: year[i]
+        })
+    }
+    for (var i=0;i<month.length;i++){
+        $scope.listMonth.push({
+            id: month[i].id,
+            name: month[i].id,
+            last:month[i].last
+        })
+    }
 
 
 
@@ -138,7 +207,11 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         console.log(e)
         if (e.value == 'RR') {
             $scope.isReceiving = false
-            queryService.post('select id,code,cast(concat(\'Amount: \',ifnull(total_amount,\' - \')) as char) total_amount from inv_po_receive order by id desc limit 50',undefined)
+            queryService.post("select a.id,a.code,cast(concat('Amount: ',ifnull(format(total_amount,0),' - ')) as char) total_amount,cast(concat('Supplier: ',b.name) as char) sname "+
+                "from inv_po_receive a,mst_supplier b, inv_purchase_order c  "+
+                "where c.supplier_id=b.id  "+
+                "and a.po_id = c.id "+
+                "order by id desc limit 50",undefined)
             .then(function(data){
                 console.log(data.data)
                 $scope.source_no = data.data
@@ -146,6 +219,15 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             })
         }
         else $scope.isReceiving = true
+        var dt = new Date()
+
+        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        console.log(ym)
+        queryService.post('select cast(concat(\'AP/'+$scope.selected.source.selected.value+'/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'AP'+$scope.selected.source.selected.value+'\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+        .then(function(data){
+            console.log(data)
+            $scope.ap.code = data.data[0].code
+        })
     }
 
     $scope.showAdvance = false
@@ -169,15 +251,17 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             ' order by a.id desc',undefined)
         .then(function(data){
             console.log(data.data)
-            $scope.supplier = data.data
-            $scope.selected.supplier['selected'] = $scope.supplier[0]
-            $scope.selected.currency['selected'] = $scope.currency[0]
-            $scope.ap.exchange = data.data[0].exchange
-            $scope.ap.total_idr = data.data[0].total_amount*data.data[0].exchange
-            $scope.ap.total_home = $scope.ap.total_idr
-            $scope.ap.open_date = data.data[0].created_date
-            if ($scope.ap.due_date.length==0){
-                $scope.ap.due_date = data.data[0].due_date
+            if (data.data.length>0){
+                $scope.supplier = data.data
+                $scope.selected.supplier['selected'] = $scope.supplier[0]
+                $scope.selected.currency['selected'] = $scope.currency[0]
+                $scope.ap.exchange = data.data[0].exchange
+                $scope.ap.total_idr = data.data[0].total_amount*data.data[0].exchange
+                $scope.ap.total_home = $scope.ap.total_idr
+                $scope.ap.open_date = data.data[0].created_date
+                if ($scope.ap.due_date.length==0){
+                    $scope.ap.due_date = data.data[0].due_date
+                }
             }
 
         })
@@ -186,9 +270,15 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
     $scope.findReceiving = function(text){
         console.log(text)
-        queryService.get('select id,code,cast(concat(\'Amount: \',ifnull(total_amount,\' - \')) as char) total_amount from inv_po_receive where lower(code) like \'%'+text.toLowerCase()+'%\' order by id desc limit 50',undefined)
+        queryService.post("select a.id,a.code,cast(concat('Amount: ',ifnull(format(total_amount,0),' - ')) as char) total_amount,cast(concat('Supplier: ',b.name) as char) sname "+
+            "from inv_po_receive a,mst_supplier b, inv_purchase_order c  "+
+            "where c.supplier_id=b.id  "+
+            "and a.po_id = c.id "+
+            "where lower(a.code) like '%"+text.toLowerCase()+"%' "+
+            "order by id desc limit 50",undefined)
         .then(function(data){
-            $scope.currency = data.data
+            //$scope.currency = data.data
+            $scope.source_no = data.data
         })
 
     }
@@ -201,6 +291,43 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         })
     }
 
+    $scope.setAmt = function(){
+        $scope.ap.total_home
+        $scope.ap.total_idr
+        $scope.ap.deposit_home
+        $scope.ap.deposit_idr
+        //console.log($scope.ap.total_idr,$scope.ap.deposit_idr)
+
+        $scope.ap.total_due_home =
+            parseInt($scope.ap.total_home) - parseInt($scope.ap.deposit_home)
+        $scope.ap.total_due_idr =
+            parseInt($scope.ap.total_idr) - parseInt($scope.ap.deposit_idr)
+        $scope.ap.current_due_home =
+            parseInt($scope.ap.total_home) - parseInt($scope.ap.deposit_home) - parseInt($scope.ap.payment_home)
+        $scope.ap.current_due_idr =
+            parseInt($scope.ap.total_idr) - parseInt($scope.ap.deposit_idr) - parseInt($scope.ap.payment_idr)
+    }
+
+    $scope.focusinControl = {};
+    $scope.fileName = "AP Voucher";
+    $scope.exportExcel = function(){
+
+        queryService.post('select id,code,open_date,due_date,status_name,supplier_name,source,created_date,created_by_name,currency_code,ta,hta from('+qstring + qwhere+')aa order by id desc',undefined)
+        .then(function(data){
+            $scope.exportData = [];
+            //Header
+            $scope.exportData.push(["ID","Code", "Open Date", "Due Date", 'Status','Suppluer', 'Source','Created At','Created By','Currency','Total(IDR)','Total(Foreign Exchange)']);
+            //Data
+            for(var i=0;i<data.data.length;i++){
+                var arr = []
+                for (var key in data.data[i]){
+                    arr.push(data.data[i][key])
+                }
+                $scope.exportData.push(arr)
+            }
+            $scope.focusinControl.downloadExcel()
+        })
+    }
 
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
@@ -237,7 +364,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL+'/apisql/datatable',
-        type: 'GET',
+        type: 'POST',
         headers: {
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
@@ -276,26 +403,39 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml).withOption('width', '5%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('Vcr No'),
-        DTColumnBuilder.newColumn('code').withTitle('Doc No').withOption('width', '20%'),
-        DTColumnBuilder.newColumn('open_date').withTitle('Open Date').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('due_date').withTitle('Due Date').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('status').withTitle('Status').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '20%'),
+        DTColumnBuilder.newColumn('id').withTitle('Vcr No').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('code').withTitle('Doc No').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('open_date').withTitle('Open Date'),
+        DTColumnBuilder.newColumn('due_date').withTitle('Due Date'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status'),
+        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier'),
         DTColumnBuilder.newColumn('source').withTitle('Source'),
-        DTColumnBuilder.newColumn('currency_id').withTitle('Currency'),
-        DTColumnBuilder.newColumn('total_amount').withTitle('Total Amount').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('home_total_amount').withTitle('Home Total Amount').withOption('width', '10%')
+        DTColumnBuilder.newColumn('created_date').withTitle('Created at'),
+        DTColumnBuilder.newColumn('created_by_name').withTitle('Created by'),
+        DTColumnBuilder.newColumn('currency_code').withTitle('Currency'),
+        DTColumnBuilder.newColumn('ta').withTitle('Total(IDR)').withOption('width', '8%').withClass('text-right'),
+        DTColumnBuilder.newColumn('hta').withTitle('Total(Foreign Currency)').withOption('width', '8%').withClass('text-right')
     );
 
+    var qwhereobj = {
+        text: '',
+        status: '',
+        due_date: '',
+        period: '',
+        supplier: ''
+    }
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere += ' where name="'+$scope.filterVal.search+'"'
-                else qwhere = ''
+                if ($scope.filterVal.search.length>0) qwhereobj.text = ' lower(a.code) like \'%'+$scope.filterVal.search+'%\' '
+                else qwhereobj.text = ''
+                qwhere = setWhere()
+
+                //if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
+                //else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
                 }, false)
@@ -308,6 +448,51 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         }
     }
 
+    $scope.applyFilter = function(){
+        console.log($scope.selected.filter_due_date)
+        console.log($scope.filter_due_date)
+
+        //console.log($scope.selected.filter_cost_center)
+        if($scope.selected.filter_status.length>0){
+            var ids = []
+            for (var i=0;i<$scope.selected.filter_status.length;i++){
+                ids.push($scope.selected.filter_status[i].id)
+            }
+            qwhereobj.status= ' a.status in ('+ids.join(',')+') '
+        }
+        if ($scope.selected.filter_month.selected && $scope.selected.filter_year.selected){
+            qwhereobj.period = ' (a.open_date between \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-01\' and '+
+            ' \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-'+$scope.selected.filter_month.selected.last+'\') '
+        }
+        if ($scope.selected.filter_due_date.length>0){
+            var s= $scope.selected.filter_due_date.split(' - ')[0],d=$scope.selected.filter_due_date.split(' - ')[0];
+            qwhereobj.due_date = ' a.due_date between \''+s+' 00:00:00\' and \''+d+' 23:59:59\' '
+        }
+        if ($scope.selected.filter_supplier.selected){
+            qwhereobj.supplier = ' a.supplier_id= '+$scope.selected.filter_supplier.selected.supplier_id+' '
+        }
+
+        console.log(setWhere())
+        qwhere = setWhere()
+        $scope.dtInstance.reloadData(function(obj){
+            console.log(obj)
+        }, false)
+
+    }
+    function setWhere(){
+        var arrWhere = []
+        var strWhere = ''
+        for (var key in qwhereobj){
+            if (qwhereobj[key].length>0) arrWhere.push(qwhereobj[key])
+        }
+        if (arrWhere.length>0){
+            strWhere = ' where ' + arrWhere.join(' and ')
+        }
+        //console.log(strWhere)
+        return strWhere
+    }
+
+    
     /*END AD ServerSide*/
 
     $scope.openQuickView = function(state){
@@ -327,14 +512,14 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             var param = {
                 code: $scope.ap.code,
                 source:	 $scope.selected.source.selected.id,
-            	receive_id: $scope.selected.source_no.selected.id,
+            	receive_id: ($scope.selected.source_no.selected?$scope.selected.source_no.selected.id:null),
             	recurring_id: null,
             	status: $scope.selected.status.selected.id,
                 open_date: $scope.ap.open_date,
                 due_date: $scope.ap.due_date,
                 supplier_id: $scope.selected.supplier.selected.supplier_id,
             	voucher_notes: $scope.ap.notes,
-            	currency_id: $scope.selected.currency.selected.id,
+            	currency_id: $scope.selected.currency.selected.currency_id,
             	currency_exchange: $scope.ap.exchange,
             	total_amount: $scope.ap.total_idr,
             	home_total_amount: $scope.ap.total_home
@@ -383,7 +568,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
-                        message: 'Success Insert '+$scope.cat.name,
+                        message: 'Success Insert '+$scope.ap.code,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'success'
@@ -525,7 +710,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             $('#form-input').modal('show');
             $scope.ap = result.data[0]
             $scope.ap.notes = result.data[0].voucher_notes
-            $scope.ap.due_date = result.data[0].due
+            $scope.ap.due_date = (result.data[0].due==null?'':result.data[0].due)
+            $scope.ap.total_home = result.data[0].home_total_amount
+            $scope.ap.total_idr = result.data[0].total_amount
             for (var i=0;i<$scope.currency.length;i++){
                 if ($scope.currency[i].currency_id==result.data[0].currency_id){
                     $scope.selected.currency['selected'] = $scope.currency[i]
@@ -569,6 +756,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             .then(function(result2){
                 console.log(result2)
                 var d = result2.data
+                $scope.items = []
+                $scope.itemsOri = []
                 for (var i=0;i<d.length;i++){
                     $scope.items.push(
                         {
@@ -638,12 +827,55 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.clear = function(){
-        $scope.cat = {
+        $scope.ap = {
             id: '',
-            name: '',
-            description: '',
-            status: ''
+            code: '',
+            notes: '',
+            source: '',
+            source_no: '',
+            status: '',
+            open_date: '',
+            due_date: '',
+            supplier: '',
+            notes: '',
+            total_home: '',
+            total_idr: '',
+            deposit: '',
+            deposit_home: '',
+            deposit_idr: '',
+            tax: '',
+            tax_home: '',
+            tax_idr: '',
+            total_due_home: '',
+            total_due_idr: '',
+            payment_home: '',
+            payment_idr: '',
+            current_due_home: '',
+            current_due_idr: '',
+            currency: '',
+            exchange: ''
         }
+        $scope.selected = {
+            status: {},
+            startperiod: {},
+            endperiod : {},
+            period: {},
+            supplier: {},
+            currency: {},
+            deposit: {},
+            source: {},
+            source_no: {},
+            filter_status: [],
+            filter_due_date: '',
+            filter_month: {},
+            filter_year: {},
+            filter_supplier: {},
+            depositStat: 0,
+            taxStat: 0
+        }
+        $scope.selected.period = $scope.period[0]
+        $scope.items = []
+        $scope.itemsOri = []
     }
 
 })
@@ -847,8 +1079,14 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         console.log(d)
         console.log(p)
         console.log(t)
+        $scope.totaldebit = 0
+        $scope.totalcredit = 0
         if (t=='debit') $scope.items[d-1].debit = p
         if (t=='credit') $scope.items[d-1].credit = p
+        for(var i=0;i<$scope.items.length;i++){
+            $scope.totaldebit += (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
+            $scope.totalcredit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
+        }
     }
 
 });

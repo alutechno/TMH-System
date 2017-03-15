@@ -9,6 +9,9 @@
                 </div>
                 <div class="pull-right" style="width: 60%;">
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Account</button>
+                    <span ng-click="exportExcel()">
+                        <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
+                    </span>
 
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
@@ -25,7 +28,7 @@
             </div>
             <div class="panel-body">
                 <div class="table-responsive">
-                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" width="2300px">
                     </table>
             </div>
         </div>
@@ -34,7 +37,7 @@
 </div>
 
 <!--START FORM INPUT-->
-<div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade slide-right form-input-medium" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
@@ -48,63 +51,44 @@
             <div class="modal-body col-xs-height col-top">
 
       <!-- START FORM -->
-      <div class="panel panel-transparent m-t-20">
+      <div class="panel panel-transparent m-t-20 ">
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
-                  <div class="col-sm-12">
+                  <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : department.code.$invalid && !department.code.$pristine }">
                           <label>Code</label>
                           <input type="text" class="form-control" name="code" id="dept_code" ng-model="department.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
-                  <div class="col-sm-12">
+                  <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : department.name.$invalid && !department.name.$pristine }">
                           <label>Name</label>
                           <input type="text" class="form-control" ng-model="department.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : department.short_name.$invalid && !department.short_name.$pristine }">
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default " >
                           <label>Short Name</label>
-                          <input type="text" class="form-control" ng-model="department.short_name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" class="form-control" ng-model="department.short_name" >
                       </div>
                   </div>
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default " ng-class="{ 'has-error' : department.description.$invalid && !department.description.$pristine }">
-                          <label>Description</label>
-                          <input type="text" class="form-control" ng-model="department.description" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
-                      </div>
-                  </div>
-                  <div class="col-sm-12">
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default " >
                           <label>Address 1</label>
                           <input type="text" class="form-control" ng-model="department.address1" >
                       </div>
                   </div>
-                  <div class="col-sm-12">
+                  <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default " >
                           <label>Address 2</label>
                           <input type="text" class="form-control" ng-model="department.address2" >
                       </div>
                   </div>
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default " >
-                          <label>Account Number</label>
-                          <input type="text" class="form-control" ng-model="department.bank_account" >
-                      </div>
-                  </div>
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.account_type.selected.$invalid && !selected.account_type.selected.$pristine }">
-                        <label>Account Type</label>
-                        <ui-select ng-model="selected.account_type.selected" theme="bootstrap" validate-attached-form-element required>
-                            <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
-                            <ui-select-choices repeat="item in account_type | filter: $select.search">
-                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                            </ui-select-choices>
-                        </ui-select>
-                    </div>
-                  </div>
-                  <div class="col-sm-12">
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.bank.selected.$invalid && !selected.bank.selected.$pristine }">
                         <label>Bank</label>
                         <ui-select ng-model="selected.bank.selected" theme="bootstrap" validate-attached-form-element required>
@@ -115,7 +99,28 @@
                         </ui-select>
                     </div>
                   </div>
-                  <div class="col-sm-12">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default " >
+                          <label>Account Number</label>
+                          <input type="text" class="form-control" ng-model="department.bank_account" >
+                      </div>
+                  </div>
+                  <!--<div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.account_type.selected.$invalid && !selected.account_type.selected.$pristine }">
+                        <label>Account Type</label>
+                        <ui-select ng-model="selected.account_type.selected" theme="bootstrap" validate-attached-form-element required>
+                            <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in account_type | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>-->
+
+              </div>
+              <div class="row clearfix">
+
+                  <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.currency.selected.$invalid && !selected.currency.selected.$pristine }">
                         <label>Currency</label>
                         <ui-select ng-model="selected.currency.selected" theme="bootstrap" validate-attached-form-element required>
@@ -126,40 +131,54 @@
                         </ui-select>
                     </div>
                   </div>
-                  <div class="col-sm-12">
+                  <div class="col-sm-8">
+                      <div pg-form-group class="form-group form-group-default " ng-class="{ 'has-error' : department.description.$invalid && !department.description.$pristine }">
+                          <label>Description</label>
+                          <input type="text" class="form-control" ng-model="department.description" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
+                      </div>
+                  </div>
+
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.gl_account.selected.$invalid && !selected.gl_account.selected.$pristine }">
                         <label>G/L Account</label>
-                        <ui-select ng-model="selected.gl_account.selected" theme="bootstrap" validate-attached-form-element required>
+                        <ui-select ng-model="selected.gl_account.selected" theme="bootstrap" ng-keyup="accountKeyUp($select.search)" validate-attached-form-element required>
                             <ui-select-match placeholder="select account">{{$select.selected.code}}</ui-select-match>
                             <ui-select-choices repeat="item in gl_account | filter: $select.search">
-                                <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
+                                <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
+                                <small ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></small>
                             </ui-select-choices>
                         </ui-select>
                     </div>
                   </div>
-                  <div class="col-sm-12">
+                  <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.ap_clearance.selected.$invalid && !selected.ap_clearance.selected.$pristine }">
-                        <label>AP Clearance</label>
-                        <ui-select ng-model="selected.ap_clearance.selected" theme="bootstrap" validate-attached-form-element required>
+                        <label>A/P Clearance</label>
+                        <ui-select ng-model="selected.ap_clearance.selected" theme="bootstrap" ng-keyup="accountKeyUp($select.search)" validate-attached-form-element required>
                             <ui-select-match placeholder="select account">{{$select.selected.code}}</ui-select-match>
                             <ui-select-choices repeat="item in gl_account | filter: $select.search">
-                                <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
+                                <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
+                                <small ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></small>
                             </ui-select-choices>
                         </ui-select>
                     </div>
                   </div>
-                  <div class="col-sm-12">
+                  <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.ar_clearance.selected.$invalid && !selected.ar_clearance.selected.$pristine }">
-                        <label>AR Clearance</label>
-                        <ui-select ng-model="selected.ar_clearance.selected" theme="bootstrap" validate-attached-form-element required>
+                        <label>A/R Clearance</label>
+                        <ui-select ng-model="selected.ar_clearance.selected" theme="bootstrap" ng-keyup="accountKeyUp($select.search)" validate-attached-form-element required>
                             <ui-select-match placeholder="select account">{{$select.selected.code}}</ui-select-match>
                             <ui-select-choices repeat="item in gl_account | filter: $select.search">
-                                <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
+                                <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
+                                <small ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></small>
                             </ui-select-choices>
                         </ui-select>
                     </div>
                   </div>
               </div>
+
+
 
               <br>
               <div class="clearfix"></div>

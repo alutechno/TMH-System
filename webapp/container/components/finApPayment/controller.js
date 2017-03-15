@@ -18,12 +18,43 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.trans = []
     $scope.transOri = []
     $scope.child = {}
+    var year = ['2015','2016','2017','2018','2019']
+    var month = [
+        {id:'01',last:'31'},
+        {id:'02',last:'28'},
+        {id:'03',last:'31'},
+        {id:'04',last:'30'},
+        {id:'05',last:'31'},
+        {id:'06',last:'30'},
+        {id:'07',last:'31'},
+        {id:'08',last:'31'},
+        {id:'09',last:'30'},
+        {id:'10',last:'31'},
+        {id:'11',last:'30'},
+        {id:'12',last:'31'}]
+    $scope.listYear = []
+    $scope.listMonth = []
+    for (var i=0;i<year.length;i++){
+        $scope.listYear.push({
+            id: year[i],
+            name: year[i]
+        })
+    }
+    for (var i=0;i<month.length;i++){
+        $scope.listMonth.push({
+            id: month[i].id,
+            name: month[i].id,
+            last:month[i].last
+        })
+    }
     var qstring = 'select a.id, a.code, '+
            'DATE_FORMAT(a.open_date,\'%Y-%m-%d\') as open_date, DATE_FORMAT(a.check_due_date,\'%Y-%m-%d\') as check_due_date, '+
            'a.check_no, a.status, e.name as status_name,  '+
            'a.supplier_id, d.name as supplier_name, a.currency_id,  '+
            'f.code as currency_code,f.name as currency_name,a.currency_exchange, a.total_amount, a.home_total_amount, a.bank_account_id, '+
-           'g.name as bank_account,a.payment_method,h.name payment_method_name,g.bank_id,a.prepare_notes,a.prepared_date '+
+           'g.name as bank_account,a.payment_method,h.name payment_method_name,g.bank_id,a.prepare_notes,DATE_FORMAT(a.prepared_date,\'%Y-%m-%d\') prepared_date, '+
+           'DATE_FORMAT(a.issued_date,\'%Y-%m-%d\') issued_date,DATE_FORMAT(a.approved_date,\'%Y-%m-%d\') approved_date,DATE_FORMAT(a.created_date,\'%Y-%m-%d\')created_date, '+
+           'i.name approved_by_name,j.name prepared_by_name,k.name issued_by_name,l.name created_by_name '+
       'from acc_cash_payment a  '+
       'left join mst_supplier d on a.supplier_id = d.id '+
       'left join (select value, name from table_ref '+
@@ -33,8 +64,11 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
       'left join mst_cash_bank_account g on a.bank_account_id = g.id '+
       'left join (select value, name from table_ref '+
                               'where table_name = \'acc_cash_payment\' '+
-                                    'and column_name = \'payment_method\') h on a.payment_method = h.value '
-
+                                    'and column_name = \'payment_method\') h on a.payment_method = h.value '+
+        'left join user i on a.approved_by=i.id '+
+        'left join user j on a.prepared_by=j.id '+
+        'left join user k on a.issued_by=k.id '+
+        'left join user l on a.created_by=l.id '
         //'where a.status in (:status1,:status2,:status3)  '+
         //'and a.open_date beetween :date1 and :date2  '+
         //'and a.due_date between :date1and :date2'
@@ -78,7 +112,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         currency: {},
         bank: {},
         bank_account: {},
-        payment_method: {}
+        payment_method: {},
+        filter_status: [],
+        filter_due_date: '',
+        filter_month: {},
+        filter_year: {},
+        filter_supplier: {}
     }
     $scope.selected.period = $scope.period[0]
     $scope.status = [
@@ -228,6 +267,28 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         return $sce.trustAsHtml(value);
     };
 
+    $scope.focusinControl = {};
+    $scope.fileName = "AP Payment";
+    $scope.exportExcel = function(){
+        queryService.post('select id,code,check_no,open_date,check_due_date,status_name,supplier_name,bank_account,currency_code,total_amount,home_total_amount,approved_date,approved_by_name,prepared_date,prepared_by_name,issued_date,issued_by_name,created_date,created_by_name from('+qstring + qwhere+')aa order by id desc',undefined)
+        .then(function(data){
+            $scope.exportData = [];
+            //Header
+            $scope.exportData.push(["ID","Doc No", 'Check No',"Open Date",'Due Date', 'Status','Supplier', 'Bank Account','Currency',
+                'Total Amount (IDR)','Total Amount','Approved Date','Approved By','Prepared Date','Prepared By',
+                'Issued Date','Issued By','Created Date','Created By']);
+            //Data
+            for(var i=0;i<data.data.length;i++){
+                var arr = []
+                for (var key in data.data[i]){
+                    arr.push(data.data[i][key])
+                }
+                $scope.exportData.push(arr)
+            }
+            $scope.focusinControl.downloadExcel()
+        })
+    }
+
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
@@ -298,28 +359,47 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml).withOption('width', '5%'))
     }
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('id').withTitle('Transc No'),
         DTColumnBuilder.newColumn('code').withTitle('Doc No').withOption('width', '10%'),
         DTColumnBuilder.newColumn('check_no').withTitle('Check No').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('open_date').withTitle('Open Date').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('check_due_date').withTitle('Due Date').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('open_date').withTitle('Open Date').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('check_due_date').withTitle('Due Date').withOption('width', '5%'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status'),
         DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '20%'),
         //DTColumnBuilder.newColumn('age').withTitle('Age'),
         DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account'),
         DTColumnBuilder.newColumn('currency_code').withTitle('Currency'),
-        DTColumnBuilder.newColumn('home_total_amount').withTitle('Forex Total'),
-        DTColumnBuilder.newColumn('total_amount').withTitle('Total')
+        DTColumnBuilder.newColumn('total_amount').withTitle('Total amount (IDR)'),
+        DTColumnBuilder.newColumn('home_total_amount').withTitle('Total Amount'),
+        DTColumnBuilder.newColumn('approved_date').withTitle('Approved Date'),
+        DTColumnBuilder.newColumn('approved_by_name').withTitle('Approved By'),
+        DTColumnBuilder.newColumn('prepared_date').withTitle('Prepared Date'),
+        DTColumnBuilder.newColumn('prepared_by_name').withTitle('Prepared By'),
+        DTColumnBuilder.newColumn('issued_date').withTitle('Issued Date'),
+        DTColumnBuilder.newColumn('issued_by_name').withTitle('Issued By'),
+        DTColumnBuilder.newColumn('created_date').withTitle('Created Date'),
+        DTColumnBuilder.newColumn('created_by_name').withTitle('Created By')
     );
 
+    var qwhereobj = {
+        text: '',
+        status: '',
+        due_date: '',
+        period: '',
+        supplier: ''
+    }
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere += ' where name="'+$scope.filterVal.search+'"'
-                else qwhere = ''
+                if ($scope.filterVal.search.length>0) qwhereobj.text = ' lower(a.code) like \'%'+$scope.filterVal.search+'%\' '
+                else qwhereobj.text = ''
+                qwhere = setWhere()
+
+                //if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
+                //else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
                 }, false)
@@ -330,6 +410,50 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 console.log(obj)
             }, false)
         }
+    }
+
+    $scope.applyFilter = function(){
+        console.log($scope.selected.filter_due_date)
+        console.log($scope.filter_due_date)
+
+        //console.log($scope.selected.filter_cost_center)
+        if($scope.selected.filter_status.length>0){
+            var ids = []
+            for (var i=0;i<$scope.selected.filter_status.length;i++){
+                ids.push($scope.selected.filter_status[i].id)
+            }
+            qwhereobj.status= ' a.status in ('+ids.join(',')+') '
+        }
+        if ($scope.selected.filter_month.selected && $scope.selected.filter_year.selected){
+            qwhereobj.period = ' (a.open_date between \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-01\' and '+
+            ' \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-'+$scope.selected.filter_month.selected.last+'\') '
+        }
+        if ($scope.selected.filter_due_date.length>0){
+            var s= $scope.selected.filter_due_date.split(' - ')[0],d=$scope.selected.filter_due_date.split(' - ')[0];
+            qwhereobj.due_date = ' a.check_due_date between \''+s+' 00:00:00\' and \''+d+' 23:59:59\' '
+        }
+        if ($scope.selected.filter_supplier.selected){
+            qwhereobj.supplier = ' a.supplier_id= '+$scope.selected.filter_supplier.selected.supplier_id+' '
+        }
+
+        console.log(setWhere())
+        qwhere = setWhere()
+        $scope.dtInstance.reloadData(function(obj){
+            console.log(obj)
+        }, false)
+
+    }
+    function setWhere(){
+        var arrWhere = []
+        var strWhere = ''
+        for (var key in qwhereobj){
+            if (qwhereobj[key].length>0) arrWhere.push(qwhereobj[key])
+        }
+        if (arrWhere.length>0){
+            strWhere = ' where ' + arrWhere.join(' and ')
+        }
+        //console.log(strWhere)
+        return strWhere
     }
 
     /*END AD ServerSide*/
