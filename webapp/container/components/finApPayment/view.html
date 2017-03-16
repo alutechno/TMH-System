@@ -150,7 +150,7 @@
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.code.$invalid && !ap.code.$pristine }">
                           <label>Document No</label>
-                          <input type="text" class="form-control" name="name" ng-model="ap.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" class="form-control" name="name" ng-model="ap.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-readonly="true">
                       </div>
                   </div>
                   <div class="col-sm-4">
@@ -304,7 +304,8 @@
                                                         <tr>
                                                             <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
                                                             <th width="20%">Voucher No</th>
-                                                            <th width="10%">Date</th>
+                                                            <th width="10%">Open Date</th>
+                                                            <th width="10%">Due Date</th>
                                                             <th width="10%">Status</th>
                                                             <th width="10%">Source</th>
                                                             <th width="15%">Forex Due</th>
@@ -337,6 +338,7 @@
                                                                 </span>
                                                             </td>
                                                             <td><span>{{item.open_date}}</span></td>
+                                                            <td><span>{{item.due_date}}</span></td>
                                                             <td><span>{{item.status_name}}</span></td>
                                                             <td><span>{{item.source}}</span></td>
                                                             <td><span>{{item.home_total_amount}}</span></td>

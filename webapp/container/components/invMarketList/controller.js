@@ -817,6 +817,8 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 console.log(data)
                 console.log($scope.items)
                 $scope.items = []
+                $scope.totalQty = 0
+                $scope.tAmt = 0
                 for (var i=0;i<data.data.length;i++){
                     $scope.items.push({
                         id: i+1,

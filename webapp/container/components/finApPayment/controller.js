@@ -18,6 +18,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.trans = []
     $scope.transOri = []
     $scope.child = {}
+    $scope.voucher = {}
     var year = ['2015','2016','2017','2018','2019']
     var month = [
         {id:'01',last:'31'},
@@ -73,9 +74,16 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         //'and a.open_date beetween :date1 and :date2  '+
         //'and a.due_date between :date1and :date2'
     var qwhere = ''
-    var qstringt = 'select * '+
+    /*var qstringt = 'select a.id,a.code, '+
               'from acc_ap_voucher a '+
-              'inner join acc_payment_line_item b on a.id = b.voucher_id '
+              'inner join acc_payment_line_item b on a.id = b.voucher_id '*/
+  var qstringt ='select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
+      'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
+      	'and column_name = \'status\')b, acc_payment_line_item c '+
+      'where a.status=b.value '+
+      'and a.id=c.voucher_id '
+      //'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
+      //'order by id limit 20 '
               //'where b.deposit_id=?'
 
     var year = ['2015','2016','2017','2018','2019']
@@ -260,6 +268,21 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.setSupplier = function(e){
         console.log(e)
         $scope.ap.supplier_id=$scope.selected.supplier.selected.supplier_id
+        console.log($scope.trans)
+        if ($scope.trans.length>0){
+            queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
+                'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
+                	'and column_name = \'status\')b '+
+                'where a.status=b.value '+
+                'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
+                'order by id limit 20 ',undefined)
+            .then(function(data){
+                console.log($scope.voucher)
+                for(var i=0;i<($scope.trans.length);i++){
+                    $scope.voucher[$scope.trans[i].id] = data.data
+                }
+            })
+        }
     }
 
 
@@ -465,6 +488,15 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope.statusShow.push($scope.status[0])
         $scope.selected.status['selected'] = $scope.status[0]
         $('#form-input').modal('show')
+        var dt = new Date()
+
+        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        console.log(ym)
+        queryService.post('select cast(concat(\'PMT/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'PMT\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+        .then(function(data){
+            console.log(data)
+            $scope.ap.code = data.data[0].code
+        })
     }
     $scope.setIdr = function(a,b){
         console.log(a+b)
@@ -487,7 +519,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 code: $scope.ap.code,
             	check_no: $scope.ap.check,
             	bank_account_id: $scope.selected.bank_account.selected.id,
-                payment_method: $scope.selected.payment_method.selected.id,
+                //payment_method: $scope.selected.payment_method.selected.id,
             	status: $scope.selected.status.selected.id,
             	open_date: $scope.ap.open_date,
                 check_due_date: $scope.ap.due_date,
@@ -553,7 +585,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 code: $scope.ap.code,
             	check_no: $scope.ap.check,
             	bank_account_id: $scope.selected.bank_account.selected.id,
-                payment_method: $scope.selected.payment_method.selected.id,
+                //payment_method: $scope.selected.payment_method.selected.id,
             	status: $scope.selected.status.selected.id,
             	open_date: $scope.ap.open_date,
                 check_due_date: $scope.ap.due_date,
@@ -744,7 +776,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             $scope.trans = []
             $scope.transOri = []
 
-            queryService.get(qstringt+ ' where b.payment_id='+obj.id,undefined)
+            queryService.post(qstringt+ ' and c.payment_id='+obj.id,undefined)
             .then(function(result2){
                 var d = result2.data
                 console.log(d)
@@ -755,7 +787,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                             p_id: d[i].id,
                             code:d[i].code,
                             open_date:d[i].open_date,
-                            status: d[i].status,
+                            due_date:d[i].due_date,
+                            status_id: d[i].status,
+                            status_name: d[i].status_name,
                             source: d[i].source,
                             home_total_amount: d[i].home_total_amount,
                             total_amount: d[i].total_amount
@@ -913,7 +947,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     };
 
     // add user
-    $scope.voucher = {}
+
     $scope.addUser = function() {
         //console.log($scope.selected)
         $scope.item = {
@@ -921,6 +955,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             p_id: '',
             code:'',
             open_date:'',
+            due_date: '',
             status: '',
             source: '',
             home_total_amount: '',
@@ -930,9 +965,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             isNew: true
         };
         $scope.trans.push($scope.item)
-        queryService.get('select a.id,a.code,a.open_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
+        queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
             'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
-            	'and column_name = \'status\')b '+
+                'and column_name = \'status\')b '+
             'where a.status=b.value '+
             'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
             'order by id limit 20 ',undefined)
@@ -1017,10 +1052,11 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
     $scope.voucherUp = function(d,text) {
         //queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
-        queryService.post('select a.id,a.code,a.open_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
-            'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
-            	'and column_name = \'status\')b '+
-            'where a.status=b.value '+
+
+        queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
+                'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
+                    'and column_name = \'status\')b '+
+                'where a.status=b.value '+
             'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
             'and lower(code) like \''+text.toLowerCase()+'%\' '+
             'order by id limit 20 ',undefined)
@@ -1050,6 +1086,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope.trans[d-1].code = e.code
         $scope.trans[d-1].p_id = e.id
         $scope.trans[d-1].open_date = e.open_date
+        $scope.trans[d-1].due_date = e.due_date
         $scope.trans[d-1].status_id = e.status_id
         $scope.trans[d-1].status_name = e.status_name
         $scope.trans[d-1].source = e.source

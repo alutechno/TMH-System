@@ -18,6 +18,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.trans = []
     $scope.transOri = []
     $scope.child = {}
+    $scope.voucher = {}
     var qstring = 'select a.id,a.code, a.home_currency_exchange,a.check_no, '+
                 'DATE_FORMAT(a.open_date,\'%Y-%m-%d\') as open_date, a.status, b.name as \'status_name\', '+
                'a.notes, a.bank_account_id, c.name as \'bank_account\', d.name as \'bank\', '+
@@ -222,6 +223,21 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.setSupplier = function(e){
         console.log(e)
         $scope.ap.supplier_id=$scope.selected.supplier.selected.supplier_id
+        if ($scope.trans.length>0){
+            queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
+                'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
+                	'and column_name = \'status\')b '+
+                'where a.status=b.value '+
+                'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
+                'and a.status in(0,1) '+
+                'order by id limit 20 ',undefined)
+            .then(function(data){
+                console.log($scope.voucher)
+                for(var i=0;i<($scope.trans.length);i++){
+                    $scope.voucher[$scope.trans[i].id] = data.data
+                }
+            })
+        }
     }
 
 
@@ -769,7 +785,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     };
 
     // add user
-    $scope.voucher = {}
+
     $scope.addUser = function() {
         $scope.item = {
             id:($scope.trans.length+1),
@@ -789,6 +805,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
             	'and column_name = \'status\')b '+
             'where a.status=b.value '+
+            'and a.supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
+            'and a.status in(0,1) '+
             'order by id limit 20 ',undefined)
         .then(function(data){
             $scope.voucher[$scope.item.id] = data.data
@@ -877,6 +895,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
             	'and column_name = \'status\')b '+
             'where a.status=b.value '+
+            'and a.supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
+            'and a.status in(0,1) '+
             'and lower(code) like \''+text.toLowerCase()+'%\' '+
             'order by id limit 20 ',undefined)
         .then(function(data){

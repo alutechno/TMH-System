@@ -816,6 +816,8 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 console.log(data)
                 console.log($scope.items)
                 $scope.items = []
+                $scope.totalQty = 0
+                $scope.tAmt = 0
                 for (var i=0;i<data.data.length;i++){
                     $scope.items.push({
                         id: i+1,
@@ -830,7 +832,6 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                     })
                     $scope.totalQty += data.data[i].order_qty
                     $scope.tAmt += data.data[i].order_amount
-
                 }
                 $scope.itemsOri = angular.copy($scope.items)
                 //$scope.items = data.data
