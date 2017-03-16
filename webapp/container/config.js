@@ -2422,6 +2422,50 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state("app.fin.apEop", {
+        url: "/finApEop",
+        templateUrl: "container/components/finApEop/view.html",
+        controller: "FinApEopCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/finApEop/controller.js");
+                });
+            }]
+        }
+    })
+    .state("app.fin.apDirect", {
+        url: "/finApDirect",
+        templateUrl: "container/components/finApDirect/view.html",
+        controller: "FinApDirectCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/finApDirect/controller.js");
+                });
+            }]
+        }
+    })
 
     // Extra - Others
     .state('access', {
