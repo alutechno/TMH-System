@@ -101,10 +101,7 @@ roleController
              type: 'GET',
              headers: {
                 "authorization":  'Basic ' + $localStorage.mediaToken
-            },
-			data: function (data) {
-	            data.customSearch = $scope.filterVal.search;
-	        }
+            }
          })
          .withDataProp('data')
             .withOption('processing', true)

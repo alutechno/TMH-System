@@ -210,6 +210,7 @@ module.exports = function(connection,jwt){
         order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
 
         var sqlstr = 'SELECT id,name from role'+where
+		
 		connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
             if (!err){
                 dtParam['recordsFiltered'] = rows[0].cnt
