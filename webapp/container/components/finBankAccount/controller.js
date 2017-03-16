@@ -203,7 +203,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         DTColumnBuilder.newColumn('currency_name').withTitle('Currency'),
         DTColumnBuilder.newColumn('gl_account_code').withTitle('G/L Account'),
         DTColumnBuilder.newColumn('ap_account_code').withTitle('A/P Clearance'),
-        DTColumnBuilder.newColumn('ar_account_code').withTitle('A/R Clearance'),
+        DTColumnBuilder.newColumn('ar_account_code').withTitle('A/R Clearance')
     );
 
     $scope.filter = function(type,event) {
