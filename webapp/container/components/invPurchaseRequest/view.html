@@ -146,7 +146,25 @@
             <div class="panel-body">
                 <div ng-if="show.prTable" id="divPr" >
                     <table class="table table-hover table-condensed " id="prTable" name="prTable" datatable dt-options="dtOptions" dt-columns="dtColumns" dt-instance="nested.dtInstance">
+                        <tfoot>
+                        <tr></tr>
+                        </tfoot>
                     </table>
+                    <script type="text/ng-template" id="tableFooter">
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th class="text-right">Total:</th>
+                        <th class="text-right">{{ sums| number : fractionSize }}</th>
+
+                    </script>
                 </div>
 
                 <!--<div class="col-sm-12" ng-show="show.itemTable">

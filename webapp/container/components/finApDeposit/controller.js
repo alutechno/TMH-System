@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinApDepositCtrl',
-function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+function($scope, $state, $sce, $templateCache,productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -19,6 +19,10 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.transOri = []
     $scope.child = {}
     $scope.voucher = {}
+    $scope.sums1 = 0
+    $scope.sums2 = 0
+    $scope.sums3 = 0
+    $scope.sums4 = 0
     var qstring = 'select a.id,a.code, a.home_currency_exchange,a.check_no, '+
                 'DATE_FORMAT(a.open_date,\'%Y-%m-%d\') as open_date, a.status, b.name as \'status_name\', '+
                'a.notes, a.bank_account_id, c.name as \'bank_account\', d.name as \'bank\', '+
@@ -43,7 +47,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         //'and a.open_date beetween :date1 and :date2  '+
         //'and a.due_date between :date1and :date2'
     var qwhere = ''
-    var qstringt = 'select b.id,a.code,a.open_date,a.status,a.source,a.home_total_amount,b.applied_amount,a.current_due_amount '+
+    var qstringt = 'select b.id,a.code,date_format(a.open_date,\'%Y-%m-%d\') open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,b.applied_amount,a.current_due_amount '+
               'from acc_ap_voucher a '+
               'inner join acc_deposit_line_item b on a.id = b.voucher_id '
               //'where b.deposit_id=?'
@@ -314,23 +318,33 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     .withOption('scrollX',true)
     .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow)
-    /*.withOption("oTableTools", {
-        "sSwfPath": "assets/plugins/jquery-datatable/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
-        "aButtons": [{
-            "sExtends": "csv",
-            "sButtonText": "<i class='pg-grid'></i>",
-        }, {
-            "sExtends": "xls",
-            "sButtonText": "<i class='fa fa-file-excel-o'></i>",
-        }, {
-            "sExtends": "pdf",
-            "sButtonText": "<i class='fa fa-file-pdf-o'></i>",
-        }, {
-            "sExtends": "copy",
-            "sButtonText": "<i class='fa fa-copy'></i>",
-        }]
-    })
-    .withOption("sDom", "<'exportOptions'T><'table-responsive't><'row'<p i>>")*/;
+    .withOption('footerCallback', function (tfoot, data) {
+        console.log('tfoot',data)
+
+        if (data.length > 0) {
+            // Need to call $apply in order to call the next digest
+            $scope.$apply(function () {
+                //$scope.sums = 100;
+                var footer = $templateCache.get('tableFooter'),
+                        $tfoot = angular.element(tfoot),
+                        content = $compile(footer)($scope);
+                //$tfoot.find('tr').html(content);
+                console.log(content)
+                $tfoot.html(content)
+            });
+        }
+    });
+    queryService.post('select sum(tot_deposit_amount)as sm,sum(home_deposit_amount)as sm2,sum(tot_applied_amount) as sm3,sum(tot_balance_amount) as sm4 from ('+qstring+qwhere+')a',undefined)
+    .then(function(data){
+        console.log('tfoot2',data)
+
+        $scope.sums1 = data.data[0].sm;
+        $scope.sums2 = data.data[0].sm2;
+        $scope.sums3 = data.data[0].sm3;
+        $scope.sums4 = data.data[0].sm4;
+
+
+    });
 
     $scope.dtColumns = [];
     if ($scope.el.length>0){
@@ -355,10 +369,10 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         //DTColumnBuilder.newColumn('home_deposit_amount').withTitle('Total Amount'),
         //DTColumnBuilder.newColumn('tot_applied_amount').withTitle('Applied'),
         //DTColumnBuilder.newColumn('tot_balance_amount').withTitle('Balance')
-        DTColumnBuilder.newColumn('tda').withTitle('Total(IDR)').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('hda2').withTitle('Total Amount').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('taa').withTitle('Applied').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('tba').withTitle('Balance').withOption('width', '5%')
+        DTColumnBuilder.newColumn('tda').withTitle('Total Amount(IDR)').withOption('width', '6%').withClass('text-right'),
+        DTColumnBuilder.newColumn('hda2').withTitle('Total Amount').withOption('width', '5%').withClass('text-right'),
+        DTColumnBuilder.newColumn('taa').withTitle('Applied').withOption('width', '4%').withClass('text-right'),
+        DTColumnBuilder.newColumn('tba').withTitle('Balance').withOption('width', '5%').withClass('text-right')
     );
 
     var qwhereobj = {
@@ -439,9 +453,23 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         if (state == 'add'){
             $scope.clear()
         }
+        $scope.items = []
+        $scope.itemsOri = []
+        $scope.trans = []
+        $scope.transOri = []
+
         $scope.statusShow.push($scope.status[0])
         $scope.selected.status['selected'] = $scope.status[0]
         $('#form-input').modal('show')
+        var dt = new Date()
+
+        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        console.log(ym)
+        queryService.post('select cast(concat(\'AP/DP/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'APDP\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+        .then(function(data){
+            console.log(data)
+            $scope.ap.code = data.data[0].code
+        })
     }
     $scope.setIdr = function(a,b){
         console.log(a+b)
@@ -673,7 +701,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             else if(result.data[0].status=="1"){
                 $scope.statusShow.push($scope.status[2])
             }
-            queryService.get(qstringt+ ' where b.deposit_id='+obj.id,undefined)
+            queryService.post(qstringt+ ' where b.deposit_id='+obj.id,undefined)
             .then(function(result2){
                 var d = result2.data
                 console.log(d)
@@ -684,6 +712,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                             p_id: d[i].id,
                             code:d[i].code,
                             open_date:d[i].open_date,
+                            due_date:d[i].due_date,
                             status: d[i].status,
                             source: d[i].source,
                             home_total_amount: d[i].home_total_amount,
@@ -801,7 +830,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             isNew: true
         };
         $scope.trans.push($scope.item)
-        queryService.get('select a.id,a.code,a.open_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
+        queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
             'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
             	'and column_name = \'status\')b '+
             'where a.status=b.value '+

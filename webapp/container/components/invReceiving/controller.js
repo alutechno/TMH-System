@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('InvReceivingCtrl',
-function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOptionsBuilder, DTColumnBuilder,DTColumnDefBuilder, $localStorage, $compile, $rootScope, API_URL,
+function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,prService, DTOptionsBuilder, DTColumnBuilder,DTColumnDefBuilder, $localStorage, $compile, $rootScope, API_URL,
     warehouseService) {
 
     $scope.el = [];
@@ -23,7 +23,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 
     var qstring = 'select * from (select aa.*,g.name warehouse_name,h.name cost_center_name from( '+
         'select a.id,a.code,a.po_id,a.received_status status_id,c.name status_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\') as created_date,'+
-        'a.currency_id,d.supplier_id,e.name supplier_name,f.code currency_code,format(a.total_amount,0)total_amount,a.receive_notes notes,d.warehouse_id,'+
+        'a.currency_id,d.supplier_id,e.name supplier_name,f.code currency_code,format(a.total_amount,0)total_amount,a.total_amount TotalSum,a.receive_notes notes,d.warehouse_id,'+
         'd.cost_center_id,DATE_FORMAT(d.delivery_date,\'%Y-%m-%d\') delivery_date,a.home_currency_exchange, '+
         'd.code po_code,d.po_source,DATE_FORMAT(a.receive_date,\'%Y-%m-%d\')receive_date,a.receive_notes '+
         'from inv_po_receive a,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f '+
@@ -320,6 +320,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         // Recompiling so we can bind Angular directive to the DT
         $compile(angular.element(row).contents())($scope);
     }
+    $scope.sums = 0
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
@@ -340,7 +341,29 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
     .withOption('order', [0, 'desc'])
-    .withOption('createdRow', $scope.createdRow);
+    .withOption('createdRow', $scope.createdRow)
+    .withOption('footerCallback', function (tfoot, data) {
+        console.log('tfoot',data)
+
+        if (data.length > 0) {
+            // Need to call $apply in order to call the next digest
+            $scope.$apply(function () {
+                //$scope.sums = 100;
+                var footer = $templateCache.get('tableFooter'),
+                        $tfoot = angular.element(tfoot),
+                        content = $compile(footer)($scope);
+                //$tfoot.find('tr').html(content);
+                console.log(content)
+                $tfoot.html(content)
+            });
+        }
+    });
+    queryService.post('select sum(TotalSum)as sm from ('+qstring+qwhere+')a',undefined)
+    .then(function(data){
+        console.log('tfoot2',data)
+        $scope.sums = data.data[0].sm;
+
+    });
 
     $scope.dtColumns = [];
     if ($scope.el.length>0){
@@ -353,7 +376,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         DTColumnBuilder.newColumn('created_date').withTitle('Created at'),
         DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier'),
         DTColumnBuilder.newColumn('currency_code').withTitle('Currency'),
-        DTColumnBuilder.newColumn('total_amount').withTitle('Amount')
+        DTColumnBuilder.newColumn('total_amount').withTitle('Amount').withClass('text-right')
     );
 
     $scope.filter = function(type,event) {

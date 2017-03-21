@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinApVoucherCtrl',
-function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+function($scope, $state, $sce, $templateCache, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
     $scope.printMode =  false;
@@ -360,6 +360,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         // Recompiling so we can bind Angular directive to the DT
         $compile(angular.element(row).contents())($scope);
     }
+    $scope.sums1 = 0
+    $scope.sums2 = 0
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
@@ -382,6 +384,30 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     .withOption('scrollX',true)
     .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow)
+    .withOption('footerCallback', function (tfoot, data) {
+        console.log('tfoot',data)
+
+        if (data.length > 0) {
+            // Need to call $apply in order to call the next digest
+            $scope.$apply(function () {
+                //$scope.sums = 100;
+                var footer = $templateCache.get('tableFooter'),
+                        $tfoot = angular.element(tfoot),
+                        content = $compile(footer)($scope);
+                //$tfoot.find('tr').html(content);
+                console.log(content)
+                $tfoot.html(content)
+            });
+        }
+    });
+    queryService.post('select sum(total_amount)as sm,sum(home_total_amount)as sm2 from ('+qstring+qwhere+')a',undefined)
+    .then(function(data){
+        console.log('tfoot2',data)
+        $scope.sums1 = data.data[0].sm;
+        $scope.sums2 = data.data[0].sm2;
+
+
+    });
     /*.withOption("oTableTools", {
         "sSwfPath": "assets/plugins/jquery-datatable/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
         "aButtons": [{
@@ -492,7 +518,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         return strWhere
     }
 
-    
+
     /*END AD ServerSide*/
 
     $scope.openQuickView = function(state){

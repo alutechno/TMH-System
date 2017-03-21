@@ -6,7 +6,7 @@ userController.run(function(editableOptions) {
 });
 userController
 .controller('InvPurchaseRequestCtrl',
-function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOptionsBuilder, DTColumnBuilder,DTColumnDefBuilder, $localStorage, $compile, $rootScope, API_URL,
+function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,prService, DTOptionsBuilder, DTColumnBuilder,DTColumnDefBuilder, $localStorage, $compile, $rootScope, API_URL,
     warehouseService) {
 
     $scope.el = [];
@@ -65,6 +65,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         'a.cost_center_id,c.name cost_center_name, '+
     	'a.warehouse_id,d.name warehouse_name, '+
     'format((SELECT SUM(order_amount) FROM inv_pr_line_item item WHERE item.pr_id = a.id),0) AS Total, '+
+    '(SELECT SUM(order_amount) FROM inv_pr_line_item item WHERE item.pr_id = a.id) AS TotalSum, '+
     'case when approval_status = 1 then \'Approved\' when approval_status = 2 then \'Rejected\' else \'None\'  end as status '+
     'from ref_pr_document_status b,inv_purchase_request a '+
     'left join mst_cost_center as c on a.cost_center_id=c.id '+
@@ -213,6 +214,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         // Recompiling so we can bind Angular directive to the DT
         $compile(angular.element(row).contents())($scope);
     }
+    $scope.sums = 0
 
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
@@ -234,7 +236,29 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     .withOption('order', [1, 'desc'])
     .withDisplayLength(10)
     .withOption('scrollX',true)
-    .withOption('createdRow', $scope.createdRow);
+    .withOption('createdRow', $scope.createdRow)
+    .withOption('footerCallback', function (tfoot, data) {
+        console.log('tfoot',data)
+
+        if (data.length > 0) {
+            // Need to call $apply in order to call the next digest
+            $scope.$apply(function () {
+                //$scope.sums = 100;
+                var footer = $templateCache.get('tableFooter'),
+                        $tfoot = angular.element(tfoot),
+                        content = $compile(footer)($scope);
+                //$tfoot.find('tr').html(content);
+                console.log(content)
+                $tfoot.html(content)
+            });
+        }
+    });
+    queryService.post('select sum(TotalSum)as sm from ('+qstring+qwhere+')a',undefined)
+    .then(function(data){
+        console.log('tfoot2',data)
+        $scope.sums = data.data[0].sm;
+
+    })
 
     $scope.dtColumns = [];
     if ($scope.el.length>0){

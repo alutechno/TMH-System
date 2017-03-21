@@ -109,16 +109,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.focusinControl = {};
     $scope.fileName = "Master Bank Account";
     $scope.exportExcel = function(){
-        DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '15%'),
-        DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
-        //DTColumnBuilder.newColumn('account_type_name').withTitle('Type'),
-        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account#'),
-        DTColumnBuilder.newColumn('bank_name').withTitle('Bank Name'),
-        DTColumnBuilder.newColumn('currency_name').withTitle('Currency'),
-        DTColumnBuilder.newColumn('gl_account_code').withTitle('G/L Account'),
-        DTColumnBuilder.newColumn('ap_account_code').withTitle('A/P Clearance'),
-        DTColumnBuilder.newColumn('ar_account_code').withTitle('A/R Clearance'),
+        
         queryService.post('select code,name,short_name,bank_account,bank_name,currency_name,gl_account_code,ap_account_code,ar_account_code from('+qstring + qwhere+')aa order by id desc',undefined)
         .then(function(data){
             $scope.exportData = [];

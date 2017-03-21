@@ -122,7 +122,34 @@
             <div class="panel-body">
                 <div class="table-responsive" id="printThisElement">
                     <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" width="3800px">
+                        <tfoot>
+                        <tr></tr>
+                        </tfoot>
                     </table>
+                    <script type="text/ng-template" id="tableFooter">
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+
+                        <th class="text-right">Total:</th>
+                        <th class="text-right">{{ sums1| number : fractionSize }}</th>
+                        <th class="text-right">{{ sums2| number : fractionSize }}</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+
+                    </script>
             </div>
         </div>
     </div>
@@ -332,7 +359,7 @@
                                                                       <!--{{$select.selected.name}}-->
                                                                       {{item.code || 'Empty'}}
                                                                   </editable-ui-select-match>
-                                                                  <editable-ui-select-choices repeat="d in voucher[item.id] | filter: $select.search">
+                                                                  <editable-ui-select-choices repeat="d in voucher[item.id] | filter: $select.search" style="width: 300px">
                                                                       <div ng-bind-html="trustAsHtml((d.code | highlight: $select.search))"></div>
                                                                   </editable-ui-select-choices>
                                                                 </span>
@@ -341,8 +368,8 @@
                                                             <td><span>{{item.due_date}}</span></td>
                                                             <td><span>{{item.status_name}}</span></td>
                                                             <td><span>{{item.source}}</span></td>
-                                                            <td><span>{{item.home_total_amount}}</span></td>
-                                                            <td><span>{{item.total_amount}}</span></td>
+                                                            <td style="text-align: right;"><span>{{item.home_total_amount| number : fractionSize}}</span></td>
+                                                            <td style="text-align: right;"><span>{{item.total_amount| number : fractionSize}}</span></td>
                                                         </tr>
 
                                                         </tbody>

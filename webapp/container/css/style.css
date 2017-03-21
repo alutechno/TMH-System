@@ -185,3 +185,7 @@ span.ui-select-match-text.pull-left {
   text-overflow: ellipsis; /* not supported in all browsers, but I accepted the tradeoff */
   white-space: nowrap;
 }
+
+.gray-text {
+    color: #b5b5b5;
+}

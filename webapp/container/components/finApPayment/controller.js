@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinApPaymentCtrl',
-function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+function($scope, $state, $sce,$templateCache, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -19,6 +19,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.transOri = []
     $scope.child = {}
     $scope.voucher = {}
+    $scope.sums1 = 0
+    $scope.sums2 = 0
+
     var year = ['2015','2016','2017','2018','2019']
     var month = [
         {id:'01',last:'31'},
@@ -53,6 +56,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
            'a.check_no, a.status, e.name as status_name,  '+
            'a.supplier_id, d.name as supplier_name, a.currency_id,  '+
            'f.code as currency_code,f.name as currency_name,a.currency_exchange, a.total_amount, a.home_total_amount, a.bank_account_id, '+
+           'format(a.total_amount,0) ta, format(a.home_total_amount,0) hta,'+
            'g.name as bank_account,a.payment_method,h.name payment_method_name,g.bank_id,a.prepare_notes,DATE_FORMAT(a.prepared_date,\'%Y-%m-%d\') prepared_date, '+
            'DATE_FORMAT(a.issued_date,\'%Y-%m-%d\') issued_date,DATE_FORMAT(a.approved_date,\'%Y-%m-%d\') approved_date,DATE_FORMAT(a.created_date,\'%Y-%m-%d\')created_date, '+
            'i.name approved_by_name,j.name prepared_by_name,k.name issued_by_name,l.name created_by_name '+
@@ -77,7 +81,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     /*var qstringt = 'select a.id,a.code, '+
               'from acc_ap_voucher a '+
               'inner join acc_payment_line_item b on a.id = b.voucher_id '*/
-  var qstringt ='select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
+  var qstringt ='select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name, '+
+    'format(a.total_amount,0)ta,format(a.home_total_amount,0)hta '+
       'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
       	'and column_name = \'status\')b, acc_payment_line_item c '+
       'where a.status=b.value '+
@@ -361,51 +366,60 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     .withOption('scrollX',true)
     .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow)
-    /*.withOption("oTableTools", {
-        "sSwfPath": "assets/plugins/jquery-datatable/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
-        "aButtons": [{
-            "sExtends": "csv",
-            "sButtonText": "<i class='pg-grid'></i>",
-        }, {
-            "sExtends": "xls",
-            "sButtonText": "<i class='fa fa-file-excel-o'></i>",
-        }, {
-            "sExtends": "pdf",
-            "sButtonText": "<i class='fa fa-file-pdf-o'></i>",
-        }, {
-            "sExtends": "copy",
-            "sButtonText": "<i class='fa fa-copy'></i>",
-        }]
-    })
-    .withOption("sDom", "<'exportOptions'T><'table-responsive't><'row'<p i>>")*/;
+    .withOption('footerCallback', function (tfoot, data) {
+        console.log('tfoot',data)
+
+        if (data.length > 0) {
+            // Need to call $apply in order to call the next digest
+            $scope.$apply(function () {
+                //$scope.sums = 100;
+                var footer = $templateCache.get('tableFooter'),
+                        $tfoot = angular.element(tfoot),
+                        content = $compile(footer)($scope);
+                //$tfoot.find('tr').html(content);
+                console.log(content)
+                $tfoot.html(content)
+            });
+        }
+    });
 
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '5%'))
+        .renderWith($scope.actionsHtml).withOption('width', '3%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('Transc No'),
-        DTColumnBuilder.newColumn('code').withTitle('Doc No').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('check_no').withTitle('Check No').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('open_date').withTitle('Open Date').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('check_due_date').withTitle('Due Date').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('status_name').withTitle('Status'),
-        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '20%'),
+        DTColumnBuilder.newColumn('id').withTitle('Transc No').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('code').withTitle('Doc No').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('check_no').withTitle('Check No').withOption('width', '6%'),
+        DTColumnBuilder.newColumn('open_date').withTitle('Open Date').withOption('width', '4%'),
+        DTColumnBuilder.newColumn('check_due_date').withTitle('Due Date').withOption('width', '4%'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '3%'),
+        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '9%'),
         //DTColumnBuilder.newColumn('age').withTitle('Age'),
-        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account'),
-        DTColumnBuilder.newColumn('currency_code').withTitle('Currency'),
-        DTColumnBuilder.newColumn('total_amount').withTitle('Total amount (IDR)'),
-        DTColumnBuilder.newColumn('home_total_amount').withTitle('Total Amount'),
-        DTColumnBuilder.newColumn('approved_date').withTitle('Approved Date'),
-        DTColumnBuilder.newColumn('approved_by_name').withTitle('Approved By'),
-        DTColumnBuilder.newColumn('prepared_date').withTitle('Prepared Date'),
-        DTColumnBuilder.newColumn('prepared_by_name').withTitle('Prepared By'),
-        DTColumnBuilder.newColumn('issued_date').withTitle('Issued Date'),
-        DTColumnBuilder.newColumn('issued_by_name').withTitle('Issued By'),
-        DTColumnBuilder.newColumn('created_date').withTitle('Created Date'),
-        DTColumnBuilder.newColumn('created_by_name').withTitle('Created By')
+        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('currency_code').withTitle('Currency').withOption('width', '4%'),
+        DTColumnBuilder.newColumn('ta').withTitle('Total amount (IDR)').withOption('width', '6%').withClass('text-right'),
+        DTColumnBuilder.newColumn('hta').withTitle('Total Amount').withOption('width', '5%').withClass('text-right'),
+        DTColumnBuilder.newColumn('approved_date').withTitle('Approved Date').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('approved_by_name').withTitle('Approved By').withOption('width', '4%'),
+        DTColumnBuilder.newColumn('prepared_date').withTitle('Prepared Date').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('prepared_by_name').withTitle('Prepared By').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('issued_date').withTitle('Issued Date').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('issued_by_name').withTitle('Issued By').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('created_date').withTitle('Created Date').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('created_by_name').withTitle('Created By').withOption('width', '5%')
     );
+    queryService.post('select sum(total_amount)as sm,sum(home_total_amount)as sm2 from ('+qstring+qwhere+')a',undefined)
+    .then(function(data){
+        console.log('tfoot2',data)
+
+        $scope.sums1 = data.data[0].sm;
+        $scope.sums2 = data.data[0].sm2;
+
+
+
+    });
 
     var qwhereobj = {
         text: '',
@@ -781,9 +795,10 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 var d = result2.data
                 console.log(d)
                 for (var i=0;i<d.length;i++){
+                    var ii = i+1
                     $scope.trans.push(
                         {
-                            id:(i+1),
+                            id:(ii),
                             p_id: d[i].id,
                             code:d[i].code,
                             open_date:d[i].open_date,
@@ -795,6 +810,16 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                             total_amount: d[i].total_amount
                         }
                     )
+                    queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
+                        'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
+                            'and column_name = \'status\')b '+
+                        'where a.status=b.value '+
+                        'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
+                        'order by id limit 20 ',undefined)
+                    .then(function(data){
+                        $scope.voucher[ii] = data.data
+                        console.log('update',$scope.voucher)
+                    })
                 }
                 $scope.transOri = angular.copy($scope.trans)
 

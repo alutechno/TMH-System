@@ -2073,6 +2073,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
         url: "/gltransaction",
         templateUrl: "container/components/finGlTransaction/view.html",
         controller: 'FinGlTransactionCtrl',
+        params:      {'status': null,currentYear:null,currentMonth:null,nextYear:null,nextMonth:null},
         resolve: {
             deps: ['$ocLazyLoad', function($ocLazyLoad) {
                 return $ocLazyLoad.load([

@@ -122,7 +122,29 @@
             <div class="panel-body">
                 <div class="table-responsive" id="printThisElement">
                     <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" width="3500px">
+                        <tfoot>
+                        <tr></tr>
+                        </tfoot>
                     </table>
+                    <script type="text/ng-template" id="tableFooter">
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th>Total:</th>
+                        <th class="text-right">{{ sums1| number : fractionSize }}</th>
+                        <th class="text-right">{{ sums2| number : fractionSize }}</th>
+                        <th class="text-right">{{ sums3| number : fractionSize }}</th>
+                        <th class="text-right">{{ sums4| number : fractionSize }}</th>
+                    </script>
             </div>
         </div>
     </div>
@@ -150,7 +172,7 @@
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.code.$invalid && !ap.code.$pristine }">
                           <label>Document No</label>
-                          <input type="text" class="form-control" name="name" ng-model="ap.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" class="form-control" name="name" ng-model="ap.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-readonly="true">
                       </div>
                   </div>
                   <div class="col-sm-4">
@@ -227,6 +249,29 @@
 
               <h5>Deposit Detail</h5>
               <div class="row clearfix">
+
+                    <div class="col-sm-4">
+                        <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.currency_id.$invalid && !ap.currency_id.$pristine }">
+                            <label>Currency</label>
+                            <ui-select ng-model="selected.currency.selected" theme="bootstrap" on-select="ap.currency_id=selected.currency.selected.currency_id" validate-attached-form-element required >
+                                <ui-select-match placeholder="select currency">{{$select.selected.currency_name}}</ui-select-match>
+                                <ui-select-choices repeat="item in currency | filter: $select.search">
+                                    <span ng-bind-html="trustAsHtml((item.currency_name | highlight: $select.search))"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div pg-form-group class="form-group form-group-default" >
+                            <label>Exchange (in IDR)</label>
+                            <input type="text" class="form-control" name="exchange" ng-model="ap.exchange" >
+                        </div>
+                    </div>
+
+              </div>
+              <br />
+              <div class="row clearfix">
                   <div class="col-sm-4">
                       <p class="text-center m-b-0"><b>Foreign Currency</b></p>
                   </div>
@@ -238,13 +283,13 @@
               <div class="row clearfix">
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Deposit Amount</label>
+                          <label ng-class="{'gray-text':selected.currency.selected.currency_id==1}">Deposit Amount</label>
                           <input type="text" class="form-control" name="deposit_home" ng-model="ap.deposit_home" ng-keyup="setIdr('deposit_home','deposit_idr')" ng-disabled="selected.currency.selected.currency_id==1">
                       </div>
                   </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Deposit Amount (IDR)</label>
+                          <label ng-class="{'gray-text':selected.currency.selected.currency_id==2}">Deposit Amount (IDR)</label>
                           <input type="text" class="form-control" name="deposit_idr" ng-model="ap.deposit_idr" ng-disabled="selected.currency.selected.currency_id==2">
                       </div>
                   </div>
@@ -278,28 +323,7 @@
                       </div>
                   </div>
               </div>
-              <div class="row clearfix">
 
-                    <div class="col-sm-4">
-                        <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.currency_id.$invalid && !ap.currency_id.$pristine }">
-                            <label>Currency</label>
-                            <ui-select ng-model="selected.currency.selected" theme="bootstrap" on-select="ap.currency_id=selected.currency.selected.currency_id" validate-attached-form-element required >
-                                <ui-select-match placeholder="select currency">{{$select.selected.currency_name}}</ui-select-match>
-                                <ui-select-choices repeat="item in currency | filter: $select.search">
-                                    <span ng-bind-html="trustAsHtml((item.currency_name | highlight: $select.search))"></span>
-                                </ui-select-choices>
-                            </ui-select>
-                        </div>
-                    </div>
-
-                    <div class="col-sm-4">
-                        <div pg-form-group class="form-group form-group-default" >
-                            <label>Exchange (in IDR)</label>
-                            <input type="text" class="form-control" name="exchange" ng-model="ap.exchange" >
-                        </div>
-                    </div>
-
-              </div>
 
 
               <div class="panel panel-transparent ">
@@ -323,8 +347,10 @@
                                                         <thead>
                                                         <tr>
                                                             <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
-                                                            <th width="20%">Voucher No</th>
-                                                            <th width="10%">Description</th>
+                                                            <th width="15%">Voucher No</th>
+                                                            <th width="10%">Date</th>
+                                                            <th width="10%">Status</th>
+                                                            <th width="15%">Total</th>
                                                             <th width="10%">Applied</th>
 
                                                         </tr>
@@ -356,10 +382,17 @@
                                                             </td>
                                                             <td style="vertical-align: middle;">
                                                                 <span>Open: {{item.open_date}}</span><br />
+                                                                <span>Due: {{item.due_date}}</span><br />
+
+                                                            </td>
+                                                            <td style="vertical-align: middle;">
                                                                 <span>Status: {{item.status_name}}</span><br />
                                                                 <span>Source: {{item.source}}</span><br />
-                                                                <span>Home Total Amt: {{item.home_total_amount| number : fractionSize}}</span><br />
-                                                                <span>Total Amt: {{item.total_amount| number : fractionSize}}</span><br />
+
+                                                            </td>
+                                                            <td style="vertical-align: middle;">
+                                                                <span>Home Total: {{item.home_total_amount| number : fractionSize}}</span><br />
+                                                                <span>Total: {{item.total_amount| number : fractionSize}}</span><br />
                                                                 <span>Current Due: {{item.current_due_amount| number : fractionSize}}</span>
                                                             </td>
                                                             <td style="vertical-align: middle;">

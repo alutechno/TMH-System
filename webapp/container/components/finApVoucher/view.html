@@ -173,7 +173,26 @@
             <div class="panel-body">
                 <div class="table-responsive" >
                     <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" width="3000px">
+                        <tfoot>
+                        <tr></tr>
+                        </tfoot>
                     </table>
+                    <script type="text/ng-template" id="tableFooter">
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th>Total:</th>
+                        <th class="text-right">{{ sums1| number : fractionSize }}</th>
+                        <th class="text-right">{{ sums2| number : fractionSize }}</th>
+
+                    </script>
                 </div>
                 <div class="table-responsive print_a4" id="printSection" >
                     <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
@@ -280,7 +299,35 @@
                 </div>
               </div>
 
-              <h5>Payment Detail</h5><br>
+              <h5>Payment Detail</h5>
+
+              <div class="row clearfix">
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.currency_id.$invalid && !ap.currency_id.$pristine }">
+                        <label>Currency</label>
+                        <ui-select ng-model="selected.currency.selected" theme="bootstrap" on-select="ap.currency_id=selected.currency.selected.currency_id;ap.exchange=$item.home_currency_exchange" ng-readonly="isReceiving">
+                            <ui-select-match placeholder="select currency">{{$select.selected.currency_name}}</ui-select-match>
+                            <ui-select-choices repeat="item in currency | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.currency_name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <!--<div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default" >
+                        <label>Forex</label>
+                        <input type="text" class="form-control" name="forex" ng-model="ap.forex" >
+                    </div>
+                </div>-->
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default" >
+                        <label>Exchange (in IDR)</label>
+                        <input type="text" class="form-control" name="exchange" ng-model="ap.exchange" >
+                    </div>
+                </div>
+              </div>
+              <br>
+
               <div class="row clearfix">
                   <div class="col-sm-4">
                       <p class="text-center m-b-0"><b>Foreign Currency</b></p>
@@ -293,13 +340,13 @@
               <div class="row clearfix">
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Voucher Amount</label>
+                          <label ng-class="{'gray-text':selected.currency.selected.currency_id==1}">Voucher Amount</label>
                           <input type="text" class="form-control" name="total_home" ng-model="ap.total_home" ng-disabled="selected.currency.selected.currency_id==1" ng-keyup="setAmt()">
                       </div>
                   </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Voucher Amount (IDR)</label>
+                          <label ng-class="{'gray-text':selected.currency.selected.currency_id==2}">Voucher Amount (IDR)</label>
                           <input type="text" class="form-control" name="total_idr" ng-model="ap.total_idr" ng-disabled="selected.currency.selected.currency_id==2" ng-keyup="setAmt()">
                       </div>
                   </div>
@@ -327,13 +374,13 @@
 
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Deposit Amount</label>
+                          <label ng-class="{'gray-text':selected.depositStat==0||selected.currency.selected.currency_id==1}">Deposit Amount</label>
                           <input type="text" class="form-control" name="deposit_home" ng-model="ap.deposit_home" ng-disabled="selected.depositStat==0||selected.currency.selected.currency_id==1" ng-keyup="setAmt()">
                       </div>
                   </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Deposit Amount (IDR)</label>
+                          <label ng-class="{'gray-text':selected.depositStat==0||selected.currency.selected.currency_id==2}">Deposit Amount (IDR)</label>
                           <input type="text" class="form-control" name="deposit_idr" ng-model="ap.deposit_idr" ng-disabled="selected.depositStat==0||selected.currency.selected.currency_id==2" ng-keyup="setAmt()">
                       </div>
                   </div>
@@ -362,13 +409,13 @@
 
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Tax Amount</label>
+                          <label ng-class="{'gray-text':selected.taxStat==0||selected.currency.selected.currency_id==1}">Tax Amount</label>
                           <input type="text" class="form-control" name="tax_home" ng-model="ap.tax_home" ng-disabled="selected.taxStat==0||selected.currency.selected.currency_id==1">
                       </div>
                   </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Tax Amount (IDR)</label>
+                          <label ng-class="{'gray-text':selected.taxStat==0||selected.currency.selected.currency_id==2}">Tax Amount (IDR)</label>
                           <input type="text" class="form-control" name="tax_idr" ng-model="ap.tax_idr" ng-disabled="selected.taxStat==0||selected.currency.selected.currency_id==2">
                       </div>
                   </div>
@@ -391,13 +438,13 @@
               <div class="row clearfix">
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Payment Amount</label>
+                          <label ng-class="{'gray-text':selected.currency.selected.currency_id==1}">Payment Amount</label>
                           <input type="text" class="form-control" name="payment_home" ng-model="ap.payment_home" ng-disabled="selected.currency.selected.currency_id==1">
                       </div>
                   </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Payment Amount (IDR)</label>
+                          <label ng-class="{'gray-text':selected.currency.selected.currency_id==2}">Payment Amount (IDR)</label>
                           <input type="text" class="form-control" name="payment_idr" ng-model="ap.payment_idr" ng-disabled="selected.currency.selected.currency_id==2">
                       </div>
                   </div>
@@ -405,44 +452,19 @@
               <div class="row clearfix">
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Current Due</label>
+                          <label ng-class="{'gray-text':selected.currency.selected.currency_id==1}">Current Due</label>
                           <input type="text" class="form-control" name="current_due_home" ng-model="ap.current_due_home" ng-disabled="selected.currency.selected.currency_id==1">
                       </div>
                   </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label>Current Due IDR</label>
+                          <label ng-class="{'gray-text':selected.currency.selected.currency_id==2}">Current Due IDR</label>
                           <input type="text" class="form-control" name="current_due_idr" ng-model="ap.current_due_idr" ng-disabled="selected.currency.selected.currency_id==2">
                       </div>
                   </div>
               </div>
 
-              <h5>Currency</h5>
-              <div class="row clearfix">
-                <div class="col-sm-4">
-                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.currency_id.$invalid && !ap.currency_id.$pristine }">
-                        <label>Currency</label>
-                        <ui-select ng-model="selected.currency.selected" theme="bootstrap" on-select="ap.currency_id=selected.currency.selected.currency_id;ap.exchange=$item.home_currency_exchange" ng-readonly="isReceiving">
-                            <ui-select-match placeholder="select currency">{{$select.selected.currency_name}}</ui-select-match>
-                            <ui-select-choices repeat="item in currency | filter: $select.search">
-                                <span ng-bind-html="trustAsHtml((item.currency_name | highlight: $select.search))"></span>
-                            </ui-select-choices>
-                        </ui-select>
-                    </div>
-                </div>
-                <!--<div class="col-sm-4">
-                    <div pg-form-group class="form-group form-group-default" >
-                        <label>Forex</label>
-                        <input type="text" class="form-control" name="forex" ng-model="ap.forex" >
-                    </div>
-                </div>-->
-                <div class="col-sm-4">
-                    <div pg-form-group class="form-group form-group-default" >
-                        <label>Exchange (in IDR)</label>
-                        <input type="text" class="form-control" name="exchange" ng-model="ap.exchange" >
-                    </div>
-                </div>
-              </div>
+
 
               <div ng-controller="EditableTableApvCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()" ng-show="selected.status.selected.id==1">
                                     <!-- table -->
