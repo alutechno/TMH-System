@@ -183,7 +183,7 @@
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.status.$invalid && !ap.status.$pristine }">
                           <label>Status</label>
-                          <ui-select ng-model="selected.status.selected" theme="bootstrap" on-select="ap.status=selected.status.selected.id" validate-attached-form-element required >
+                          <ui-select ng-model="selected.status.selected" theme="bootstrap" on-select="ap.status=selected.status.selected.id;setStatus()" validate-attached-form-element required >
                               <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in statusShow | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -270,7 +270,7 @@
                 <div class="col-sm-4">
                     <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.currency_id.$invalid && !ap.currency_id.$pristine }">
                         <label>Currency</label>
-                        <ui-select ng-model="selected.currency.selected" theme="bootstrap" on-select="ap.currency_id=selected.currency.selected.currency_id" validate-attached-form-element required >
+                        <ui-select ng-model="selected.currency.selected" theme="bootstrap" on-select="ap.currency_id=selected.currency.selected.currency_id;ap.exchange=selected.currency.selected.exchange" validate-attached-form-element required >
                             <ui-select-match placeholder="select currency">{{$select.selected.currency_name}}</ui-select-match>
                             <ui-select-choices repeat="item in currency | filter: $select.search">
                                 <span ng-bind-html="trustAsHtml((item.currency_name | highlight: $select.search))"></span>

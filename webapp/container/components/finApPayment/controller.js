@@ -59,7 +59,10 @@ function($scope, $state, $sce,$templateCache, productCategoryService, queryServi
            'format(a.total_amount,0) ta, format(a.home_total_amount,0) hta,'+
            'g.name as bank_account,a.payment_method,h.name payment_method_name,g.bank_id,a.prepare_notes,DATE_FORMAT(a.prepared_date,\'%Y-%m-%d\') prepared_date, '+
            'DATE_FORMAT(a.issued_date,\'%Y-%m-%d\') issued_date,DATE_FORMAT(a.approved_date,\'%Y-%m-%d\') approved_date,DATE_FORMAT(a.created_date,\'%Y-%m-%d\')created_date, '+
-           'i.name approved_by_name,j.name prepared_by_name,k.name issued_by_name,l.name created_by_name '+
+           'i.name approved_by_name,j.name prepared_by_name,k.name issued_by_name,l.name created_by_name, '+
+           'm.id gl_account_id,m.code gl_account_code,m.name gl_account_name, '+
+           'n.id ap_clearance_account_id,n.code ap_clearance_account_code,n.name ap_clearance_account_name, '+
+           'p.id supplier_account_id,p.code supplier_account_code,p.name supplier_account_name '+
       'from acc_cash_payment a  '+
       'left join mst_supplier d on a.supplier_id = d.id '+
       'left join (select value, name from table_ref '+
@@ -74,6 +77,10 @@ function($scope, $state, $sce,$templateCache, productCategoryService, queryServi
         'left join user j on a.prepared_by=j.id '+
         'left join user k on a.issued_by=k.id '+
         'left join user l on a.created_by=l.id '+
+        'left join mst_ledger_account m on g.gl_account_id=m.id '+
+        'left join mst_ledger_account n on g.ap_clearance_account_id=n.id '+
+        'left join ref_supplier_type o on d.supplier_type_id=o.id '+
+        'left join mst_ledger_account p on o.payable_account_id=p.id '+
         'where a.payment_method=\'0\' '
         //'where a.status in (:status1,:status2,:status3)  '+
         //'and a.open_date beetween :date1 and :date2  '+
@@ -184,8 +191,91 @@ function($scope, $state, $sce,$templateCache, productCategoryService, queryServi
     .then(function(data){
         $scope.source = data.data
     })*/
+    $scope.setStatus = function(){
+        console.log($scope.selected.status.selected.id)
+        if ($scope.selected.status.selected.id==1){
+
+            if ($scope.items.length==0){
+                $scope.items.push(
+                    {
+                        id:1,
+                        account_id:$scope.selected.bank_account.selected.ap_clearance_account_id,
+                        account_code:$scope.selected.bank_account.selected.ap_clearance_account_code,
+                        account_name: $scope.selected.bank_account.selected.ap_clearance_account_name,
+                        notes: '',
+                        debit: '',
+                        credit: '',
+                        debit_f: '',
+                        credit_f: '',
+                        balance: '',
+                        isNew: true
+                    }
+                )
+                if ($scope.selected.supplier.selected){
+                    $scope.items.push(
+                        {
+                            id:2,
+                            account_id:$scope.selected.supplier.selected.supplier_account_id,
+                            account_code:$scope.selected.supplier.selected.supplier_account_code,
+                            account_name: $scope.selected.supplier.selected.supplier_account_name,
+                            notes: '',
+                            debit: '',
+                            credit: '',
+                            debit_f: '',
+                            credit_f: '',
+                            balance: '',
+                            isNew: true
+                        }
+                    )
+                }
+            }
+
+
+        }
+        else if ($scope.selected.status.selected.id==3){
+            var v = 0,v_gl_id=null;
+
+            for (var i=0;i<$scope.items.length;i++){
+                if($scope.items[i].account_id == $scope.selected.bank_account.selected.ap_clearance_account_id){
+                    v = $scope.items[i].credit
+                }
+
+            }
+            $scope.items.push(
+                {
+                    id:$scope.items.length+1,
+                    account_id:$scope.selected.bank_account.selected.ap_clearance_account_id,
+                    account_code:$scope.selected.bank_account.selected.ap_clearance_account_code,
+                    account_name: $scope.selected.bank_account.selected.ap_clearance_account_name,
+                    notes: '',
+                    debit: v,
+                    credit: '',
+                    debit_f: '',
+                    credit_f: '',
+                    balance: '',
+                    isNew: true
+                },
+                {
+                    id:$scope.items.length+2,
+                    account_id:$scope.selected.bank_account.selected.gl_account_id,
+                    account_code:$scope.selected.bank_account.selected.gl_account_code,
+                    account_name: $scope.selected.bank_account.selected.gl_account_name,
+                    notes: '',
+                    debit: '',
+                    credit: v,
+                    debit_f: '',
+                    credit_f: '',
+                    balance: '',
+                    isNew: true
+                }
+            )
+
+
+
+        }
+    }
     $scope.currency = []
-    queryService.get('select  id currency_id,code currency_code,name currency_name from ref_currency order by id asc',undefined)
+    queryService.get('select  id currency_id,code currency_code,name currency_name,home_currency_exchange exchange from ref_currency order by id asc',undefined)
     .then(function(data){
         $scope.currency = data.data
     })
@@ -211,12 +301,20 @@ function($scope, $state, $sce,$templateCache, productCategoryService, queryServi
 
     $scope.isReceiving = true
     $scope.supplier = []
-    queryService.post('select id supplier_id,name supplier_name from mst_supplier order by name limit 50',undefined)
+    queryService.post("select a.id supplier_id,a.name supplier_name,c.id supplier_account_id,c.code supplier_account_code,c.name supplier_account_name "+
+        "from mst_supplier a, ref_supplier_type b, mst_ledger_account c "+
+        "where a.supplier_type_id = b.id "+
+        "and b.payable_account_id = c.id "+
+        "and a.status='1' order by a.name limit 50",undefined)
     .then(function(data){
         $scope.supplier = data.data
     })
     $scope.findSupplier = function(text){
-        queryService.post('select id supplier_id, name supplier_name from mst_supplier where lower(name) like \'%'+text.toLowerCase()+'%\' order by name asc limit 50',undefined)
+        queryService.post("select a.id supplier_id,a.name supplier_name,c.id supplier_account_id,c.code supplier_account_code,c.name supplier_account_name "+
+            "from mst_supplier a, ref_supplier_type b, mst_ledger_account c "+
+            "where a.supplier_type_id = b.id "+
+            "and b.payable_account_id = c.id "+
+            "status='1' and lower(name) like '%"+text.toLowerCase()+"%' order by name asc limit 50",undefined)
         .then(function(data){
             $scope.supplier = data.data
         })
@@ -643,7 +741,7 @@ function($scope, $state, $sce,$templateCache, productCategoryService, queryServi
             .then(function (result){
                 if ($scope.selected.status.selected.id=='1'){
                     var qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
-                     'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+$scope.ap.id+',\'0\',null,\''+$scope.ap.notes+'\');'
+                     'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+$scope.ap.id+',\'5\',null,\''+$scope.ap.notes+'\');'
                     var q1 = 'insert into acc_gl_transaction'
                     var p1 = {
                         code: $scope.ap.code,
@@ -679,31 +777,34 @@ function($scope, $state, $sce,$templateCache, productCategoryService, queryServi
                         console.log(err2)
                     })
                 }
-                else if($scope.selected.status.selected.id=='2'){
-                    var qs = 'update acc_gl_transaction set gl_status = \'1\' where deposit_id = '+$scope.ap.id
-                    queryService.post(qs ,undefined)
-                    .then(function (result3){
-                        $('#form-input').modal('hide')
-                        $scope.dtInstance.reloadData(function(obj){
-                            // console.log(obj)
-                        }, false)
-                        $('body').pgNotification({
-                            style: 'flip',
-                            message: 'Success Update '+$scope.ap.code,
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'success'
-                        }).show();
+                else if($scope.selected.status.selected.id=='3'){
+                    queryService.post('select id from acc_gl_transaction where payment_id='+$scope.ap.id ,undefined)
+                    .then(function (result2){
+                        var v_gl_id = result2.data[0].id
+                        var q2 = $scope.child.saveTable(v_gl_id)
+                        console.log(q2)
+                        queryService.post(q2.join(';') ,undefined)
+                        .then(function (result3){
+                            $('#form-input').modal('hide')
+                            $scope.dtInstance.reloadData(function(obj){
+                                // console.log(obj)
+                            }, false)
+                            $('body').pgNotification({
+                                style: 'flip',
+                                message: 'Success Update '+$scope.ap.code,
+                                position: 'top-right',
+                                timeout: 2000,
+                                type: 'success'
+                            }).show();
+                        },
+                        function(err3){
+                            console.log(err3)
+                        })
                     },
-                    function(err3){
-                        $('#form-input').pgNotification({
-                            style: 'flip',
-                            message: 'Error Update: '+err3.code,
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'danger'
-                        }).show();
+                    function(err2){
+                        console.log(err2)
                     })
+
                 }
                 else {
                     $('#form-input').modal('hide')
@@ -744,11 +845,20 @@ function($scope, $state, $sce,$templateCache, productCategoryService, queryServi
             }
             $scope.selected.bank_account['selected'] = {
                 id: result.data[0].bank_account_id,
-                name: result.data[0].bank_account
+                name: result.data[0].bank_account,
+                gl_account_id: result.data[0].gl_account_id,
+                gl_account_code: result.data[0].gl_account_code,
+                gl_account_name: result.data[0].gl_account_name,
+                ap_clearance_account_id:result.data[0].ap_clearance_account_id,
+                ap_clearance_account_code:result.data[0].ap_clearance_account_code,
+                ap_clearance_account_name:result.data[0].ap_clearance_account_name
             }
             $scope.selected.supplier['selected'] = {
                 supplier_id: result.data[0].supplier_id,
-                supplier_name: result.data[0].supplier_name
+                supplier_name: result.data[0].supplier_name,
+                supplier_account_id:result.data[0].supplier_account_id,
+                supplier_account_code:result.data[0].supplier_account_code,
+                supplier_account_name:result.data[0].supplier_account_name
             }
             $scope.selected.status['selected'] = {
                 id: result.data[0].status,
@@ -788,12 +898,12 @@ function($scope, $state, $sce,$templateCache, productCategoryService, queryServi
             else if(result.data[0].status=="2"){
                 $scope.statusShow.push($scope.status[3])
             }
-            else if(result.data[0].status=="3"){
+            /*else if(result.data[0].status=="3"){
                 $scope.statusShow.push($scope.status[4])
             }
             else if(result.data[0].status=="4"){
                 $scope.statusShow.push($scope.status[5])
-            }
+            }*/
             $scope.trans = []
             $scope.transOri = []
 
