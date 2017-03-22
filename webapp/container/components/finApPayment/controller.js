@@ -73,7 +73,8 @@ function($scope, $state, $sce,$templateCache, productCategoryService, queryServi
         'left join user i on a.approved_by=i.id '+
         'left join user j on a.prepared_by=j.id '+
         'left join user k on a.issued_by=k.id '+
-        'left join user l on a.created_by=l.id '
+        'left join user l on a.created_by=l.id '+
+        'where a.payment_method=\'0\' '
         //'where a.status in (:status1,:status2,:status3)  '+
         //'and a.open_date beetween :date1 and :date2  '+
         //'and a.due_date between :date1and :date2'
@@ -162,7 +163,13 @@ function($scope, $state, $sce,$templateCache, productCategoryService, queryServi
     })
     $scope.bank_account = []
     $scope.setBankAccount = function(e){
-        queryService.get('select id,code,name from mst_cash_bank_account where bank_id='+e.id+'  order by name ',undefined)
+        queryService.get("select a.id,a.code,a.name, a.gl_account_id,b.code gl_account_code,b.name gl_account_name, "+
+        	"a.ap_clearance_account_id,c.code ap_clearance_account_code,c.name ap_clearance_account_name "+
+        "from mst_cash_bank_account a,mst_ledger_account b,mst_ledger_account c "+
+        "where a.gl_account_id = b.id "+
+        "and a.ap_clearance_account_id= c.id "+
+        "and a.status = '1' "+
+        "and a.bank_id="+e.id+ " order by name",undefined)
         .then(function(data){
             $scope.bank_account = data.data
         })
@@ -487,7 +494,7 @@ function($scope, $state, $sce,$templateCache, productCategoryService, queryServi
             if (qwhereobj[key].length>0) arrWhere.push(qwhereobj[key])
         }
         if (arrWhere.length>0){
-            strWhere = ' where ' + arrWhere.join(' and ')
+            strWhere = ' and ' + arrWhere.join(' and ')
         }
         //console.log(strWhere)
         return strWhere
@@ -533,7 +540,7 @@ function($scope, $state, $sce,$templateCache, productCategoryService, queryServi
                 code: $scope.ap.code,
             	check_no: $scope.ap.check,
             	bank_account_id: $scope.selected.bank_account.selected.id,
-                //payment_method: $scope.selected.payment_method.selected.id,
+                payment_method: 0,
             	status: $scope.selected.status.selected.id,
             	open_date: $scope.ap.open_date,
                 check_due_date: $scope.ap.due_date,
@@ -599,7 +606,7 @@ function($scope, $state, $sce,$templateCache, productCategoryService, queryServi
                 code: $scope.ap.code,
             	check_no: $scope.ap.check,
             	bank_account_id: $scope.selected.bank_account.selected.id,
-                //payment_method: $scope.selected.payment_method.selected.id,
+                payment_method: 0,
             	status: $scope.selected.status.selected.id,
             	open_date: $scope.ap.open_date,
                 check_due_date: $scope.ap.due_date,
@@ -726,7 +733,7 @@ function($scope, $state, $sce,$templateCache, productCategoryService, queryServi
     }
 
     $scope.update = function(obj){
-        queryService.post(qstring+ ' where a.id='+obj.id,undefined)
+        queryService.post(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             console.log(result)
             $('#form-input').modal('show');

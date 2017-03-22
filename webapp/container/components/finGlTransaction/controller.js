@@ -2,8 +2,8 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinGlTransactionCtrl',
-function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
-
+function($scope,$stateParams, $state, $sce, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+    console.log('asdasdads',$stateParams)
     $scope.el = [];
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
@@ -36,6 +36,14 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         //'and a.due_date between :date1and :date2'
     var qwhere = ''
     var qgroup = ' group by a.id, a.code, a.journal_type_id, a.bookkeeping_date, a.gl_status, c.name, a.notes, a.ref_account '
+    if ($stateParams.status!=null){
+
+        var firstDay = $stateParams.currentYear+'-'+$stateParams.currentMonth+'-01 00:00:00'
+        var ld = new Date($stateParams.nextYear, parseInt($stateParams.nextMonth)+1, 0);
+        var lastDay = ld.getFullYear()+'-'+ (("0" + (ld.getMonth() + 1)).slice(-2)) + '-'+(("0" + ld.getDate()).slice(-2))+' 23:59:59'
+
+        qwhere = "where a.gl_status=0 and a.bookkeeping_date between '"+firstDay+"' and '"+lastDay+"'"
+    }
 
     var year = ['2015','2016','2017','2018','2019']
     var month = [

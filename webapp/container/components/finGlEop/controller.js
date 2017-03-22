@@ -13,8 +13,36 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         $scope[$scope.el[i]] = true;
     }
     $scope.bbExec = {}
+    $scope.totalOpen = 1
+    $scope.totalUnbalance = 1
 
      //'where a.status = \'3\' '
+     $scope.changeState = function () {
+        //$state.go('app.fin.gltransaction', {stateParamKey: exampleParam});
+        $('#modalProcess').modal('hide')
+        setTimeout(function(){$state.go('app.fin.gltransaction', {
+            currentYear: $scope.selected.current_year.selected.id,status: 'open',
+
+            currentMonth: $scope.selected.current_month.selected.id,
+            nextYear: $scope.selected.next_year.selected.id,
+            nextMonth: $scope.selected.next_month.selected.id
+        });},1000);
+        //$state.go('app.fin.gltransaction');
+
+    };
+
+    $scope.setTotal = function(a){
+        console.log(a)
+        var firstDay = $scope.selected.current_year.selected.id+'-'+$scope.selected.current_month.selected.id+'-01 00:00:00'
+        var ld = new Date($scope.selected.current_year.selected.id, parseInt($scope.selected.current_month.selected.id)+1, 0);
+        var lastDay = ld.getFullYear()+'-'+ (("0" + (ld.getMonth() + 1)).slice(-2)) + '-'+(("0" + ld.getDate()).slice(-2))+' 23:59:59'
+
+        queryService.post("select count(1)total from acc_gl_transaction where gl_status=0 and bookkeeping_date between '"+firstDay+"' and '"+lastDay+"'",undefined)
+        .then(function(data){
+            console.log(data)
+            $scope.totalOpen = data.data[0].total
+        })
+    }
 
     var qwhere = ''
 
@@ -41,7 +69,11 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.selected = {
         dep: {},
         filter_year: {},
-        filter_month: {}
+        filter_month: {},
+        current_year: {},
+        current_month: {},
+        next_year: {},
+        next_month: {}
     }
     $scope.filter_period = globalFunction.currentDate().split(' ')[0]
     var d = new Date($scope.filter_period);
@@ -62,6 +94,73 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             name: 'No'
         }
     ]
+    var year = ['2015','2016','2017','2018','2019']
+    var month = [
+        {id:'01',last:'31'},
+        {id:'02',last:'28'},
+        {id:'03',last:'31'},
+        {id:'04',last:'30'},
+        {id:'05',last:'31'},
+        {id:'06',last:'30'},
+        {id:'07',last:'31'},
+        {id:'08',last:'31'},
+        {id:'09',last:'30'},
+        {id:'10',last:'31'},
+        {id:'11',last:'30'},
+        {id:'12',last:'31'}]
+    $scope.period = [
+        { id: 0, name: 'Current Month'},
+        { id: 1, name: 'Last Month'}
+    ]
+    $scope.listYear = []
+    $scope.listMonth = []
+    for (var i=0;i<year.length;i++){
+        $scope.listYear.push({
+            id: year[i],
+            name: year[i]
+        })
+    }
+    for (var i=0;i<month.length;i++){
+        $scope.listMonth.push({
+            id: month[i].id,
+            name: month[i].id,
+            last:month[i].last
+        })
+    }
+
+    $scope.setDefaultPeriod = function(){
+        var d = new Date();
+        $scope.selected.current_year['selected'] = {id:d.getFullYear(),name:d.getFullYear()}
+        var m = d.getMonth();
+        for (var i=0;i<$scope.listMonth.length;i++){
+            if(d.getMonth() == parseInt($scope.listMonth[i].id)){
+                $scope.selected.current_month['selected']=  $scope.listMonth[i]
+            }
+        }
+        var nd = addMonths(new Date(),1);
+        //nd = nd.setMonth(nd.getMonth() + 1);
+        console.log(d)
+        console.log(nd)
+        $scope.selected.next_year['selected'] = {id:nd.getFullYear(),name:nd.getFullYear()}
+        var m = nd.getMonth();
+        for (var i=0;i<$scope.listMonth.length;i++){
+            if(nd.getMonth() == parseInt($scope.listMonth[i].id)){
+                $scope.selected.next_month['selected']=  $scope.listMonth[i]
+            }
+        }
+    }
+    function addMonths (date, count) {
+        if (date && count) {
+            var m, d = (date = new Date(+date)).getDate()
+
+            date.setMonth(date.getMonth() + count, 1)
+            m = date.getMonth()
+            date.setDate(d)
+            if (date.getMonth() !== m) date.setDate(0)
+        }
+        return date
+    }
+    $scope.setDefaultPeriod()
 
     $scope.setPeriod = function(){
         var d = new Date($scope.filter_period);
@@ -114,40 +213,67 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 
     $scope.processData = function(){
         $('#modalProcess').modal('show')
+        $scope.setTotal()
     }
     $scope.execProcess = function(){
         console.log('exec')
-        var qstr = [
-            'update inv_po_receive set received_status = 3, created_date = created_date,modified_date=\''+globalFunction.currentDate()+'\' where created_date between \''+$scope.filter_period+' 00:00:00\' and \''+$scope.filter_period+' 23:59:59\' and received_status=1 ',
-            'update inv_store_request set issued_status = 2, created_date = created_date where created_date between \''+$scope.filter_period+' 00:00:00\' and \''+$scope.filter_period+' 23:59:59\' and issued_status=1',
-            'update inv_stock_opname set status = 3, created_date = created_date where created_date between \''+$scope.filter_period+' 00:00:00\' and \''+$scope.filter_period+' 23:59:59\' and status=1 ',
-            'update inv_credit_to_cost set request_status = 3, created_date = created_date where created_date between \''+$scope.filter_period+' 00:00:00\' and \''+$scope.filter_period+' 23:59:59\' and request_status=1 '
-        ]
-        console.log(qstr.join(';\n'))
-        queryService.post(qstr.join(';'),undefined)
-        .then(function (result){
-            $('body').pgNotification({
-                style: 'flip',
-                message: 'Success Closing ',
-                position: 'top-right',
-                timeout: 2000,
-                type: 'success'
-            }).show();
-            $scope.nested.reloadReceivingTable()
-            $scope.nested.reloadIssuingTable()
-            $scope.nested.reloadSoTable()
-            $scope.nested.reloadCtcTable()
+        
+       var firstDay = $scope.selected.current_year.selected.id+'-'+$scope.selected.current_month.selected.id+'-01 00:00:00'
+       var ld = new Date($scope.selected.current_year.selected.id, parseInt($scope.selected.current_month.selected.id)+1, 0);
+       var lastDay = ld.getFullYear()+'-'+ (("0" + (ld.getMonth() + 1)).slice(-2)) + '-'+(("0" + ld.getDate()).slice(-2))+' 23:59:59'
+       queryService.post("select max(period)prd from acc_trial_balance where period != '"+lastDay.split(' ')[0]+"'",undefined)
+       .then(function(data){
+           console.log(data)
+           var period = data.data[0].period
+           var qstr = [
+               "delete from acc_trial_balance where period="+lastDay.split(' ')[0],
+               "insert into acc_trial_balance "+
+               "select '"+lastDay.split(' ')[0]+"' as period, "+
+                   "a.id account_id, a.code account_no, a.name account_name, "+
+                   "ifnull(b.closing_balance,0) as opening_balance, "+
+                   "ifnull(c.debit_amount,0) debit_amount, ifnull(c.credit_amount,0) credit_amount, "+
+                   "(ifnull(b.closing_balance,0) + ifnull(c.credit_amount,0) - ifnull(debit_amount,0)) as closing_balance "+
+              "from mst_ledger_account a "+
+              "left join (select account_id, closing_balance from acc_trial_balance  "+
+                   "where period = '"+period+"') b on b.account_id = a.id "+
+              "left join (select y.account_id, "+
+                    "sum(case when y.transc_type = 'D' then y.amount else 0 end) debit_amount, "+
+                    "sum(case when y.transc_type = 'C' then y.amount else 0 end) credit_amount "+
+                           "from acc_gl_transaction x "+
+                               "left join acc_gl_journal y on x.id = y.gl_id "+
+                              "where x.bookkeeping_date between '"+firstDay.split(' ')[0]+"' and '"+lastDay.split(' ')[0]+"'  "+
+                              "group by y.account_id "+
+                   ") c on c.account_id = a.id"
 
-        },
-        function (err){
-            $('#body').pgNotification({
-                style: 'flip',
-                message: 'Error Closing: '+err.code,
-                position: 'top-right',
-                timeout: 2000,
-                type: 'danger'
-            }).show();
-        })
+           ]
+           console.log(qstr.join(';\n'))
+           queryService.post(qstr.join(';'),undefined)
+           .then(function (result){
+               $('body').pgNotification({
+                   style: 'flip',
+                   message: 'Success Closing ',
+                   position: 'top-right',
+                   timeout: 2000,
+                   type: 'success'
+               }).show();
+               /*$scope.nested.reloadReceivingTable()
+               $scope.nested.reloadIssuingTable()
+               $scope.nested.reloadSoTable()
+               $scope.nested.reloadCtcTable()*/
+
+           },
+           function (err){
+               $('#body').pgNotification({
+                   style: 'flip',
+                   message: 'Error Closing: '+err.code,
+                   position: 'top-right',
+                   timeout: 2000,
+                   type: 'danger'
+               }).show();
+           })
+       })
+
+
     }
     $scope.openQuickView = function(state){
         if (state == 'add'){

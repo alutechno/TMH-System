@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinApDirectCtrl',
-function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+function($scope, $state, $sce,$templateCache, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -19,6 +19,15 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.transOri = []
     $scope.child = {}
     $scope.voucher = {}
+    $scope.sums1 = 0
+    $scope.sums2 = 0
+    $scope.total_debit = 0
+    $scope.total_credit = 0
+    $scope.total_debit_f = 0
+    $scope.total_credit_f = 0
+    $scope.total_balance = 0
+    $scope.journal_type_id = null
+
     var year = ['2015','2016','2017','2018','2019']
     var month = [
         {id:'01',last:'31'},
@@ -48,40 +57,36 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             last:month[i].last
         })
     }
-    var qstring = 'select a.id, a.code, '+
-           'DATE_FORMAT(a.open_date,\'%Y-%m-%d\') as open_date, DATE_FORMAT(a.check_due_date,\'%Y-%m-%d\') as check_due_date, '+
-           'a.check_no, a.status, e.name as status_name,  '+
-           'a.supplier_id, d.name as supplier_name, a.currency_id,  '+
-           'f.code as currency_code,f.name as currency_name,a.currency_exchange, a.total_amount, a.home_total_amount, a.bank_account_id, '+
-           'g.name as bank_account,a.payment_method,h.name payment_method_name,g.bank_id,a.prepare_notes,DATE_FORMAT(a.prepared_date,\'%Y-%m-%d\') prepared_date, '+
-           'DATE_FORMAT(a.issued_date,\'%Y-%m-%d\') issued_date,DATE_FORMAT(a.approved_date,\'%Y-%m-%d\') approved_date,DATE_FORMAT(a.created_date,\'%Y-%m-%d\')created_date, '+
-           'i.name approved_by_name,j.name prepared_by_name,k.name issued_by_name,l.name created_by_name '+
-      'from acc_cash_payment a  '+
-      'left join mst_supplier d on a.supplier_id = d.id '+
-      'left join (select value, name from table_ref '+
-                              'where table_name = \'acc_cash_payment\' '+
-                                    'and column_name = \'status\') e on a.status = e.value '+
-      'left join ref_currency f on a.currency_id = f.id '+
-      'left join mst_cash_bank_account g on a.bank_account_id = g.id '+
-      'left join (select value, name from table_ref '+
-                              'where table_name = \'acc_cash_payment\' '+
-                                    'and column_name = \'payment_method\') h on a.payment_method = h.value '+
-        'left join user i on a.approved_by=i.id '+
-        'left join user j on a.prepared_by=j.id '+
-        'left join user k on a.issued_by=k.id '+
-        'left join user l on a.created_by=l.id '
-        //'where a.status in (:status1,:status2,:status3)  '+
-        //'and a.open_date beetween :date1 and :date2  '+
-        //'and a.due_date between :date1and :date2'
+    var qstring = "select a.id, a.code, c.id as 'voucher_id', c.code as 'voucher_doc_no', "+
+    	"DATE_FORMAT(a.open_date,'%Y-%m-%d')open_date, DATE_FORMAT(a.check_due_date,'%Y-%m-%d')due_date, a.check_no, a.status, e.name as status_name, "+
+    	"DATE_FORMAT(a.prepared_date,'%Y-%m-%d') prepared_date,a.supplier_id, d.name as 'supplier_name', a.currency_id,a.currency_exchange, "+
+    	"f.code as 'currency_code', f.name as currency_name, a.total_amount ,a.home_total_amount, g.bank_id,a.bank_account_id, "+
+    	"g.name as 'bank_account', format(a.total_amount,0)ta,format(a.home_total_amount,0)hta, prepare_notes, "+
+        "g.gl_account_id,h.code gl_account_code,h.name gl_account_name,"+
+        "g.ap_clearance_account_id,i.code ap_clearance_account_code,i.name ap_clearance_account_name, "+
+        "k.id supplier_account_id,k.code supplier_account_code,k.name supplier_account_name "+
+    "from acc_cash_payment a "+
+    "left join acc_payment_line_item b on b.payment_id = a.id "+
+    "left join acc_ap_voucher c on b.voucher_id = c.id "+
+    "left join mst_supplier d on a.supplier_id = d.id "+
+    "left join (select value, name from table_ref "+
+    "where table_name = 'acc_cash_payment' "+
+    "and column_name = 'status') e on a.status = e.value "+
+    "left join ref_currency f on a.currency_id = f.id "+
+    "left join mst_cash_bank_account g on a.bank_account_id = g.id "+
+    "left join mst_ledger_account h on g.gl_account_id=h.id "+
+    "left join mst_ledger_account i on g.ap_clearance_account_id=i.id "+
+    "left join ref_supplier_type j on d.supplier_type_id=j.id "+
+    "left join mst_ledger_account k on j.payable_account_id=k.id "+
+    "where a.payment_method = '1' "
     var qwhere = ''
     /*var qstringt = 'select a.id,a.code, '+
               'from acc_ap_voucher a '+
               'inner join acc_payment_line_item b on a.id = b.voucher_id '*/
-  var qstringt ='select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
-      'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
-      	'and column_name = \'status\')b, acc_payment_line_item c '+
-      'where a.status=b.value '+
-      'and a.id=c.voucher_id '
+  var qstringt ="select a.id gl_id,a.payment_id,a.code,a.journal_type_id,a.gl_status,a.notes,b.account_id,c.code account_code,c.name account_name,b.transc_type,b.amount "+
+    "from acc_gl_transaction a, acc_gl_journal b, mst_ledger_account c "+
+    "where a.id = b.gl_id "+
+    "and b.account_id=c.id "
       //'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
       //'order by id limit 20 '
               //'where b.deposit_id=?'
@@ -136,7 +141,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
     $scope.status = []
     $scope.statusShow = []
-    queryService.get('select value id, value, name from table_ref where table_name = \'acc_cash_payment\' and column_name = \'status\' order by id ',undefined)
+    queryService.get("select value id, name from table_ref where table_name = 'acc_cash_payment'  "+
+        "and column_name = 'status' and value < '4' order by id ",undefined)
     .then(function(data){
         $scope.status = data.data
     })
@@ -155,9 +161,19 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     .then(function(data){
         $scope.bank = data.data
     })
+    queryService.get("select id from ref_journal_type where code = 'AP' ",undefined)
+    .then(function(data){
+        $scope.journal_type_id = data.data[0].id
+    })
     $scope.bank_account = []
     $scope.setBankAccount = function(e){
-        queryService.get('select id,code,name from mst_cash_bank_account where bank_id='+e.id+'  order by name ',undefined)
+        queryService.get("select a.id,a.code,a.name, a.gl_account_id,b.code gl_account_code,b.name gl_account_name, "+
+        	"a.ap_clearance_account_id,c.code ap_clearance_account_code,c.name ap_clearance_account_name "+
+        "from mst_cash_bank_account a,mst_ledger_account b,mst_ledger_account c "+
+        "where a.gl_account_id = b.id "+
+        "and a.ap_clearance_account_id= c.id "+
+        "and a.status = '1' "+
+        "and a.bank_id="+e.id+ " order by name",undefined)
         .then(function(data){
             $scope.bank_account = data.data
         })
@@ -173,7 +189,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope.source = data.data
     })*/
     $scope.currency = []
-    queryService.get('select  id currency_id,code currency_code,name currency_name from ref_currency order by id asc',undefined)
+    queryService.get('select  id currency_id,code currency_code,name currency_name,home_currency_exchange exchange  from ref_currency order by id asc',undefined)
     .then(function(data){
         $scope.currency = data.data
     })
@@ -189,8 +205,43 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     .then(function(data){
         $scope.tax = data.data
     })
+    $scope.setDebit = function(a){
+        console.log('setDebit',a)
+        return a
+    }
 
+    $scope.setExchange = function(){
+        $scope.total_debit = 0
+        $scope.total_credit = 0
+        $scope.total_debit_f = 0
+        $scope.total_credit_f = 0
 
+        for (var i=0;i<$scope.items.length;i++){
+            if ($scope.selected.currency.selected.currency_id==1){
+                $scope.items[i].debit_f = ''
+                $scope.items[i].credit_f = ''
+            }
+            else {
+                $scope.items[i].debit = ($scope.ap.exchange*$scope.items[i].debit_f)
+                $scope.items[i].credit = ($scope.ap.exchange*$scope.items[i].credit_f)
+            }
+
+            $scope.total_debit_f += (parseInt($scope.items[i].debit_f).toString()=='NaN'?0:parseInt($scope.items[i].debit_f))
+            $scope.total_credit_f += (parseInt($scope.items[i].credit_f).toString()=='NaN'?0:parseInt($scope.items[i].credit_f))
+            $scope.total_debit += (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
+            $scope.total_credit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
+
+        }
+        console.log($scope.items)
+        console.log($scope.total_debit,$scope.total_credit)
+        //$scope.setDebit(1000)
+        //$scope.$apply();
+        $('#totalDebitF').html($scope.total_debit_f)
+        $('#totalCreditF').html($scope.total_credit_f)
+        $('#totalDebit').html($scope.total_debit)
+        $('#totalCredit').html($scope.total_credit)
+
+    }
 
 
     $scope.filterVal = {
@@ -199,31 +250,25 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
     $scope.isReceiving = true
     $scope.supplier = []
-    queryService.post('select id supplier_id,name supplier_name from mst_supplier order by name limit 50',undefined)
+    queryService.post("select a.id supplier_id,a.name supplier_name,c.id supplier_account_id,c.code supplier_account_code,c.name supplier_account_name "+
+        "from mst_supplier a, ref_supplier_type b, mst_ledger_account c "+
+        "where a.supplier_type_id = b.id "+
+        "and b.payable_account_id = c.id "+
+        "and a.status='1' order by a.name limit 50",undefined)
     .then(function(data){
         $scope.supplier = data.data
     })
     $scope.findSupplier = function(text){
-        queryService.post('select id supplier_id, name supplier_name from mst_supplier where lower(name) like \'%'+text.toLowerCase()+'%\' order by name asc limit 50',undefined)
+        queryService.post("select a.id supplier_id,a.name supplier_name,c.id supplier_account_id,c.code supplier_account_code,c.name supplier_account_name "+
+            "from mst_supplier a, ref_supplier_type b, mst_ledger_account c "+
+            "where a.supplier_type_id = b.id "+
+            "and b.payable_account_id = c.id "+
+            "status='1' and lower(name) like '%"+text.toLowerCase()+"%' order by name asc limit 50",undefined)
         .then(function(data){
             $scope.supplier = data.data
         })
     }
     $scope.source_no = []
-    $scope.setSource = function(e){
-        $scope.ap.source=$scope.selected.source.selected.id
-        console.log(e)
-        if (e.value == 'RR') {
-            $scope.isReceiving = false
-            queryService.post('select id,code,cast(concat(\'Amount: \',ifnull(total_amount,\' - \')) as char) total_amount from inv_po_receive order by id desc limit 50',undefined)
-            .then(function(data){
-                console.log(data.data)
-                $scope.source_no = data.data
-                //$scope.isReceiving = false
-            })
-        }
-        else $scope.isReceiving = true
-    }
 
     $scope.showAdvance = false
     $scope.openAdvancedFilter = function(val){
@@ -231,45 +276,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope.showAdvance = val
     }
 
-    $scope.setReceiving = function(e){
-        console.log(e)
-        $scope.ap.source_no=$scope.selected.source_no.selected.id
-        queryService.post('select a.id,a.po_id,c.name,DATE_FORMAT(a.created_date, \'%Y-%m-%d\') created_date,a.currency_id,d.due_days,d.supplier_id,e.name supplier_name,f.code currency_name,a.total_amount,a.home_currency_exchange exchange, '+
-            ' DATE_ADD(a.created_date, INTERVAL d.due_days DAY) due_date '+
-            'from inv_po_receive a,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f '+
-            'where c.table_name=\'inv_po_receive\' '+
-            'and a.received_status=c.value '+
-            'and a.po_id=d.id '+
-            'and d.supplier_id=e.id '+
-            'and a.currency_id=f.id '+
-            'and a.id=' + e.id +
-            ' order by a.id desc',undefined)
-        .then(function(data){
-            console.log(data.data)
-            $scope.supplier = data.data
-            $scope.selected.supplier['selected'] = $scope.supplier[0]
-            $scope.selected.currency['selected'] = $scope.supplier[0]
-            $scope.ap.exchange = data.data[0].exchange
-            $scope.ap.total_idr = data.data[0].total_amount*data.data[0].exchange
-            $scope.ap.total_home = $scope.ap.total_idr
-            $scope.ap.open_date = data.data[0].created_date
-            $scope.ap.due_date = data.data[0].due_date
-        })
-    }
 
-    $scope.findReceiving = function(text){
-        console.log(text)
-        queryService.get('select id,code,cast(concat(\'Amount: \',ifnull(total_amount,\' - \')) as char) total_amount from inv_po_receive where lower(code) like \'%'+text.toLowerCase()+'%\' order by id desc limit 50',undefined)
-        .then(function(data){
-            $scope.currency = data.data
-        })
-
-    }
     $scope.setSupplier = function(e){
         console.log(e)
         $scope.ap.supplier_id=$scope.selected.supplier.selected.supplier_id
         console.log($scope.trans)
-        if ($scope.trans.length>0){
+        /*if ($scope.trans.length>0){
             queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
                 'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
                 	'and column_name = \'status\')b '+
@@ -282,7 +294,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                     $scope.voucher[$scope.trans[i].id] = data.data
                 }
             })
-        }
+        }*/
     }
 
 
@@ -291,15 +303,26 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     };
 
     $scope.focusinControl = {};
-    $scope.fileName = "AP Payment";
+    $scope.fileName = "Direct Payment";
     $scope.exportExcel = function(){
-        queryService.post('select id,code,check_no,open_date,check_due_date,status_name,supplier_name,bank_account,currency_code,total_amount,home_total_amount,approved_date,approved_by_name,prepared_date,prepared_by_name,issued_date,issued_by_name,created_date,created_by_name from('+qstring + qwhere+')aa order by id desc',undefined)
+        DTColumnBuilder.newColumn('id').withTitle('Transc No').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('code').withTitle('Doc No').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('check_no').withTitle('Check No').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('open_date').withTitle('Open Date').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('due_date').withTitle('Due Date').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '15%'),
+        //DTColumnBuilder.newColumn('age').withTitle('Age'),
+        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account').withOption('width', '15%'),
+        DTColumnBuilder.newColumn('currency_code').withTitle('Currency').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('ta').withTitle('Total amount (IDR)').withOption('width', '5%').withClass('text-right'),
+        DTColumnBuilder.newColumn('hta').withTitle('Total Amount').withOption('width', '5%').withClass('text-right')
+        queryService.post('select id,code,check_no,open_date,due_date,status_name,supplier_name,bank_account,currency_code,total_amount,home_total_amount from('+qstring + qwhere+')aa order by id desc',undefined)
         .then(function(data){
             $scope.exportData = [];
             //Header
             $scope.exportData.push(["ID","Doc No", 'Check No',"Open Date",'Due Date', 'Status','Supplier', 'Bank Account','Currency',
-                'Total Amount (IDR)','Total Amount','Approved Date','Approved By','Prepared Date','Prepared By',
-                'Issued Date','Issued By','Created Date','Created By']);
+                'Total Amount (IDR)','Total Amount']);
             //Data
             for(var i=0;i<data.data.length;i++){
                 var arr = []
@@ -361,23 +384,22 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     .withOption('scrollX',true)
     .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow)
-    /*.withOption("oTableTools", {
-        "sSwfPath": "assets/plugins/jquery-datatable/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
-        "aButtons": [{
-            "sExtends": "csv",
-            "sButtonText": "<i class='pg-grid'></i>",
-        }, {
-            "sExtends": "xls",
-            "sButtonText": "<i class='fa fa-file-excel-o'></i>",
-        }, {
-            "sExtends": "pdf",
-            "sButtonText": "<i class='fa fa-file-pdf-o'></i>",
-        }, {
-            "sExtends": "copy",
-            "sButtonText": "<i class='fa fa-copy'></i>",
-        }]
-    })
-    .withOption("sDom", "<'exportOptions'T><'table-responsive't><'row'<p i>>")*/;
+    .withOption('footerCallback', function (tfoot, data) {
+        console.log('tfoot',data)
+
+        if (data.length > 0) {
+            // Need to call $apply in order to call the next digest
+            $scope.$apply(function () {
+                //$scope.sums = 100;
+                var footer = $templateCache.get('tableFooter'),
+                        $tfoot = angular.element(tfoot),
+                        content = $compile(footer)($scope);
+                //$tfoot.find('tr').html(content);
+                console.log(content)
+                $tfoot.html(content)
+            });
+        }
+    });
 
     $scope.dtColumns = [];
     if ($scope.el.length>0){
@@ -385,27 +407,29 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         .renderWith($scope.actionsHtml).withOption('width', '5%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('Transc No'),
+        DTColumnBuilder.newColumn('id').withTitle('Transc No').withOption('width', '5%'),
         DTColumnBuilder.newColumn('code').withTitle('Doc No').withOption('width', '10%'),
         DTColumnBuilder.newColumn('check_no').withTitle('Check No').withOption('width', '10%'),
         DTColumnBuilder.newColumn('open_date').withTitle('Open Date').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('check_due_date').withTitle('Due Date').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('status_name').withTitle('Status'),
-        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '20%'),
+        DTColumnBuilder.newColumn('due_date').withTitle('Due Date').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '15%'),
         //DTColumnBuilder.newColumn('age').withTitle('Age'),
-        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account'),
-        DTColumnBuilder.newColumn('currency_code').withTitle('Currency'),
-        DTColumnBuilder.newColumn('total_amount').withTitle('Total amount (IDR)'),
-        DTColumnBuilder.newColumn('home_total_amount').withTitle('Total Amount'),
-        DTColumnBuilder.newColumn('approved_date').withTitle('Approved Date'),
-        DTColumnBuilder.newColumn('approved_by_name').withTitle('Approved By'),
-        DTColumnBuilder.newColumn('prepared_date').withTitle('Prepared Date'),
-        DTColumnBuilder.newColumn('prepared_by_name').withTitle('Prepared By'),
-        DTColumnBuilder.newColumn('issued_date').withTitle('Issued Date'),
-        DTColumnBuilder.newColumn('issued_by_name').withTitle('Issued By'),
-        DTColumnBuilder.newColumn('created_date').withTitle('Created Date'),
-        DTColumnBuilder.newColumn('created_by_name').withTitle('Created By')
+        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account').withOption('width', '15%'),
+        DTColumnBuilder.newColumn('currency_code').withTitle('Currency').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('ta').withTitle('Total amount (IDR)').withOption('width', '5%').withClass('text-right'),
+        DTColumnBuilder.newColumn('hta').withTitle('Total Amount').withOption('width', '5%').withClass('text-right')
     );
+    queryService.post('select sum(total_amount)as sm,sum(home_total_amount)as sm2 from ('+qstring+qwhere+')a',undefined)
+    .then(function(data){
+        console.log('tfoot2',data)
+
+        $scope.sums1 = data.data[0].sm;
+        $scope.sums2 = data.data[0].sm2;
+
+
+
+    });
 
     var qwhereobj = {
         text: '',
@@ -492,7 +516,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
         var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
         console.log(ym)
-        queryService.post('select cast(concat(\'PMT/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'PMT\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+        queryService.post('select cast(concat(\'DMT/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'DMT\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
         .then(function(data){
             console.log(data)
             $scope.ap.code = data.data[0].code
@@ -511,20 +535,20 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             console.log($scope.ap)
             var total_amount = 0
             var home_total_amount = 0
-            for (var i=0;i<$scope.trans.length;i++){
+            /*for (var i=0;i<$scope.trans.length;i++){
                 total_amount += $scope.trans[i].total_amount
                 home_total_amount += $scope.trans[i].home_total_amount
-            }
+            }*/
             var param = {
                 code: $scope.ap.code,
             	check_no: $scope.ap.check,
             	bank_account_id: $scope.selected.bank_account.selected.id,
-                //payment_method: $scope.selected.payment_method.selected.id,
+                payment_method: 1,
             	status: $scope.selected.status.selected.id,
             	open_date: $scope.ap.open_date,
                 check_due_date: $scope.ap.due_date,
             	prepared_date:$scope.ap.prepared_date,
-            	supplier_id: $scope.selected.supplier.selected.supplier_id,
+            	supplier_id: ($scope.selected.supplier.selected?$scope.selected.supplier.selected.supplier_id:null),
             	prepare_notes: $scope.ap.notes,
             	currency_id: $scope.selected.currency.selected.currency_id,
             	currency_exchange: $scope.ap.exchange,
@@ -537,7 +561,17 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
             queryService.post('insert into acc_cash_payment SET ?',param)
             .then(function (result){
-                var qstr = $scope.child.saveTableT(result.data.insertId)
+                $('#form-input').modal('hide')
+                $scope.dtInstance.reloadData(function(obj){}, false)
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Success Insert '+$scope.ap.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+                $scope.clear();
+                /*var qstr = $scope.child.saveTableT(result.data.insertId)
                 queryService.post(qstr.join(';'),undefined)
                 .then(function (result2){
                         $('#form-input').modal('hide')
@@ -559,7 +593,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                         timeout: 2000,
                         type: 'danger'
                     }).show();
-                })
+                })*/
             },
             function (err){
                 $('#form-input').pgNotification({
@@ -577,15 +611,13 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             console.log($scope.trans)
             var total_amount = 0
             var home_total_amount = 0
-            for (var i=0;i<$scope.trans.length;i++){
-                total_amount += $scope.trans[i].total_amount
-                home_total_amount += $scope.trans[i].home_total_amount
-            }
+
+
             var param = {
                 code: $scope.ap.code,
             	check_no: $scope.ap.check,
             	bank_account_id: $scope.selected.bank_account.selected.id,
-                //payment_method: $scope.selected.payment_method.selected.id,
+                payment_method: 1,
             	status: $scope.selected.status.selected.id,
             	open_date: $scope.ap.open_date,
                 check_due_date: $scope.ap.due_date,
@@ -596,8 +628,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             	currency_exchange: $scope.ap.exchange,
             	total_amount: total_amount,
             	home_total_amount: home_total_amount,
-            	created_by: $localStorage.currentUser.name.id,
-                created_date: globalFunction.currentDate()
+            	modified_by: $localStorage.currentUser.name.id,
+                modified_date: globalFunction.currentDate()
             }
             if ($scope.selected.status.selected.id=='1'){
                 param['approved_date'] = globalFunction.currentDate()
@@ -622,16 +654,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             .then(function (result){
                 if ($scope.selected.status.selected.id=='1'){
                     var qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
-                     'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+$scope.ap.id+',\'0\',null,\''+$scope.ap.notes+'\');'
-                    var q1 = 'insert into acc_gl_transaction'
-                    var p1 = {
-                        code: $scope.ap.code,
-                        bookkeeping_date: $scope.ap.open_date,
-                        journal_type_id: null,
-                        deposit_id: $scope.ap.id,
-                        gl_status: '0',
-                        notes: $scope.ap.notes
-                    }
+                     'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+$scope.ap.id+',\'5\','+$scope.journal_type_id+',\''+$scope.ap.notes+'\');'
+
                     queryService.post(qq ,undefined)
                     .then(function (result2){
                         var q2 = $scope.child.saveTable(result2.data.insertId)
@@ -658,31 +682,34 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                         console.log(err2)
                     })
                 }
-                else if($scope.selected.status.selected.id=='2'){
-                    var qs = 'update acc_gl_transaction set gl_status = \'1\' where deposit_id = '+$scope.ap.id
-                    queryService.post(qs ,undefined)
-                    .then(function (result3){
-                        $('#form-input').modal('hide')
-                        $scope.dtInstance.reloadData(function(obj){
-                            // console.log(obj)
-                        }, false)
-                        $('body').pgNotification({
-                            style: 'flip',
-                            message: 'Success Update '+$scope.ap.code,
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'success'
-                        }).show();
+                else if($scope.selected.status.selected.id=='3'){
+                    queryService.post('select id from acc_gl_transaction where payment_id='+$scope.ap.id ,undefined)
+                    .then(function (result2){
+                        var v_gl_id = result2.data[0].id
+                        var q2 = $scope.child.saveTable(v_gl_id)
+                        console.log(q2)
+                        queryService.post(q2.join(';') ,undefined)
+                        .then(function (result3){
+                            $('#form-input').modal('hide')
+                            $scope.dtInstance.reloadData(function(obj){
+                                // console.log(obj)
+                            }, false)
+                            $('body').pgNotification({
+                                style: 'flip',
+                                message: 'Success Update '+$scope.ap.code,
+                                position: 'top-right',
+                                timeout: 2000,
+                                type: 'success'
+                            }).show();
+                        },
+                        function(err3){
+                            console.log(err3)
+                        })
                     },
-                    function(err3){
-                        $('#form-input').pgNotification({
-                            style: 'flip',
-                            message: 'Error Update: '+err3.code,
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'danger'
-                        }).show();
+                    function(err2){
+                        console.log(err2)
                     })
+
                 }
                 else {
                     $('#form-input').modal('hide')
@@ -710,24 +737,121 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             })
         }
     }
+    $scope.setStatus = function(){
+        console.log($scope.selected.status.selected.id)
+        if ($scope.selected.status.selected.id==1){
+
+            if ($scope.items.length==0){
+                $scope.items.push(
+                    {
+                        id:1,
+                        account_id:$scope.selected.bank_account.selected.ap_clearance_account_id,
+                        account_code:$scope.selected.bank_account.selected.ap_clearance_account_code,
+                        account_name: $scope.selected.bank_account.selected.ap_clearance_account_name,
+                        notes: '',
+                        debit: '',
+                        credit: '',
+                        debit_f: '',
+                        credit_f: '',
+                        balance: '',
+                        isNew: true
+                    }
+                )
+                if ($scope.selected.supplier.selected){
+                    $scope.items.push(
+                        {
+                            id:2,
+                            account_id:$scope.selected.supplier.selected.supplier_account_id,
+                            account_code:$scope.selected.supplier.selected.supplier_account_code,
+                            account_name: $scope.selected.supplier.selected.supplier_account_name,
+                            notes: '',
+                            debit: '',
+                            credit: '',
+                            debit_f: '',
+                            credit_f: '',
+                            balance: '',
+                            isNew: true
+                        }
+                    )
+                }
+            }
+
+
+        }
+        else if ($scope.selected.status.selected.id==3){
+            var v = 0,v_gl_id=null;
+
+            for (var i=0;i<$scope.items.length;i++){
+                if($scope.items[i].account_id == $scope.selected.bank_account.selected.ap_clearance_account_id){
+                    v = $scope.items[i].credit
+                }
+
+            }
+            $scope.items.push(
+                {
+                    id:$scope.items.length+1,
+                    account_id:$scope.selected.bank_account.selected.ap_clearance_account_id,
+                    account_code:$scope.selected.bank_account.selected.ap_clearance_account_code,
+                    account_name: $scope.selected.bank_account.selected.ap_clearance_account_name,
+                    notes: '',
+                    debit: v,
+                    credit: '',
+                    debit_f: '',
+                    credit_f: '',
+                    balance: '',
+                    isNew: true
+                },
+                {
+                    id:$scope.items.length+2,
+                    account_id:$scope.selected.bank_account.selected.gl_account_id,
+                    account_code:$scope.selected.bank_account.selected.gl_account_code,
+                    account_name: $scope.selected.bank_account.selected.gl_account_name,
+                    notes: '',
+                    debit: '',
+                    credit: v,
+                    debit_f: '',
+                    credit_f: '',
+                    balance: '',
+                    isNew: true
+                }
+            )
+
+
+
+        }
+    }
 
     $scope.update = function(obj){
-        queryService.post(qstring+ ' where a.id='+obj.id,undefined)
+        queryService.post(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             console.log(result)
             $('#form-input').modal('show');
             $scope.ap = result.data[0]
-            $scope.selected.bank['selected']= {
-                id: result.data[0].bank_id,
-                name: result.data[0].bank_name
+            for (var i=0;i<$scope.bank.length;i++){
+                if ($scope.bank[i].id==result.data[0].bank_id){
+                    $scope.selected.bank['selected']= {
+                        id: result.data[0].bank_id,
+                        name: $scope.bank[i].name
+                    }
+                }
             }
+
             $scope.selected.bank_account['selected'] = {
                 id: result.data[0].bank_account_id,
-                name: result.data[0].bank_account
+                name: result.data[0].bank_account,
+                gl_account_id:result.data[0].gl_account_id,
+                gl_account_code:result.data[0].gl_account_code,
+                gl_account_name:result.data[0].gl_account_name,
+                ap_clearance_account_id:result.data[0].ap_clearance_account_id,
+                ap_clearance_account_code:result.data[0].ap_clearance_account_code,
+                ap_clearance_account_name:result.data[0].ap_clearance_account_name
             }
             $scope.selected.supplier['selected'] = {
                 supplier_id: result.data[0].supplier_id,
-                supplier_name: result.data[0].supplier_name
+                supplier_name: result.data[0].supplier_name,
+                supplier_account_id:result.data[0].supplier_account_id,
+                supplier_account_code: result.data[0].supplier_account_code,
+                supplier_account_name:result.data[0].supplier_account_name
             }
             $scope.selected.status['selected'] = {
                 id: result.data[0].status,
@@ -747,7 +871,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 }
             }
             $scope.ap.check = result.data[0].check_no
-            $scope.ap.due_date = result.data[0].check_due_date
+            $scope.ap.check_due_date = result.data[0].check_due_date
+            $scope.ap.prepared_date = result.data[0].prepared_date
             $scope.ap.exchange = result.data[0].currency_exchange
             $scope.ap.notes = result.data[0].prepare_notes
 
@@ -767,69 +892,72 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             else if(result.data[0].status=="2"){
                 $scope.statusShow.push($scope.status[3])
             }
-            else if(result.data[0].status=="3"){
+            /*else if(result.data[0].status=="3"){
                 $scope.statusShow.push($scope.status[4])
             }
             else if(result.data[0].status=="4"){
                 $scope.statusShow.push($scope.status[5])
-            }
-            $scope.trans = []
-            $scope.transOri = []
-
-            queryService.post(qstringt+ ' and c.payment_id='+obj.id,undefined)
-            .then(function(result2){
-                var d = result2.data
-                console.log(d)
-                for (var i=0;i<d.length;i++){
-                    $scope.trans.push(
-                        {
-                            id:(i+1),
-                            p_id: d[i].id,
-                            code:d[i].code,
-                            open_date:d[i].open_date,
-                            due_date:d[i].due_date,
-                            status_id: d[i].status,
-                            status_name: d[i].status_name,
-                            source: d[i].source,
-                            home_total_amount: d[i].home_total_amount,
-                            total_amount: d[i].total_amount
-                        }
-                    )
-                }
-                $scope.transOri = angular.copy($scope.trans)
-
-
-            },function(err2){
-                $('body').pgNotification({
-                    style: 'flip',
-                    message: 'Failed Fetch Data: '+err2.code,
-                    position: 'top-right',
-                    timeout: 2000,
-                    type: 'danger'
-                }).show();
-            })
+            }*/
             $scope.items = []
             $scope.itemsOri = []
-            var qd = 'select b.id,a.voucher_id, b.account_id, c.name account_name,c.code account_code, b.transc_type, b.amount '+
-                  'from acc_gl_transaction a '+
-                  'left join acc_gl_journal b on a.id = b.gl_id '+
-                  'left join mst_ledger_account c on b.account_id = c.id '+
-                 'where a.payment_id =  '+$scope.ap.id
-            queryService.get(qd,undefined)
+            var qd = "select a.id gl_id,a.payment_id,b.notes,a.code,a.journal_type_id,a.gl_status,b.notes,b.id line_id,b.account_id,c.code account_code,c.name account_name,b.transc_type,b.amount "+
+                "from acc_gl_transaction a, acc_gl_journal b, mst_ledger_account c "+
+                "where a.id = b.gl_id "+
+                "and b.account_id=c.id "+
+                "and a.payment_id="+$scope.ap.id+" order by b.id "
+            queryService.post(qd,undefined)
             .then(function(result2){
                 console.log(result2)
                 var d = result2.data
+                $scope.total_debit = 0
+                $scope.total_credit = 0
+                $scope.total_debit_f = 0
+                $scope.total_credit_f = 0
+                $scope.total_balance = 0
                 for (var i=0;i<d.length;i++){
-                    $scope.items.push(
-                        {
+                    $scope.total_debit += (d[i].transc_type=='D'?d[i].amount:0)
+                    $scope.total_credit += (d[i].transc_type=='C'?d[i].amount:0)
+                    $scope.total_balance = ($scope.total_debit-$scope.total_credit)
+                    var item = {
+
+                    }
+                    if ($scope.selected.currency.selected.currency_id==1){
+                        item = {
                             id:(i+1),
-                            p_id: d[i].id,
+                            p_id: d[i].line_id,
+                            gl_id: d[i].gl_id,
                             account_id:d[i].account_id,
                             account_code:d[i].account_code,
                             account_name: d[i].account_name,
+                            notes: d[i].notes,
                             debit: d[i].transc_type=='D'?d[i].amount:'',
-                            credit: d[i].transc_type=='C'?d[i].amount:''
+                            credit: d[i].transc_type=='C'?d[i].amount:'',
+                            debit_f: '',
+                            credit_f: '',
+                            balance: d[i].transc_type=='D'?d[i].amount:(-1*d[i].amount)
                         }
+                    }
+                    else if ($scope.selected.currency.selected.currency_id!=1){
+                        $scope.total_debit_f += (d[i].transc_type=='D'?(d[i].amount/$scope.ap.exchange):0)
+                        $scope.total_credit_f += (d[i].transc_type=='C'?(d[i].amount/$scope.ap.exchange):0)
+
+                        item = {
+                            id:(i+1),
+                            p_id: d[i].line_id,
+                            gl_id: d[i].gl_id,
+                            account_id:d[i].account_id,
+                            account_code:d[i].account_code,
+                            account_name: d[i].account_name,
+                            notes: d[i].notes,
+                            debit: d[i].transc_type=='D'?d[i].amount:'',
+                            credit: d[i].transc_type=='C'?d[i].amount:'',
+                            debit_f: d[i].transc_type=='D'?(d[i].amount/$scope.ap.exchange):'',
+                            credit_f: d[i].transc_type=='C'?(d[i].amount/$scope.ap.exchange):'',
+                            balance: d[i].transc_type=='D'?d[i].amount:(-1*d[i].amount)
+                        }
+                    }
+                    $scope.items.push(
+                        item
                     )
                 }
                 $scope.itemsOri = angular.copy($scope.items)
@@ -837,35 +965,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             function(err2){
                 console.log(err2)
             })
-            /*queryService.get(qstringg+ ' where b.payment_id='+obj.id,undefined)
-            .then(function(result2){
-                var d = result2.data
-                console.log(d)
-                for (var i=0;i<d.length;i++){
-                    $scope.trans.push(
-                        {
-                            id:(i+1),
-                            p_id: d[i].id,
-                            code:d[i].code,
-                            open_date:d[i].open_date,
-                            status: d[i].status,
-                            source: d[i].source,
-                            home_total_amount: d[i].home_total_amount,
-                            total_amount: d[i].total_amount
-                        }
-                    )
-                }
-
-
-            },function(err2){
-                $('body').pgNotification({
-                    style: 'flip',
-                    message: 'Failed Fetch Data: '+err2.code,
-                    position: 'top-right',
-                    timeout: 2000,
-                    type: 'danger'
-                }).show();
-            })*/
 
 
         },function(err){
@@ -922,6 +1021,11 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             description: '',
             status: ''
         }
+        $scope.selected.bank = {}
+        $scope.selected.bank_account = {}
+        $scope.selected.currency = {}
+        $scope.selected.supplier = {}
+
     }
 
 })
@@ -1141,11 +1245,16 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.addUser = function() {
         $scope.item = {
             id:($scope.items.length+1),
+            gl_id: '',
             account_id:'',
             account_code:'',
             account_name: '',
+            notes: '',
+            debit_f: '',
+            credit_f: '',
             debit: '',
             credit: '',
+            balance: '',
             isNew: true
         };
         $scope.items.push($scope.item)
@@ -1196,36 +1305,37 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             if (user.isNew && !user.isDeleted){
 
                 if (user.debit>0){
-                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
-                    pr_id+','+user.account_id+',\'D\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
+                    pr_id+','+user.account_id+',\'D\',\''+user.notes+'\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }
                 else if (user.credit>0){
-                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
-                    pr_id+','+user.account_id+',\'C\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
+                    pr_id+','+user.account_id+',\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }
 
             }
             else if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from acc_gl_journal where id='+user.p_id)
             }
-            /*else if(!user.isNew){
+            else if(!user.isNew){
                 console.log(user)
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
-                        var d1 = $scope.itemsOri._id+$scope.itemsOri[j].account_id+$scope.itemsOri[j].debit+$scope.itemsOri[j].credit
-                        var d2 = user.pid+user.account_id+user.debit+user.credit
+                        var d1 = $scope.itemsOri._id+$scope.itemsOri[j].account_id+$scope.itemsOri[j].debit+$scope.itemsOri[j].credit+$scope.itemsOri[i].notes
+                        var d2 = user.pid+user.account_id+user.debit+user.credit+user.notes
                         if(d1 != d2){
                             sqlitem.push('update acc_gl_journal set '+
                             ' account_id = '+user.account_id+',' +
-                            ' transc_type = '+(user.debit>0?'D':'C')+',' +
-                            ' amount = '+user.debit>0?user.debit:user.credit+',' +
+                            ' notes = \''+user.notes+'\','+
+                            ' transc_type = \''+(user.debit>0?'D':'C')+'\',' +
+                            ' amount = '+(user.debit>0?user.debit:user.credit)+',' +
                             ' modified_by = '+$localStorage.currentUser.name.id+',' +
                             ' modified_date = \''+globalFunction.currentDate()+'\'' +
                             ' where id='+user.p_id)
                         }
                     }
                 }
-            }*/
+            }
 
         }
         console.log($scope.items)
@@ -1307,8 +1417,34 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         console.log(d)
         console.log(p)
         console.log(t)
+        if (t=='notes') $scope.items[d-1].notes = p
+        if (t=='debit_f') {
+            $scope.items[d-1].debit_f = p
+            $scope.items[d-1].debit = (parseInt(p)*$scope.ap.exchange)
+        }
+        if (t=='credit_f') {
+            $scope.items[d-1].credit_f = p
+            $scope.items[d-1].credit = (parseInt(p)*$scope.ap.exchange)
+        }
         if (t=='debit') $scope.items[d-1].debit = p
         if (t=='credit') $scope.items[d-1].credit = p
+        $scope.items[d-1].balance = ($scope.items[d-1].debit-$scope.items[d-1].credit)
+        $scope.total_debit = 0
+        $scope.total_credit = 0
+        $scope.total_debit_f = 0
+        $scope.total_credit_f = 0
+        //$scope.total_balance = 0
+        for (var i=0;i<$scope.items.length;i++){
+            $scope.total_debit_f += (parseInt($scope.items[i].debit_f).toString()=='NaN'?0:parseInt($scope.items[i].debit_f))
+            $scope.total_credit_f += (parseInt($scope.items[i].credit_f).toString()=='NaN'?0:parseInt($scope.items[i].credit_f))
+            $scope.total_debit += (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
+            $scope.total_credit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
+            //$scope.total_balance += (parseInt($scope.items[i].balance).toString()=='NaN'?0:parseInt($scope.items[i].balance))
+        }
+        $('#totalDebitF').html($scope.total_debit_f)
+        $('#totalCreditF').html($scope.total_credit_f)
+        $('#totalDebit').html($scope.total_debit)
+        $('#totalCredit').html($scope.total_credit)
     }
 
 });
