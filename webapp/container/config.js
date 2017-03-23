@@ -2154,6 +2154,25 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.fin.cashAccount', {
+        url: "/cashAccount",
+        templateUrl: "container/components/finCashAccount/view.html",
+        controller: 'FinCashAccountCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/finCashAccount/controller.js');
+                });
+
+            }]
+        }
+    })
     .state('app.fin.currency', {
         url: "/currency",
         templateUrl: "container/components/finCurrency/view.html",
