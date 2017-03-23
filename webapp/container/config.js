@@ -1940,6 +1940,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
     .state('app.fin.appayment', {
         url: "/appayment",
         templateUrl: "container/components/finApPayment/view.html",
+        params:      {'currentPeriod': null},
         controller: 'FinApPaymentCtrl',
         resolve: {
             deps: ['$ocLazyLoad', function($ocLazyLoad) {
@@ -1962,6 +1963,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
     .state('app.fin.apdeposit', {
         url: "/apdeposit",
         templateUrl: "container/components/finApDeposit/view.html",
+        params:      {'currentPeriod': null},
         controller: 'FinApDepositCtrl',
         resolve: {
             deps: ['$ocLazyLoad', function($ocLazyLoad) {
@@ -2448,6 +2450,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
     .state("app.fin.apDirect", {
         url: "/finApDirect",
         templateUrl: "container/components/finApDirect/view.html",
+        params:      {'currentPeriod': null},
         controller: "FinApDirectCtrl",
         resolve: {
             deps: ["$ocLazyLoad", function($ocLazyLoad) {

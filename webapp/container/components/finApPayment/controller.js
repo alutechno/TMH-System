@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinApPaymentCtrl',
-function($scope, $state, $sce,$templateCache, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+function($scope, $state, $stateParams,$sce,$templateCache, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -105,6 +105,9 @@ function($scope, $state, $sce,$templateCache, productCategoryService, queryServi
         { id: 0, name: 'Current Month'},
         { id: 1, name: 'Last Month'}
     ]
+    if ($stateParams.currentPeriod!=null){
+        qwhere = ' and a.created_date between \''+$stateParams.currentPeriod+' 00:00:00\' and \''+$stateParams.currentPeriod+' 23:59:59\' '
+    }
 
     /*for (var i=0;i<year.length;i++){
         for (var j=0;j<month.length;j++){

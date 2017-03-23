@@ -13,6 +13,47 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         $scope[$scope.el[i]] = true;
     }
     $scope.bbExec = {}
+    $scope.unf = {
+        deposit: 1,
+        voucher: 3,
+        direct: 2
+    }
+    $scope.setUnf = function(){
+        queryService.get('select count(1)cnt from acc_cash_deposit where status<3 and open_date between \''+$scope.filter_period+' 00:00:00\' and \''+$scope.filter_period+' 23:59:59\' ',undefined)
+        .then(function(data){
+            $scope.unf.deposit = data.data[0].cnt
+        })
+        queryService.get('select count(1)cnt from acc_cash_payment where payment_method=\'0\' and status<3 and created_date between \''+$scope.filter_period+' 00:00:00\' and \''+$scope.filter_period+' 23:59:59\' ',undefined)
+        .then(function(data){
+            $scope.unf.voucher = data.data[0].cnt
+        })
+        queryService.get('select count(1)cnt from acc_cash_payment where payment_method=\'1\' and status<3 and created_date between \''+$scope.filter_period+' 00:00:00\' and \''+$scope.filter_period+' 23:59:59\' ',undefined)
+        .then(function(data){
+            $scope.unf.direct = data.data[0].cnt
+        })
+    }
+    $scope.changeState = function (type) {
+       //$state.go('app.fin.gltransaction', {stateParamKey: exampleParam});
+       $('#modalProcess').modal('hide')
+       if (type=='deposit'){
+           setTimeout(function(){$state.go('app.fin.apdeposit', {
+               currentPeriod: $scope.filter_period
+           });},1000);
+       }
+       else if(type=='voucher'){
+           setTimeout(function(){$state.go('app.fin.appayment', {
+               currentPeriod: $scope.filter_period
+           });},1000);
+       }
+       else if(type=='direct'){
+           setTimeout(function(){$state.go('app.fin.apDirect', {
+               currentPeriod: $scope.filter_period
+           });},1000);
+       }
+
+       //$state.go('app.fin.gltransaction');
+
+   };
 
      //'where a.status = \'3\' '
 
@@ -48,6 +89,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     d.setDate(d.getDate() + 1)
     $scope.filter_period_plus = d.getFullYear() + "-" + ("00" + (d.getMonth() + 1)).slice(-2) + "-" + ("00" + d.getDate()).slice(-2)
     //$scope.filter_period_plus = new Date($scope.filter_period)
+    $scope.setUnf()
 
 
 
@@ -71,6 +113,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         $scope.nested.reloadIssuingTable()
         $scope.nested.reloadSoTable()
         $scope.nested.reloadCtcTable()
+        $scope.setUnf()
     }
 
 
@@ -117,11 +160,13 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
     $scope.execProcess = function(){
         console.log('exec')
+
+
         var qstr = [
-            'update inv_po_receive set received_status = 3, created_date = created_date,modified_date=\''+globalFunction.currentDate()+'\' where created_date between \''+$scope.filter_period+' 00:00:00\' and \''+$scope.filter_period+' 23:59:59\' and received_status=1 ',
-            'update inv_store_request set issued_status = 2, created_date = created_date where created_date between \''+$scope.filter_period+' 00:00:00\' and \''+$scope.filter_period+' 23:59:59\' and issued_status=1',
-            'update inv_stock_opname set status = 3, created_date = created_date where created_date between \''+$scope.filter_period+' 00:00:00\' and \''+$scope.filter_period+' 23:59:59\' and status=1 ',
-            'update inv_credit_to_cost set request_status = 3, created_date = created_date where created_date between \''+$scope.filter_period+' 00:00:00\' and \''+$scope.filter_period+' 23:59:59\' and request_status=1 '
+            "update acc_cash_deposit set status='5' where open_date between '"+$scope.filter_period+" 00:00:00' and '"+$scope.filter_period+" 23:59:59'",
+            "update acc_cash_payment set status='5' where created_date between '"+$scope.filter_period+" 00:00:00' and '"+$scope.filter_period+" 23:59:59'",
+            "update acc_gl_transaction set gl_status='0' where deposit_id in(select id from acc_cash_deposit where open_date between '"+$scope.filter_period+" 00:00:00' and '"+$scope.filter_period+" 23:59:59')",
+            "update acc_gl_transaction set gl_status='0' where payment_id in(select id from acc_cash_payment where created_date between '"+$scope.filter_period+" 00:00:00' and '"+$scope.filter_period+" 23:59:59')"
         ]
         console.log(qstr.join(';\n'))
         queryService.post(qstr.join(';'),undefined)

@@ -8,7 +8,7 @@
                 <div class="panel-title">End of Day Process
                 </div>
                 <div class="pull-right" style="width: 60%;">
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="processData()" ng-show="process"><i class="fa fa-flash"></i> Process</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="processData()" ng-show="buttonProcess"><i class="fa fa-flash"></i> Process</button>
 
                     <!--<div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
@@ -135,13 +135,13 @@
 <!--END FORM INPUT-->
 
 <!-- START MODAL CONTENT-->
-<div class="modal fade slide-up disable-scroll" id="modalProcess" tabindex="-1" role="dialog" aria-hidden="false">
+<div class="modal fade slide-up disable-scroll" id="modalProcess" tabindex="-1" role="dialog" aria-hidden="false" >
     <div class="modal-dialog modal-sm">
-        <div class="modal-content-wrapper">
-            <div class="modal-content">
+        <div class="modal-content-wrapper" >
+            <div class="modal-content" style="width:700px">
                 <div class="modal-body text-center m-t-20">
-                    <h4 class="no-margin p-b-10">End of Day Process will change Receiving, Issuing, Stock Opname and Credit to Cost status from "Release" to "Close"?</h4>
-                    <div class="col-sm-12">
+                    <h5 class="no-margin p-b-10">End of Day Process will change Deposit and Payment status to "Close". Cannot execute process if there is unfinished transaction in Deposit or Payment.</h5>
+                    <div class="col-sm-6">
                         <div pg-form-group class="form-group form-group-default ">
                             <label>Current Date</label>
                             <!--<input type="text" class="form-control" ng-model="ap.date" name="date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" >-->
@@ -149,7 +149,7 @@
                             <span>{{filter_period}}</span>
                         </div>
                     </div>
-                    <div class="col-sm-12">
+                    <div class="col-sm-6">
                         <div pg-form-group class="form-group form-group-default ">
                             <label>Step to</label>
                             <!--<input type="text" class="form-control" ng-model="ap.date" name="date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" >-->
@@ -158,8 +158,34 @@
                         </div>
                     </div>
 
+                    <div class="row">
+                        <table style="width:100%;">
+                            <tr>
+                                <td>Deposit not finished</td>
+                                <td>:</td>
+                                <td>{{unf.deposit}}</td>
+                                <td style="padding-bottom:5px"><button ng-disabled="unf.deposit==0" type="button" class="btn btn-primary" data-dismiss="modal" ng-click="changeState('deposit')">Post</button></td>
+                            </tr>
+                            <tr>
+                                <td>Voucher Payment not finished</td>
+                                <td>:</td>
+                                <td>{{unf.voucher}}</td>
+                                <td style="padding-bottom:5px"><button ng-disabled="unf.voucher==0" type="button" class="btn btn-primary" data-dismiss="modal" ng-click="changeState('voucher')">Post</button></td>
+                            </tr>
+                            <tr>
+                                <td>Direct Payment not finished</td>
+                                <td>:</td>
+                                <td>{{unf.direct}}</td>
+                                <td style="padding-bottom:5px"><button ng-disabled="unf.direct==0" type="button" class="btn btn-primary" data-dismiss="modal" ng-click="changeState('direct')">Post</button></td>
+                            </tr>
+                        </table>
+
+
+                    </div>
+                    <br />
                     <div >
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execProcess()">Execute</button>
+
+                        <button ng-disabled="unf.deposit>0||unf.voucher>0||unf.direct>0" type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execProcess()">Execute</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>
