@@ -64,7 +64,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     	"g.name as 'bank_account', format(a.total_amount,0)ta,format(a.home_total_amount,0)hta, prepare_notes, "+
         "g.gl_account_id,h.code gl_account_code,h.name gl_account_name,"+
         "g.ap_clearance_account_id,i.code ap_clearance_account_code,i.name ap_clearance_account_name, "+
-        "k.id supplier_account_id,k.code supplier_account_code,k.name supplier_account_name "+
+        "k.id supplier_account_id,k.code supplier_account_code,k.name supplier_account_name,l.name approved_by,DATE_FORMAT(a.approved_date,'%Y-%m-%d') approved_date,m.name prepared_by,n.name issued_by,DATE_FORMAT(a.issued_date,'%Y-%m-%d') issued_date,o.name created_by,DATE_FORMAT(a.created_date,'%Y-%m-%d') created_date "+
     "from acc_cash_payment a "+
     "left join acc_payment_line_item b on b.payment_id = a.id "+
     "left join acc_ap_voucher c on b.voucher_id = c.id "+
@@ -78,9 +78,13 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     "left join mst_ledger_account i on g.ap_clearance_account_id=i.id "+
     "left join ref_supplier_type j on d.supplier_type_id=j.id "+
     "left join mst_ledger_account k on j.payable_account_id=k.id "+
+	"left join user l on a.approved_by=l.id "+
+	"left join user m on a.prepared_by=m.id "+
+	"left join user n on a.issued_by=n.id "+
+	"left join user o on a.created_by=o.id "+
     "where a.payment_method = '1' "
     var qwhere = ''
-    /*var qstringt = 'select a.id,a.code, '+
+	/*var qstringt = 'select a.id,a.code, '+
               'from acc_ap_voucher a '+
               'inner join acc_payment_line_item b on a.id = b.voucher_id '*/
   var qstringt ="select a.id gl_id,a.payment_id,a.code,a.journal_type_id,a.gl_status,a.notes,b.account_id,c.code account_code,c.name account_name,b.transc_type,b.amount "+
@@ -97,7 +101,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         { id: 0, name: 'Current Month'},
         { id: 1, name: 'Last Month'}
     ]
-    console.log('stateParams',$stateParams)
     if ($stateParams.currentPeriod!=null){
         qwhere = ' and a.created_date between \''+$stateParams.currentPeriod+' 00:00:00\' and \''+$stateParams.currentPeriod+' 23:59:59\' '
     }
@@ -107,7 +110,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             $scope.period.push({id:year[i]+month[j],name:year[i]+'-'+month[j]})
         }
     }*/
-    console.log($scope.period)
 
     $scope.role = {
         selected: []
@@ -210,7 +212,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         $scope.tax = data.data
     })
     $scope.setDebit = function(a){
-        console.log('setDebit',a)
         return a
     }
 
@@ -236,8 +237,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             $scope.total_credit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
 
         }
-        console.log($scope.items)
-        console.log($scope.total_debit,$scope.total_credit)
         //$scope.setDebit(1000)
         //$scope.$apply();
         $('#totalDebitF').html($scope.total_debit_f)
@@ -276,15 +275,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
     $scope.showAdvance = false
     $scope.openAdvancedFilter = function(val){
-        console.log(val)
         $scope.showAdvance = val
     }
 
 
     $scope.setSupplier = function(e){
-        console.log(e)
         $scope.ap.supplier_id=$scope.selected.supplier.selected.supplier_id
-        console.log($scope.trans)
         /*if ($scope.trans.length>0){
             queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
                 'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
@@ -389,9 +385,11 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow)
     .withOption('footerCallback', function (tfoot, data) {
-        console.log('tfoot',data)
+		console.log(qstring + qwhere)
+		console.log(data)
+		if (data.length > 0) {
 
-        if (data.length > 0) {
+			$scope.data=data
             // Need to call $apply in order to call the next digest
             $scope.$apply(function () {
                 //$scope.sums = 100;
@@ -399,7 +397,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                         $tfoot = angular.element(tfoot),
                         content = $compile(footer)($scope);
                 //$tfoot.find('tr').html(content);
-                console.log(content)
                 $tfoot.html(content)
             });
         }
@@ -426,13 +423,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     );
     queryService.post('select sum(total_amount)as sm,sum(home_total_amount)as sm2 from ('+qstring+qwhere+')a',undefined)
     .then(function(data){
-        console.log('tfoot2',data)
-
         $scope.sums1 = data.data[0].sm;
         $scope.sums2 = data.data[0].sm2;
-
-
-
     });
 
     var qwhereobj = {
@@ -452,22 +444,18 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 //if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
                 //else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
-                    console.log(obj)
+
                 }, false)
             }
         }
         else {
             $scope.dtInstance.reloadData(function(obj){
-                console.log(obj)
+
             }, false)
         }
     }
 
     $scope.applyFilter = function(){
-        console.log($scope.selected.filter_due_date)
-        console.log($scope.filter_due_date)
-
-        //console.log($scope.selected.filter_cost_center)
         if($scope.selected.filter_status.length>0){
             var ids = []
             for (var i=0;i<$scope.selected.filter_status.length;i++){
@@ -487,10 +475,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             qwhereobj.supplier = ' a.supplier_id= '+$scope.selected.filter_supplier.selected.supplier_id+' '
         }
 
-        console.log(setWhere())
         qwhere = setWhere()
         $scope.dtInstance.reloadData(function(obj){
-            console.log(obj)
+
         }, false)
 
     }
@@ -503,7 +490,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         if (arrWhere.length>0){
             strWhere = ' where ' + arrWhere.join(' and ')
         }
-        //console.log(strWhere)
         return strWhere
     }
 
@@ -519,15 +505,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         var dt = new Date()
 
         var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-        console.log(ym)
         queryService.post('select cast(concat(\'DMT/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'DMT\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
         .then(function(data){
-            console.log(data)
             $scope.ap.code = data.data[0].code
         })
     }
     $scope.setIdr = function(a,b){
-        console.log(a+b)
         $scope.ap[b] = parseInt($scope.ap[a]*$scope.ap.exchange)
         $scope.ap.balance_home = $scope.ap.deposit_home-$scope.ap.applied_home
         $scope.ap.balance_idr = $scope.ap.deposit_idr-$scope.ap.applied_idr
@@ -536,7 +519,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.submit = function(){
         if ($scope.ap.id.length==0){
             //exec creation
-            console.log($scope.ap)
             var total_amount = 0
             var home_total_amount = 0
             /*for (var i=0;i<$scope.trans.length;i++){
@@ -561,7 +543,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             	created_by: $localStorage.currentUser.name.id,
                 created_date: globalFunction.currentDate()
             }
-            console.log(param)
 
             queryService.post('insert into acc_cash_payment SET ?',param)
             .then(function (result){
@@ -612,12 +593,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         }
         else {
             //exec update
-            console.log($scope.trans)
             var total_amount = 0
             var home_total_amount = 0
-
-
-            var param = {
+			var param = {
                 code: $scope.ap.code,
             	check_no: $scope.ap.check,
             	bank_account_id: $scope.selected.bank_account.selected.id,
@@ -652,8 +630,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 param['reconcled_by'] = $localStorage.currentUser.name.id
             }
 
-            console.log(param)
-
             queryService.post('update acc_cash_payment SET ? WHERE id='+$scope.ap.id ,param)
             .then(function (result){
                 if ($scope.selected.status.selected.id=='1'){
@@ -663,7 +639,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     queryService.post(qq ,undefined)
                     .then(function (result2){
                         var q2 = $scope.child.saveTable(result2.data.insertId)
-                        console.log(q2)
                         queryService.post(q2.join(';') ,undefined)
                         .then(function (result3){
                             $('#form-input').modal('hide')
@@ -691,7 +666,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     .then(function (result2){
                         var v_gl_id = result2.data[0].id
                         var q2 = $scope.child.saveTable(v_gl_id)
-                        console.log(q2)
                         queryService.post(q2.join(';') ,undefined)
                         .then(function (result3){
                             $('#form-input').modal('hide')
@@ -742,7 +716,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         }
     }
     $scope.setStatus = function(){
-        console.log($scope.selected.status.selected.id)
         if ($scope.selected.status.selected.id==1){
 
             if ($scope.items.length==0){
@@ -828,7 +801,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.update = function(obj){
         queryService.post(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-            console.log(result)
             $('#form-input').modal('show');
             $scope.ap = result.data[0]
             for (var i=0;i<$scope.bank.length;i++){
@@ -911,7 +883,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 "and a.payment_id="+$scope.ap.id+" order by b.id "
             queryService.post(qd,undefined)
             .then(function(result2){
-                console.log(result2)
                 var d = result2.data
                 $scope.total_debit = 0
                 $scope.total_credit = 0
@@ -1047,7 +1018,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
     // mark user as deleted
     $scope.deleteUser = function(id) {
-        console.log(id)
         var filtered = $filter('filter')($scope.items, {id: id});
         if (filtered.length) {
             filtered[0].isDeleted = true;
@@ -1102,15 +1072,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
     // save edits
     $scope.child.saveTableT = function(pr_id) {
-        console.log('asd')
         var results = [];
-        console.log($scope.transOri)
-
-        console.log(JSON.stringify($scope.trans,null,2))
         var sqlitem = []
         for (var i = $scope.trans.length; i--;) {
             var user = $scope.trans[i];
-            console.log(user)
             // actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);
@@ -1130,7 +1095,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 sqlitem.push('delete from acc_payment_line_item where id='+user.p_id)
             }
             else if(!user.isNew){
-                console.log(user)
                 for (var j=0;j<$scope.transOri.length;j++){
                     if ($scope.transOri[j].p_id==user.p_id){
                         var d1 = $scope.transOri.p_id+$scope.transOri[j].voucher_id
@@ -1147,8 +1111,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             }
 
         }
-        console.log($scope.items)
-        console.log(sqlitem.join(';'))
         return sqlitem
         //return $q.all(results);
     };
@@ -1190,7 +1152,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     }*/
 
     $scope.getVoucher = function(e,d){
-        console.log(e)
         $scope.trans[d-1].code = e.code
         $scope.trans[d-1].p_id = e.id
         $scope.trans[d-1].open_date = e.open_date
@@ -1237,7 +1198,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
     // mark user as deleted
     $scope.deleteUser = function(id) {
-        console.log(id)
         var filtered = $filter('filter')($scope.items, {id: id});
         if (filtered.length) {
             filtered[0].isDeleted = true;
@@ -1286,15 +1246,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
     // save edits
     $scope.child.saveTable = function(pr_id) {
-        console.log('asd')
         var results = [];
-        console.log($scope.itemsOri)
-
-        console.log(JSON.stringify($scope.items,null,2))
         var sqlitem = []
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
-            console.log(user)
             // actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);
@@ -1322,7 +1277,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 sqlitem.push('delete from acc_gl_journal where id='+user.p_id)
             }
             else if(!user.isNew){
-                console.log(user)
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
                         var d1 = $scope.itemsOri._id+$scope.itemsOri[j].account_id+$scope.itemsOri[j].debit+$scope.itemsOri[j].credit+$scope.itemsOri[i].notes
@@ -1342,8 +1296,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             }
 
         }
-        console.log($scope.items)
-        console.log(sqlitem.join(';'))
         return sqlitem
         //return $q.all(results);
     };
@@ -1378,15 +1330,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     }*/
 
     $scope.getAccount = function(e,d){
-        console.log(e)
         $scope.items[d-1].account_id = e.id
         $scope.items[d-1].account_code = e.code
         $scope.items[d-1].account_name = e.name
 
     }
     $scope.funcAsync = function(e,d){
-        console.log('funcAsync')
-        console.log($scope.items[d-1].product_id)
         var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
             'from mst_supplier a '+
             'left join inv_prod_price_contract b '+
@@ -1402,7 +1351,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         })
     }
     $scope.getProductPriceSupplier = function(e,d){
-        console.log(e)
         $scope.items[d-1].supplier_id = e.id
         $scope.items[d-1].supplier_name = e.name
         $scope.items[d-1].price = e.price
@@ -1417,10 +1365,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         $scope.items[d-1].amount = q * $scope.items[d-1].price
     }
     $scope.setValue = function(e,d,p,t){
-        console.log(e)
-        console.log(d)
-        console.log(p)
-        console.log(t)
         if (t=='notes') $scope.items[d-1].notes = p
         if (t=='debit_f') {
             $scope.items[d-1].debit_f = p

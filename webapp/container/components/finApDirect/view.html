@@ -1,4 +1,161 @@
+<div id="printSection">
+    <div class="row">
+        <table width="98%">
+            <tr>
+                <td width="50%" align="center">
+                    <div class="brand inline text-center center">
+                        <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="200" height="40">
+                    </div>
+                    <br><br><br>
+                    <span class="text-center" style="align:center;">JL. GUNUNG SAHARI RAYA NO.3 JAKARTA 10720</span>
+                    <br>
+                    <span class="text-center">PHONE : (62-21) 626 3001</span>&nbsp;&nbsp;
+                    <span class="text-center">FAX : (62-21) 626 3024</span>
+                    <br><br>
+                    <span class="text-center">OWNED BY PT.GRAHASAHARI SURYAJAYA</span>
+                    <br>
+                    <span class="text-center">NPWP. 01.573.522.8-026.000</span>
+                </td>
+            </tr>
+            <br>
+            <tr>
+                <td>&nbsp;</td>
+                <td align="center"> <b>Direct Payment</b> </td>
+            </tr>
+            <tr>
+                <td>
+                    <table border="0" width="80%" align="center">
+                        <tr>
+                            <td align="center" style="background-color: #000000;color: white;"><b>SUPPLIER NAME</b></td>
+							<td>
+                                {{ap.supplier_name}}<br>
+                            </td>
+                        </tr>
+                        <tr>
+							<td align="center" style="background-color: #000000;color: white;"><b>STATUS</b></td>
+                            <td>
+                                {{po.status_name}}<br>
+                            </td>
+                        </tr>
+						<tr>
+							<td align="center" style="background-color: #000000;color: white;"><b>DUE DATE</b></td>
+                            <td>
+                                {{ap.due_date}}<br>
+                            </td>
+							<td>
+                                {{items}}<br>
+                            </td>
+                        </tr>
+                    </table>
+                    <br>
 
+                </td>
+
+            </tr>
+        </table>
+        <br>
+        <table width="89%" cellpadding="5" border="1" align="center">
+            <thead>
+            <tr>
+				<td align="center">ID</th>
+                <td align="center">Doc No</th>
+                <td align="center">Check No</th>
+                <td align="center">Open Date</th>
+                <td align="center">Due Date</th>
+                <td align="center">Status</th>
+				<td align="center">Supplier</th>
+				<td align="center">Bank Account</th>
+				<td align="center">Currency</th>
+				<td align="center">Total Amount (IDR)</th>
+				<td align="center">Total Amount (Foreign Exch)</th>
+				<td align="center">Approved Date</th>
+				<td align="center">Approved By</th>
+				<td align="center">Prepared Date</th>
+				<td align="center">Prepared By</th>
+				<td align="center">Issued Date</th>
+				<td align="center">Issued By</th>
+				<td align="center">Created Date</th>
+				<td align="center">Created By</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr ng-repeat="item in data | filter:filterUser">
+                <td>{{item.id}}</td>
+                <td> {{item.code}}</td>
+                <td>{{ item.check_no}}</td>
+                <td>{{ item.open_date}}</td>
+                <td>{{ item.due_date}}</td>
+				<td>{{ item.status_name}}</td>
+				<td>{{ item.supplier_name}}</td>
+				<td>{{ item.bank_account}}</td>
+				<td>{{ item.currency_name}}</td>
+				<td>{{ item.home_total_amount}}</td>
+				<td>{{ item.total_amount}}</td>
+				<td>{{ item.approved_date}}</td>
+				<td>{{ item.approved_by}}</td>
+				<td>{{ item.prepared_date}}</td>
+				<td>{{ item.prepared_by}}</td>
+				<td>{{ item.issued_date}}</td>
+				<td>{{ item.issued_by}}</td>
+				<td>{{ item.created_date}}</td>
+				<td>{{ item.created_by}}</td>
+            </tr>
+            </tbody>
+            <tfooter width="80%" border="1" align="center">
+                <tr>
+                    <td width="10%" style="text-align: center;">Total</th>
+                    <td width="30%">&nbsp;</th>
+                    <td width="10%" style="text-align: right;"><span >{{totalQty| number : fractionSize}}</span></th>
+                    <td width="10%">&nbsp;</th>
+                    <td width="10%" style="text-align: right;"><span >{{tAmt| number : fractionSize}}</span></th>
+
+                </tr>
+            </tfooter>
+        </table>
+        <br><br><br><br>
+        <table width="89%" cellpadding="5" border="0" align="center">
+            <tr>
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                    <br><br><br><br><br>
+                </td>
+                <td>&nbsp;</td>
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                    <br><br><br><br><br>
+                </td>
+                <td>&nbsp;</td>
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                    <br><br><br><br><br>
+                </td>
+                <td>&nbsp;</td>
+                <td valign="top">
+
+                    <br><br><br><br><br>
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    Purchasing Manager
+                </td>
+                <td>&nbsp;</td>
+                <td align="center">
+                    Financial Controller
+                </td>
+                <td>&nbsp;</td>
+                <td align="center">
+                    General Manager
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+
+</div>
 <div class="full-height m-t-40">
     <!-- TABLES VIEW -->
     <div class="container-fluid container-fixed-lg">
@@ -13,6 +170,7 @@
                     <span ng-click="exportExcel()">
                         <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
                     </span>
+					<button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Payment</button>
                     <!--<button class="btn btn-primary" ng-print print-element-id="printThisElement" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>-->
 
@@ -414,6 +572,7 @@
               <div class="clearfix"></div>
               <div class="divider"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
+
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>
       </div>
