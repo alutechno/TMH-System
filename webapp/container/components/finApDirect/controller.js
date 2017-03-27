@@ -385,8 +385,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow)
     .withOption('footerCallback', function (tfoot, data) {
-		console.log(qstring + qwhere)
-		console.log(data)
 		if (data.length > 0) {
 
 			$scope.data=data
