@@ -340,6 +340,11 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
+            if ($scope.el.indexOf('buttonAdjust')>-1){
+                html+='<button class="btn btn-default" ng-click="adjust(cats[\'' + data + '\'])" >' +
+                '   <i class="fa fa-undo"></i>' +
+                '</button>';
+            }
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
                 '<button class="btn btn-default" ng-click="update(cats[\'' + data + '\'])">' +
@@ -347,7 +352,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
+                html+='<button class="btn btn-default" ng-click="delete(cats[\'' + data + '\'])" >' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
@@ -823,6 +828,95 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         .then(function(result){
             $scope.cat.name = result.data[0].name;
             $('#modalDelete').modal('show')
+        })
+    }
+    $scope.adjustState = false
+    $scope.adjust = function(obj){
+        $scope.adjustState = true
+        console.log(qstring+ ' where a.id='+obj.id)
+        queryService.post(qstring+ ' where a.id='+obj.id,undefined)
+        .then(function(result){
+            console.log(result)
+            $('#form-input').modal('show');
+            $scope.ap = result.data[0]
+            $scope.ap.notes = result.data[0].voucher_notes
+            $scope.ap.due_date = (result.data[0].due==null?'':result.data[0].due)
+            $scope.ap.total_home = result.data[0].home_total_amount
+            $scope.ap.total_idr = result.data[0].total_amount
+            for (var i=0;i<$scope.currency.length;i++){
+                if ($scope.currency[i].currency_id==result.data[0].currency_id){
+                    $scope.selected.currency['selected'] = $scope.currency[i]
+                }
+            }
+            for (var i=0;i<$scope.source.length;i++){
+                if ($scope.source[i].id==result.data[0].source){
+                    $scope.selected.source['selected'] = $scope.source[i]
+                }
+            }
+            for (var i=0;i<$scope.status.length;i++){
+                if ($scope.status[i].id==result.data[0].status){
+                    $scope.selected.status['selected'] = $scope.status[i]
+                }
+            }
+            $scope.selected.supplier['selected'] = {
+                supplier_id: result.data[0].supplier_id,
+                supplier_name: result.data[0].supplier_name
+            }
+            $scope.setSource({value:result.data[0].source})
+            $scope.selected.source_no['selected'] = {
+                id: result.data[0].receive_id,
+                code: result.data[0].receive_no
+            }
+            $scope.setReceiving({id:result.data[0].receive_id})
+            $scope.statusShow = []
+            if (result.data[0].status=="0"){
+                $scope.statusShow.push($scope.status[1])
+            }
+            else if(result.data[0].status=="1"){
+                $scope.statusShow.push($scope.status[2])
+            }
+            $scope.items = []
+            $scope.itemsOri = []
+            var qd = 'select b.id,a.voucher_id, b.account_id, c.name account_name,c.code account_code, b.transc_type, b.amount '+
+                  'from acc_gl_transaction a '+
+                  'left join acc_gl_journal b on a.id = b.gl_id '+
+                  'left join mst_ledger_account c on b.account_id = c.id '+
+                 'where a.voucher_id =  '+$scope.ap.id
+            queryService.get(qd,undefined)
+            .then(function(result2){
+                console.log(result2)
+                var d = result2.data
+                $scope.items = []
+                $scope.itemsOri = []
+                for (var i=0;i<d.length;i++){
+                    $scope.items.push(
+                        {
+                            id:(i+1),
+                            p_id: d[i].id,
+                            account_id:d[i].account_id,
+                            account_code:d[i].account_code,
+                            account_name: d[i].account_name,
+                            debit: d[i].transc_type=='D'?d[i].amount:'',
+                            credit: d[i].transc_type=='C'?d[i].amount:''
+                        }
+                    )
+                }
+                $scope.itemsOri = angular.copy($scope.items)
+            },
+            function(err2){
+                console.log(err2)
+            })
+
+
+
+        },function(err){
+            $('body').pgNotification({
+                style: 'flip',
+                message: 'Failed Fetch Data: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
         })
     }
 
