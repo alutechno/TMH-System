@@ -47,7 +47,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             $scope.period.push({id:year[i]+month[j],name:year[i]+'-'+month[j]})
         }
     }*/
-    console.log($scope.period)
 
     $scope.role = {
         selected: []
@@ -204,7 +203,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     $scope.source_no = []
     $scope.setSource = function(e){
         $scope.ap.source=$scope.selected.source.selected.id
-        console.log(e)
         if (e.value == 'RR') {
             $scope.isReceiving = false
             queryService.post("select a.id,a.code,cast(concat('Amount: ',ifnull(format(total_amount,0),' - ')) as char) total_amount,cast(concat('Supplier: ',b.name) as char) sname "+
@@ -213,7 +211,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 "and a.po_id = c.id "+
                 "order by id desc limit 50",undefined)
             .then(function(data){
-                console.log(data.data)
                 $scope.source_no = data.data
                 //$scope.isReceiving = false
             })
@@ -222,22 +219,18 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         var dt = new Date()
 
         var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-        console.log(ym)
         queryService.post('select cast(concat(\'AP/'+$scope.selected.source.selected.value+'/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'AP'+$scope.selected.source.selected.value+'\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
         .then(function(data){
-            console.log(data)
             $scope.ap.code = data.data[0].code
         })
     }
 
     $scope.showAdvance = false
     $scope.openAdvancedFilter = function(val){
-        console.log(val)
         $scope.showAdvance = val
     }
 
     $scope.setReceiving = function(e){
-        console.log(e)
         $scope.ap.source_no=$scope.selected.source_no.selected.id
         queryService.post('select a.id,a.po_id,c.name,DATE_FORMAT(a.created_date, \'%Y-%m-%d\') created_date,a.currency_id,d.due_days,d.supplier_id,e.name supplier_name,f.name currency_name,a.total_amount,a.home_currency_exchange exchange, '+
             ' DATE_ADD(a.created_date, INTERVAL d.due_days DAY) due_date '+
@@ -250,7 +243,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             'and a.id=' + e.id +
             ' order by a.id desc',undefined)
         .then(function(data){
-            console.log(data.data)
             if (data.data.length>0){
                 $scope.supplier = data.data
                 $scope.selected.supplier['selected'] = $scope.supplier[0]
@@ -269,7 +261,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     }
 
     $scope.findReceiving = function(text){
-        console.log(text)
         queryService.post("select a.id,a.code,cast(concat('Amount: ',ifnull(format(total_amount,0),' - ')) as char) total_amount,cast(concat('Supplier: ',b.name) as char) sname "+
             "from inv_po_receive a,mst_supplier b, inv_purchase_order c  "+
             "where c.supplier_id=b.id  "+
@@ -283,7 +274,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 
     }
     $scope.setSupplier = function(e){
-        console.log(e)
         $scope.ap.supplier_id=$scope.selected.supplier.selected.supplier_id
         queryService.get('select id,code from acc_cash_deposit where supplier_id = '+e.supplier_id+' and status = 1 ',undefined)
         .then(function(data){
@@ -296,7 +286,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         $scope.ap.total_idr
         $scope.ap.deposit_home
         $scope.ap.deposit_idr
-        //console.log($scope.ap.total_idr,$scope.ap.deposit_idr)
 
         $scope.ap.total_due_home =
             parseInt($scope.ap.total_home) - parseInt($scope.ap.deposit_home)
@@ -390,24 +379,21 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow)
     .withOption('footerCallback', function (tfoot, data) {
-        console.log('tfoot',data)
-
         if (data.length > 0) {
-            // Need to call $apply in order to call the next digest
+			$scope.data=data
+			// Need to call $apply in order to call the next digest
             $scope.$apply(function () {
                 //$scope.sums = 100;
                 var footer = $templateCache.get('tableFooter'),
                         $tfoot = angular.element(tfoot),
                         content = $compile(footer)($scope);
                 //$tfoot.find('tr').html(content);
-                console.log(content)
                 $tfoot.html(content)
             });
         }
     });
     queryService.post('select sum(total_amount)as sm,sum(home_total_amount)as sm2 from ('+qstring+qwhere+')a',undefined)
     .then(function(data){
-        console.log('tfoot2',data)
         $scope.sums1 = data.data[0].sm;
         $scope.sums2 = data.data[0].sm2;
 
@@ -468,22 +454,18 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 //if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
                 //else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
-                    console.log(obj)
+
                 }, false)
             }
         }
         else {
             $scope.dtInstance.reloadData(function(obj){
-                console.log(obj)
+
             }, false)
         }
     }
 
     $scope.applyFilter = function(){
-        console.log($scope.selected.filter_due_date)
-        console.log($scope.filter_due_date)
-
-        //console.log($scope.selected.filter_cost_center)
         if($scope.selected.filter_status.length>0){
             var ids = []
             for (var i=0;i<$scope.selected.filter_status.length;i++){
@@ -503,10 +485,9 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             qwhereobj.supplier = ' a.supplier_id= '+$scope.selected.filter_supplier.selected.supplier_id+' '
         }
 
-        console.log(setWhere())
         qwhere = setWhere()
         $scope.dtInstance.reloadData(function(obj){
-            console.log(obj)
+
         }, false)
 
     }
@@ -519,7 +500,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         if (arrWhere.length>0){
             strWhere = ' where ' + arrWhere.join(' and ')
         }
-        //console.log(strWhere)
         return strWhere
     }
 
@@ -537,8 +517,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 
     $scope.submit = function(){
         if ($scope.ap.id.length==0){
-            //exec creation
-            console.log($scope.ap)
 
             var param = {
                 code: $scope.ap.code,
@@ -555,11 +533,9 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             	total_amount: $scope.ap.total_idr,
             	home_total_amount: $scope.ap.total_home
             }
-            console.log(param)
             queryService.post('insert into acc_ap_voucher SET ?',param)
             .then(function (result){
                 if ($scope.selected.deposit.selected){
-                    console.log('using deposit')
                     var qdeposit = 'insert into acc_deposit_line_item (voucher_id,deposit_id,home_applied_amount,applied_amount)'+
                     'values ('+result.data.insertId+','+$scope.selected.deposit.selected.id+','+$scope.ap.deposit_home+','+$scope.ap.deposit_idr+')';
                     qdeposit += 'update acc_cash_deposit set '+
@@ -571,7 +547,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 
                         $('#form-input').modal('hide')
                         $scope.dtInstance.reloadData(function(obj){
-                            // console.log(obj)
+
                         }, false)
                         $('body').pgNotification({
                             style: 'flip',
@@ -595,7 +571,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 else {
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
-                        // console.log(obj)
+
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
@@ -634,7 +610,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             	total_amount: $scope.ap.total_idr,
             	home_total_amount: $scope.ap.total_home
             }
-            console.log(param)
             //queryService.post('insert into acc_ap_voucher SET ?',param)
             queryService.post('update acc_ap_voucher SET ? WHERE id='+$scope.ap.id ,param)
             .then(function (result){
@@ -644,12 +619,11 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                     queryService.post(qq ,undefined)
                     .then(function (result2){
                         var qd = $scope.child.saveTable(result2.data.insertId);
-                        console.log(qd)
                         queryService.post(qd.join(';') ,undefined)
                         .then(function (result3){
                                 $('#form-input').modal('hide')
                                 $scope.dtInstance.reloadData(function(obj){
-                                    // console.log(obj)
+
                                 }, false)
                                 $('body').pgNotification({
                                     style: 'flip',
@@ -680,14 +654,13 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                     })
                 }
                 else if($scope.selected.status.selected.id=="2"){
-                    console.log('close')
                     var qs = 'update acc_ap_voucher set status ='+$scope.selected.status.selected.id+', open_date=\''+$scope.ap.open_date+'\' where id ='+$scope.ap.id+';'+
                     'update acc_gl_transaction set bookkeeping_date=\''+$scope.ap.open_date+'\', gl_status = \'1\' where voucher_id ='+$scope.ap.id
                     queryService.post(qs ,undefined)
                     .then(function (result3){
                             $('#form-input').modal('hide')
                             $scope.dtInstance.reloadData(function(obj){
-                                // console.log(obj)
+
                             }, false)
                             $('body').pgNotification({
                                 style: 'flip',
@@ -710,7 +683,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 else {
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
-                        // console.log(obj)
+
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
@@ -734,10 +707,8 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     }
 
     $scope.update = function(obj){
-        console.log(qstring+ ' where a.id='+obj.id)
         queryService.post(qstring+ ' where a.id='+obj.id,undefined)
         .then(function(result){
-            console.log(result)
             $('#form-input').modal('show');
             $scope.ap = result.data[0]
             $scope.ap.notes = result.data[0].voucher_notes
@@ -785,7 +756,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                  'where a.voucher_id =  '+$scope.ap.id
             queryService.get(qd,undefined)
             .then(function(result2){
-                console.log(result2)
                 var d = result2.data
                 $scope.items = []
                 $scope.itemsOri = []
@@ -925,7 +895,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         .then(function (result){
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
-                    // console.log(obj)
+
                 }, false)
                 $('body').pgNotification({
                     style: 'flip',
@@ -1021,7 +991,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 
     // mark user as deleted
     $scope.deleteUser = function(id) {
-        console.log(id)
         var filtered = $filter('filter')($scope.items, {id: id});
         if (filtered.length) {
             filtered[0].isDeleted = true;
@@ -1065,15 +1034,10 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 
     // save edits
     $scope.child.saveTable = function(pr_id) {
-        console.log('asd')
         var results = [];
-        console.log($scope.itemsOri)
-
-        console.log(JSON.stringify($scope.items,null,2))
         var sqlitem = []
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
-            console.log(user)
             // actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);
@@ -1101,7 +1065,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 sqlitem.push('delete from acc_gl_journal where id='+user.p_id)
             }
             else if(!user.isNew){
-                console.log(user)
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
                         var d1 = $scope.itemsOri._id+$scope.itemsOri[j].account_id+$scope.itemsOri[j].debit+$scope.itemsOri[j].credit
@@ -1120,8 +1083,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             }
 
         }
-        console.log($scope.items)
-        console.log(sqlitem.join(';'))
         return sqlitem
         //return $q.all(results);
     };
@@ -1156,15 +1117,12 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     }*/
 
     $scope.getAccount = function(e,d){
-        console.log(e)
         $scope.items[d-1].account_id = e.id
         $scope.items[d-1].account_code = e.code
         $scope.items[d-1].account_name = e.name
 
     }
     $scope.funcAsync = function(e,d){
-        console.log('funcAsync')
-        console.log($scope.items[d-1].product_id)
         var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
             'from mst_supplier a '+
             'left join inv_prod_price_contract b '+
@@ -1180,7 +1138,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         })
     }
     $scope.getProductPriceSupplier = function(e,d){
-        console.log(e)
         $scope.items[d-1].supplier_id = e.id
         $scope.items[d-1].supplier_name = e.name
         $scope.items[d-1].price = e.price
@@ -1195,10 +1152,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         $scope.items[d-1].amount = q * $scope.items[d-1].price
     }
     $scope.setValue = function(e,d,p,t){
-        console.log(e)
-        console.log(d)
-        console.log(p)
-        console.log(t)
         $scope.totaldebit = 0
         $scope.totalcredit = 0
         if (t=='debit') $scope.items[d-1].debit = p

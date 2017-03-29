@@ -1,4 +1,124 @@
+<div id="printSection">
+    <div class="row">
+        <table width="98%">
+            <tr>
+                <td width="50%" align="center">
+                    <div class="brand inline text-center center">
+                        <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="200" height="40">
+                    </div>
+                    <br><br><br>
+                    <span class="text-center" style="align:center;">JL. GUNUNG SAHARI RAYA NO.3 JAKARTA 10720</span>
+                    <br>
+                    <span class="text-center">PHONE : (62-21) 626 3001</span>&nbsp;&nbsp;
+                    <span class="text-center">FAX : (62-21) 626 3024</span>
+                    <br><br>
+                    <span class="text-center">OWNED BY PT.GRAHASAHARI SURYAJAYA</span>
+                    <br>
+                    <span class="text-center">NPWP. 01.573.522.8-026.000</span>
+                </td>
+            </tr>
+            <br>
+            <tr>
+                <td>&nbsp;</td>
+                <td align="center"> <b>A/P Payment</b> </td>
+            </tr>
+            <tr>
+                <td>
+                    <table border="0" width="80%" align="center">
+                        <tr>
+                            <td align="center" style="background-color: #000000;color: white;"><b>SUPPLIER NAME</b></td>
+							<td>
+                                {{}}<br>
+                            </td>
+                        </tr>
+                        <tr>
+							<td align="center" style="background-color: #000000;color: white;"><b>STATUS</b></td>
+                            <td>
+                                {{}}<br>
+                            </td>
+                        </tr>
+						<tr>
+							<td align="center" style="background-color: #000000;color: white;"><b>DUE DATE</b></td>
+                            <td>
+                                {{}}<br>
+                            </td>
+							<td>
+                                {{}}<br>
+                            </td>
+                        </tr>
+                    </table>
+                    <br>
 
+                </td>
+
+            </tr>
+        </table>
+        <br>
+        <table width="89%" cellpadding="5" border="1" align="center">
+            <thead>
+            <tr>
+				<td align="center">ID</th>
+				<td align="center">Code</th>
+                <td align="center">Open Date</th>
+                <td align="center">Status</th>
+				<td align="center">Supplier</th>
+				<td align="center">Bank</th>
+				<td align="center">Bank Account</th>
+				<td align="center">Currency</th>
+				<td align="center">Issued Date</th>
+				<td align="center">Issued By</th>
+				<td align="center">Created Date</th>
+				<td align="center">Created By</th>
+				<td align="center">Total Amount (IDR)</th>
+				<td align="center">Total Amount (Foreign Exch)</th>
+				<td align="center">Applied</th>
+				<td align="center">Balance</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr ng-repeat="item in data | filter:filterUser">
+                <td>{{item.id}}</td>
+				<td>{{item.code}}</td>
+                <td>{{ item.open_date}}</td>
+                <td>{{ item.status_name}}</td>
+				<td>{{ item.supplier_name}}</td>
+				<td>{{ item.bank}}</td>
+				<td>{{ item.bank_account}}</td>
+				<td>{{ item.currency}}</td>
+				<td>{{ item.issued_date}}</td>
+				<td>{{ item.issued_by_name}}</td>
+				<td>{{ item.created_date}}</td>
+				<td>{{ item.created_by_name}}</td>
+				<td>{{ item.tot_deposit_amount}}</td>
+				<td>{{ item.home_total_amount}}</td>
+				<td>{{ item.tot_applied_amount}}</td>
+				<td>{{ item.tot_balance_amount}}</td>
+            </tr>
+            </tbody>
+            <tfooter width="80%" border="1" align="center">
+                <tr>
+					<td ></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td width="10%" style="text-align: center;">Total</th>
+                    <td width="10%" style="text-align: right;"><span >{{sums1}}</span></th>
+                    <td width="10%" style="text-align: right;"><span >{{sums2}}</span></th>
+					<td width="10%" style="text-align: right;"><span >{{sums3}}</span></th>
+					<td width="10%" style="text-align: right;"><span >{{sums4}}</span></th>
+                </tr>
+            </tfooter>
+        </table>
+    </div>
+</div>
 <div class="full-height m-t-40">
     <!-- TABLES VIEW -->
     <div class="container-fluid container-fixed-lg">
