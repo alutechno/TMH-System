@@ -61,11 +61,12 @@
             <thead>
             <tr>
 
-                <td width="50%" align="center">PRODUCT</th>
-                <td width="15%" align="center">UNIT</th>
+                <td width="30%" align="center">PRODUCT</th>
+                <td width="10%" align="center">UNIT</th>
                 <td width="10%" align="center">QTY</th>
                 <td width="10%" align="center">PRICE</th>
                 <td width="10%" align="center">AMOUNT</th>
+                <td width="30%" align="center">SUPPLIER</th>
 
             </tr>
             </thead>
@@ -89,58 +90,25 @@
                         {{ item.amount | number : fractionSize}}
 
                 </td>
+                <td>{{item.supplier_name}}
+                </td>
+
 
             </tr>
             </tbody>
             <tfooter width="80%" border="1" align="center">
                 <tr>
-                    <td width="10%" style="text-align: center;">Total</th>
-                    <td width="30%">&nbsp;</th>
-                    <td width="10%" style="text-align: right;"><span >{{totalQty| number : fractionSize}}</span></th>
+                    <td width="30%" style="text-align: center;">Total</th>
                     <td width="10%">&nbsp;</th>
-                    <td width="10%" style="text-align: right;"><span >{{tAmt| number : fractionSize}}</span></th>
+                    <td width="10%" style="text-align: right;"><span >{{child.totalQty| number : fractionSize}}</span></th>
+                    <td width="10%">&nbsp;</th>
+                    <td width="10%" style="text-align: right;"><span >{{child.tAmt| number : fractionSize}}</span></th>
+                        <td width="30%">&nbsp;</th>
 
                 </tr>
             </tfooter>
         </table>
         <br><br><br><br>
-        <table width="89%" cellpadding="5" border="0" align="center">
-            <tr>
-                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
-                    <br><br><br><br><br>
-                </td>
-                <td>&nbsp;</td>
-                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
-                    <br><br><br><br><br>
-                </td>
-                <td>&nbsp;</td>
-                <td >
-                    &nbsp;
-                </td>
-                <td>&nbsp;</td>
-                <td valign="top">
-
-                    <br><br><br><br><br>
-                </td>
-            </tr>
-            <tr>
-                <td align="center">
-                    Authorised By
-                </td>
-                <td>&nbsp;</td>
-                <td align="center">
-                    Purchasing Manager
-                </td>
-                <td>&nbsp;</td>
-                <td align="center">
-                    &nbsp;
-                </td>
-                <td>&nbsp;</td>
-                <td>
-                    &nbsp;
-                </td>
-            </tr>
-        </table>
     </div>
 
 
@@ -404,11 +372,13 @@
                                             <thead>
                                             <tr>
                                                 <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
-                                                <th width="30%">Product</th>
-                                                <th width="10%">Qty</th>
-                                                <th width="10%">Price</th>
-                                                <th width="10%">Amount</th>
-                                                <th width="30%">Supplier</th>
+                                                <th width="7%" >Code</th>
+                                                <th width="25%" >Product</th>
+                                                <th width="8%" >Unit</th>
+                                                <th width="8%" style="text-align:center">Qty</th>
+                                                <th width="8%" style="text-align:center">Price</th>
+                                                <th width="9%" style="text-align:center">Amount</th>
+                                                <th width="25%">Supplier</th>
                                             </tr>
                                             </thead>
 
@@ -420,6 +390,7 @@
                                                         <button type="button" class="btn btn-default" ng-click="deleteUser(item.id)" ><i class="fa fa-trash-o"></i></button>
                                                     </div>
                                                 </td>
+                                                <td style="vertical-align: middle;">{{ item.product_code }}</td>
                                                 <td >
                                                     <!--<span editable-text="item.product_name" e-form="tableform" onbeforesave="checkName($data, user.id)" style="width:100%;">
                                                         {{ item.product_name }}
@@ -436,6 +407,7 @@
                                                           </editable-ui-select-choices>
                                                     </span>
                                                 </td>
+                                                <td style="vertical-align: middle;">{{ item.unit_name }}</td>
                                                 <td style="text-align: right;">
                                                     <span editable-text="item.qty" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updatePriceQty($event,item.id,$data)">
                                                         {{ item.qty | number : fractionSize}}
@@ -470,18 +442,20 @@
                                             <tfooter >
                                                 <tr>
                                                     <th width="10%" style="text-align: center;">Total</th>
-                                                    <th width="30%">&nbsp;</th>
-                                                    <th width="10%" style="text-align: right;"><span >{{totalQty| number : fractionSize}}</span></th>
-                                                    <th width="10%">&nbsp;</th>
-                                                    <th width="10%" style="text-align: right;"><span >{{tAmt| number : fractionSize}}</span></th>
-                                                    <th width="30%">&nbsp;</th>
+                                                    <th width="8%">&nbsp;</th>
+                                                    <th width="25%">&nbsp;</th>
+                                                    <th width="7%">&nbsp;</th>
+                                                    <th width="8%" style="text-align: right;"><span >{{child.totalQty| number : fractionSize}}</span></th>
+                                                    <th width="8%">&nbsp;</th>
+                                                    <th width="9%" style="text-align: right;"><span >{{child.tAmt| number : fractionSize}}</span></th>
+                                                    <th width="25%">&nbsp;</th>
                                                 </tr>
                                             </tfooter>
                                         </table>
 
                                         <!-- buttons -->
                                         <div class="btn-edit">
-                                          <button type="button" class="btn btn-primary" ng-show="!tableform.$visible&&releaseState" ng-click="tableform.$show()">
+                                          <button type="button" class="btn btn-primary" ng-show="!tableform.$visible&&releaseState" ng-disabled="disableAction" ng-click="tableform.$show()">
                                             Modify Item List
                                           </button>
                                         </div>
@@ -498,8 +472,8 @@
               <br>
               <div class="row divider"></div>
               <div class="clearfix"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" ng-show="releaseState">Save</button>
-              <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction" ng-click="submit()" ng-show="releaseState">Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-if="!updateState&&selected.doc_status.selected.id==4" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
               <button class="btn btn-default" ng-show="selected.doc_status.selected.id!=4"><i class="pg-close"></i> Clear</button>
           </form>
       </div>

@@ -3,12 +3,19 @@
 
     function printDirective() {
         var printSection = document.getElementById('printSection');
+        var psParent;
 
         // if there is no printing section, create one
         if (!printSection) {
             printSection = document.createElement('div');
             printSection.id = 'printSection';
             document.body.appendChild(printSection);
+        }
+        else {
+            psParent = document.createElement('div');
+            psParent.id = 'printSectionParent';
+            document.body.appendChild(psParent);
+            psParent.appendChild(printSection)
         }
 
         function link(scope, element, attrs) {
@@ -24,12 +31,37 @@
                 // clean the print section before adding new content
                 printSection.innerHTML = '';
             }
+            var beforePrint = function() {
+                console.log('Functionality to run before printing.');
+            };
+            var afterPrint = function() {
+                console.log('Functionality to run after printing');
+            };
+
+            if (window.matchMedia) {
+                var mediaQueryList = window.matchMedia('print');
+                mediaQueryList.addListener(function(mql) {
+                    if (mql.matches) {
+                        beforePrint();
+                    } else {
+                        afterPrint();
+                    }
+                });
+            }
+
+            window.onbeforeprint = beforePrint;
+            window.onafterprint = afterPrint;
         }
 
         function printElement(elem) {
             // clones the element you want to print
             var domClone = elem.cloneNode(true);
-            printSection.appendChild(domClone);
+            //var printSectionChild = document.getElementById('printSection').getElementsByTagName('*');
+            console.log('domClone',domClone)
+            psParent.removeChild(printSection);
+            psParent.appendChild(printSection);
+            //printSection.appendChild(domClone);
+            console.log('printSection',printSection)
         }
 
         return {

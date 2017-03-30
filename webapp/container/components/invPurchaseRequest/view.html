@@ -20,24 +20,20 @@
 
             <tbody>
             <tr ng-repeat="item in items | filter:filterUser">
-
                 <td >{{item.product_name}}
                 </td>
                 <td style="text-align: right;">
-                        {{ item.qty | number : fractionSize }}
+                    {{ item.qty | number : fractionSize }}
+                </td>
+                <td style="text-align: right;">
+                    {{ item.price | number : fractionSize }}
 
                 </td>
                 <td style="text-align: right;">
-                        {{ item.price | number : fractionSize }}
-
-                </td>
-                <td style="text-align: right;">
-                        {{ item.amount | number : fractionSize }}
-
+                    {{ item.amount | number : fractionSize }}
                 </td>
                 <td >
                     {{item.supplier_name}}
-
                 </td>
             </tr>
             </tbody>
@@ -45,9 +41,9 @@
                 <tr>
                     <th width="10%" style="text-align: center;">Total</th>
                     <th width="30%">&nbsp;</th>
-                    <th width="10%" style="text-align: right;"><span >{{totalQty | number : fractionSize}}</span></th>
+                    <th width="10%" style="text-align: right;"><span >{{child.totalQty | number : fractionSize}}</span></th>
                     <th width="10%">&nbsp;</th>
-                    <th width="10%" style="text-align: right;"><span >{{tAmt | number : fractionSize}}</span></th>
+                    <th width="10%" style="text-align: right;"><span >{{child.tAmt | number : fractionSize}}</span></th>
                     <th width="30%">&nbsp;</th>
                 </tr>
             </tfooter>
@@ -304,12 +300,14 @@
                       <table class="table  table-hover itemtable">
                           <thead>
                           <tr>
-                              <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
-                              <th width="30%">Product</th>
-                              <th width="10%">Qty</th>
-                              <th width="10%">Price</th>
-                              <th width="10%">Amount</th>
-                              <th width="30%">Supplier</th>
+                              <th width="7%"><span ng-show="tableform.$visible">Action</span></th>
+                              <th width="7%">Code</th>
+                              <th width="25%">Product</th>
+                              <th width="10%">Unit</th>
+                              <th width="8%">Qty</th>
+                              <th width="8%">Price</th>
+                              <th width="9%">Amount</th>
+                              <th width="26%">Supplier</th>
                           </tr>
                           </thead>
 
@@ -321,7 +319,9 @@
                                       <button type="button" class="btn btn-default" ng-click="deleteUser(item.id)" ><i class="fa fa-trash-o"></i></button>
                                   </div>
                               </td>
-                              <td >
+                              <td style="vertical-align: middle;">{{ item.product_code }}</td>
+
+                              <td style="vertical-align: middle;">
                                   <!--<span editable-text="item.product_name" e-form="tableform" onbeforesave="checkName($data, user.id)" style="width:100%;">
                                       {{ item.product_name }}
                                   </span>-->
@@ -342,22 +342,34 @@
                                         </editable-ui-select-choices>
                                   </span>
                               </td>
-                              <td style="text-align: right;">
+
+                              <td style="vertical-align: middle;">{{ item.unit_name }}</td>
+                              <td style="text-align: right;vertical-align: middle;">
                                   <span editable-text="item.qty" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updatePriceQty($event,item.id,$data)" >
                                       {{ item.qty | number : fractionSize}}
                                   </span>
                               </td>
-                              <td style="text-align: right;">
-                                  <span editable-text="item.price" e-form="tableform" data-e-ng-keyup="updatePrice($event,item.id,$data)">
+                              <td style="text-align: right;vertical-align: middle;" ng-if="seqState>2">
+                                  <span editable-text="item.price" e-form="tableform" data-e-ng-keyup="updatePrice($event,item.id,$data)" >
                                       {{ item.price | number : fractionSize}}
                                   </span>
                               </td>
-                              <td style="text-align: right;">
-                                  <span editable-text="item.amount" e-form="tableform" onbeforesave="checkName($data, user.id)">
-                                      {{ item.amount | number : fractionSize}}
+                              <td style="text-align: right;vertical-align: middle;" ng-if="seqState==1||seqState==2">
+                                  <span >
+                                      {{ item.price | number : fractionSize}}
                                   </span>
                               </td>
-                              <td >
+                              <td style="text-align: right;vertical-align: middle;"  ng-if="seqState>2">
+                                  {{ item.amount | number : fractionSize}}
+                                  <!--<span editable-text="item.amount" e-form="tableform" onbeforesave="checkName($data, user.id)" >
+                                      {{ item.amount | number : fractionSize}}
+                                  </span>-->
+
+                              </td>
+                              <td style="text-align: right;vertical-align: middle;"  ng-if="seqState==1||seqState==2">
+                                      {{ item.amount | number : fractionSize}}
+                              </td>
+                              <td style="vertical-align: middle;" ng-if="seqState>2">
                                   <span editable-ui-select="item.supplier_name" theme="bootstrap" data-e-name="supplier_name" name="supplier_name" data-e-ng-model="selected.supplier.selected"
                                   data-e-form="tableform" data-e-on-select="getProductPriceSupplier($item,item.id)" >
                                   {{item.supplier_name}}
@@ -370,31 +382,36 @@
                                             <small ng-bind-html="trustAsHtml((item.price_name | highlight: $select.search))"></small>
                                         </editable-ui-select-choices>
                                   </span>
+                                  <span data-e-ng-if="seqState==1">{{item.supplier_name}}</span>
+                              </td>
+                              <td style="vertical-align: middle;" ng-if="seqState==1||seqState==2">
+                                      {{item.supplier_name}}
                               </td>
                           </tr>
                           </tbody>
                           <tfooter >
                               <tr>
-                                  <th width="10%" style="text-align: center;">Total</th>
-                                  <th width="30%">&nbsp;</th>
-                                  <th width="10%" style="text-align: right;"><span >{{totalQty | number : fractionSize}}</span></th>
+                                  <th width="7%" style="text-align: center;">Total</th>
+                                  <th width="7%">&nbsp;</th>
+                                  <th width="25%">&nbsp;</th>
                                   <th width="10%">&nbsp;</th>
-                                  <th width="10%" style="text-align: right;"><span >{{tAmt | number : fractionSize}}</span></th>
-                                  <th width="30%">&nbsp;</th>
+                                  <th width="10%" style="text-align: right;"><span >{{child.totalQty | number : fractionSize}}</span></th>
+                                  <th width="10%">&nbsp;</th>
+                                  <th width="10%" style="text-align: right;"><span >{{child.tAmt | number : fractionSize}}</span></th>
+                                  <th width="26%">&nbsp;</th>
                               </tr>
                           </tfooter>
                       </table>
 
                       <!-- buttons -->
                       <div class="btn-edit">
-                        <button type="button" class="btn btn-primary" ng-show="!tableform.$visible&&releaseState" ng-click="tableform.$show()">
+                        <button type="button" class="btn btn-primary" ng-show="!tableform.$visible&&releaseState" ng-disabled="disableAction" ng-click="tableform.$show()">
                           Modify Item List
                         </button>
                       </div>
                       <div class="btn-form" ng-show="tableform.$visible">
-
                         <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
-                        <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
+                        <button type="button" ng-disabled="tableform.$waiting||seqState>3" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
                         <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
                       </div>
 
@@ -406,7 +423,7 @@
               <br>
               <div class="row divider"></div>
               <div class="clearfix"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-show="releaseState" ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction" ng-show="releaseState" ng-click="submit()" >Save</button>
               <!--<button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>-->
               <button class="btn btn-default" ng-show="selected.doc_status.selected.id!=7"><i class="pg-close"></i> Clear</button>
           </form>
