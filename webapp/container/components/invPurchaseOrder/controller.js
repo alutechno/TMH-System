@@ -14,22 +14,32 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     $scope.child = {}
     $scope.items = []
     $scope.itemsOri = []
+    $scope.finalState = false;
     console.log($scope.el)
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
 
-    var qstring = 'select a.id,a.code,a.pr_id,a.ml_id,DATE_FORMAT(a.created_date,\'%Y-%m-%d\') created_date,DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date,a.po_source,a.supplier_id, a.warehouse_id, a.cost_center_id, a.notes, '+
-        	'a.doc_submission_date, a.delivery_type,a.delivery_status,a.receive_status, a.payment_type,a.due_days,a.currency_id, '+
-        	'b.name supplier_name,c.name cost_center_name,d.name warehouse_name,e.dept, '+
-            'b.address supplier_address,b.contact_person supplier_cp,b.phone_number supplier_phone,b.fax_number supplier_fax,'+
-            'format((SELECT SUM(amount) FROM inv_po_line_item item WHERE item.po_id = a.id),0) AS \'Total\', '+
-            '(select name from table_ref r where table_name = \'inv_purchase_order\' and column_name = \'delivery_status\' and value=a.delivery_status) as delivery_status_name '+
-        'from inv_purchase_order a '+
-        'left join mst_supplier b on a.supplier_id=b.id '+
-        'left join mst_cost_center c on a.cost_center_id=c.id '+
-        'left join mst_warehouse d on a.warehouse_id = d.id '+
-        'left join (select m.id,m.name,n.name dept from user m,mst_department n where m.department_id=n.id) e on a.created_by=e.id '
+    var qstring = "select a.id,a.code,a.pr_id,a.ml_id,DATE_FORMAT(a.created_date,'%Y-%m-%d') created_date,DATE_FORMAT(a.delivery_date,'%Y-%m-%d') as delivery_date, "+
+    	"a.po_source,a.supplier_id, a.warehouse_id, a.cost_center_id, a.notes, a.doc_submission_date, a.delivery_type,a.delivery_status,a.receive_status,  "+
+        "a.payment_type,a.due_days,a.currency_id, b.name supplier_name,c.name cost_center_name,d.name warehouse_name,e.dept, b.address supplier_address, "+
+        "b.contact_person supplier_cp,b.phone_number supplier_phone,b.fax_number supplier_fax,date_add(released_date,interval due_days day)expired_date, "+
+        "format((SELECT SUM(amount) FROM inv_po_line_item item WHERE item.po_id = a.id),0) AS 'Total',  "+
+        "(select name from table_ref r where table_name = 'inv_purchase_order' and column_name = 'delivery_status' and value=a.delivery_status) as delivery_status_name , "+
+        "if(a.pr_id,f.code,g.code) doc_prev_code,if(a.pr_id,f.created_name,g.created_name) prev_created_name, "+
+        "date_format(if(a.pr_id,f.created_date,g.created_date),'%Y-%m-%d') prev_created_date,if(a.pr_id,f.dept_name,g.dept_name) prev_dept, "+
+        "f.code pr_code,g.code ml_code " +
+    "from inv_purchase_order a  "+
+    "left join mst_supplier b on a.supplier_id=b.id  "+
+    "left join mst_cost_center c on a.cost_center_id=c.id  "+
+    "left join mst_warehouse d on a.warehouse_id = d.id  "+
+    "left join (select m.id,m.name,n.name dept from user m,mst_department n where m.department_id=n.id) e on a.created_by=e.id  "+
+    "left join (select a.id,a.code,a.created_by, b.name created_name,a.created_date,c.name dept_name from inv_purchase_request a "+
+    "	left join user b on a.created_by = b.id "+
+    "	left join mst_department c on b.department_id = c.id) f on a.pr_id=f.id "+
+    "left join (select a.id,a.code,a.created_by, b.name created_name,a.created_date,c.name dept_name from inv_market_list a "+
+    "	left join user b on a.created_by = b.id "+
+    "	left join mst_department c on b.department_id = c.id) g on a.ml_id = g.id"
     var qwhere = '';
     var qstringdetail = 'select a.id as p_id,a.product_id,b.name as product_name,a.order_qty qty,a.price,a.amount,c.name unit_name '+
         'from inv_po_line_item a '+
@@ -175,7 +185,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         $scope.warehouse = data.data
         //$scope.selected.warehouse['selected'] = $scope.warehouse[0]
     })
-    queryService.get('select value as id,name from table_ref where table_name = \'inv_purchase_order\' and column_name = \'delivery_status\' and value in(0,1,2) order by id',undefined)
+    queryService.get('select value as id,name from table_ref where table_name = \'inv_purchase_order\' and column_name = \'delivery_status\' and value in(0,1) order by id',undefined)
     .then(function(data){
         console.log(data)
         $scope.delivery_status = data.data
@@ -271,11 +281,16 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '12%'))
+        .renderWith($scope.actionsHtml).withOption('width', '8%'))
     }
     $scope.dtColumns.push(
+        DTColumnBuilder.newColumn('doc_prev_code').withTitle('PO/ML Code'),
+        DTColumnBuilder.newColumn('prev_created_date').withTitle('PO/ML Date'),
+        DTColumnBuilder.newColumn('prev_created_name').withTitle('PO/ML Created By'),
+        DTColumnBuilder.newColumn('prev_dept').withTitle('PO/ML Dept'),
         DTColumnBuilder.newColumn('code').withTitle('Code'),
         DTColumnBuilder.newColumn('delivery_date').withTitle('Delivery'),
+        DTColumnBuilder.newColumn('expired_date').withTitle('Expired'),
         DTColumnBuilder.newColumn('delivery_status_name').withTitle('Status'),
         DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier'),
         DTColumnBuilder.newColumn('warehouse_name').withTitle('Store Location')
@@ -485,8 +500,10 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 payment_type: $scope.po.payment_type,
                 due_days: $scope.po.due_days,
                 //doc_submission_date: globalFunction.currentDate(),
-                created_by: $localStorage.currentUser.name.id,
-                created_date: globalFunction.currentDate()
+                modified_by: $localStorage.currentUser.name.id,
+                modified_date: globalFunction.currentDate(),
+                released_by: ($scope.po.delivery_status==1?$localStorage.currentUser.name.id:null),
+                released_date: ($scope.po.delivery_status==1?globalFunction.currentDate():null),
             }
 
 
@@ -815,6 +832,12 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         queryService.post(qstring+' where a.id='+ids,undefined)
         .then(function (result){
             console.log(result)
+            if (result.data[0].delivery_status==1){
+                $scope.finalState = true;
+            }
+            else if(result.data[0].delivery_status==0){
+                $scope.finalState = false;
+            }
 
             $scope.po = result.data[0]
             $scope.selected.warehouse = {

@@ -25,7 +25,7 @@
             </div>
             <div class="panel-body">
                 <div id="divPr" >
-                    <table class="table table-hover table-condensed " id="prTable" name="prTable" datatable dt-options="dtOptions" dt-columns="dtColumns" dt-instance="nested.dtInstance">
+                    <table class="table table-hover table-condensed " id="prTable" name="prTable" datatable dt-options="dtOptions" dt-columns="dtColumns" dt-instance="nested.dtInstance" width="2200px">
                         <tfoot>
                         <tr></tr>
                         </tfoot>
@@ -36,8 +36,13 @@
                         <th></th>
                         <th></th>
                         <th></th>
+                        <th></th>
                         <th class="text-right">Total:</th>
                         <th class="text-right">{{ sums| number : fractionSize }}</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
 
                     </script>
                 </div>
@@ -78,7 +83,7 @@
                           </div>
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.po.selected.$invalid && !selected.po.selected.$pristine }" >
-                                  <label>PO Number</label>
+                                  <label>Source No</label>
                                   <ui-select ng-model="selected.po.selected" theme="bootstrap" on-select="updateListItem()" ng-disabled="updateState">
                                       <ui-select-match placeholder="Select PO">{{$select.selected.code}}</ui-select-match>
                                       <ui-select-choices repeat="item in po_data | filter: $select.search">
@@ -137,7 +142,7 @@
                           </div>
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : po.delivery_date.$invalid && !po.delivery_date.$pristine }">
-                                  <label>Delivery Date</label>
+                                  <label>Receive Date</label>
                                   <input type="text" class="form-control" ng-model="po.delivery_date" name="delivery_date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="!updateState">
                               </div>
                           </div>
@@ -172,8 +177,9 @@
                                             <thead>
                                             <tr>
                                                 <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
-                                                <th width="40%">Product</th>
-                                                <th width="10%">Qty</th>
+                                                <th width="30%">Product</th>
+                                                <th width="10%">Order Qty</th>
+                                                <th width="10%">Remaining</th>
                                                 <th width="10%">Rcv Qty</th>
                                                 <th width="15%">Price</th>
                                                 <th width="15%">Rcv Price</th>
@@ -203,6 +209,7 @@
                                                 </td>-->
                                                 <td style="vertical-align: middle;"><span>{{item.product_name}}</span></td>
                                                 <td style="text-align: right;vertical-align: middle;"><span>{{item.qty | number : fractionSize}}</span></td>
+                                                <td style="text-align: right;vertical-align: middle;"><span>{{item.remaining_qty | number : fractionSize}}</span></td>
                                                 <td style="text-align: right;">
                                                     <span editable-text="item.rcv_qty" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'qty')" >
                                                         {{ item.rcv_qty | number : fractionSize}}
@@ -223,14 +230,14 @@
 
                                         <!-- buttons -->
                                         <div class="btn-edit">
-                                          <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()">
+                                          <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-disabled="selected.delivery_status.selected.id!=3" ng-click="tableform.$show()">
                                             Modify Item List
                                           </button>
                                         </div>
                                         <div class="btn-form" ng-show="tableform.$visible">
 
                                           <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
-                                          <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
+                                          <!--<button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>-->
                                           <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
                                         </div>
 
@@ -333,7 +340,7 @@
               <br>
               <div class="row divider"></div>
               <div class="clearfix"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="(dodol.$invalid)" ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||finalState" ng-click="submit()" >Save</button>
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>
       </div>

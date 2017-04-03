@@ -15,25 +15,32 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.items = []
     $scope.itemsOri = []
     $scope.updateState = false;
+    $scope.finalState = false;
     console.log($scope.el)
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
 
 
-    var qstring = 'select * from (select aa.*,g.name warehouse_name,h.name cost_center_name from( '+
-        'select a.id,a.code,a.po_id,a.received_status status_id,c.name status_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\') as created_date,'+
-        'a.currency_id,d.supplier_id,e.name supplier_name,f.code currency_code,format(a.total_amount,0)total_amount,a.total_amount TotalSum,a.receive_notes notes,d.warehouse_id,'+
-        'd.cost_center_id,DATE_FORMAT(d.delivery_date,\'%Y-%m-%d\') delivery_date,a.home_currency_exchange, '+
-        'd.code po_code,d.po_source,DATE_FORMAT(a.receive_date,\'%Y-%m-%d\')receive_date,a.receive_notes '+
-        'from inv_po_receive a,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f '+
-        'where c.table_name=\'inv_po_receive\'  '+
-        'and a.received_status=c.value  '+
-        'and a.po_id=d.id  '+
-        'and d.supplier_id=e.id  '+
-        'and a.currency_id=f.id) as aa '+
-        'left join mst_warehouse g on aa.warehouse_id = g.id '+
-        'left join mst_cost_center h on aa.cost_center_id = h.id ) z '
+    var qstring = "select * from ( "+
+    	"select aa.*,g.name warehouse_name,h.name cost_center_name  "+
+        "from(  "+
+    	"	select a.id,a.code,a.po_id,a.received_status status_id,c.name status_name,DATE_FORMAT(a.created_date,'%Y-%m-%d') as created_date, "+
+    	"		a.currency_id,d.supplier_id,e.name supplier_name,f.code currency_code,format(a.total_amount,0)total_amount,a.total_amount TotalSum,a. "+
+        "       receive_notes notes,d.warehouse_id,d.cost_center_id,DATE_FORMAT(d.delivery_date,'%Y-%m-%d') delivery_date,a.home_currency_exchange,  "+
+        "        d.code po_code,d.po_source,DATE_FORMAT(a.receive_date,'%Y-%m-%d')receive_date,a.receive_notes , "+
+        "        date_format(d.created_date,'%Y-%m-%d') po_created_date, date_format( d.released_date,'%Y-%m-%d') po_released_date, "+
+        "        (select name from table_ref x where table_name='inv_purchase_order' and value in(3,4) and x.value = d.receive_status) as receive_status_name "+
+    	"	from inv_po_receive a,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f  "+
+        "    where c.table_name='inv_po_receive'   "+
+        "    and a.received_status=c.value   "+
+        "    and a.po_id=d.id   "+
+        "    and d.supplier_id=e.id   "+
+        "    and a.currency_id=f.id "+
+        "    ) as aa  "+
+    	"left join mst_warehouse g on aa.warehouse_id = g.id  "+
+        "left join mst_cost_center h on aa.cost_center_id = h.id  "+
+    ") z "
 
     var qwhere = '';
     var qstringdetail = 'select b.id rcv_id,a.id,a.code,a.po_id,c.name,a.created_date,a.currency_id,e.name supplier_name,f.code,a.total_amount, b.item_id,g.order_qty,g.price,g.amount,g.product_id,h.name product_name,b.received_qty,b.received_price, '+
@@ -195,7 +202,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.warehouse = data.data
         //$scope.selected.warehouse['selected'] = $scope.warehouse[0]
     })
-    queryService.get('select value as id,name from table_ref where table_name = \'inv_po_receive\' and column_name = \'received_status\' order by id',undefined)
+    queryService.get('select value as id,name from table_ref where table_name = \'inv_po_receive\' and column_name = \'received_status\' and value in (0,3) order by id',undefined)
     .then(function(data){
         console.log(data)
         $scope.delivery_status = data.data
@@ -265,6 +272,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     product_name:result2.data[i].product_name,
                     item_id: result2.data[i].item_id,
                     qty: result2.data[i].order_qty,
+                    remaining_qty: (result2.data[i].order_qty-result2.data[i].received_qty),
                     rcv_qty: result2.data[i].received_qty,
                     price: result2.data[i].price,
                     rcv_price: result2.data[i].received_price,
@@ -368,15 +376,20 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '12%'))
+        .renderWith($scope.actionsHtml).withOption('width', '7%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('code').withTitle('PO Number'),
+        DTColumnBuilder.newColumn('code').withTitle('RR Number'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status'),
-        DTColumnBuilder.newColumn('created_date').withTitle('Created at'),
-        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier'),
+        DTColumnBuilder.newColumn('po_code').withTitle('PO Number'),
+        DTColumnBuilder.newColumn('receive_status_name').withTitle('Delivery Status'),
+        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '15%'),
         DTColumnBuilder.newColumn('currency_code').withTitle('Currency'),
-        DTColumnBuilder.newColumn('total_amount').withTitle('Amount').withClass('text-right')
+        DTColumnBuilder.newColumn('total_amount').withTitle('Amount').withClass('text-right'),
+        DTColumnBuilder.newColumn('po_created_date').withTitle('PO Created'),
+        DTColumnBuilder.newColumn('po_released_date').withTitle('PO Released'),
+        DTColumnBuilder.newColumn('created_date').withTitle('Created At'),
+        DTColumnBuilder.newColumn('receive_date').withTitle('Receive Date')
     );
 
     $scope.filter = function(type,event) {
@@ -400,6 +413,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         if (state == 'add'){
             $scope.clear()
         }
+        $scope.finalState = false;
         $('#form-input').modal('show')
         //$scope.show.itemTable=true
         $scope.addDetail(0)
@@ -728,6 +742,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         product_id:data.data[i].product_id,
                         product_name:data.data[i].product_name,
                         qty: data.data[i].order_qty,
+                        remaining_qty: (data.data[i].order_qty - (data.data[i].received_qty==null?0:data.data[i].received_qty)),
                         price: data.data[i].price,
                         price: data.data[i].price,
                         amount: data.data[i].amount,
@@ -859,6 +874,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         queryService.post(qstring+' where z.id='+ids,undefined)
         .then(function (result){
             console.log(result)
+            if (result.data[0].status_id == 3){
+                $scope.finalState = true
+            }
+            else $scope.finalState = false
 
             $scope.po = result.data[0]
             $scope.po.delivery_date = result.data[0].receive_date
@@ -911,6 +930,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         product_name:result2.data[i].product_name,
                         item_id: result2.data[i].item_id,
                         qty: result2.data[i].order_qty,
+                        remaining_qty: (result2.data[i].order_qty - result2.data[i].received_qty),
                         rcv_qty: result2.data[i].received_qty,
                         price: result2.data[i].price,
                         rcv_price: result2.data[i].received_price,

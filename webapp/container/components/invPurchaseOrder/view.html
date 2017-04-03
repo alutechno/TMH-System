@@ -154,6 +154,10 @@
                 </tr>
             </tfooter>
         </table>
+        <span width="89%" style="padding-left:60px;">
+            <b><i>Notes: This document is valid without a signature or the company stamp</i></b>
+
+        </span>
         <br><br><br><br>
         <table width="89%" cellpadding="5" border="0" align="center">
             <tr>
@@ -312,7 +316,7 @@
             </div>
             <div class="panel-body">
                 <div id="divPr" >
-                    <table class="table table-hover table-condensed " id="prTable" name="prTable" datatable dt-options="dtOptions" dt-columns="dtColumns" dt-instance="nested.dtInstance">
+                    <table class="table table-hover table-condensed " id="prTable" name="prTable" datatable dt-options="dtOptions" dt-columns="dtColumns" dt-instance="nested.dtInstance" width="1700px">
                     </table>
                 </div>
 
@@ -347,7 +351,7 @@
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : po.code.$invalid && !po.code.$pristine }">
                                   <label>PO Number</label>
-                                  <input type="text" class="form-control" name="code" ng-model="po.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
+                                  <input type="text" class="form-control" name="code" ng-model="po.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="true">
                               </div>
                           </div>
                           <div class="col-md-3">
@@ -364,7 +368,7 @@
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default form-group-default-select " >
                                   <label>Delivered To</label>
-                                  <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  on-select="po.warehouse_id=selected.warehouse.selected.id">
+                                  <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  on-select="po.warehouse_id=selected.warehouse.selected.id" ng-disabled="true">
                                       <ui-select-match placeholder="Select Location">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in warehouse | filter: $select.search">
                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -384,7 +388,7 @@
                               </div>-->
                               <div pg-form-group class="form-group form-group-default form-group-default-select ">
                                   <label>Cost Center</label>
-                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
+                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="true" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
                                       <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in cost_center | filter: $select.search">
                                           <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
@@ -406,13 +410,13 @@
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default" >
                                   <label>PR Code</label>
-                                  <input type="text" class="form-control" name="notes" ng-model="po.pr_id" >
+                                  <input type="text" class="form-control" name="notes" ng-model="po.pr_code" ng-disabled="true">
                               </div>
                           </div>
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default" >
                                   <label>ML Code</label>
-                                  <input type="text" class="form-control" name="notes" ng-model="po.ml_id" >
+                                  <input type="text" class="form-control" name="notes" ng-model="po.ml_code" ng-disabled="true">
                               </div>
                           </div>
                           <div class="col-md-3">
@@ -427,7 +431,7 @@
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : po.supplier_id.$invalid && !po.supplier_id.$pristine }">
                                   <label>Supplier</label>
-                                  <ui-select ng-model="selected.supplier.selected" theme="bootstrap" ng-disabled="viewMode" on-select="po.supplier_id=selected.supplier.selected.id" ng-keyup="supplierUp($select.search)" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                                  <ui-select ng-model="selected.supplier.selected" theme="bootstrap" ng-disabled="true" on-select="po.supplier_id=selected.supplier.selected.id" ng-keyup="supplierUp($select.search)" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                                       <ui-select-match placeholder="Pick Supplier">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in supplier | filter: $select.search">
                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -449,7 +453,7 @@
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default" >
                                   <label>Due Days</label>
-                                  <input type="number" class="form-control" name="notes" ng-model="po.due_days" >
+                                  <input type="number" min="0" class="form-control" name="notes" ng-model="po.due_days" >
                               </div>
                           </div>
                           <div class="col-md-3">
@@ -536,7 +540,7 @@
                                         </table>
 
                                         <!-- buttons -->
-                                        <div class="btn-edit">
+                                        <!--<div class="btn-edit">
                                           <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()">
                                             Modify Item List
                                           </button>
@@ -546,7 +550,7 @@
                                           <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
                                           <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
                                           <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
-                                        </div>
+                                      </div>-->
 
                   </div>
 
@@ -629,8 +633,8 @@
               <br>
               <div class="row divider"></div>
               <div class="clearfix"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
-              <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||finalState" ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-show="finalState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>
       </div>

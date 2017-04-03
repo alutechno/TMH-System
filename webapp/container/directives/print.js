@@ -32,10 +32,10 @@
                 printSection.innerHTML = '';
             }
             var beforePrint = function() {
-                console.log('Functionality to run before printing.');
+                //console.log('Functionality to run before printing.');
             };
             var afterPrint = function() {
-                console.log('Functionality to run after printing');
+                //console.log('Functionality to run after printing');
             };
 
             if (window.matchMedia) {
@@ -54,14 +54,8 @@
         }
 
         function printElement(elem) {
-            // clones the element you want to print
-            var domClone = elem.cloneNode(true);
-            //var printSectionChild = document.getElementById('printSection').getElementsByTagName('*');
-            console.log('domClone',domClone)
             psParent.removeChild(printSection);
             psParent.appendChild(printSection);
-            //printSection.appendChild(domClone);
-            console.log('printSection',printSection)
         }
 
         return {
