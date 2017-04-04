@@ -17,19 +17,22 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     $scope.items = []
     $scope.itemsOri = []
     $scope.child = {}
+    $scope.updateState = false;
     $scope.totaldebit = 0
     $scope.totalkredit = 0
     var qstring = 'select a.id, a.code, DATE_FORMAT(a.open_date,\'%Y-%m-%d\')open_date, DATE_FORMAT(a.due_date,\'%Y-%m-%d\')due_date,DATE_FORMAT(a.due_date,\'%Y-%m-%d\') as due, a.status, a.supplier_id, '+
         'c.name supplier_name, a.source, b.code as receive_no, d.name status_name,a.currency_exchange exchange, '+
         'a.receive_id, a.currency_id, a.total_amount, format(a.total_amount,0)ta, a.home_total_amount,format(a.home_total_amount,0)hta,a.voucher_notes, '+
-        'e.name currency_name,e.code currency_code,f.name created_by_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\')created_date '+
+        'e.name currency_name,e.code currency_code,f.name created_by_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\')created_date, '+
+        'g.previous_amount adjustment_prev_amount,g.adjusted_amount adjustment_idr, 0 adjustment_home,a.is_adjusted '+
         'from acc_ap_voucher a  '+
         'left join inv_po_receive b on a.receive_id = b.id  '+
         'left join mst_supplier c on a.supplier_id = c.id  '+
         'left join (select * from table_ref where table_name = \'acc_ap_voucher\' '+
              ' and column_name = \'status\') d on a.status = d.value '+
         'left join ref_currency e on a.currency_id=e.id '+
-        'left join user f on a.created_by = f.id '
+        'left join user f on a.created_by = f.id '+
+        'left join acc_voucher_adjust g on a.id = g.voucher_id '
         //'where a.status in (:status1,:status2,:status3)  '+
         //'and a.open_date beetween :date1 and :date2  '+
         //'and a.due_date between :date1and :date2'
@@ -80,7 +83,10 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         current_due_home: '',
         current_due_idr: '',
         currency: '',
-        exchange: ''
+        exchange: '',
+        adjustment_idr: '',
+        adjustment_home: '',
+        is_adjusted: ''
     }
 
     $scope.selected = {
@@ -128,6 +134,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     $scope.source = []
     queryService.get('select value id, value, name from table_ref where table_name = \'acc_ap_voucher\' and column_name = \'source\' and value in(\'MT\',\'RR\') order by id ',undefined)
     .then(function(data){
+        console.log('source',data.data)
         $scope.source = data.data
     })
     $scope.deposit = []
@@ -144,6 +151,10 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     queryService.get('select  id currency_id,code currency_code,name currency_name,home_currency_exchange from ref_currency order by id asc',undefined)
     .then(function(data){
         $scope.currency = data.data
+        $scope.selected.currency['selected'] = $scope.currency[0]
+        $scope.ap.exchange = $scope.currency[0].home_currency_exchange
+        //console.log('curr',$scope.currency[0])
+        //console.log('curr2',$scope.selected.currency)
     })
 
     $scope.tax = []
@@ -215,7 +226,51 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 //$scope.isReceiving = false
             })
         }
-        else $scope.isReceiving = true
+        else {
+            queryService.post('select id supplier_id,name supplier_name from mst_supplier order by name limit 50',undefined)
+            .then(function(data){
+                $scope.supplier = data.data
+            })
+            $scope.isReceiving = true
+        }
+        if (!$scope.updateState){
+            $scope.ap = {
+                id: '',
+                code: '',
+                notes: '',
+                source: '',
+                source_no: '',
+                status: '',
+                open_date: '',
+                due_date: '',
+                supplier: '',
+                notes: '',
+                total_home: '',
+                total_idr: '',
+                deposit: '',
+                deposit_home: '',
+                deposit_idr: '',
+                tax: '',
+                tax_home: '',
+                tax_idr: '',
+                total_due_home: '',
+                total_due_idr: '',
+                payment_home: '',
+                payment_idr: '',
+                current_due_home: '',
+                current_due_idr: '',
+                currency: '',
+                exchange: ''
+            }
+            $scope.selected.supplier = {}
+            $scope.selected.status['selected'] = $scope.status[0]
+            $scope.selected.currency['selected'] = $scope.currency[0]
+            $scope.ap.exchange = $scope.currency[0].home_currency_exchange
+
+        }
+
+        //$scope.statusShow.push($scope.status[0])
+
         var dt = new Date()
 
         var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
@@ -233,7 +288,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     $scope.setReceiving = function(e){
         $scope.ap.source_no=$scope.selected.source_no.selected.id
         queryService.post('select a.id,a.po_id,c.name,DATE_FORMAT(a.created_date, \'%Y-%m-%d\') created_date,a.currency_id,d.due_days,d.supplier_id,e.name supplier_name,f.name currency_name,a.total_amount,a.home_currency_exchange exchange, '+
-            ' DATE_ADD(a.created_date, INTERVAL d.due_days DAY) due_date '+
+            ' DATE_FORMAT(DATE_ADD(a.created_date, INTERVAL d.due_days DAY),\'%Y-%m-%d\') due_date '+
             'from inv_po_receive a,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f '+
             'where c.table_name=\'inv_po_receive\' '+
             'and a.received_status=c.value '+
@@ -251,9 +306,9 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 $scope.ap.total_idr = data.data[0].total_amount*data.data[0].exchange
                 $scope.ap.total_home = $scope.ap.total_idr
                 $scope.ap.open_date = data.data[0].created_date
-                if ($scope.ap.due_date.length==0){
+                //if ($scope.ap.due_date.length==0){
                     $scope.ap.due_date = data.data[0].due_date
-                }
+                //}
             }
 
         })
@@ -510,6 +565,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         if (state == 'add'){
             $scope.clear()
         }
+        $scope.updateState = false;
         $scope.statusShow.push($scope.status[0])
         $scope.selected.status['selected']=$scope.status[0]
         $('#form-input').modal('show')
@@ -615,10 +671,11 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             .then(function (result){
                 if ($scope.selected.status.selected.id=="1"){
                     var qq = 'insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes)'+
-                        ' values (\''+$scope.ap.code+'\', null, '+$scope.ap.id+', \'0\', '+$scope.ap.notes+')'
+                        ' values (\''+$scope.ap.code+'\', null, '+$scope.ap.id+', \'0\', \''+$scope.ap.notes+'\')'
                     queryService.post(qq ,undefined)
                     .then(function (result2){
                         var qd = $scope.child.saveTable(result2.data.insertId);
+
                         queryService.post(qd.join(';') ,undefined)
                         .then(function (result3){
                                 $('#form-input').modal('hide')
@@ -705,11 +762,103 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             })
         }
     }
+    $scope.saveAdjustment = function(){
+        var param = {
+        	voucher_id: $scope.ap.id,
+        	adjustment_date: globalFunction.currentDate(),
+        	adjustment_status: '0',
+        	previous_amount: $scope.ap.total_idr,
+        	//home_previous_amount: $scope.ap.total_home,
+        	adjusted_amount: $scope.ap.adjustment_idr,
+        	//home_adjusted_amount: $scope.ap.adjustment_home
+    	}
+        var q = "insert into acc_voucher_adjust(voucher_id,adjustment_date,adjustment_status,previous_amount,adjusted_amount) values "+
+            "("+$scope.ap.id+",'"+globalFunction.currentDate()+"','0',"+$scope.ap.total_idr+","+$scope.ap.adjustment_idr+")"
+        queryService.post(q,undefined)
+        .then(function (result2){
+
+            $('#form-input').modal('hide')
+            $scope.dtInstance.reloadData(function(obj){
+
+            }, false)
+            $('body').pgNotification({
+                style: 'flip',
+                message: 'Success Save Adjustment '+$scope.ap.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+
+        },
+        function (err2){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Save Adjustment: '+err2.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
+    }
+    $scope.releaseAdjustment = function(){
+        queryService.post("update acc_voucher_adjust set adjustment_status = '1' where voucher_id = "+$scope.ap.id,undefined)
+        .then(function (result2){
+            var param = {
+            	is_adjusted : 'Y',
+                home_total_amount: 0,
+                total_amount: 0,
+            	prev_home_total_amount: $scope.ap.total_home,
+                prev_total_amount: $scope.ap.total_idr,
+                home_adjustment_amount: $scope.ap.adjustment_home,
+            	adjustment_amount: $scope.ap.adjustment_idr
+        	}
+
+            queryService.post("update acc_ap_voucher SET ? where id = "+$scope.ap.id,param)
+            .then(function (result2){
+
+                $('#form-input').modal('hide')
+                $scope.dtInstance.reloadData(function(obj){
+
+                }, false)
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Success Release Adjustment '+$scope.ap.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+
+            },
+            function (err2){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Release Adjustment: '+err2.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
+
+        },
+        function (err2){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Release Adjustment: '+err2.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
+    }
 
     $scope.update = function(obj){
+        console.log('update')
         queryService.post(qstring+ ' where a.id='+obj.id,undefined)
         .then(function(result){
+            console.log(result)
             $('#form-input').modal('show');
+            $scope.updateState = true;
+            $scope.adjustState = false;
             $scope.ap = result.data[0]
             $scope.ap.notes = result.data[0].voucher_notes
             $scope.ap.due_date = (result.data[0].due==null?'':result.data[0].due)
@@ -749,6 +898,8 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             }
             $scope.items = []
             $scope.itemsOri = []
+
+            //ERR: REPEAT DUPES
             var qd = 'select b.id,a.voucher_id, b.account_id, c.name account_name,c.code account_code, b.transc_type, b.amount '+
                   'from acc_gl_transaction a '+
                   'left join acc_gl_journal b on a.id = b.gl_id '+
@@ -808,6 +959,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         .then(function(result){
             console.log(result)
             $('#form-input').modal('show');
+            $scope.updateState = true;
             $scope.ap = result.data[0]
             $scope.ap.notes = result.data[0].voucher_notes
             $scope.ap.due_date = (result.data[0].due==null?'':result.data[0].due)
@@ -847,6 +999,8 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             }
             $scope.items = []
             $scope.itemsOri = []
+            /*
+            ERR: REPEAT DUPES
             var qd = 'select b.id,a.voucher_id, b.account_id, c.name account_name,c.code account_code, b.transc_type, b.amount '+
                   'from acc_gl_transaction a '+
                   'left join acc_gl_journal b on a.id = b.gl_id '+
@@ -854,7 +1008,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                  'where a.voucher_id =  '+$scope.ap.id
             queryService.get(qd,undefined)
             .then(function(result2){
-                console.log(result2)
                 var d = result2.data
                 $scope.items = []
                 $scope.itemsOri = []
@@ -875,7 +1028,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             },
             function(err2){
                 console.log(err2)
-            })
+            })*/
 
 
 
@@ -943,7 +1096,10 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             current_due_home: '',
             current_due_idr: '',
             currency: '',
-            exchange: ''
+            exchange: '',
+            adjustment_idr: '',
+            adjustment_home: '',
+            is_adjusted: ''
         }
         $scope.selected = {
             status: {},
@@ -951,7 +1107,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             endperiod : {},
             period: {},
             supplier: {},
-            currency: {},
+            currency: {'selected':$scope.currency[0]},
             deposit: {},
             source: {},
             source_no: {},
@@ -963,6 +1119,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             depositStat: 0,
             taxStat: 0
         }
+        $scope.ap.exchange = $scope.currency[0].home_currency_exchange
         $scope.selected.period = $scope.period[0]
         $scope.items = []
         $scope.itemsOri = []
@@ -1054,11 +1211,22 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 if (user.debit>0){
                     sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
                     pr_id+','+user.account_id+',\'D\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    if ($scope.ap.is_adjusted=='Y'){
+                        sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date,notes) values('+
+                        pr_id+','+user.account_id+',\'D\','+($scope.ap.adjustment_idr-$scope.ap.total_idr)+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\',\'Adjustment Entries\')')
+
+                    }
                 }
                 else if (user.credit>0){
                     sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
                     pr_id+','+user.account_id+',\'C\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    if ($scope.ap.is_adjusted=='Y'){
+                        sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date,notes) values('+
+                        pr_id+','+user.account_id+',\'C\','+($scope.ap.adjustment_idr-$scope.ap.total_idr)+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\',\'Adjustment Entries\')')
+
+                    }
                 }
+
 
             }
             else if(!user.isNew && user.isDeleted){
@@ -1083,6 +1251,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             }
 
         }
+        console.log(sqlitem)
         return sqlitem
         //return $q.all(results);
     };

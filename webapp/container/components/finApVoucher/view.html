@@ -122,7 +122,7 @@
                     <span ng-click="exportExcel()">
                         <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
                     </span>
-					<button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
+					 <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Voucher</button>
 
 
@@ -303,7 +303,7 @@
 
                     </script>
                 </div>
-                
+
             </div>
     </div>
     <!-- END PANEL -->
@@ -327,10 +327,10 @@
       <div class="panel panel-transparent m-t-20">
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
-                  <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.source.$invalid && !ap.source.$pristine }">
+                  <div class="col-sm-4" >
+                      <div pg-form-group  class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.source.$invalid && !ap.source.$pristine }">
                           <label>Source</label>
-                          <ui-select ng-model="selected.source.selected" theme="bootstrap" on-select="setSource($item)">
+                          <ui-select ng-model="selected.source.selected" ng-disabled="updateState" theme="bootstrap" on-select="setSource($item)">
                               <ui-select-match placeholder="select source">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in source | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -345,8 +345,8 @@
                       </div>
                   </div>
 
-                  <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.source_no.$invalid && !ap.source_no.$pristine }">
+                  <div class="col-sm-4" >
+                      <div pg-form-group ng-show="!isReceiving" class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.source_no.$invalid && !ap.source_no.$pristine }">
                           <label>Source No</label>
                           <ui-select ng-model="selected.source_no.selected" theme="bootstrap" on-select="setReceiving($item)" ng-disabled="isReceiving" ng-keyup="findReceiving($select.search)">
                               <ui-select-match placeholder="select source no">{{$select.selected.code}}</ui-select-match>
@@ -473,6 +473,20 @@
                                   <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
                               </ui-select-choices>
                           </ui-select>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix" ng-if="adjustState">
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default " >
+                          <label ng-class="{'gray-text':selected.currency.selected.currency_id==1}">Adjustment</label>
+                          <input type="number" class="form-control" name="adjustment" ng-model="ap.adjustment_home" ng-disabled="selected.currency.selected.currency_id==1">
+                      </div>
+                  </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default " >
+                          <label ng-class="{'gray-text':selected.currency.selected.currency_id==2}">Adjustment (IDR)</label>
+                          <input type="number" class="form-control" name="tax_idr" ng-model="ap.adjustment_idr" ng-disabled="selected.currency.selected.currency_id==2">
                       </div>
                   </div>
               </div>
@@ -662,6 +676,8 @@
               <br>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalidadjustState" ng-click="saveAdjustment()" ng-show="adjustState" >Save Adjustment</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="releaseAdjustment()" ng-show="adjustState">Release Adjustment</button>
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>
       </div>
