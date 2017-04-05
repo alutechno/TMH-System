@@ -1374,6 +1374,31 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state("app.fo.housekeeping", {
+        url: "/foHousekeeping",
+        templateUrl: "container/components/foHousekeeping/view.html",
+        controller: "FoHousekeepingCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    'timepicker',
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load([
+                        "container/components/foHousekeeping/controller.js"
+                    ]);
+                });
+            }]
+        }
+    })
 
 
 
