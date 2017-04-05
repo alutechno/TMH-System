@@ -345,7 +345,7 @@ if (cluster.isMaster) {
 	    var sqlstr = 'select a.id,a.name as username, a.full_name,a.password, a.token, g.name as gname, e.l1 as menuname, e.l2 as submenuname, h.name as module, e.l2state, '+
 	    'group_concat(f.object), f.custom, i.name as default_module, e.l2id,j.name as default_menu, j.state as default_state,e.is_sidebar,e.sidebar_short,e.sidebar_icon '+
 	    'from user a, role_user b, role c, role_menu d, '+
-	    '(SELECT t1.group_id,t1.name AS l1, t2.name as l2, t1.state as l1state, t2.state as l2state, t2.id as l2id,t2.sequence, t2.is_sidebar,t2.sidebar_short,t2.sidebar_icon '+
+	    '(SELECT t1.sequence seqParent,t1.group_id,t1.name AS l1, t2.name as l2, t1.state as l1state, t2.state as l2state, t2.id as l2id,t2.sequence, t2.is_sidebar,t2.sidebar_short,t2.sidebar_icon '+
 	    'FROM menu AS t1 '+
 	    'LEFT JOIN menu AS t2 ON t2.parent = t1.id '+
 	    'where t2.name is not null '+
@@ -360,7 +360,7 @@ if (cluster.isMaster) {
 	    'and a.default_menu = j.id '+
 	    'and a.name="'+req.username+'" '+
 	    'group by submenuname '+
-	    'order by menuname,e.sequence, submenuname ';
+	    'order by e.seqParent,menuname,e.sequence, submenuname ';
 
 	    connection(sqlstr,undefined, function(err, rows, fields) {
 	        var obj = {

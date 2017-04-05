@@ -2537,6 +2537,29 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state("app.fin.cashBook", {
+        url: "/finCashBook",
+        templateUrl: "container/components/finCashBook/view.html",
+        params:      {'currentPeriod': null},
+        controller: "FinCashBookCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/finCashBook/controller.js");
+                });
+            }]
+        }
+    })
 
     // Extra - Others
     .state('access', {

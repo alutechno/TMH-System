@@ -23,7 +23,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     var qstring = "select a.id,a.code,a.pr_id,a.ml_id,DATE_FORMAT(a.created_date,'%Y-%m-%d') created_date,DATE_FORMAT(a.delivery_date,'%Y-%m-%d') as delivery_date, "+
     	"a.po_source,a.supplier_id, a.warehouse_id, a.cost_center_id, a.notes, a.doc_submission_date, a.delivery_type,a.delivery_status,a.receive_status,  "+
         "a.payment_type,a.due_days,a.currency_id, b.name supplier_name,c.name cost_center_name,d.name warehouse_name,e.dept, b.address supplier_address, "+
-        "b.contact_person supplier_cp,b.phone_number supplier_phone,b.fax_number supplier_fax,date_add(released_date,interval due_days day)expired_date, "+
+        "b.contact_person supplier_cp,b.phone_number supplier_phone,b.fax_number supplier_fax,date_format(date_add(released_date,interval due_days day),'%Y-%m-%d')expired_date, "+
         "format((SELECT SUM(amount) FROM inv_po_line_item item WHERE item.po_id = a.id),0) AS 'Total',  "+
         "(select name from table_ref r where table_name = 'inv_purchase_order' and column_name = 'delivery_status' and value=a.delivery_status) as delivery_status_name , "+
         "if(a.pr_id,f.code,g.code) doc_prev_code,if(a.pr_id,f.created_name,g.created_name) prev_created_name, "+
@@ -284,10 +284,10 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         .renderWith($scope.actionsHtml).withOption('width', '8%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('doc_prev_code').withTitle('PO/ML Code'),
-        DTColumnBuilder.newColumn('prev_created_date').withTitle('PO/ML Date'),
-        DTColumnBuilder.newColumn('prev_created_name').withTitle('PO/ML Created By'),
-        DTColumnBuilder.newColumn('prev_dept').withTitle('PO/ML Dept'),
+        DTColumnBuilder.newColumn('doc_prev_code').withTitle('PR/ML Code'),
+        DTColumnBuilder.newColumn('prev_created_date').withTitle('PR/ML Date'),
+        DTColumnBuilder.newColumn('prev_created_name').withTitle('PR/ML Created By'),
+        DTColumnBuilder.newColumn('prev_dept').withTitle('PR/ML Dept'),
         DTColumnBuilder.newColumn('code').withTitle('Code'),
         DTColumnBuilder.newColumn('delivery_date').withTitle('Delivery'),
         DTColumnBuilder.newColumn('expired_date').withTitle('Expired'),

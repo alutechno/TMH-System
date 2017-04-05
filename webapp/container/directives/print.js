@@ -20,11 +20,11 @@
 
         function link(scope, element, attrs) {
             element.on('click', function () {
-                var elemToPrint = document.getElementById(attrs.printElementId);
-                if (elemToPrint) {
-                    printElement(elemToPrint);
+                //var elemToPrint = document.getElementById('printSection');
+                //if (elemToPrint) {
+                    printElement();
                     window.print();
-                }
+                //}
             });
 
             window.onafterprint = function () {
@@ -53,8 +53,21 @@
             window.onafterprint = afterPrint;
         }
 
-        function printElement(elem) {
-            psParent.removeChild(printSection);
+        function printElement() {
+            //psParent.removeChild(printSection);
+            //psParent.appendChild(printSection);
+            var printSection = window.document.getElementById('printSection');
+            //var domClone = printSection.cloneNode(true);
+
+
+            if (!printSection) {
+                printSection = $window.document.createElement('div');
+                $printSection.id = 'printSection';
+                $window.document.body.appendChild($printSection);
+            }
+
+            //printSection.className = 'visible-print';
+            psParent.innerHTML = '';
             psParent.appendChild(printSection);
         }
 

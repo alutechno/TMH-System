@@ -191,7 +191,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         //DTColumnBuilder.newColumn('bank_name').withTitle('Bank Name'),
         DTColumnBuilder.newColumn('currency_name').withTitle('Currency').withOption('width', '15%'),
         DTColumnBuilder.newColumn('gl_account_code').withTitle('G/L Account').withOption('width', '15%'),
-        DTColumnBuilder.newColumn('clearance_account_code').withTitle('Clearance Account').withOption('width', '15%'),
+        DTColumnBuilder.newColumn('clearance_account_code').withTitle('Clearance Account').withOption('width', '15%')
         //DTColumnBuilder.newColumn('ar_account_code').withTitle('A/R Clearance')
     );
 
