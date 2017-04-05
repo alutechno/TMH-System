@@ -2514,6 +2514,29 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state("app.fin.generalCashier", {
+        url: "/finGeneralCashier",
+        templateUrl: "container/components/finGeneralCashier/view.html",
+        params:      {'currentPeriod': null},
+        controller: "FinGeneralCashierCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/finGeneralCashier/controller.js");
+                });
+            }]
+        }
+    })
 
     // Extra - Others
     .state('access', {
