@@ -391,8 +391,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             //exec creation
             $scope.child.totalQty = 0
             for (var i=0;i<$scope.items.length;i++){
-                if ($scope.items.product_id.length>0) $scope.totalQty += parseFloat($scope.items[i].qty)
+                //console.log('debug',$scope.items[i].product_id.length,parseFloat($scope.items[i].qty))
+                //console.log($scope.items[i].product_id)
+                if ($scope.items[i].product_id.toString().length>0) $scope.child.totalQty += parseFloat($scope.items[i].qty)
             }
+            //console.log($scope.items)
+            //console.log($scope.items.length,$scope.child.totalQty)
 
             if ($scope.items.length>0 && $scope.child.totalQty>0){
                 var param = {}
@@ -466,7 +470,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     function (err2){
                         $('#form-input').pgNotification({
                             style: 'flip',
-                            message: 'Error Insert: '+err2.code,
+                            message: 'Error Insert PR State: '+err2.code,
                             position: 'top-right',
                             timeout: 2000,
                             type: 'danger'
@@ -476,7 +480,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 function (err){
                     $('#form-input').pgNotification({
                         style: 'flip',
-                        message: 'Error Insert: '+err.code,
+                        message: 'Error Insert PR: '+err.code,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'danger'
@@ -680,6 +684,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         var defer = $q.defer();
         var paramItem = []
         var sqlCtr = []
+
         queryService.post(sqli.join(';'),undefined)
         .then(function (result2){
             defer.resolve(result2)
@@ -1242,7 +1247,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.child.saveTable = function(pr_id) {
         var results = [];
 
-        var sqlitem = []
+        var sqlitem = [];
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
             //console.log(user.supplier_id)
@@ -1259,7 +1264,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             // send on server
             //results.push($http.post('/saveUser', user));
             if (user.isNew && !user.isDeleted){
-                if (user.product_id.length>0 && user.qty>0){
+                if (user.product_id.toString().length>0 && user.qty>0){
                     sqlitem.push('insert into inv_pr_line_item (pr_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date) values('+
                     pr_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }

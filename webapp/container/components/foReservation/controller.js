@@ -12,7 +12,18 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
-    $scope.additional = {}
+    $scope.profile = {
+        form: {},
+        action: {}
+    }
+    $scope.remark = {
+        form: {},
+        action: {}
+    }
+    $scope.additional = {
+        form: {},
+        action: {}
+    }
     var qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
       "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
       "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
@@ -93,105 +104,11 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         canceled: ''
     }
 
-    $scope.gf = {
-        id: '',
-        code: '',
-        folio_type: '',
-        arrival_date: '',
-        departure_date: '',
-        num_of_nights: '',
-        num_of_stays: '',
-        check_in_time: '',
-        check_in_limit_time: '',
-        check_out_time: '',
-        actual_check_in_time: '',
-        actual_check_out_time: '',
-        reservation_status: '',
-        reservation_type: '',
-        mice_id: '',
-        member_id: '',
-        room_type_id: '',
-        room_id: '',
-        prev_room_type_id: '',
-        prev_room_id: '',
-        customer_id: '',
-        address: '',
-        num_of_pax: '',
-        num_of_child: '',
-        vip_type_id: '',
-        cust_company_id: '',
-        is_inside_allotment: '',
-        room_rate_id: '',
-        room_rate_amount: '',
-        num_of_extra_bed: '',
-        extra_bed_charge_amount: '',
-        late_check_out_charge: '',
-        discount_percent: '',
-        discount_amount: '',
-        is_room_only: '',
-        is_comp_extra_bed: '',
-        commission_amount: '',
-        agent_id: '',
-        payment_type_id: '',
-        currency_id: '',
-        card_no: '',
-        card_valid_until_year: '',
-        card_valid_until_month: '',
-        voucher: '',
-        segment_type_id: '',
-        source_type_id: '',
-        is_honeymoon: '',
-        origin_country_id: '',
-        origin_city_id: '',
-        dest_country_id: '',
-        dest_city_id: '',
-        check_in_type_id: '',
-        check_out_type_id: '',
-        checked_in_by: '',
-        checked_out_by: '',
-        mobile_phone: '',
-        phone: '',
-        email: '',
-        cancellation_type_id: '',
-        cancellation_date: '',
-        cancellation_remarks: '',
-        remarks_cashier: '',
-        remarks_check_in: ''
-    }
-
     $scope.selected = {
         status: {},
         filter_department: {},
         filter_account_type: {},
-        reservation_status: {},
-        member: {},
-        reservation_type: {},
-        room_type: {},
-        prev_room_type: {},
-        block: {},
-        room: {},
-        room_feature: [],
-        customer: {},
-        title: {},
-        vip_type: {},
-        company: {},
-        room_rate: {},
-        late_co: {},
-        is_room_only: {},
-        is_comp_extra_bed: {},
-        agent: {},
-        payment_type: {},
-        currency: {},
-        card_valid_until_month: {},
-        card_valid_until_year: {},
-        segment_type: {},
-        source_type: {},
-        origin_country: {},
-        is_honeymoon: {},
-        origin_city: {},
-        dest_city: {},
-        check_in_type: {},
-        check_out_type: {}
+        reservation_status: {}
     }
 
     $scope.setActiveForm = function(a){
@@ -518,176 +435,6 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.id = '';
 
 
-    $scope.reservation_status = []
-    queryService.get('select value as id,name from table_ref where table_name = \'fd_guest_folio\' and column_name=\'reservation_status\' and value in(0,1,2,3) order by name asc',undefined)
-    .then(function(data){
-        $scope.reservation_status = data.data
-    })
-    $scope.member = []
-    //???UNK
-
-    $scope.reservation_type = [{
-        id: 'I',
-        name: 'Individual'
-    }]
-    $scope.selected.reservation_type['selected'] = $scope.reservation_type[0]
-
-    $scope.room_type = []
-    queryService.get('select id,name from ref_room_type order by name asc',undefined)
-    .then(function(data){
-        $scope.room_type = data.data
-    })
-
-    $scope.block = []
-    queryService.get('select id,name from fd_mice_room_blocking order by name asc',undefined)
-    .then(function(data){
-        $scope.room_type = data.data
-    })
-
-    $scope.room = []
-    $scope.roomOri = []
-    queryService.get("select a.id,code,name,fo_status,hk_status,concat('Status:',fo_status,hk_status)status_name, b.feature, a.room_type_id "+
-        "from mst_room a "+
-        "left join (select room_id,cast(group_concat(feature_id) as char) as feature  "+
-        "from mst_room_owned_feature) b on b.room_id =a.id order by name asc ",undefined)
-    .then(function(data){
-        $scope.room = data.data
-        $scope.roomOri = data.data
-    })
-
-    $scope.room_feature = []
-    queryService.get('select id,name from ref_building_feature order by name asc',undefined)
-    .then(function(data){
-        $scope.room_feature = data.data
-    })
-
-    $scope.customer = []
-    queryService.get('select id,concat(first_name,\' \',last_name)as name from mst_customer order by name asc',undefined)
-    .then(function(data){
-        $scope.customer = data.data
-    })
-
-    $scope.title = [
-        {id: 'Mr',name:'Mr'},
-        {id: 'Mrs',name:'Mrs'}
-    ]
-
-    $scope.vip_type = []
-    queryService.get('select id,name from ref_vip_type order by name asc',undefined)
-    .then(function(data){
-        $scope.vip_type = data.data
-    })
-
-    $scope.company = []
-    queryService.get('select id,name from mst_cust_company order by name asc',undefined)
-    .then(function(data){
-        $scope.company = data.data
-    })
-
-    $scope.room_rate = []
-    queryService.get('select id,code as name from mst_room_rate order by name asc',undefined)
-    .then(function(data){
-        $scope.room_rate = data.data
-    })
-
-    $scope.yesno = [{id:'Y',name:'Yes'},{id:'N',name:'No'}]
-    $scope.selected.late_co['selected'] = $scope.yesno[1]
-    $scope.selected.is_room_only['selected'] = $scope.yesno[1]
-    $scope.selected.is_comp_extra_bed['selected'] = $scope.yesno[1]
-    $scope.selected.is_honeymoon['selected'] = $scope.yesno[1]
-
-    $scope.agent = []
-    queryService.get('select id,name from mst_sales_agent order by name asc',undefined)
-    .then(function(data){
-        $scope.agent = data.data
-    })
-
-    $scope.payment_type = []
-    queryService.get('select id,name from ref_payment_method order by name asc',undefined)
-    .then(function(data){
-        $scope.payment_type = data.data
-    })
-
-    $scope.currency = []
-    queryService.get('select id,name from ref_currency order by name asc',undefined)
-    .then(function(data){
-        $scope.currency = data.data
-    })
-
-    $scope.month = [
-        {id: '01',name: 'January'},
-        {id: '02',name: 'February'},
-        {id: '03',name: 'March'},
-        {id: '04',name: 'April'},
-        {id: '05',name: 'May'},
-        {id: '06',name: 'June'},
-        {id: '07',name: 'July'},
-        {id: '08',name: 'August'},
-        {id: '09',name: 'September'},
-        {id: '10',name: 'October'},
-        {id: '11',name: 'November'},
-        {id: '12',name: 'December'}
-    ]
-
-    $scope.year = [
-        {id: '2017',name:'2017'},
-        {id: '2018',name:'2018'},
-        {id: '2019',name:'2019'},
-        {id: '2020',name:'2020'},
-        {id: '2021',name:'2021'},
-        {id: '2022',name:'2022'},
-        {id: '2023',name:'2023'},
-        {id: '2024',name:'2024'},
-        {id: '2025',name:'2025'},
-        {id: '2026',name:'2026'},
-        {id: '2027',name:'2027'},
-        {id: '2028',name:'2028'},
-        {id: '2029',name:'2029'},
-        {id: '2030',name:'2030'}
-    ]
-
-    $scope.segment_type = []
-    queryService.get('select id,name from ref_segment_type order by name asc',undefined)
-    .then(function(data){
-        $scope.segment_type = data.data
-    })
-
-    $scope.source_type = []
-    queryService.get('select id,name from ref_source_type order by name asc',undefined)
-    .then(function(data){
-        $scope.source_type = data.data
-    })
-
-    $scope.country = []
-    queryService.get('select id,name from ref_country order by name asc',undefined)
-    .then(function(data){
-        $scope.country = data.data
-    })
-
-    $scope.city = []
-    queryService.get('select id,name from ref_kabupaten order by name asc',undefined)
-    .then(function(data){
-        $scope.city = data.data
-    })
-
-    $scope.check_in_type = []
-    queryService.get('select id,name from ref_check_in order by name asc',undefined)
-    .then(function(data){
-        $scope.check_in_type = data.data
-    })
-
-    $scope.check_out_type = []
-    queryService.get('select id,name from ref_check_out order by name asc',undefined)
-    .then(function(data){
-        $scope.check_out_type = data.data
-    })
-
-    queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1) order by name asc',undefined)
-    .then(function(data){
-        $scope.arrActive = data.data
-        $scope.selected.status['selected'] = $scope.arrActive[0]
-    })
-
     $scope.focusinControl = {};
     $scope.fileName = "Check in By Reference";
     $scope.exportExcel = function(){
@@ -707,62 +454,6 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             }
             $scope.focusinControl.downloadExcel()
         })
-    }
-
-    $scope.setNights = function(){
-        if ($scope.gf.arrival_date.length>0 && $scope.gf.departure_date.length>0){
-            var date1 = new Date($scope.gf.arrival_date);
-            var date2 = new Date($scope.gf.departure_date);
-            var timeDiff = Math.abs(date2.getTime() - date1.getTime());
-            var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            $scope.gf.night = diffDays
-        }
-    }
-
-    $scope.showRoom = function(){
-        console.log('showRoom')
-    }
-
-    $scope.updateRoomList = function() {
-        var qwrl = []
-        $scope.room = []
-        if ($scope.selected.room_type.selected){
-            console.log($scope.selected.room_type.selected)
-            console.log($scope.roomOri)
-            for (var i=0;i<$scope.roomOri.length;i++){
-                if ($scope.selected.room_type.selected.id == $scope.roomOri[i].room_type_id){
-                    $scope.room.push($scope.roomOri[i])
-                }
-            }
-        }
-        if ($scope.selected.room_feature.length>0){
-            console.log($scope.selected.room_feature)
-            for (var i=0;i<$scope.selected.room_feature.length;i++){
-                for (var j=0;j<$scope.roomOri.length;j++){
-                    if($scope.roomOri[j].feature!=null){
-                        if ($scope.roomOri[j].feature.indexOf($scope.selected.room_feature[i].id)){
-                            $scope.room.push($scope.roomOri[j])
-                        }
-                    }
-                }
-            }
-
-        }
-        if ($scope.room.length==0) $scope.room=$scope.roomOri
-        console.log(dist($scope.room,'id'))
-        $scope.room = dist($scope.room,'id')
-
-    }
-    function dist(array,field){
-        var arr = {};
-
-        for ( var i=0, len=array.length; i < len; i++ )
-            arr[array[i][field]] = array[i];
-
-        arrays = new Array();
-        for ( var key in arr )
-            arrays.push(arr[key]);
-        return arrays
     }
 
     $scope.filterVal = {
@@ -938,31 +629,11 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         }
         $scope.updateState = false
         $('#form-input').modal('show')
-        queryService.post("select cast(lpad(seq('"+$scope.selected.reservation_type.selected.id+"','"+$scope.selected.reservation_type.selected.id+"'),8,'0') as char) as code ",undefined)
-        .then(function(data){
-            console.log(data)
-            $scope.gf.code = data.data[0].code
-        })
-    }
-    $scope.checkInModal = function(){
-        console.log($scope.gf)
-        $('#modalCheckIn').modal('show')
+        console.log($scope.profile.form)
+        $scope.profile.form.setCode();
 
     }
-    $scope.checkOutModal = function(){
-        console.log($scope.gf)
-        $('#modalCheckOut').modal('show')
 
-    }
-    $scope.cancelModal = function(){
-        console.log($scope.gf)
-        $('#modalCancel').modal('show')
-
-    }
-    $scope.test = function(){
-        console.log($scope.gf.id)
-        console.log($scope.additional.param)
-    }
 
     $scope.submit = function(){
         if ($scope.gf.id.length==0){
@@ -1696,6 +1367,359 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             "where table_name = 'ref_product_category' and column_name='status')b "+
         "where a.status = b.status_value and a.status!=2 "
     var qwhere = ''
+
+    $scope.profile.form.gf = {
+        id: '',
+        code: '',
+        folio_type: '',
+        arrival_date: '',
+        departure_date: '',
+        num_of_nights: '',
+        num_of_stays: '',
+        check_in_time: '',
+        check_in_limit_time: '',
+        check_out_time: '',
+        actual_check_in_time: '',
+        actual_check_out_time: '',
+        reservation_status: '',
+        reservation_type: '',
+        mice_id: '',
+        member_id: '',
+        room_type_id: '',
+        room_id: '',
+        prev_room_type_id: '',
+        prev_room_id: '',
+        customer_id: '',
+        address: '',
+        num_of_pax: '',
+        num_of_child: '',
+        vip_type_id: '',
+        cust_company_id: '',
+        is_inside_allotment: '',
+        room_rate_id: '',
+        room_rate_amount: '',
+        num_of_extra_bed: '',
+        extra_bed_charge_amount: '',
+        late_check_out_charge: '',
+        discount_percent: '',
+        discount_amount: '',
+        is_room_only: '',
+        is_comp_extra_bed: '',
+        commission_amount: '',
+        agent_id: '',
+        payment_type_id: '',
+        currency_id: '',
+        card_no: '',
+        card_valid_until_year: '',
+        card_valid_until_month: '',
+        voucher: '',
+        segment_type_id: '',
+        source_type_id: '',
+        is_honeymoon: '',
+        origin_country_id: '',
+        origin_city_id: '',
+        dest_country_id: '',
+        dest_city_id: '',
+        check_in_type_id: '',
+        check_out_type_id: '',
+        checked_in_by: '',
+        checked_out_by: '',
+        mobile_phone: '',
+        phone: '',
+        email: '',
+        cancellation_type_id: '',
+        cancellation_date: '',
+        cancellation_remarks: '',
+        remarks_cashier: '',
+        remarks_check_in: ''
+    }
+
+    $scope.profile.form.selected = {
+        status: {},
+        filter_department: {},
+        filter_account_type: {},
+        reservation_status: {},
+        member: {},
+        reservation_type: {},
+        room_type: {},
+        prev_room_type: {},
+        block: {},
+        room: {},
+        room_feature: [],
+        customer: {},
+        title: {},
+        vip_type: {},
+        company: {},
+        room_rate: {},
+        late_co: {},
+        is_room_only: {},
+        is_comp_extra_bed: {},
+        agent: {},
+        payment_type: {},
+        currency: {},
+        card_valid_until_month: {},
+        card_valid_until_year: {},
+        segment_type: {},
+        source_type: {},
+        origin_country: {},
+        is_honeymoon: {},
+        origin_city: {},
+        dest_city: {},
+        check_in_type: {},
+        check_out_type: {}
+    }
+    $scope.profile.form.reservation_status = []
+    queryService.get('select value as id,name from table_ref where table_name = \'fd_guest_folio\' and column_name=\'reservation_status\' and value in(0,1,2,3) order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.reservation_status = data.data
+    })
+    $scope.profile.form.member = []
+    //???UNK
+
+    $scope.profile.form.reservation_type = [{
+        id: 'I',
+        name: 'Individual'
+    }]
+    $scope.profile.form.selected.reservation_type['selected'] = $scope.profile.form.reservation_type[0]
+    $scope.profile.form.setCode = function(){
+        queryService.post("select cast(lpad(seq('"+$scope.profile.form.selected.reservation_type.selected.id+"','"+$scope.profile.form.selected.reservation_type.selected.id+"'),8,'0') as char) as code ",undefined)
+        .then(function(data){
+            console.log(data)
+            $scope.profile.form.gf.code = data.data[0].code
+        })
+    }
+
+    $scope.profile.form.room_type = []
+    queryService.get('select id,name from ref_room_type order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.room_type = data.data
+    })
+
+    $scope.profile.form.block = []
+    queryService.get('select id,name from fd_mice_room_blocking order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.room_type = data.data
+    })
+
+    $scope.profile.form.room = []
+    $scope.profile.form.roomOri = []
+    queryService.get("select a.id,code,name,fo_status,hk_status,concat('Status:',fo_status,hk_status)status_name, b.feature, a.room_type_id "+
+        "from mst_room a "+
+        "left join (select room_id,cast(group_concat(feature_id) as char) as feature  "+
+        "from mst_room_owned_feature) b on b.room_id =a.id order by name asc ",undefined)
+    .then(function(data){
+        $scope.profile.form.room = data.data
+        $scope.profile.form.roomOri = data.data
+    })
+
+    $scope.profile.form.room_feature = []
+    queryService.get('select id,name from ref_building_feature order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.room_feature = data.data
+    })
+
+    $scope.profile.form.customer = []
+    queryService.get('select id,concat(first_name,\' \',last_name)as name from mst_customer order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.customer = data.data
+    })
+
+    $scope.profile.form.title = [
+        {id: 'Mr',name:'Mr'},
+        {id: 'Mrs',name:'Mrs'}
+    ]
+
+    $scope.profile.form.vip_type = []
+    queryService.get('select id,name from ref_vip_type order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.vip_type = data.data
+    })
+
+    $scope.profile.form.company = []
+    queryService.get('select id,name from mst_cust_company order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.company = data.data
+    })
+
+    $scope.profile.form.room_rate = []
+    queryService.get('select id,code as name from mst_room_rate order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.room_rate = data.data
+    })
+
+    $scope.profile.form.yesno = [{id:'Y',name:'Yes'},{id:'N',name:'No'}]
+    $scope.profile.form.selected.late_co['selected'] = $scope.profile.form.yesno[1]
+    $scope.profile.form.selected.is_room_only['selected'] = $scope.profile.form.yesno[1]
+    $scope.profile.form.selected.is_comp_extra_bed['selected'] = $scope.profile.form.yesno[1]
+    $scope.profile.form.selected.is_honeymoon['selected'] = $scope.profile.form.yesno[1]
+
+    $scope.profile.form.agent = []
+    queryService.get('select id,name from mst_sales_agent order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.agent = data.data
+    })
+
+    $scope.profile.form.payment_type = []
+    queryService.get('select id,name from ref_payment_method order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.payment_type = data.data
+    })
+
+    $scope.profile.form.currency = []
+    queryService.get('select id,name from ref_currency order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.currency = data.data
+    })
+
+    $scope.profile.form.month = [
+        {id: '01',name: 'January'},
+        {id: '02',name: 'February'},
+        {id: '03',name: 'March'},
+        {id: '04',name: 'April'},
+        {id: '05',name: 'May'},
+        {id: '06',name: 'June'},
+        {id: '07',name: 'July'},
+        {id: '08',name: 'August'},
+        {id: '09',name: 'September'},
+        {id: '10',name: 'October'},
+        {id: '11',name: 'November'},
+        {id: '12',name: 'December'}
+    ]
+
+    $scope.profile.form.year = [
+        {id: '2017',name:'2017'},
+        {id: '2018',name:'2018'},
+        {id: '2019',name:'2019'},
+        {id: '2020',name:'2020'},
+        {id: '2021',name:'2021'},
+        {id: '2022',name:'2022'},
+        {id: '2023',name:'2023'},
+        {id: '2024',name:'2024'},
+        {id: '2025',name:'2025'},
+        {id: '2026',name:'2026'},
+        {id: '2027',name:'2027'},
+        {id: '2028',name:'2028'},
+        {id: '2029',name:'2029'},
+        {id: '2030',name:'2030'}
+    ]
+
+    $scope.profile.form.segment_type = []
+    queryService.get('select id,name from ref_segment_type order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.segment_type = data.data
+    })
+
+    $scope.profile.form.source_type = []
+    queryService.get('select id,name from ref_source_type order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.source_type = data.data
+    })
+
+    $scope.profile.form.country = []
+    queryService.get('select id,name from ref_country order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.country = data.data
+    })
+
+    $scope.profile.form.city = []
+    queryService.get('select id,name from ref_kabupaten order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.city = data.data
+    })
+
+    $scope.profile.form.check_in_type = []
+    queryService.get('select id,name from ref_check_in order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.check_in_type = data.data
+    })
+
+    $scope.profile.form.check_out_type = []
+    queryService.get('select id,name from ref_check_out order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.check_out_type = data.data
+    })
+
+    queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1) order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.arrActive = data.data
+        $scope.profile.form.selected.status['selected'] = $scope.profile.form.arrActive[0]
+    })
+
+    $scope.profile.form.setNights = function(){
+        if ($scope.profile.form.gf.arrival_date.length>0 && $scope.profile.form.gf.departure_date.length>0){
+            var date1 = new Date($scope.profile.form.gf.arrival_date);
+            var date2 = new Date($scope.profile.form.gf.departure_date);
+            var timeDiff = Math.abs(date2.getTime() - date1.getTime());
+            var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            $scope.profile.form.gf.night = diffDays
+        }
+    }
+
+    $scope.profile.form.showRoom = function(){
+        console.log('showRoom')
+    }
+
+    $scope.profile.form.updateRoomList = function() {
+        var qwrl = []
+        $scope.profile.form.room = []
+        if ($scope.profile.form.selected.room_type.selected){
+            console.log($scope.profile.form.selected.room_type.selected)
+            console.log($scope.profile.form.roomOri)
+            for (var i=0;i<$scope.profile.form.roomOri.length;i++){
+                if ($scope.profile.form.selected.room_type.selected.id == $scope.profile.form.roomOri[i].room_type_id){
+                    $scope.profile.form.room.push($scope.profile.form.roomOri[i])
+                }
+            }
+        }
+        if ($scope.profile.form.selected.room_feature.length>0){
+            console.log($scope.profile.form.selected.room_feature)
+            for (var i=0;i<$scope.profile.form.selected.room_feature.length;i++){
+                for (var j=0;j<$scope.profile.form.roomOri.length;j++){
+                    if($scope.profile.form.roomOri[j].feature!=null){
+                        if ($scope.profile.form.roomOri[j].feature.indexOf($scope.profile.form.selected.room_feature[i].id)){
+                            $scope.profile.form.room.push($scope.profile.form.roomOri[j])
+                        }
+                    }
+                }
+            }
+
+        }
+        if ($scope.profile.form.room.length==0) $scope.profile.form.room=$scope.profile.form.roomOri
+        console.log(dist($scope.profile.form.room,'id'))
+        $scope.profile.form.room = dist($scope.profile.form.room,'id')
+
+    }
+    function dist(array,field){
+        var arr = {};
+
+        for ( var i=0, len=array.length; i < len; i++ )
+            arr[array[i][field]] = array[i];
+
+        arrays = new Array();
+        for ( var key in arr )
+            arrays.push(arr[key]);
+        return arrays
+    }
+
+    $scope.profile.action.checkInModal = function(){
+        console.log($scope.profile.form.gf)
+        $('#modalCheckIn').modal('show')
+
+    }
+    $scope.profile.action.checkOutModal = function(){
+        console.log($scope.profile.form.gf)
+        $('#modalCheckOut').modal('show')
+
+    }
+    $scope.profile.action.cancelModal = function(){
+        console.log($scope.profile.form.gf)
+        $('#modalCancel').modal('show')
+
+    }
+    $scope.profile.action.test = function(){
+        console.log($scope.profile.form.gf.id)
+        //console.log($scope.additional.param)
+    }
 })
 .controller('FoReservationAdditionalCtrl',
 function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
