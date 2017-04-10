@@ -2,7 +2,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FoReservationCtrl',
-function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+function($scope, $state, $sce,$q, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
     $scope.el = [];
     $scope.updateState = false;
     $scope.el = $state.current.data;
@@ -634,388 +634,87 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
     }
 
-
-    $scope.submit = function(){
-        if ($scope.gf.id.length==0){
-            //exec creation
-
-            var param = {
-                code: $scope.gf.code,
-                folio_type: '1',
-                arrival_date: $scope.gf.arrival_date,
-                departure_date: $scope.gf.departure_date,
-                num_of_nights: $scope.gf.num_of_nights,
-                num_of_stays: $scope.gf.num_of_stays,
-                check_in_time: $scope.gf.check_in_time,
-                check_in_limit_time: $scope.gf.check_in_limit_time,
-                check_out_time: $scope.gf.check_out_time,
-                actual_check_in_time: $scope.gf.actual_check_in_time,
-                actual_check_out_time: $scope.gf.actual_check_out_time,
-                reservation_status: ($scope.selected.reservation_status.selected?$scope.selected.reservation_status.selected.id:null),
-                reservation_type: ($scope.selected.reservation_type.selected?$scope.selected.reservation_type.selected.id:null),
-                mice_id: null,
-                member_id: ($scope.selected.member?$scope.selected.member.id:null),
-                room_type_id: ($scope.selected.room_type.selected?$scope.selected.room_type.selected.id:null),
-                room_id: ($scope.selected.room.selected?$scope.selected.room.selected.id:null),
-                prev_room_type_id: null,
-                prev_room_id: null,
-                customer_id: ($scope.selected.customer.selected?$scope.selected.customer.selected.id:null),
-                address: null,
-                num_of_pax: $scope.gf.num_of_pax,
-                num_of_child: $scope.gf.num_of_child,
-                vip_type_id: ($scope.selected.vip_type.selected?$scope.selected.vip_type.selected.id:null),
-                cust_company_id: ($scope.selected.company.selected?$scope.selected.company.selected.id:null),
-                //is_inside_allotment: ($scope.selected.is_inside_allotment.selected?$scope.selected.is_inside_allotment.selected.id:null),
-                room_rate_id: ($scope.selected.room_rate.selected?$scope.selected.room_rate.selected.id:null),
-                room_rate_amount: $scope.gf.room_rate_amount,
-                num_of_extra_bed: $scope.gf.num_of_extra_bed,
-                extra_bed_charge_amount: $scope.gf.extra_bed_charge_amount,
-                late_check_out_charge: $scope.gf.late_check_out_charge,
-                discount_percent: $scope.gf.discount_percent,
-                discount_amount: $scope.gf.discount_amount,
-                is_room_only: ($scope.selected.is_room_only.selected?$scope.selected.is_room_only.selected.id:null),
-                is_comp_extra_bed: ($scope.selected.is_comp_extra_bed.selected?$scope.selected.is_comp_extra_bed.selected.id:null),
-                commission_amount: $scope.gf.commission_amount,
-                agent_id: ($scope.selected.agent.selected?$scope.selected.agent.selected.id:null),
-                payment_type_id: ($scope.selected.payment_type.selected?$scope.selected.payment_type.selected.id:null),
-                currency_id: ($scope.selected.currency.selected?$scope.selected.currency.selected.id:null),
-                card_no: $scope.gf.card_no,
-                card_valid_until_year: ($scope.selected.card_valid_until_year.selected?$scope.selected.card_valid_until_year.selected.id:null),
-                card_valid_until_month: ($scope.selected.card_valid_until_month.selected?$scope.selected.card_valid_until_month.selected.id:null),
-                voucher: $scope.gf.voucher,
-                segment_type_id: ($scope.selected.segment_type.selected?$scope.selected.segment_type.selected.id:null),
-                source_type_id: ($scope.selected.source_type.selected?$scope.selected.source_type.selected.id:null),
-                is_honeymoon: ($scope.selected.is_honeymoon.selected?$scope.selected.is_honeymoon.selected.id:null),
-                origin_country_id: ($scope.selected.origin_country.selected?$scope.selected.origin_country.selected.id:null),
-                origin_city_id: ($scope.selected.origin_city.selected?$scope.selected.origin_city.selected.id:null),
-                dest_country_id: null,
-                dest_city_id: ($scope.selected.dest_city.selected?$scope.selected.dest_city.selected.id:null),
-                check_in_type_id: ($scope.selected.check_in_type.selected?$scope.selected.check_in_type.selected.id:null),
-                check_out_type_id: ($scope.selected.check_out_type.selected?$scope.selected.check_out_type.selected.id:null),
-                checked_in_by: null,
-                checked_out_by: null,
-                mobile_phone: $scope.gf.mobile_phone,
-                phone: $scope.gf.phone,
-                email: $scope.gf.email,
-                //cancellation_type_id: ($scope.selected.cancellation_type.selected?$scope.selected.cancellation_type.selected.id:null),
-                //cancellation_date: $scope.gf.cancellation_date,
-                //cancellation_remarks: $scope.gf.cancellation_remarks,
-                created_date: globalFunction.currentDate(),
-                created_by: $localStorage.currentUser.name.id
-            }
-
-            console.log(param)
-
-            if(!$scope.selected.customer.selected){
-                var param_cust = {
-                    title:$scope.selected.title.selected.id,
-                    first_name: $scope.gf.first_name,
-                    last_name: $scope.gf.last_name,
-                    birth_date: $scope.gf.birth_date,
-                    country_id: ($scope.selected.origin_country.selected?$scope.selected.origin_country.selected.id:null),
-                    province_id: null,
-                    city_id: ($scope.selected.origin_city.selected?$scope.selected.origin_city.selected.id:null),
-                    status: '1',
-                    sales_agent_id: ($scope.selected.agent.selected?$scope.selected.agent.selected.id:null),
-                    mobile_phone: $scope.gf.mobile_phone,
-                    phone_no: $scope.gf.phone,
-                    email: $scope.gf.email,
-                    created_date: globalFunction.currentDate(),
-                    created_by: $localStorage.currentUser.name.id
-                }
-                console.log(param_cust)
-                queryService.post('insert into mst_customer SET ?',param_cust)
-                .then(function (resultx){
-                    console.log('success customer',resultx)
-                    param['customer_id'] = resultx.data.insertId;
-                    queryService.post('insert into fd_guest_folio SET ?',param)
-                    .then(function (result){
-                        var param_remark = [[result.data.insertId,2,$scope.gf.remarks_cashier,globalFunction.currentDate(),$localStorage.currentUser.name.id],
-                            [result.data.insertId,1,$scope.gf.remarks_check_in,globalFunction.currentDate(),$localStorage.currentUser.name.id]]
-                        console.log(param_remark)
-
-                        queryService.post('insert into fd_folio_remarks(folio_id,remark_type_id,remarks,created_date,created_by) VALUES ?',[param_remark])
-                        .then(function (result2){
-                            $('#form-input').modal('hide')
-                            $scope.dtInstance.reloadData(function(obj){
-                                console.log(obj)
-                            }, false)
-                            $('body').pgNotification({
-                                style: 'flip',
-                                message: 'Success Reservation for '+$scope.gf.first_name,
-                                position: 'top-right',
-                                timeout: 2000,
-                                type: 'success'
-                            }).show();
-                            $scope.clear()
-                        },
-                        function (err2){
-                            $('#form-input').pgNotification({
-                                style: 'flip',
-                                message: 'Error Insert: '+err2.code,
-                                position: 'top-right',
-                                timeout: 2000,
-                                type: 'danger'
-                            }).show();
-
-                        })
-                    },
-                    function (err){
-                        console.log(err)
-                        $('#form-input').pgNotification({
-                            style: 'flip',
-                            message: 'Error Insert: '+err.code,
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'danger'
-                        }).show();
-                    })
-                },
-                function (errx){
-                    console.log('error customer',errx)
-                })
-            }
-            else {
-                queryService.post('insert into fd_guest_folio SET ?',param)
-                .then(function (result){
-                    var param_remark = [[result.data.insertId,2,$scope.gf.remarks_cashier,globalFunction.currentDate(),$localStorage.currentUser.name.id],
-                        [result.data.insertId,1,$scope.gf.remarks_check_in,globalFunction.currentDate(),$localStorage.currentUser.name.id]]
-                    console.log(param_remark)
-
-                    queryService.post('insert into fd_folio_remarks(folio_id,remark_type_id,remarks,created_date,created_by) VALUES ?',[param_remark])
-                    .then(function (result2){
-                        $('#form-input').modal('hide')
-                        $scope.dtInstance.reloadData(function(obj){
-                            console.log(obj)
-                        }, false)
-                        $('body').pgNotification({
-                            style: 'flip',
-                            message: 'Success Reservation for '+$scope.gf.first_name,
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'success'
-                        }).show();
-                        $scope.clear()
-                    },
-                    function (err2){
-                        $('#form-input').pgNotification({
-                            style: 'flip',
-                            message: 'Error Insert: '+err2.code,
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'danger'
-                        }).show();
-
-                    })
-                },
-                function (err){
-                    console.log(err)
-                    $('#form-input').pgNotification({
-                        style: 'flip',
-                        message: 'Error Insert: '+err.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'danger'
-                    }).show();
-                })
-            }
-
+    $scope.submit = function(type){
+        if (type=='profile'){
+            $scope.profile.action.submit()
+            .then(function(message){
+                $('#form-input').modal('hide')
+                $scope.dtInstance.reloadData(function(obj){
+                    console.log(obj)
+                }, false)
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: message,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+                $scope.clear()
+            },
+            function(err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert: '+err.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
         }
-        else {
-            //exec update
-
-            var param = {
-                code: $scope.gf.code,
-                folio_type: '1',
-                arrival_date: $scope.gf.arrival_date,
-                departure_date: $scope.gf.departure_date,
-                num_of_nights: $scope.gf.num_of_nights,
-                num_of_stays: $scope.gf.num_of_stays,
-                check_in_time: $scope.gf.check_in_time,
-                check_in_limit_time: $scope.gf.check_in_limit_time,
-                check_out_time: $scope.gf.check_out_time,
-                actual_check_in_time: $scope.gf.actual_check_in_time,
-                actual_check_out_time: $scope.gf.actual_check_out_time,
-                reservation_status: ($scope.selected.reservation_status.selected?$scope.selected.reservation_status.selected.id:null),
-                reservation_type: ($scope.selected.reservation_type.selected?$scope.selected.reservation_type.selected.id:null),
-                mice_id: null,
-                member_id: ($scope.selected.member?$scope.selected.member.id:null),
-                room_type_id: ($scope.selected.room_type.selected?$scope.selected.room_type.selected.id:null),
-                room_id: ($scope.selected.room.selected?$scope.selected.room.selected.id:null),
-                prev_room_type_id: null,
-                prev_room_id: null,
-                customer_id: ($scope.selected.customer.selected?$scope.selected.customer.selected.id:null),
-                address: null,
-                num_of_pax: $scope.gf.num_of_pax,
-                num_of_child: $scope.gf.num_of_child,
-                vip_type_id: ($scope.selected.vip_type.selected?$scope.selected.vip_type.selected.id:null),
-                cust_company_id: ($scope.selected.company.selected?$scope.selected.company.selected.id:null),
-                //is_inside_allotment: ($scope.selected.is_inside_allotment.selected?$scope.selected.is_inside_allotment.selected.id:null),
-                room_rate_id: ($scope.selected.room_rate.selected?$scope.selected.room_rate.selected.id:null),
-                room_rate_amount: $scope.gf.room_rate_amount,
-                num_of_extra_bed: $scope.gf.num_of_extra_bed,
-                extra_bed_charge_amount: $scope.gf.extra_bed_charge_amount,
-                late_check_out_charge: $scope.gf.late_check_out_charge,
-                discount_percent: $scope.gf.discount_percent,
-                discount_amount: $scope.gf.discount_amount,
-                is_room_only: ($scope.selected.is_room_only.selected?$scope.selected.is_room_only.selected.id:null),
-                is_comp_extra_bed: ($scope.selected.is_comp_extra_bed.selected?$scope.selected.is_comp_extra_bed.selected.id:null),
-                commission_amount: $scope.gf.commission_amount,
-                agent_id: ($scope.selected.agent.selected?$scope.selected.agent.selected.id:null),
-                payment_type_id: ($scope.selected.payment_type.selected?$scope.selected.payment_type.selected.id:null),
-                currency_id: ($scope.selected.currency.selected?$scope.selected.currency.selected.id:null),
-                card_no: $scope.gf.card_no,
-                card_valid_until_year: ($scope.selected.card_valid_until_year.selected?$scope.selected.card_valid_until_year.selected.id:null),
-                card_valid_until_month: ($scope.selected.card_valid_until_month.selected?$scope.selected.card_valid_until_month.selected.id:null),
-                voucher: $scope.gf.voucher,
-                segment_type_id: ($scope.selected.segment_type.selected?$scope.selected.segment_type.selected.id:null),
-                source_type_id: ($scope.selected.source_type.selected?$scope.selected.source_type.selected.id:null),
-                is_honeymoon: ($scope.selected.is_honeymoon.selected?$scope.selected.is_honeymoon.selected.id:null),
-                origin_country_id: ($scope.selected.origin_country.selected?$scope.selected.origin_country.selected.id:null),
-                origin_city_id: ($scope.selected.origin_city.selected?$scope.selected.origin_city.selected.id:null),
-                dest_country_id: null,
-                dest_city_id: ($scope.selected.dest_city.selected?$scope.selected.dest_city.selected.id:null),
-                check_in_type_id: ($scope.selected.check_in_type.selected?$scope.selected.check_in_type.selected.id:null),
-                check_out_type_id: ($scope.selected.check_out_type.selected?$scope.selected.check_out_type.selected.id:null),
-                checked_in_by: null,
-                checked_out_by: null,
-                mobile_phone: $scope.gf.mobile_phone,
-                phone: $scope.gf.phone,
-                email: $scope.gf.email,
-                //cancellation_type_id: ($scope.selected.cancellation_type.selected?$scope.selected.cancellation_type.selected.id:null),
-                //cancellation_date: $scope.gf.cancellation_date,
-                //cancellation_remarks: $scope.gf.cancellation_remarks,
-                modified_date: globalFunction.currentDate(),
-                modified_by: $localStorage.currentUser.name.id
-            }
-
-            if ($scope.selected.prev_room_type.selected){
-                param.prev_room_type_id = $scope.gf.room_type_id
-                param.room_type_id = $scope.selected.prev_room_type.selected.id
-            }
-            if($scope.selected.room.selected.id!=$scope.gf.room_id){
-                param.prev_room_id = $scope.gf.room_id
-                param.room_id = $scope.selected.room.selected.id
-            }
-
-            console.log(param)
-
-
-                var param_cust = {
-                    title:$scope.selected.title.selected.id,
-                    first_name: $scope.gf.first_name,
-                    last_name: $scope.gf.last_name,
-                    birth_date: $scope.gf.birth_date,
-                    country_id: ($scope.selected.origin_country.selected?$scope.selected.origin_country.selected.id:null),
-                    province_id: null,
-                    city_id: ($scope.selected.origin_city.selected?$scope.selected.origin_city.selected.id:null),
-                    status: '1',
-                    sales_agent_id: ($scope.selected.agent.selected?$scope.selected.agent.selected.id:null),
-                    mobile_phone: $scope.gf.mobile_phone,
-                    phone_no: $scope.gf.phone,
-                    email: $scope.gf.email,
-                    modified_date: globalFunction.currentDate(),
-                    modified_by: $localStorage.currentUser.name.id
-                }
-                console.log(param_cust)
-                queryService.post('update mst_customer SET ? where id='+$scope.gf.customer_id,param_cust)
-                .then(function (resultx){
-                    console.log('success customer',resultx)
-                    queryService.post('update fd_guest_folio SET ? where id='+$scope.gf.id,param)
-                    .then(function (result){
-                        var param_remark1 = {
-                            //folio_id:$scope.gf.id,
-                            //remark_type_id: 1,
-                            remarks: $scope.gf.remarks_check_in,
-                            modified_date:globalFunction.currentDate() ,
-                            modified_by:$localStorage.currentUser.name.id
-                        }
-                        var param_remark2 = {
-                            //folio_id:$scope.gf.id,
-                            //remark_type_id: 2,
-                            remarks: $scope.gf.remarks_cashier,
-                            modified_date:globalFunction.currentDate() ,
-                            modified_by:$localStorage.currentUser.name.id
-                        }
-                        //var param_remark = [[result.data.insertId,2,$scope.gf.remarks_cashier,globalFunction.currentDate(),$localStorage.currentUser.name.id],
-                        //    [result.data.insertId,1,$scope.gf.remarks_check_in,globalFunction.currentDate(),$localStorage.currentUser.name.id]]
-                        console.log('remark',param_remark1,param_remark2)
-                        var sqlrmk = []
-
-                        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
-                            ' values('+$scope.gf.remarks_cashier_id+','+$scope.gf.id+',1,\''+$scope.gf.remarks_cashier+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
-                            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.gf.remarks_cashier+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
-                        )
-                        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
-                            ' values('+$scope.gf.remarks_check_in_id+','+$scope.gf.id+',2,\''+$scope.gf.remarks_check_in+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
-                            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.gf.remarks_check_in+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
-                        )
-                        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
-                            ' values('+$scope.gf.remarks_drop_id+','+$scope.gf.id+',3,\''+$scope.gf.remarks_drop+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
-                            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.gf.remarks_drop+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
-                        )
-                        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
-                            ' values('+$scope.gf.remarks_locator_id+','+$scope.gf.id+',4,\''+$scope.gf.remarks_locator+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
-                            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.gf.remarks_locator+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
-                        )
-                        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
-                            ' values('+$scope.gf.remarks_prefered_id+','+$scope.gf.id+',5,\''+$scope.gf.remarks_prefered+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
-                            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.gf.remarks_prefered+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
-                        )
-                        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
-                            ' values('+$scope.gf.remarks_pickup_id+','+$scope.gf.id+',6,\''+$scope.gf.remarks_pickup+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
-                            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.gf.remarks_pickup+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
-                        )
-                        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
-                            ' values('+$scope.gf.remarks_room_message_id+','+$scope.gf.id+',7,\''+$scope.gf.remarks_room_message+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
-                            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.gf.remarks_room_message+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
-                        )
-
-                        //queryService.post('update fd_folio_remarks SET ? where folio_id='+$scope.gf.id+' and remark_type_id=1;update fd_folio_remarks SET ? where folio_id='+$scope.gf.id+' and remark_type_id=2',[param_remark1,param_remark2])
-                        queryService.post(sqlrmk.join(';'),undefined)
-                        .then(function (result2){
-                            $('#form-input').modal('hide')
-                            $scope.dtInstance.reloadData(function(obj){
-                                console.log(obj)
-                            }, false)
-                            $('body').pgNotification({
-                                style: 'flip',
-                                message: 'Success Reservation for '+$scope.gf.first_name,
-                                position: 'top-right',
-                                timeout: 2000,
-                                type: 'success'
-                            }).show();
-                            $scope.clear()
-                        },
-                        function (err2){
-                            $('#form-input').pgNotification({
-                                style: 'flip',
-                                message: 'Error Insert: '+err2.code,
-                                position: 'top-right',
-                                timeout: 2000,
-                                type: 'danger'
-                            }).show();
-
-                        })
-                    },
-                    function (err){
-                        console.log(err)
-                        $('#form-input').pgNotification({
-                            style: 'flip',
-                            message: 'Error Insert: '+err.code,
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'danger'
-                        }).show();
-                    })
-                },
-                function (errx){
-                    console.log('error customer',errx)
-                })
-
+        else if(type=='remark'){
+            $scope.remark.action.submit()
+            .then(function(message){
+                //$('#form-input').modal('hide')
+                $scope.dtInstance.reloadData(function(obj){
+                    console.log(obj)
+                }, false)
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: message,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+                $scope.clear()
+            },
+            function(err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert: '+err.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
         }
+        else if(type=='additional'){
+            $scope.additional.action.submit()
+            .then(function(message){
+                //$('#form-input').modal('hide')
+                $scope.dtInstance.reloadData(function(obj){
+                    console.log(obj)
+                }, false)
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: message,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+                $scope.clear()
+            },
+            function(err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert: '+err.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
+        }
+
     }
-
     $scope.update = function(obj){
         $scope.updateState = true;
         $('#form-input').modal('show');
@@ -1027,134 +726,159 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             console.log(result)
 
 
-            $scope.gf.id= result.data[0].folio_id;
-            $scope.gf.code= result.data[0].folio_code ;
-            $scope.gf.folio_type= result.data[0].folio_type ;
-            $scope.gf.arrival_date= result.data[0].arrival_date ;
-            $scope.gf.departure_date= result.data[0].departure_date ;
-            $scope.gf.num_of_nights= result.data[0].num_of_nights ;
-            $scope.gf.num_of_stays= result.data[0].num_of_stays ;
-            $scope.gf.check_in_time= result.data[0].check_in_time ;
-            $scope.gf.check_in_limit_time= result.data[0].check_in_limit_time ;
-            $scope.gf.check_out_time= result.data[0].check_out_time ;
-            $scope.gf.actual_check_in_time= result.data[0].actual_check_in_time ;
-            $scope.gf.actual_check_out_time= result.data[0].actual_check_out_time ;
-            $scope.gf.reservation_status= result.data[0].reservation_status ;
-            $scope.gf.reservation_type= result.data[0].reservation_type ;
-            $scope.gf.mice_id= result.data[0].mice_id ;
-            $scope.gf.member_id= result.data[0].member_id ;
-            $scope.gf.room_type_id= result.data[0].room_type_id ;
-            $scope.gf.room_id= result.data[0].room_id ;
-            $scope.gf.prev_room_type_id= result.data[0].prev_room_type_id ;
-            $scope.gf.prev_room_id= result.data[0].prev_room_id ;
-            $scope.gf.customer_id= result.data[0].customer_id ;
-            $scope.gf.address= result.data[0].address ;
-            $scope.gf.num_of_pax= result.data[0].num_of_pax ;
-            $scope.gf.num_of_child= result.data[0].num_of_child ;
-            $scope.gf.vip_type_id= result.data[0].vip_type_id ;
-            $scope.gf.cust_company_id= result.data[0].cust_company_id ;
-            $scope.gf.is_inside_allotment= result.data[0].is_inside_allotment ;
-            $scope.gf.room_rate_id= result.data[0].room_rate_id ;
-            $scope.gf.room_rate_amount= result.data[0].room_rate_amount ;
-            $scope.gf.num_of_extra_bed= result.data[0].num_of_extra_bed ;
-            $scope.gf.extra_bed_charge_amount= result.data[0].extra_bed_charge_amount ;
-            $scope.gf.late_check_out_charge= result.data[0].late_check_out_charge ;
-            $scope.gf.discount_percent= result.data[0].discount_percent ;
-            $scope.gf.discount_amount= result.data[0].discount_amount ;
-            $scope.gf.is_room_only= result.data[0].is_room_only ;
-            $scope.gf.is_comp_extra_bed= result.data[0].is_comp_extra_bed ;
-            $scope.gf.commission_amount= result.data[0].commission_amount ;
-            $scope.gf.agent_id= result.data[0].agent_id ;
-            $scope.gf.payment_type_id= result.data[0].payment_type_id ;
-            $scope.gf.currency_id= result.data[0].currency_id ;
-            $scope.gf.card_no= result.data[0].card_no ;
-            $scope.gf.card_valid_until_year= result.data[0].card_valid_until_year ;
-            $scope.gf.card_valid_until_month= result.data[0].card_valid_until_month ;
-            $scope.gf.voucher= result.data[0].voucher ;
-            $scope.gf.segment_type_id= result.data[0].segment_type_id ;
-            $scope.gf.source_type_id= result.data[0].source_type_id ;
-            $scope.gf.is_honeymoon= result.data[0].is_honeymoon ;
-            $scope.gf.origin_country_id= result.data[0].origin_country_id ;
-            $scope.gf.origin_city_id= result.data[0].origin_city_id ;
-            $scope.gf.dest_country_id= result.data[0].dest_country_id ;
-            $scope.gf.dest_city_id= result.data[0].dest_city_id ;
-            $scope.gf.check_in_type_id= result.data[0].check_in_type_id ;
-            $scope.gf.check_out_type_id= result.data[0].check_out_type_id ;
-            $scope.gf.checked_in_by= result.data[0].checked_in_by ;
-            $scope.gf.checked_out_by= result.data[0].checked_out_by ;
-            $scope.gf.mobile_phone= result.data[0].mobile_phone ;
-            $scope.gf.phone= result.data[0].phone ;
-            $scope.gf.email= result.data[0].email ;
-            $scope.gf.cancellation_type_id= result.data[0].cancellation_type_id ;
-            $scope.gf.cancellation_date= result.data[0].cancellation_date ;
-            $scope.gf.cancellation_remarks= result.data[0].cancellation_remarks;
-            $scope.gf.first_name = result.data[0].first_name;
-            $scope.gf.last_name = result.data[0].last_name;
-            $scope.gf.remarks_cashier = result.data[0].guest_cashier_remarks;
-            $scope.gf.remarks_check_in = result.data[0].guest_check_in_remarks;
-            $scope.gf.guest_name = result.data[0].guest_name;
-            $scope.gf.title = result.data[0].title;
-            $scope.gf.room_no = result.data[0].room_no;
-            $scope.gf.room_type_name = result.data[0].room_type;
-            $scope.gf.company_name = result.data[0].company_name;
-            $scope.gf.reservation_status_name = result.data[0].reservation_status_name;
+            $scope.profile.form.gf.id= result.data[0].folio_id;
+            $scope.remark.form.gf.id= result.data[0].folio_id;
+            $scope.additional.form.gf.id= result.data[0].folio_id;
 
-            $scope.selected.reservation_status['selected'] = {id:result.data[0].reservation_status,name:result.data[0].reservation_status_name}
+
+            $scope.profile.form.gf.code= result.data[0].folio_code ;
+            $scope.profile.form.gf.folio_type= result.data[0].folio_type ;
+            $scope.profile.form.gf.arrival_date= result.data[0].arrival_date ;
+            $scope.profile.form.gf.departure_date= result.data[0].departure_date ;
+            $scope.profile.form.gf.num_of_nights= result.data[0].num_of_nights ;
+            $scope.profile.form.gf.num_of_stays= result.data[0].num_of_stays ;
+            $scope.profile.form.gf.check_in_time= result.data[0].check_in_time ;
+            $scope.profile.form.gf.check_in_limit_time= result.data[0].check_in_limit_time ;
+            $scope.profile.form.gf.check_out_time= result.data[0].check_out_time ;
+            $scope.profile.form.gf.actual_check_in_time= result.data[0].actual_check_in_time ;
+            $scope.profile.form.gf.actual_check_out_time= result.data[0].actual_check_out_time ;
+            $scope.profile.form.gf.reservation_status= result.data[0].reservation_status ;
+            $scope.profile.form.gf.reservation_type= result.data[0].reservation_type ;
+            $scope.profile.form.gf.mice_id= result.data[0].mice_id ;
+            $scope.profile.form.gf.member_id= result.data[0].member_id ;
+            $scope.profile.form.gf.room_type_id= result.data[0].room_type_id ;
+            $scope.profile.form.gf.room_id= result.data[0].room_id ;
+            $scope.profile.form.gf.prev_room_type_id= result.data[0].prev_room_type_id ;
+            $scope.profile.form.gf.prev_room_id= result.data[0].prev_room_id ;
+            $scope.profile.form.gf.customer_id= result.data[0].customer_id ;
+            $scope.profile.form.gf.address= result.data[0].address ;
+            $scope.profile.form.gf.num_of_pax= result.data[0].num_of_pax ;
+            $scope.profile.form.gf.num_of_child= result.data[0].num_of_child ;
+            $scope.profile.form.gf.vip_type_id= result.data[0].vip_type_id ;
+            $scope.profile.form.gf.cust_company_id= result.data[0].cust_company_id ;
+            $scope.profile.form.gf.is_inside_allotment= result.data[0].is_inside_allotment ;
+            $scope.profile.form.gf.room_rate_id= result.data[0].room_rate_id ;
+            $scope.profile.form.gf.room_rate_amount= result.data[0].room_rate_amount ;
+            $scope.profile.form.gf.num_of_extra_bed= result.data[0].num_of_extra_bed ;
+            $scope.profile.form.gf.extra_bed_charge_amount= result.data[0].extra_bed_charge_amount ;
+            $scope.profile.form.gf.late_check_out_charge= result.data[0].late_check_out_charge ;
+            $scope.profile.form.gf.discount_percent= result.data[0].discount_percent ;
+            $scope.profile.form.gf.discount_amount= result.data[0].discount_amount ;
+            $scope.profile.form.gf.is_room_only= result.data[0].is_room_only ;
+            $scope.profile.form.gf.is_comp_extra_bed= result.data[0].is_comp_extra_bed ;
+            $scope.profile.form.gf.commission_amount= result.data[0].commission_amount ;
+            $scope.profile.form.gf.agent_id= result.data[0].agent_id ;
+            $scope.profile.form.gf.payment_type_id= result.data[0].payment_type_id ;
+            $scope.profile.form.gf.currency_id= result.data[0].currency_id ;
+            $scope.profile.form.gf.card_no= result.data[0].card_no ;
+            $scope.profile.form.gf.card_valid_until_year= result.data[0].card_valid_until_year ;
+            $scope.profile.form.gf.card_valid_until_month= result.data[0].card_valid_until_month ;
+            $scope.profile.form.gf.voucher= result.data[0].voucher ;
+            $scope.profile.form.gf.segment_type_id= result.data[0].segment_type_id ;
+            $scope.profile.form.gf.source_type_id= result.data[0].source_type_id ;
+            $scope.profile.form.gf.is_honeymoon= result.data[0].is_honeymoon ;
+            $scope.profile.form.gf.origin_country_id= result.data[0].origin_country_id ;
+            $scope.profile.form.gf.origin_city_id= result.data[0].origin_city_id ;
+            $scope.profile.form.gf.dest_country_id= result.data[0].dest_country_id ;
+            $scope.profile.form.gf.dest_city_id= result.data[0].dest_city_id ;
+            $scope.profile.form.gf.check_in_type_id= result.data[0].check_in_type_id ;
+            $scope.profile.form.gf.check_out_type_id= result.data[0].check_out_type_id ;
+            $scope.profile.form.gf.checked_in_by= result.data[0].checked_in_by ;
+            $scope.profile.form.gf.checked_out_by= result.data[0].checked_out_by ;
+            $scope.profile.form.gf.mobile_phone= result.data[0].mobile_phone ;
+            $scope.profile.form.gf.phone= result.data[0].phone ;
+            $scope.profile.form.gf.email= result.data[0].email ;
+            $scope.profile.form.gf.cancellation_type_id= result.data[0].cancellation_type_id ;
+            $scope.profile.form.gf.cancellation_date= result.data[0].cancellation_date ;
+            $scope.profile.form.gf.cancellation_remarks= result.data[0].cancellation_remarks;
+            $scope.profile.form.gf.first_name = result.data[0].first_name;
+            $scope.profile.form.gf.last_name = result.data[0].last_name;
+            $scope.profile.form.gf.remarks_cashier = result.data[0].guest_cashier_remarks;
+            $scope.profile.form.gf.remarks_check_in = result.data[0].guest_check_in_remarks;
+            $scope.profile.form.gf.guest_name = result.data[0].guest_name;
+            $scope.profile.form.gf.title = result.data[0].title;
+            $scope.profile.form.gf.room_no = result.data[0].room_no;
+            $scope.profile.form.gf.room_type_name = result.data[0].room_type;
+            $scope.profile.form.gf.company_name = result.data[0].company_name;
+            $scope.profile.form.gf.reservation_status_name = result.data[0].reservation_status_name;
+
+            $scope.profile.form.selected.reservation_status['selected'] = {id:result.data[0].reservation_status,name:result.data[0].reservation_status_name}
             //$scope.selected.member['selected']
-            $scope.selected.reservation_type['selected'] = {id:result.data[0].reservation_type,name:result.data[0].reservation_type_name}
-            $scope.selected.room_type['selected'] = {id:result.data[0].room_type_id,name:result.data[0].room_type}
-            $scope.selected.prev_room_type['selected'] = {id:result.data[0].prev_room_type_id,name:result.data[0].prev_room_type_name}
-            $scope.selected.block = {}
+            $scope.profile.form.selected.reservation_type['selected'] = {id:result.data[0].reservation_type,name:result.data[0].reservation_type_name}
+            $scope.profile.form.selected.room_type['selected'] = {id:result.data[0].room_type_id,name:result.data[0].room_type}
+            $scope.profile.form.selected.prev_room_type['selected'] = {id:result.data[0].prev_room_type_id,name:result.data[0].prev_room_type_name}
+            $scope.profile.form.selected.block = {}
             queryService.get("select a.id,code,name,fo_status,hk_status,concat('Status:',fo_status,hk_status)status_name, b.feature, a.room_type_id "+
                 "from mst_room a "+
                 "left join (select room_id,cast(group_concat(feature_id) as char) as feature  "+
                 "from mst_room_owned_feature) b on b.room_id = a.id where a.id="+result.data[0].room_id+" order by name asc ",undefined)
             .then(function(data){
                 console.log(data.data[0])
-                $scope.selected.room['selected'] = data.data[0]
+                $scope.profile.form.selected.room['selected'] = data.data[0]
 
             })
-            $scope.selected.room_feature = []
-            $scope.selected.customer['selected'] = {id:result.data[0].customer_id,name:result.data[0].guest_name}
-            $scope.selected.title['selected'] = {id:result.data[0].title,name: result.data[0].title}
-            $scope.selected.vip_type['selected'] = {id:result.data[0].vip_type_id,name: result.data[0].vip_type}
-            $scope.selected.company['selected'] = {id:result.data[0].cust_company_id,name: result.data[0].company_name}
-            $scope.selected.room_rate['selected'] = {id:result.data[0].room_rate_id,name:result.data[0].room_rate_code}
-            $scope.selected.late_co['selected'] = {id:(result.data[0].late_check_out_charge>0?'Y':'N'),name:(result.data[0].late_check_out_charge>0?'Yes':'No')}
-            $scope.selected.is_room_only['selected'] = {id:result.data[0].is_room_only,name:(result.data[0].is_room_only=='Y'?'Yes':'No')}
-            $scope.selected.is_comp_extra_bed['selected'] = {id:result.data[0].is_comp_extra_bed,name:(result.data[0].is_comp_extra_bed=='Y'?'Yes':'No')}
+            $scope.profile.form.selected.room_feature = []
+            $scope.profile.form.selected.customer['selected'] = {id:result.data[0].customer_id,name:result.data[0].guest_name}
+            $scope.profile.form.selected.title['selected'] = {id:result.data[0].title,name: result.data[0].title}
+            $scope.profile.form.selected.vip_type['selected'] = {id:result.data[0].vip_type_id,name: result.data[0].vip_type}
+            $scope.profile.form.selected.company['selected'] = {id:result.data[0].cust_company_id,name: result.data[0].company_name}
+            $scope.profile.form.selected.room_rate['selected'] = {id:result.data[0].room_rate_id,name:result.data[0].room_rate_code}
+            $scope.profile.form.selected.late_co['selected'] = {id:(result.data[0].late_check_out_charge>0?'Y':'N'),name:(result.data[0].late_check_out_charge>0?'Yes':'No')}
+            $scope.profile.form.selected.is_room_only['selected'] = {id:result.data[0].is_room_only,name:(result.data[0].is_room_only=='Y'?'Yes':'No')}
+            $scope.profile.form.selected.is_comp_extra_bed['selected'] = {id:result.data[0].is_comp_extra_bed,name:(result.data[0].is_comp_extra_bed=='Y'?'Yes':'No')}
             //$scope.selected.agent['selected'] = ''
-            $scope.selected.payment_type['selected'] = {id:result.data[0].payment_type_id,name:result.data[0].payment_type_name}
-            $scope.selected.currency['selected'] = {id:result.data[0].currency_id,name:result.data[0].currency_name}
-            $scope.selected.card_valid_until_year['selected'] = {id:result.data[0].card_valid_until_year,name: result.data[0].card_valid_until_year}
-            $scope.selected.card_valid_until_year['selected'] = {id:result.data[0].card_valid_until_year,name: result.data[0].card_valid_until_year}
-            $scope.selected.segment_type['selected'] = {id:result.data[0].segment_type_id,name:result.data[0].cust_segment}
-            $scope.selected.source_type['selected'] = {id:result.data[0].source_type_id,name:result.data[0].source_type_name}
-            $scope.selected.origin_country['selected'] = {id:result.data[0].origin_country_id,name:result.data[0].nationality}
-            $scope.selected.is_honeymoon['selected'] = {id:result.data[0].is_honeymoon,name:(result.data[0].is_honeymoon=='Y'?'Yes':'No')}
-            $scope.selected.origin_city['selected'] = {id:result.data[0].origin_city_id,name:result.data[0].nationality}
-            $scope.selected.dest_city['selected'] = {id:result.data[0].dest_city_id,name:result.data[0].dest_city}
-            $scope.selected.check_in_type['selected'] = {id:result.data[0].check_in_type_id,name:result.data[0].check_in_type_name}
-            $scope.selected.check_out_type['selected'] = {id:result.data[0].check_out_type_id,name:result.data[0].check_out_type_name}
+            $scope.profile.form.selected.payment_type['selected'] = {id:result.data[0].payment_type_id,name:result.data[0].payment_type_name}
+            $scope.profile.form.selected.currency['selected'] = {id:result.data[0].currency_id,name:result.data[0].currency_name}
+            $scope.profile.form.selected.card_valid_until_year['selected'] = {id:result.data[0].card_valid_until_year,name: result.data[0].card_valid_until_year}
+            $scope.profile.form.selected.card_valid_until_year['selected'] = {id:result.data[0].card_valid_until_year,name: result.data[0].card_valid_until_year}
+            $scope.profile.form.selected.segment_type['selected'] = {id:result.data[0].segment_type_id,name:result.data[0].cust_segment}
+            $scope.profile.form.selected.source_type['selected'] = {id:result.data[0].source_type_id,name:result.data[0].source_type_name}
+            $scope.profile.form.selected.origin_country['selected'] = {id:result.data[0].origin_country_id,name:result.data[0].nationality}
+            $scope.profile.form.selected.is_honeymoon['selected'] = {id:result.data[0].is_honeymoon,name:(result.data[0].is_honeymoon=='Y'?'Yes':'No')}
+            $scope.profile.form.selected.origin_city['selected'] = {id:result.data[0].origin_city_id,name:result.data[0].nationality}
+            $scope.profile.form.selected.dest_city['selected'] = {id:result.data[0].dest_city_id,name:result.data[0].dest_city}
+            $scope.profile.form.selected.check_in_type['selected'] = {id:result.data[0].check_in_type_id,name:result.data[0].check_in_type_name}
+            $scope.profile.form.selected.check_out_type['selected'] = {id:result.data[0].check_out_type_id,name:result.data[0].check_out_type_name}
 
 
 
-            $scope.gf.remarks_cashier = result.data[0].remarks_cashier;
-            $scope.gf.remarks_cashier_id = result.data[0].remarks_cashier_id;
-            $scope.gf.remarks_check_in = result.data[0].remarks_check_in;
-            $scope.gf.remarks_check_in_id = result.data[0].remarks_check_in_id;
-            $scope.gf.remarks_drop = result.data[0].remarks_drop;
-            $scope.gf.remarks_drop_id = result.data[0].remarks_drop_id;
-            $scope.gf.remarks_locator = result.data[0].remarks_locator;
-            $scope.gf.remarks_locator_id = result.data[0].remarks_locator_id;
-            $scope.gf.remarks_prefered = result.data[0].remarks_prefered;
-            $scope.gf.remarks_prefered_id = result.data[0].remarks_prefered_id;
-            $scope.gf.remarks_pickup = result.data[0].remarks_pickup;
-            $scope.gf.remarks_pickup_id = result.data[0].remarks_pickup_id;
-            $scope.gf.remarks_room_message = result.data[0].remarks_room_message;
-            $scope.gf.remarks_room_message_id = result.data[0].remarks_room_message_id;
+            $scope.profile.form.gf.remarks_cashier = result.data[0].remarks_cashier;
+            $scope.profile.form.gf.remarks_cashier_id = result.data[0].remarks_cashier_id;
+            $scope.profile.form.gf.remarks_check_in = result.data[0].remarks_check_in;
+            $scope.profile.form.gf.remarks_check_in_id = result.data[0].remarks_check_in_id;
+
+            $scope.remark.form.gf.remarks_cashier = result.data[0].remarks_cashier;
+            $scope.remark.form.gf.remarks_cashier_id = result.data[0].remarks_cashier_id;
+            $scope.remark.form.gf.remarks_check_in = result.data[0].remarks_check_in;
+            $scope.remark.form.gf.remarks_check_in_id = result.data[0].remarks_check_in_id;
+            $scope.remark.form.gf.remarks_drop = result.data[0].remarks_drop;
+            $scope.remark.form.gf.remarks_drop_id = result.data[0].remarks_drop_id;
+            $scope.remark.form.gf.remarks_locator = result.data[0].remarks_locator;
+            $scope.remark.form.gf.remarks_locator_id = result.data[0].remarks_locator_id;
+            $scope.remark.form.gf.remarks_prefered = result.data[0].remarks_prefered;
+            $scope.remark.form.gf.remarks_prefered_id = result.data[0].remarks_prefered_id;
+            $scope.remark.form.gf.remarks_pickup = result.data[0].remarks_pickup;
+            $scope.remark.form.gf.remarks_pickup_id = result.data[0].remarks_pickup_id;
+            $scope.remark.form.gf.remarks_room_message = result.data[0].remarks_room_message;
+            $scope.remark.form.gf.remarks_room_message_id = result.data[0].remarks_room_message_id;
+
+            queryService.get("select a.*,b.name newspaper_name "+
+                "from fd_folio_adds a "+
+                "left join mst_newspaper b on a.newspaper_id = b.id "+
+                "where folio_id = "+result.data[0].folio_id,undefined)
+            .then(function(data){
+                console.log('addupdate',data.data[0]);
+                $scope.additional.form.gf = data.data[0];
+                $scope.additional.form.selected.newspaper['selected'] = {id:data.data[0].newspaper_id,name: data.data[0].newspaper_name}
+                if (data.data[0].pay_tv_status == 1) $scope.additional.form.selected.pay_tv['selected'] = {id:'1',name:'Allow'}
+                else $scope.additional.form.selected.pay_tv['selected'] ={id:'2',name:'Blocked'}
+                if (data.data[0].internet_code_status == 1) $scope.additional.form.selected.internet_code['selected'] = {id:'1',name: 'Blocked'}
+                else if (data.data[0].internet_code_status == 2) $scope.additional.form.selected.internet_code['selected'] = {id:'2',name: 'Pre Paid'}
+                else if (data.data[0].internet_code_status == 3) $scope.additional.form.selected.internet_code['selected'] = {id:'3',name: 'Post Paid'}
 
 
+
+            })
         })
     }
 
@@ -1352,7 +1076,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
 })
 .controller('FoReservationProfileCtrl',
-function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+function($scope, $state, $sce,$q, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
     $scope.el = [];
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
@@ -1720,10 +1444,281 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         console.log($scope.profile.form.gf.id)
         //console.log($scope.additional.param)
     }
+
+    $scope.profile.action.submit = function(){
+        var defer = $q.defer();
+        if ($scope.gf.id.length==0){
+            //exec creation
+
+            var param = {
+                code: $scope.profile.form.code,
+                folio_type: '1',
+                arrival_date: $scope.profile.form.gf.arrival_date,
+                departure_date: $scope.profile.form.gf.departure_date,
+                num_of_nights: $scope.profile.form.gf.num_of_nights,
+                num_of_stays: $scope.profile.form.gf.num_of_stays,
+                check_in_time: $scope.profile.form.gf.check_in_time,
+                check_in_limit_time: $scope.profile.form.gf.check_in_limit_time,
+                check_out_time: $scope.profile.form.gf.check_out_time,
+                actual_check_in_time: $scope.profile.form.gf.actual_check_in_time,
+                actual_check_out_time: $scope.profile.form.gf.actual_check_out_time,
+                reservation_status: ($scope.profile.form.selected.reservation_status.selected?$scope.profile.form.selected.reservation_status.selected.id:null),
+                reservation_type: ($scope.profile.form.selected.reservation_type.selected?$scope.profile.form.selected.reservation_type.selected.id:null),
+                mice_id: null,
+                member_id: ($scope.profile.form.selected.member?$scope.profile.form.selected.member.id:null),
+                room_type_id: ($scope.profile.form.selected.room_type.selected?$scope.profile.form.selected.room_type.selected.id:null),
+                room_id: ($scope.profile.form.selected.room.selected?$scope.profile.form.selected.room.selected.id:null),
+                prev_room_type_id: null,
+                prev_room_id: null,
+                customer_id: ($scope.profile.form.selected.customer.selected?$scope.profile.form.selected.customer.selected.id:null),
+                address: null,
+                num_of_pax: $scope.profile.form.gf.num_of_pax,
+                num_of_child: $scope.profile.form.gf.num_of_child,
+                vip_type_id: ($scope.profile.form.selected.vip_type.selected?$scope.profile.form.selected.vip_type.selected.id:null),
+                cust_company_id: ($scope.profile.form.selected.company.selected?$scope.profile.form.selected.company.selected.id:null),
+                //is_inside_allotment: ($scope.selected.is_inside_allotment.selected?$scope.selected.is_inside_allotment.selected.id:null),
+                room_rate_id: ($scope.profile.form.selected.room_rate.selected?$scope.profile.form.selected.room_rate.selected.id:null),
+                room_rate_amount: $scope.profile.form.gf.room_rate_amount,
+                num_of_extra_bed: $scope.profile.form.gf.num_of_extra_bed,
+                extra_bed_charge_amount: $scope.profile.form.gf.extra_bed_charge_amount,
+                late_check_out_charge: $scope.profile.form.gf.late_check_out_charge,
+                discount_percent: $scope.profile.form.gf.discount_percent,
+                discount_amount: $scope.profile.form.gf.discount_amount,
+                is_room_only: ($scope.profile.form.selected.is_room_only.selected?$scope.profile.form.selected.is_room_only.selected.id:null),
+                is_comp_extra_bed: ($scope.profile.form.selected.is_comp_extra_bed.selected?$scope.profile.form.selected.is_comp_extra_bed.selected.id:null),
+                commission_amount: $scope.profile.form.gf.commission_amount,
+                agent_id: ($scope.profile.form.selected.agent.selected?$scope.profile.form.selected.agent.selected.id:null),
+                payment_type_id: ($scope.profile.form.selected.payment_type.selected?$scope.profile.form.selected.payment_type.selected.id:null),
+                currency_id: ($scope.profile.form.selected.currency.selected?$scope.profile.form.selected.currency.selected.id:null),
+                card_no: $scope.profile.form.gf.card_no,
+                card_valid_until_year: ($scope.profile.form.selected.card_valid_until_year.selected?$scope.profile.form.selected.card_valid_until_year.selected.id:null),
+                card_valid_until_month: ($scope.profile.form.selected.card_valid_until_month.selected?$scope.profile.form.selected.card_valid_until_month.selected.id:null),
+                voucher: $scope.profile.form.gf.voucher,
+                segment_type_id: ($scope.profile.form.selected.segment_type.selected?$scope.profile.form.selected.segment_type.selected.id:null),
+                source_type_id: ($scope.profile.form.selected.source_type.selected?$scope.profile.form.selected.source_type.selected.id:null),
+                is_honeymoon: ($scope.profile.form.selected.is_honeymoon.selected?$scope.profile.form.selected.is_honeymoon.selected.id:null),
+                origin_country_id: ($scope.profile.form.selected.origin_country.selected?$scope.profile.form.selected.origin_country.selected.id:null),
+                origin_city_id: ($scope.profile.form.selected.origin_city.selected?$scope.profile.form.selected.origin_city.selected.id:null),
+                dest_country_id: null,
+                dest_city_id: ($scope.profile.form.selected.dest_city.selected?$scope.profile.form.selected.dest_city.selected.id:null),
+                check_in_type_id: ($scope.profile.form.selected.check_in_type.selected?$scope.profile.form.selected.check_in_type.selected.id:null),
+                check_out_type_id: ($scope.profile.form.selected.check_out_type.selected?$scope.profile.form.selected.check_out_type.selected.id:null),
+                checked_in_by: null,
+                checked_out_by: null,
+                mobile_phone: $scope.profile.form.gf.mobile_phone,
+                phone: $scope.profile.form.gf.phone,
+                email: $scope.profile.form.gf.email,
+                //cancellation_type_id: ($scope.selected.cancellation_type.selected?$scope.selected.cancellation_type.selected.id:null),
+                //cancellation_date: $scope.gf.cancellation_date,
+                //cancellation_remarks: $scope.gf.cancellation_remarks,
+                created_date: globalFunction.currentDate(),
+                created_by: $localStorage.currentUser.name.id
+            }
+
+            console.log(param)
+
+            if(!$scope.profile.form.selected.customer.selected){
+                var param_cust = {
+                    title:$scope.profile.form.selected.title.selected.id,
+                    first_name: $scope.profile.form.gf.first_name,
+                    last_name: $scope.profile.form.gf.last_name,
+                    birth_date: $scope.profile.form.gf.birth_date,
+                    country_id: ($scope.profile.form.selected.origin_country.selected?$scope.profile.form.selected.origin_country.selected.id:null),
+                    province_id: null,
+                    city_id: ($scope.profile.form.selected.origin_city.selected?$scope.profile.form.selected.origin_city.selected.id:null),
+                    status: '1',
+                    sales_agent_id: ($scope.profile.form.selected.agent.selected?$scope.profile.form.selected.agent.selected.id:null),
+                    mobile_phone: $scope.profile.form.gf.mobile_phone,
+                    phone_no: $scope.profile.form.gf.phone,
+                    email: $scope.profile.form.gf.email,
+                    created_date: globalFunction.currentDate(),
+                    created_by: $localStorage.currentUser.name.id
+                }
+                console.log(param_cust)
+                queryService.post('insert into mst_customer SET ?',param_cust)
+                .then(function (resultx){
+                    console.log('success customer',resultx)
+                    param['customer_id'] = resultx.data.insertId;
+                    queryService.post('insert into fd_guest_folio SET ?',param)
+                    .then(function (result){
+                        var param_remark = [[result.data.insertId,2,$scope.profile.form.gf.remarks_cashier,globalFunction.currentDate(),$localStorage.currentUser.name.id],
+                            [result.data.insertId,1,$scope.profile.form.gf.remarks_check_in,globalFunction.currentDate(),$localStorage.currentUser.name.id]]
+                        console.log(param_remark)
+
+                        queryService.post('insert into fd_folio_remarks(folio_id,remark_type_id,remarks,created_date,created_by) VALUES ?',[param_remark])
+                        .then(function (result2){
+                            defer.resolve('Success Reservation for '+$scope.gf.first_name);
+                        },
+                        function (err2){
+                            defer.reject('Error Insert: '+err2.code);
+                        })
+                    },
+                    function (err){
+                        console.log(err)
+                        defer.reject('Error Insert: '+err.code);
+                    })
+                },
+                function (errx){
+                    defer.reject('Error Insert Customer: '+errx.code);
+                    console.log('error customer',errx)
+                })
+            }
+            else {
+                queryService.post('insert into fd_guest_folio SET ?',param)
+                .then(function (result){
+                    var param_remark = [[result.data.insertId,2,$scope.profile.form.gf.remarks_cashier,globalFunction.currentDate(),$localStorage.currentUser.name.id],
+                        [result.data.insertId,1,$scope.profile.form.gf.remarks_check_in,globalFunction.currentDate(),$localStorage.currentUser.name.id]]
+                    console.log(param_remark)
+
+                    queryService.post('insert into fd_folio_remarks(folio_id,remark_type_id,remarks,created_date,created_by) VALUES ?',[param_remark])
+                    .then(function (result2){
+                        defer.resolve('Success Reservation for '+$scope.gf.first_name);
+                    },
+                    function (err2){
+                        defer.reject('Error Insert: '+err2.code);
+                    })
+                },
+                function (err){
+                    defer.reject('Error Insert: '+err.code);
+                })
+            }
+
+        }
+        else {
+            //exec update
+            var param = {
+                code: $scope.profile.form.gf.code,
+                folio_type: '1',
+                arrival_date: $scope.profile.form.gf.arrival_date,
+                departure_date: $scope.profile.form.gf.departure_date,
+                num_of_nights: $scope.profile.form.gf.num_of_nights,
+                num_of_stays: $scope.profile.form.gf.num_of_stays,
+                check_in_time: $scope.profile.form.gf.check_in_time,
+                check_in_limit_time: $scope.profile.form.gf.check_in_limit_time,
+                check_out_time: $scope.profile.form.gf.check_out_time,
+                actual_check_in_time: $scope.profile.form.gf.actual_check_in_time,
+                actual_check_out_time: $scope.profile.form.gf.actual_check_out_time,
+                reservation_status: ($scope.profile.form.selected.reservation_status.selected?$scope.profile.form.selected.reservation_status.selected.id:null),
+                reservation_type: ($scope.profile.form.selected.reservation_type.selected?$scope.profile.form.selected.reservation_type.selected.id:null),
+                mice_id: null,
+                member_id: ($scope.profile.form.selected.member?$scope.profile.form.selected.member.id:null),
+                room_type_id: ($scope.profile.form.selected.room_type.selected?$scope.profile.form.selected.room_type.selected.id:null),
+                room_id: ($scope.profile.form.selected.room.selected?$scope.profile.form.selected.room.selected.id:null),
+                prev_room_type_id: null,
+                prev_room_id: null,
+                customer_id: ($scope.profile.form.selected.customer.selected?$scope.profile.form.selected.customer.selected.id:null),
+                address: null,
+                num_of_pax: $scope.profile.form.gf.num_of_pax,
+                num_of_child: $scope.profile.form.gf.num_of_child,
+                vip_type_id: ($scope.profile.form.selected.vip_type.selected?$scope.profile.form.selected.vip_type.selected.id:null),
+                cust_company_id: ($scope.profile.form.selected.company.selected?$scope.profile.form.selected.company.selected.id:null),
+                //is_inside_allotment: ($scope.selected.is_inside_allotment.selected?$scope.selected.is_inside_allotment.selected.id:null),
+                room_rate_id: ($scope.profile.form.selected.room_rate.selected?$scope.profile.form.selected.room_rate.selected.id:null),
+                room_rate_amount: $scope.profile.form.gf.room_rate_amount,
+                num_of_extra_bed: $scope.profile.form.gf.num_of_extra_bed,
+                extra_bed_charge_amount: $scope.profile.form.gf.extra_bed_charge_amount,
+                late_check_out_charge: $scope.profile.form.gf.late_check_out_charge,
+                discount_percent: $scope.profile.form.gf.discount_percent,
+                discount_amount: $scope.profile.form.gf.discount_amount,
+                is_room_only: ($scope.profile.form.selected.is_room_only.selected?$scope.profile.form.selected.is_room_only.selected.id:null),
+                is_comp_extra_bed: ($scope.profile.form.selected.is_comp_extra_bed.selected?$scope.profile.form.selected.is_comp_extra_bed.selected.id:null),
+                commission_amount: $scope.profile.form.gf.commission_amount,
+                agent_id: ($scope.profile.form.selected.agent.selected?$scope.profile.form.selected.agent.selected.id:null),
+                payment_type_id: ($scope.profile.form.selected.payment_type.selected?$scope.profile.form.selected.payment_type.selected.id:null),
+                currency_id: ($scope.profile.form.selected.currency.selected?$scope.profile.form.selected.currency.selected.id:null),
+                card_no: $scope.profile.form.gf.card_no,
+                card_valid_until_year: ($scope.profile.form.selected.card_valid_until_year.selected?$scope.profile.form.selected.card_valid_until_year.selected.id:null),
+                card_valid_until_month: ($scope.profile.form.selected.card_valid_until_month.selected?$scope.profile.form.selected.card_valid_until_month.selected.id:null),
+                voucher: $scope.profile.form.gf.voucher,
+                segment_type_id: ($scope.profile.form.selected.segment_type.selected?$scope.profile.form.selected.segment_type.selected.id:null),
+                source_type_id: ($scope.profile.form.selected.source_type.selected?$scope.profile.form.selected.source_type.selected.id:null),
+                is_honeymoon: ($scope.profile.form.selected.is_honeymoon.selected?$scope.profile.form.selected.is_honeymoon.selected.id:null),
+                origin_country_id: ($scope.profile.form.selected.origin_country.selected?$scope.profile.form.selected.origin_country.selected.id:null),
+                origin_city_id: ($scope.profile.form.selected.origin_city.selected?$scope.profile.form.selected.origin_city.selected.id:null),
+                dest_country_id: null,
+                dest_city_id: ($scope.profile.form.selected.dest_city.selected?$scope.profile.form.selected.dest_city.selected.id:null),
+                check_in_type_id: ($scope.profile.form.selected.check_in_type.selected?$scope.profile.form.selected.check_in_type.selected.id:null),
+                check_out_type_id: ($scope.profile.form.selected.check_out_type.selected?$scope.profile.form.selected.check_out_type.selected.id:null),
+                checked_in_by: null,
+                checked_out_by: null,
+                mobile_phone: $scope.profile.form.gf.mobile_phone,
+                phone: $scope.profile.form.gf.phone,
+                email: $scope.profile.form.gf.email,
+                //cancellation_type_id: ($scope.selected.cancellation_type.selected?$scope.selected.cancellation_type.selected.id:null),
+                //cancellation_date: $scope.gf.cancellation_date,
+                //cancellation_remarks: $scope.gf.cancellation_remarks,
+                modified_date: globalFunction.currentDate(),
+                modified_by: $localStorage.currentUser.name.id
+            }
+
+            if ($scope.profile.form.selected.prev_room_type.selected){
+                param.prev_room_type_id = $scope.profile.form.gf.room_type_id
+                param.room_type_id = $scope.profile.form.selected.prev_room_type.selected.id
+            }
+            if($scope.profile.form.selected.room.selected.id!=$scope.profile.form.gf.room_id){
+                param.prev_room_id = $scope.profile.form.gf.room_id
+                param.room_id = $scope.profile.form.selected.room.selected.id
+            }
+
+            console.log(param)
+
+
+                var param_cust = {
+                    title:$scope.profile.form.selected.title.selected.id,
+                    first_name: $scope.profile.form.gf.first_name,
+                    last_name: $scope.profile.form.gf.last_name,
+                    birth_date: $scope.profile.form.gf.birth_date,
+                    country_id: ($scope.profile.form.selected.origin_country.selected?$scope.profile.form.selected.origin_country.selected.id:null),
+                    province_id: null,
+                    city_id: ($scope.profile.form.selected.origin_city.selected?$scope.profile.form.selected.origin_city.selected.id:null),
+                    status: '1',
+                    sales_agent_id: ($scope.profile.form.selected.agent.selected?$scope.profile.form.selected.agent.selected.id:null),
+                    mobile_phone: $scope.profile.form.gf.mobile_phone,
+                    phone_no: $scope.profile.form.gf.phone,
+                    email: $scope.profile.form.gf.email,
+                    modified_date: globalFunction.currentDate(),
+                    modified_by: $localStorage.currentUser.name.id
+                }
+                console.log(param_cust)
+                queryService.post('update mst_customer SET ? where id='+$scope.profile.form.gf.customer_id,param_cust)
+                .then(function (resultx){
+                    console.log('success customer',resultx)
+                    queryService.post('update fd_guest_folio SET ? where id='+$scope.profile.form.gf.id,param)
+                    .then(function (result){
+                        var param_remark1 = {
+                            //folio_id:$scope.gf.id,
+                            //remark_type_id: 1,
+                            remarks: $scope.profile.form.gf.remarks_check_in,
+                            modified_date:globalFunction.currentDate() ,
+                            modified_by:$localStorage.currentUser.name.id
+                        }
+                        var param_remark2 = {
+                            //folio_id:$scope.gf.id,
+                            //remark_type_id: 2,
+                            remarks: $scope.profile.form.gf.remarks_cashier,
+                            modified_date:globalFunction.currentDate() ,
+                            modified_by:$localStorage.currentUser.name.id
+                        }
+                        //var param_remark = [[result.data.insertId,2,$scope.gf.remarks_cashier,globalFunction.currentDate(),$localStorage.currentUser.name.id],
+                        //    [result.data.insertId,1,$scope.gf.remarks_check_in,globalFunction.currentDate(),$localStorage.currentUser.name.id]]
+                    },
+                    function (err){
+                        defer.reject('Error Insert: '+err.code);
+
+                    })
+                },
+                function (errx){
+                    console.log('error customer',errx)
+                })
+
+        }
+        return defer.promise;
+    }
+
 })
 .controller('FoReservationAdditionalCtrl',
-function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
-    $scope.additional.param = {
+function($scope, $state, $sce, queryService, $q,departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+    $scope.additional.form.gf = {
         folio_id: '',
         transfer_folio_id: '',
         internet_code_status: '',
@@ -1748,23 +1743,115 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         is_door_double_lock: '0'
 
     }
-    $scope.internetCode = [
+    $scope.additional.form.selected = {
+        newspaper: {},
+        pay_tv: {},
+        internet_code: {}
+    }
+    $scope.additional.form.internetCode = [
         {id:'1',name: 'Blocked'},
         {id:'2',name: 'Pre Paid'},
         {id:'3',name: 'Post Paid'}
     ]
-    $scope.payTv = [
+    $scope.additional.form.payTv = [
         {id:'1',name:'Allow'},
-        {id:'1',name:'Blocked'}
+        {id:'2',name:'Blocked'}
     ]
-    $scope.newspaper = []
+    $scope.additional.form.newspaper = []
     queryService.get('select id,code,name from mst_newspaper where status!=2 order by id  ',undefined)
     .then(function(data){
-        $scope.newspaper = data.data
+        $scope.additional.form.newspaper = data.data
     })
+    $scope.additional.action.submit = function(){
+        var defer = $q.defer();
+        //exec update
+        var qcommand = ''
+        var param = {}
+        queryService.get('select count(1) cnt from fd_folio_adds where folio_id=  '+$scope.additional.form.gf.id,undefined)
+        .then(function(data){
+            if (data.data[0].cnt>0){
+                //update
+                qcommand = 'update fd_folio_adds set ? where folio_id='+$scope.additional.form.gf.id
+                param = {
+                    //folio_id: '',
+                    //transfer_folio_id: '',
+                    internet_code_status: $scope.additional.form.gf.internet_code_status,
+                    pay_tv_status: $scope.additional.form.gf.pay_tv_status,
+                    deposit_box_id: ($scope.additional.form.gf.deposit_box_id.toString().length>0?$scope.additional.form.gf.deposit_box_id:null),
+                    deposit_box_notes: $scope.additional.form.gf.deposit_box_notes,
+                    newspaper_id: ($scope.additional.form.gf.newspaper_id.toString().length>0?$scope.additional.form.gf.newspaper_id:null),
+                    car_no: $scope.additional.form.gf.car_no,
+                    total_car: $scope.additional.form.gf.total_car,
+                    amenities_notes: $scope.additional.form.gf.amenities_notes,
+                    fruit_notes: $scope.additional.form.gf.fruit_notes,
+                    is_closed_transc: $scope.additional.form.gf.is_closed_transc,
+                    is_cash_transc_only: $scope.additional.form.gf.is_cash_transc_only,
+                    is_incognito: $scope.additional.form.gf.is_incognito,
+                    is_sleep_out: $scope.additional.form.gf.is_sleep_out,
+                    is_lock_minibar: $scope.additional.form.gf.is_lock_minibar,
+                    is_block_phone: $scope.additional.form.gf.is_block_phone,
+                    is_no_alcohol_in_pos: $scope.additional.form.gf.is_no_alcohol_in_pos,
+                    is_sick_guest: $scope.additional.form.gf.is_sick_guest,
+                    is_handicap_guest: $scope.additional.form.gf.is_handicap_guest,
+                    is_reject_for_cleaning: $scope.additional.form.gf.is_reject_for_cleaning,
+                    is_door_double_lock: $scope.additional.form.gf.is_door_double_lock,
+                    modified_date: globalFunction.currentDate(),
+                    modified_by: $localStorage.currentUser.name.id
+
+                }
+            }
+            else {
+                //insert
+                qcommand = 'insert into fd_folio_adds set ?'
+                param = {
+                    folio_id: $scope.additional.form.gf.id,
+                    //transfer_folio_id: '',
+                    internet_code_status: $scope.additional.form.gf.internet_code_status,
+                    pay_tv_status: $scope.additional.form.gf.pay_tv_status,
+                    deposit_box_id: ($scope.additional.form.gf.deposit_box_id.toString().length>0?$scope.additional.form.gf.deposit_box_id:null),
+                    deposit_box_notes: $scope.additional.form.gf.deposit_box_notes,
+                    newspaper_id: ($scope.additional.form.gf.newspaper_id.toString().length>0?$scope.additional.form.gf.newspaper_id:null),
+                    car_no: $scope.additional.form.gf.car_no,
+                    total_car: $scope.additional.form.gf.total_car,
+                    amenities_notes: $scope.additional.form.gf.amenities_notes,
+                    fruit_notes: $scope.additional.form.gf.fruit_notes,
+                    is_closed_transc: $scope.additional.form.gf.is_closed_transc,
+                    is_cash_transc_only: $scope.additional.form.gf.is_cash_transc_only,
+                    is_incognito: $scope.additional.form.gf.is_incognito,
+                    is_sleep_out: $scope.additional.form.gf.is_sleep_out,
+                    is_lock_minibar: $scope.additional.form.gf.is_lock_minibar,
+                    is_block_phone: $scope.additional.form.gf.is_block_phone,
+                    is_no_alcohol_in_pos: $scope.additional.form.gf.is_no_alcohol_in_pos,
+                    is_sick_guest: $scope.additional.form.gf.is_sick_guest,
+                    is_handicap_guest: $scope.additional.form.gf.is_handicap_guest,
+                    is_reject_for_cleaning: $scope.additional.form.gf.is_reject_for_cleaning,
+                    is_door_double_lock: $scope.additional.form.gf.is_door_double_lock,
+                    created_date: globalFunction.currentDate(),
+                    created_by: $localStorage.currentUser.name.id
+
+                }
+            }
+            console.log('additional',data)
+            queryService.post(qcommand,param)
+            .then(function (result2){
+                defer.resolve('Success Update Additional Data');
+
+            },
+            function (err2){
+                defer.reject('Error Insert: '+err2.code);
+
+
+            })
+        })
+
+
+        //queryService.post('update fd_folio_remarks SET ? where folio_id='+$scope.gf.id+' and remark_type_id=1;update fd_folio_remarks SET ? where folio_id='+$scope.gf.id+' and remark_type_id=2',[param_remark1,param_remark2])
+
+         return defer.promise;
+    }
 })
 .controller('FoReservationRemarksCtrl',
-function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+function($scope, $state, $sce, $q,queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
     $scope.el = [];
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
@@ -1779,4 +1866,55 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             "where table_name = 'ref_product_category' and column_name='status')b "+
         "where a.status = b.status_value and a.status!=2 "
     var qwhere = ''
+    $scope.remark.form.gf = {
+        id: ''
+    }
+    $scope.remark.action.submit = function(){
+        var defer = $q.defer();
+        //exec update
+        var sqlrmk = []
+
+        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
+            ' values('+$scope.remark.form.gf.remarks_cashier_id+','+$scope.remark.form.gf.id+',1,\''+$scope.remark.form.gf.remarks_cashier+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
+            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.remark.form.gf.remarks_cashier+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
+        )
+        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
+            ' values('+$scope.remark.form.gf.remarks_check_in_id+','+$scope.remark.form.gf.id+',2,\''+$scope.remark.form.gf.remarks_check_in+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
+            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.remark.form.gf.remarks_check_in+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
+        )
+        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
+            ' values('+$scope.remark.form.gf.remarks_drop_id+','+$scope.remark.form.gf.id+',3,\''+$scope.remark.form.gf.remarks_drop+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
+            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.remark.form.gf.remarks_drop+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
+        )
+        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
+            ' values('+$scope.remark.form.gf.remarks_locator_id+','+$scope.remark.form.gf.id+',4,\''+$scope.remark.form.gf.remarks_locator+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
+            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.remark.form.gf.remarks_locator+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
+        )
+        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
+            ' values('+$scope.remark.form.gf.remarks_prefered_id+','+$scope.remark.form.gf.id+',5,\''+$scope.remark.form.gf.remarks_prefered+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
+            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.remark.form.gf.remarks_prefered+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
+        )
+        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
+            ' values('+$scope.remark.form.gf.remarks_pickup_id+','+$scope.remark.form.gf.id+',6,\''+$scope.remark.form.gf.remarks_pickup+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
+            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.remark.form.gf.remarks_pickup+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
+        )
+        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
+            ' values('+$scope.remark.form.gf.remarks_room_message_id+','+$scope.remark.form.gf.id+',7,\''+$scope.remark.form.gf.remarks_room_message+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
+            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.remark.form.gf.remarks_room_message+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
+        )
+
+        //queryService.post('update fd_folio_remarks SET ? where folio_id='+$scope.gf.id+' and remark_type_id=1;update fd_folio_remarks SET ? where folio_id='+$scope.gf.id+' and remark_type_id=2',[param_remark1,param_remark2])
+        queryService.post(sqlrmk.join(';'),undefined)
+        .then(function (result2){
+            defer.resolve('Success Update Remark');
+
+        },
+        function (err2){
+            defer.reject('Error Insert: '+err2.code);
+
+
+        })
+         return defer.promise;
+    }
+
 })

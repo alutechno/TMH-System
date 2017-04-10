@@ -785,10 +785,10 @@
                       </div>
                       <br>
                       <!--<button class="btn btn-default"><i class="pg-close"></i> Clear</button>-->
-                      <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
-                      <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" data-target="#form-input" data-dismiss="modal" ng-click="checkInModal()" >Check In</button>
-                      <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" data-target="#form-input" data-dismiss="modal" ng-click="checkOutModal()" >Check Out</button>
-                      <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" data-target="#form-input" data-dismiss="modal" ng-click="cancelModal()" >Cancel Reservation</button>
+                      <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit('profile')" >Save</button>
+                      <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" data-target="#form-input" data-dismiss="modal" ng-click="profile.action.checkInModal()" >Check In</button>
+                      <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" data-target="#form-input" data-dismiss="modal" ng-click="profile.action.checkOutModal()" >Check Out</button>
+                      <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" data-target="#form-input" data-dismiss="modal" ng-click="profile.action.cancelModal()" >Cancel Reservation</button>
 
                   </div>
                   <div class="tab-pane" id="tab-fillup2" >
@@ -801,7 +801,7 @@
                                               <h6>Guest Name<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6 >: {{gf.guest_name}}</h6>
+                                              <h6 >: {{profile.form.gf.guest_name}}</h6>
                                           </div>
                                       </div>
                                       <div class="row">
@@ -809,7 +809,7 @@
                                               <h6 class="m-t-5">Company Name<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6 class="m-t-5">: {{gf.company_name}}</h6>
+                                              <h6 class="m-t-5">: {{profile.form.gf.company_name}}</h6>
                                           </div>
                                       </div>
                                       <div class="row">
@@ -817,7 +817,7 @@
                                               <h6 class="m-t-5">Room<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6 class="m-t-5">: {{gf.room_no}}</h6>
+                                              <h6 class="m-t-5">: {{profile.form.gf.room_no}}</h6>
                                           </div>
                                       </div>
                                       <div class="row">
@@ -825,7 +825,7 @@
                                               <h6 class="m-t-5">Room Type<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6 class="m-t-5">: {{gf.room_type_name}}</h6>
+                                              <h6 class="m-t-5">: {{profile.form.gf.room_type_name}}</h6>
                                           </div>
                                       </div>
                                       <div class="row">
@@ -833,7 +833,7 @@
                                               <div class="col-sm-11 m-r-30 m-l-15">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Cashier Remarks</label>
-                                                      <textarea rows="4" style="width:100%;border:none;" ng-model="gf.remarks_cashier"></textarea>
+                                                      <textarea rows="4" style="width:100%;border:none;" ng-model="remark.form.gf.remarks_cashier"></textarea>
                                                   </div>
                                               </div>
                                           </div>
@@ -841,7 +841,7 @@
                                               <div class="col-sm-11 m-r-30 m-l-15">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Check In Remarks</label>
-                                                      <textarea rows="4" style="width:100%;border:none;" ng-model="gf.remarks_check_in"></textarea>
+                                                      <textarea rows="4" style="width:100%;border:none;" ng-model="remark.form.gf.remarks_check_in"></textarea>
                                                   </div>
                                               </div>
                                           </div>
@@ -849,7 +849,7 @@
                                               <div class="col-sm-11 m-r-30 m-l-15">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Drop</label>
-                                                      <textarea rows="4" style="width:100%;border:none;" ng-model="gf.remarks_drop"></textarea>
+                                                      <textarea rows="4" style="width:100%;border:none;" ng-model="remark.form.gf.remarks_drop"></textarea>
                                                   </div>
                                               </div>
                                           </div>
@@ -857,7 +857,7 @@
                                               <div class="col-sm-11 m-r-30 m-l-15">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Locator</label>
-                                                      <textarea rows="4" style="width:100%;border:none;" ng-model="gf.remarks_locator"></textarea>
+                                                      <textarea rows="4" style="width:100%;border:none;" ng-model="remark.form.gf.remarks_locator"></textarea>
                                                   </div>
                                               </div>
                                           </div>
@@ -869,7 +869,7 @@
                                               <h6>Arrival<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6>: {{gf.arrival_date}}</h6>
+                                              <h6>: {{profile.form.gf.arrival_date}}</h6>
                                           </div>
                                       </div>
                                       <div class="row">
@@ -877,7 +877,7 @@
                                               <h6 class="m-t-5">Departure<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6 class="m-t-5">: {{gf.departure_date}}</h6>
+                                              <h6 class="m-t-5">: {{profile.form.gf.departure_date}}</h6>
                                           </div>
                                       </div>
                                       <div class="row">
@@ -885,7 +885,7 @@
                                               <h6 class="m-t-5">Status<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6 class="m-t-5">: {{gf.reservation_status_name}}</h6>
+                                              <h6 class="m-t-5">: {{profile.form.gf.reservation_status_name}}</h6>
                                           </div>
                                       </div>
                                       <div class="row">
@@ -893,7 +893,7 @@
                                               <h6 class="m-t-5">Pax/Child<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6 class="m-t-5">: {{gf.num_of_pax}}/{{gf.num_of_child}}</h6>
+                                              <h6 class="m-t-5">: {{profile.form.gf.num_of_pax}}/{{profile.form.gf.num_of_child}}</h6>
                                           </div>
                                       </div>
                                       <div class="row">
@@ -901,7 +901,7 @@
                                               <div class="col-sm-10 m-r-30 m-l-5">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Prefered</label>
-                                                      <textarea rows="7" style="width:100%;border:none;" ng-model="gf.remarks_prefered"></textarea>
+                                                      <textarea rows="7" style="width:100%;border:none;" ng-model="remark.form.gf.remarks_prefered"></textarea>
                                                   </div>
                                               </div>
                                           </div>
@@ -909,7 +909,7 @@
                                               <div class="col-sm-10 m-r-30 m-l-5">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Pickup</label>
-                                                      <textarea rows="5" style="width:100%;border:none;" ng-model="gf.remarks_pickup"></textarea>
+                                                      <textarea rows="5" style="width:100%;border:none;" ng-model="remark.form.gf.remarks_pickup"></textarea>
                                                   </div>
                                               </div>
                                           </div>
@@ -917,13 +917,15 @@
                                               <div class="col-sm-10 m-r-30 m-l-5">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Room Message</label>
-                                                      <textarea rows="4" style="width:100%;border:none;" ng-model="gf.remarks_room_message"></textarea>
+                                                      <textarea rows="4" style="width:100%;border:none;" ng-model="remark.form.gf.remarks_room_message"></textarea>
                                                   </div>
                                               </div>
                                           </div>
                                       </div>
                                   </div>
                               </div>
+                              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit('remark')" >Save</button>
+
                           </div>
                       </div>
                   </div>
@@ -937,7 +939,7 @@
                                               <h6>Guest Name<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6 >: {{gf.guest_name}}</h6>
+                                              <h6 >: {{profile.form.gf.guest_name}}</h6>
                                           </div>
                                       </div>
                                       <div class="row">
@@ -945,7 +947,7 @@
                                               <h6 class="m-t-5">Company Name<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6 class="m-t-5">: {{gf.company_name}}</h6>
+                                              <h6 class="m-t-5">: {{profile.form.gf.company_name}}</h6>
                                           </div>
                                       </div>
                                       <div class="row">
@@ -953,7 +955,7 @@
                                               <h6 class="m-t-5">Room<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6 class="m-t-5">: {{gf.room_no}}</h6>
+                                              <h6 class="m-t-5">: {{profile.form.gf.room_no}}</h6>
                                           </div>
                                       </div>
                                       <div class="row">
@@ -961,7 +963,7 @@
                                               <h6 class="m-t-5">Room Type<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6 class="m-t-5">: {{gf.room_type_name}}</h6>
+                                              <h6 class="m-t-5">: {{profile.form.gf.room_type_name}}</h6>
                                           </div>
                                       </div>
                                   </div>
@@ -971,7 +973,7 @@
                                               <h6>Arrival<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6>: {{gf.arrival_date}}</h6>
+                                              <h6>: {{profile.form.gf.arrival_date}}</h6>
                                           </div>
                                       </div>
                                       <div class="row">
@@ -979,7 +981,7 @@
                                               <h6 class="m-t-5">Departure<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6 class="m-t-5">: {{gf.departure_date}}</h6>
+                                              <h6 class="m-t-5">: {{profile.form.gf.departure_date}}</h6>
                                           </div>
                                       </div>
                                       <div class="row">
@@ -987,7 +989,7 @@
                                               <h6 class="m-t-5">Status<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6 class="m-t-5">: {{gf.reservation_status_name}}</h6>
+                                              <h6 class="m-t-5">: {{profile.form.gf.reservation_status_name}}</h6>
                                           </div>
                                       </div>
                                       <div class="row">
@@ -995,7 +997,7 @@
                                               <h6 class="m-t-5">Pax/Child<h6>
                                           </div>
                                           <div class="col-sm-9">
-                                              <h6 class="m-t-5">: {{gf.num_of_pax}}/{{gf.num_of_child}}</h6>
+                                              <h6 class="m-t-5">: {{profile.form.gf.num_of_pax}}/{{profile.form.gf.num_of_child}}</h6>
                                           </div>
                                       </div>
                                   </div>
@@ -1005,9 +1007,9 @@
 
                                       <div pg-form-group class="form-group form-group-default form-group-default-select " >
                                           <label>Internet Code</label>
-                                          <ui-select ng-model="selected.internet_code.selected" theme="bootstrap" on-select="additional.param.internet_code_status=$item.id">
+                                          <ui-select ng-model="additional.form.selected.internet_code.selected" theme="bootstrap" on-select="additional.form.gf.internet_code_status=$item.id">
                                               <ui-select-match placeholder="">{{$select.selected.name}}</ui-select-match>
-                                              <ui-select-choices repeat="item in internetCode | filter: $select.search">
+                                              <ui-select-choices repeat="item in additional.form.internetCode | filter: $select.search">
                                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                               </ui-select-choices>
                                           </ui-select>
@@ -1016,9 +1018,9 @@
                                   <div class="col-sm-4">
                                       <div pg-form-group class="form-group form-group-default form-group-default-select " >
                                           <label>Pay TV</label>
-                                          <ui-select ng-model="selected.pay_tv.selected" theme="bootstrap" on-select="additional.param.pay_tv_status=$item.id">
+                                          <ui-select ng-model="additional.form.selected.pay_tv.selected" theme="bootstrap" on-select="additional.form.gf.pay_tv_status=$item.id">
                                               <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                                              <ui-select-choices repeat="item in payTv | filter: $select.search">
+                                              <ui-select-choices repeat="item in additional.form.payTv | filter: $select.search">
                                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                               </ui-select-choices>
                                           </ui-select>
@@ -1027,9 +1029,9 @@
                                   <div class="col-sm-4">
                                       <div pg-form-group class="form-group form-group-default form-group-default-select " >
                                           <label>Newspaper</label>
-                                          <ui-select ng-model="selected.newspaper.selected" theme="bootstrap" on-select="additional.param.newspaper_id=$item.id">
+                                          <ui-select ng-model="additional.form.selected.newspaper.selected" theme="bootstrap" on-select="additional.form.gf.newspaper_id=$item.id">
                                               <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                                              <ui-select-choices repeat="item in newspaper | filter: $select.search">
+                                              <ui-select-choices repeat="item in additional.form.newspaper | filter: $select.search">
                                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                               </ui-select-choices>
                                           </ui-select>
@@ -1046,13 +1048,13 @@
                                   <div class="col-sm-4">
                                       <div pg-form-group class="form-group form-group-default " >
                                           <label>Amenities</label>
-                                          <input type="text" class="form-control" name="ref_account" ng-model="additional.param.amenities_notes" >
+                                          <input type="text" class="form-control" name="ref_account" ng-model="additional.form.gf.amenities_notes" >
                                       </div>
                                   </div>
                                   <div class="col-sm-4">
                                       <div pg-form-group class="form-group form-group-default " >
                                           <label>Fruits</label>
-                                          <input type="text" class="form-control" name="ref_account" ng-model="additional.param.fruits_notes" >
+                                          <input type="text" class="form-control" name="ref_account" ng-model="additional.form.gf.fruits_notes" >
                                       </div>
                                   </div>
                               </div>
@@ -1066,13 +1068,13 @@
                                   <div class="col-sm-4">
                                       <div pg-form-group class="form-group form-group-default " >
                                           <label>Total Car</label>
-                                          <input type="text" class="form-control" name="ref_account" ng-model="additional.param.total_car" >
+                                          <input type="text" class="form-control" name="ref_account" ng-model="additional.form.gf.total_car" >
                                       </div>
                                   </div>
                                   <div class="col-sm-4">
                                       <div pg-form-group class="form-group form-group-default " >
                                           <label>Car No</label>
-                                          <input type="text" class="form-control" name="ref_account" ng-model="additional.param.car_no" >
+                                          <input type="text" class="form-control" name="ref_account" ng-model="additional.form.gf.car_no" >
                                       </div>
                                   </div>
                               </div>
@@ -1080,9 +1082,9 @@
                                   <div class="col-sm-4">
                                       <div pg-form-group class="form-group form-group-default form-group-default-select " >
                                           <label>Deposit Box</label>
-                                          <ui-select ng-model="selected.status.selected" theme="bootstrap" on-select="additional.param.deposit_box_id=$item.id">
+                                          <ui-select ng-model="additional.form.selected.status.selected" theme="bootstrap" on-select="additional.form.gf.deposit_box_id=$item.id">
                                               <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                                              <ui-select-choices repeat="item in statusShow | filter: $select.search">
+                                              <ui-select-choices repeat="item in additional.form.gf.statusShow | filter: $select.search">
                                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                               </ui-select-choices>
                                           </ui-select>
@@ -1091,7 +1093,7 @@
                                   <div class="col-sm-4">
                                       <div pg-form-group class="form-group form-group-default " >
                                           <label>Deposit Remark</label>
-                                          <input type="text" class="form-control" name="ref_account" ng-model="additional.param.deposit_box_notes" >
+                                          <input type="text" class="form-control" name="ref_account" ng-model="additional.form.gf.deposit_box_notes" >
                                       </div>
                                   </div>
                                   <!--<div class="col-sm-4">
@@ -1105,37 +1107,37 @@
                                   <div class="row">
                                       <div class="col-sm-2">
                                           <div class="checkbox check-primary" >
-                                              <input type="checkbox" id="cbApprove" ng-checked="additional.param.is_incognito==1" ng-true-value="1" ng-model="additional.param.is_incognito" >
+                                              <input type="checkbox" id="cbApprove" ng-checked="additional.form.gf.is_incognito==1" ng-true-value="1" ng-model="additional.form.gf.is_incognito" >
                                               <label for="cbApprove">No Info (Incognito)</label>
                                           </div>
                                       </div>
                                       <div class="col-sm-2">
                                           <div class="checkbox check-primary" >
-                                              <input type="checkbox" id="cb1" ng-checked="additional.param.is_closed_transc==1" ng-true-value="1" ng-model="additional.param.is_closed_transc" >
+                                              <input type="checkbox" id="cb1" ng-checked="additional.form.gf.is_closed_transc==1" ng-true-value="1" ng-model="additional.form.gf.is_closed_transc" >
                                               <label for="cb1">Closed Transaction <br/ >(no transaction allowed)</label>
                                           </div>
                                       </div>
                                       <div class="col-sm-2">
                                           <div class="checkbox check-primary" >
-                                              <input type="checkbox" id="cb2" ng-checked="additional.param.is_lock_minibar==1" ng-true-value="1" ng-model="additional.param.is_lock_minibar" >
+                                              <input type="checkbox" id="cb2" ng-checked="additional.form.gf.is_lock_minibar==1" ng-true-value="1" ng-model="additional.form.gf.is_lock_minibar" >
                                               <label for="cb2">Lock Minibar</label>
                                           </div>
                                       </div>
                                       <div class="col-sm-2">
                                           <div class="checkbox check-primary" >
-                                              <input type="checkbox" id="cb3" ng-checked="additional.param.is_no_alcohol_in_pos==1" ng-true-value="1" ng-model="additional.param.is_no_alcohol_in_pos" >
+                                              <input type="checkbox" id="cb3" ng-checked="additional.form.gf.is_no_alcohol_in_pos==1" ng-true-value="1" ng-model="additional.form.gf.is_no_alcohol_in_pos" >
                                               <label for="cb3">No Alcohol in POS</label>
                                           </div>
                                       </div>
                                       <div class="col-sm-2">
                                           <div class="checkbox check-primary" >
-                                              <input type="checkbox" id="cb4" ng-checked="additional.param.is_sick_guest==1" ng-true-value="1" ng-model="additional.param.is_sick_guest" >
+                                              <input type="checkbox" id="cb4" ng-checked="additional.form.gf.is_sick_guest==1" ng-true-value="1" ng-model="additional.form.gf.is_sick_guest" >
                                               <label for="cb4">Sick Guest</label>
                                           </div>
                                       </div>
                                       <div class="col-sm-2">
                                           <div class="checkbox check-primary" >
-                                              <input type="checkbox" id="cb5" ng-checked="additional.param.is_reject_for_cleaning==1" ng-true-value="1" ng-model="additional.param.is_reject_for_cleaning" >
+                                              <input type="checkbox" id="cb5" ng-checked="additional.form.gf.is_reject_for_cleaning==1" ng-true-value="1" ng-model="additional.form.gf.is_reject_for_cleaning" >
                                               <label for="cb5">Reject for Cleaning</label>
                                           </div>
                                       </div>
@@ -1143,19 +1145,19 @@
                                   <div class="row">
                                       <div class="col-sm-2">
                                           <div class="checkbox check-primary" >
-                                              <input type="checkbox" id="cb6" ng-checked="additional.param.is_sleep_out==1" ng-true-value="1" ng-model="additional.param.is_sleep_out" >
+                                              <input type="checkbox" id="cb6" ng-checked="additional.form.gf.is_sleep_out==1" ng-true-value="1" ng-model="additional.form.gf.is_sleep_out" >
                                               <label for="cb6">Sleep Out</label>
                                           </div>
                                       </div>
                                       <div class="col-sm-2">
                                           <div class="checkbox check-primary" >
-                                              <input type="checkbox" id="cb7" ng-checked="additional.param.is_cash_transc_only==1" ng-true-value="1" ng-model="additional.param.is_cash_transc_only" >
+                                              <input type="checkbox" id="cb7" ng-checked="additional.form.gf.is_cash_transc_only==1" ng-true-value="1" ng-model="additional.form.gf.is_cash_transc_only" >
                                               <label for="cb7">Cash Transaction Only <br /> (Cash Basis)</label>
                                           </div>
                                       </div>
                                       <div class="col-sm-2">
                                           <div class="checkbox check-primary" >
-                                              <input type="checkbox" id="cb8" ng-checked="additional.param.is_block_phone==1" ng-true-value="1" ng-model="additional.param.is_block_phone" >
+                                              <input type="checkbox" id="cb8" ng-checked="additional.form.gf.is_block_phone==1" ng-true-value="1" ng-model="additional.form.gf.is_block_phone" >
                                               <label for="cb8">Block Phone</label>
                                           </div>
                                       </div>
@@ -1164,17 +1166,20 @@
                                       </div>
                                       <div class="col-sm-2">
                                           <div class="checkbox check-primary" >
-                                              <input type="checkbox" id="cb9" ng-checked="additional.param.is_handicap_guest==1" ng-true-value="1" ng-model="additional.param.is_handicap_guest" >
+                                              <input type="checkbox" id="cb9" ng-checked="additional.form.gf.is_handicap_guest==1" ng-true-value="1" ng-model="additional.form.gf.is_handicap_guest" >
                                               <label for="cb9">Handicap Guest</label>
                                           </div>
                                       </div>
                                       <div class="col-sm-2">
                                           <div class="checkbox check-primary" >
-                                              <input type="checkbox" id="cb10" ng-checked="additional.param.is_door_double_lock==1" ng-true-value="1" ng-model="additional.param.is_door_double_lock" >
+                                              <input type="checkbox" id="cb10" ng-checked="additional.form.gf.is_door_double_lock==1" ng-true-value="1" ng-model="additional.form.gf.is_door_double_lock" >
                                               <label for="cb10">Door Double Lock</label>
                                           </div>
                                       </div>
                                   </div>
+                                  <!--<button class="btn btn-default"><i class="pg-close"></i> Clear</button>-->
+                                  <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit('additional')" >Save</button>
+
                               </div>
                           </div>
                       </div>
