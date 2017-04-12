@@ -124,6 +124,15 @@
                   <li ng-show="updateState">
                       <a data-toggle="tab" pg-tab href="#tab-fillup3" ><span>Additional</span></a>
                   </li>
+                  <li ng-show="updateState">
+                      <a data-toggle="tab" pg-tab href="#tab-fillup4" ><span>Directions</span></a>
+                  </li>
+                  <li ng-show="updateState">
+                      <a data-toggle="tab" pg-tab href="#tab-fillup5" ><span>Message & Flag</span></a>
+                  </li>
+                  <li ng-show="updateState">
+                      <a data-toggle="tab" pg-tab href="#tab-fillup6" ><span>Guest History Profile</span></a>
+                  </li>
 
               </ul>
               <div class="tab-content">
@@ -1184,7 +1193,552 @@
                           </div>
                       </div>
                   </div>
+                  <div class="tab-pane" id="tab-fillup4" >
+                      <div class="row m-l-10">
+                          <div class="clearfix" ng-controller="FoReservationDirectionsCtrl">
+                              <div class="row clearfix">
+                                  <div class="col-sm-4">
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Room<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{profile.form.gf.room_no}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Room Type<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{profile.form.gf.room_type_name}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6>Guest <h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 >: {{profile.form.gf.guest_name}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Company <h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{profile.form.gf.company_name}}</h6>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-4">
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6>Arrival<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6>: {{profile.form.gf.arrival_date}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Check Out<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{profile.form.gf.out_date}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Folio No<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{profile.form.gf.code}}</h6>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-4">
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6>Rate Code<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6>: {{profile.form.gf.room_rate_code}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Room Rate<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{profile.form.gf.room_rate_amount}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Balance<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: 0,00</h6>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="row clearfix">
+                                  <div class="row">
 
+                                      <div class="col-sm-5 m-l-20">
+                                          <div class="checkbox check-primary" >
+                                              <input type="checkbox" id="cb1" ng-checked="additional.form.gf.is_closed_transc==1" ng-true-value="1" ng-model="additional.form.gf.is_closed_transc" >
+                                              <label for="cb1">Closed Transaction (no transaction allowed)</label>
+                                          </div>
+                                      </div>
+                                      <div class="col-sm-6">
+                                          <div class="checkbox check-primary" >
+                                              <input type="checkbox" id="cb7" ng-checked="additional.form.gf.is_cash_transc_only==1" ng-true-value="1" ng-model="additional.form.gf.is_cash_transc_only" >
+                                              <label for="cb7">All POS Transaction should be in Cash (Cash Basis)</label>
+                                          </div>
+                                      </div>
+
+                                  </div>
+                                  <!--<button class="btn btn-default"><i class="pg-close"></i> Clear</button>-->
+
+                              </div>
+                              <div class="row clearfix">
+                                  <div class="col-sm-6">
+
+                                      <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                                          <label>Transfer all transactions to folio</label>
+                                          <ui-select ng-model="additional.form.selected.internet_code.selected" theme="bootstrap" on-select="additional.form.gf.internet_code_status=$item.id">
+                                              <ui-select-match placeholder="">{{$select.selected.name}}</ui-select-match>
+                                              <ui-select-choices repeat="item in additional.form.internetCode | filter: $select.search">
+                                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                              </ui-select-choices>
+                                          </ui-select>
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-2">
+                                      <div pg-form-group class="form-group form-group-default" >
+                                          <label>Room No.</label>
+                                          <input type="text" class="form-control" ng-model="profile.form.gf.mice_id">
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-4">
+                                      <div pg-form-group class="form-group form-group-default" >
+                                          <label>Name</label>
+                                          <input type="text" class="form-control" ng-model="profile.form.gf.mice_id">
+                                      </div>
+                                  </div>
+
+                              </div>
+                              <div class="row clearfix">
+                                  <h5>Additional Folio</h5>
+                                  <table class="table  table-hover">
+                                      <thead>
+                                      <tr>
+
+                                          <th width="15%">Folio</th>
+                                          <th width="25%">Name</th>
+                                          <th width="10%">Share</th>
+                                          <th width="10%">Status</th>
+                                          <th width="10%">Balance</th>
+                                          <th width="10%">Begining</th>
+                                          <th width="10%">Ending</th>
+                                      </tr>
+                                      </thead>
+
+                                      <tbody>
+                                      <!--<tr ng-repeat="item in items | filter:filterUser">
+                                          <td >{{item.product_name}}
+                                          </td>
+                                          <td style="text-align: right;">
+                                              {{ item.qty | number : fractionSize }}
+                                          </td>
+                                          <td style="text-align: right;">
+                                              {{ item.price | number : fractionSize }}
+
+                                          </td>
+                                          <td style="text-align: right;">
+                                              {{ item.amount | number : fractionSize }}
+                                          </td>
+                                          <td >
+                                              {{item.supplier_name}}
+                                          </td>
+                                      </tr>-->
+                                        <tr>
+                                            <td>12345</td>
+                                            <td>namaku</td>
+                                            <td>0</td>
+                                            <td>Closed</td>
+                                            <td>100000</td>
+                                            <td>12000</td>
+                                            <td>13000</td>
+
+                                        </tr>
+                                      </tbody>
+                                      <tfooter >
+                                          <tr>
+                                              <th width="15%">&nbsp;</th>
+                                              <th width="25%">&nbsp;</th>
+                                              <th width="10%">&nbsp;</th>
+                                              <th width="10%">&nbsp;</th>
+                                              <th width="10%">1230000</th>
+                                              <th width="10%">&nbsp;</th>
+                                              <th width="10%">&nbsp;</th>
+                                          </tr>
+                                      </tfooter>
+                                  </table>
+
+                              </div>
+                              <div class="row clearfix">
+                                  <div class="col-sm-6">
+                                      <div class="row">
+                                          <div class="col-sm-6">
+                                              <div class="checkbox check-primary" >
+                                                  <input type="checkbox" id="cbDailyTotal" ng-checked="direction.form.gf.is_daily_total==1" ng-true-value="1" ng-model="direction.form.gf.is_daily_total" >
+                                                  <label for="cbDailyTotal">Daily Total</label>
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Daily Amount</label>
+                                                  <input type="text" class="form-control" ng-model="profile.form.gf.mice_id">
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div pg-form-group class="form-group form-group-default" >
+                                              <label>Remarks</label>
+                                              <textarea rows="4" style="width:100%;border:none;" ng-model="remark.form.gf.remarks_cashier"></textarea>
+                                          </div>
+                                      </div>
+
+
+                                  </div>
+                                  <div class="col-sm-6">
+                                      <h5>Directed Transaction Code</h5>
+                                      <table class="table  table-hover">
+                                          <thead>
+                                          <tr>
+
+                                              <th width="25%">Code</th>
+                                              <th width="40%">Name</th>
+                                              <th width="35%">Class</th>
+
+                                          </tr>
+                                          </thead>
+
+                                          <tbody>
+                                          <!--<tr ng-repeat="item in items | filter:filterUser">
+                                              <td >{{item.product_name}}
+                                              </td>
+                                              <td style="text-align: right;">
+                                                  {{ item.qty | number : fractionSize }}
+                                              </td>
+                                              <td style="text-align: right;">
+                                                  {{ item.price | number : fractionSize }}
+
+                                              </td>
+                                              <td style="text-align: right;">
+                                                  {{ item.amount | number : fractionSize }}
+                                              </td>
+                                              <td >
+                                                  {{item.supplier_name}}
+                                              </td>
+                                          </tr>-->
+                                            <tr>
+                                                <td>C123</td>
+                                                <td>Breeze</td>
+                                                <td>BClass</td>
+
+                                            </tr>
+                                          </tbody>
+
+                                      </table>
+
+                                  </div>
+
+
+                              </div>
+                              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit('additional')" >Save</button>
+
+                          </div>
+                      </div>
+                  </div>
+                  <div class="tab-pane" id="tab-fillup5" >
+                      <div class="row m-l-10">
+                          <div class="clearfix" ng-controller="FoReservationDirectionsCtrl">
+                              <div class="row clearfix">
+                                  <div class="col-sm-4">
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Room<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{profile.form.gf.room_no}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Room Type<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{profile.form.gf.room_type_name}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6>Guest <h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 >: {{profile.form.gf.guest_name}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Company <h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{profile.form.gf.company_name}}</h6>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-4">
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6>Arrival<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6>: {{profile.form.gf.arrival_date}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Check Out<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{profile.form.gf.out_date}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Folio No<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{profile.form.gf.code}}</h6>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-4">
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6>Rate Code<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6>: {{profile.form.gf.room_rate_code}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Room Rate<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{profile.form.gf.room_rate_amount}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Balance<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: 0,00</h6>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="row clearfix">
+                                  <div class="row">
+
+                                      <div class="col-sm-5 m-l-20">
+                                          <div class="checkbox check-primary" >
+                                              <input type="checkbox" id="cb1" ng-checked="additional.form.gf.is_closed_transc==1" ng-true-value="1" ng-model="additional.form.gf.is_closed_transc" >
+                                              <label for="cb1">Closed Transaction (no transaction allowed)</label>
+                                          </div>
+                                      </div>
+                                      <div class="col-sm-6">
+                                          <div class="checkbox check-primary" >
+                                              <input type="checkbox" id="cb7" ng-checked="additional.form.gf.is_cash_transc_only==1" ng-true-value="1" ng-model="additional.form.gf.is_cash_transc_only" >
+                                              <label for="cb7">All POS Transaction should be in Cash (Cash Basis)</label>
+                                          </div>
+                                      </div>
+
+                                  </div>
+                                  <!--<button class="btn btn-default"><i class="pg-close"></i> Clear</button>-->
+
+                              </div>
+                              <div class="row clearfix">
+                                  <div class="col-sm-6">
+
+                                      <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                                          <label>Transfer all transactions to folio</label>
+                                          <ui-select ng-model="additional.form.selected.internet_code.selected" theme="bootstrap" on-select="additional.form.gf.internet_code_status=$item.id">
+                                              <ui-select-match placeholder="">{{$select.selected.name}}</ui-select-match>
+                                              <ui-select-choices repeat="item in additional.form.internetCode | filter: $select.search">
+                                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                              </ui-select-choices>
+                                          </ui-select>
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-2">
+                                      <div pg-form-group class="form-group form-group-default" >
+                                          <label>Room No.</label>
+                                          <input type="text" class="form-control" ng-model="profile.form.gf.mice_id">
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-4">
+                                      <div pg-form-group class="form-group form-group-default" >
+                                          <label>Name</label>
+                                          <input type="text" class="form-control" ng-model="profile.form.gf.mice_id">
+                                      </div>
+                                  </div>
+
+                              </div>
+                              <div class="row clearfix">
+                                  <h5>Additional Folio</h5>
+                                  <table class="table  table-hover">
+                                      <thead>
+                                      <tr>
+
+                                          <th width="15%">Folio</th>
+                                          <th width="25%">Name</th>
+                                          <th width="10%">Share</th>
+                                          <th width="10%">Status</th>
+                                          <th width="10%">Balance</th>
+                                          <th width="10%">Begining</th>
+                                          <th width="10%">Ending</th>
+                                      </tr>
+                                      </thead>
+
+                                      <tbody>
+                                      <!--<tr ng-repeat="item in items | filter:filterUser">
+                                          <td >{{item.product_name}}
+                                          </td>
+                                          <td style="text-align: right;">
+                                              {{ item.qty | number : fractionSize }}
+                                          </td>
+                                          <td style="text-align: right;">
+                                              {{ item.price | number : fractionSize }}
+
+                                          </td>
+                                          <td style="text-align: right;">
+                                              {{ item.amount | number : fractionSize }}
+                                          </td>
+                                          <td >
+                                              {{item.supplier_name}}
+                                          </td>
+                                      </tr>-->
+                                        <tr>
+                                            <td>12345</td>
+                                            <td>namaku</td>
+                                            <td>0</td>
+                                            <td>Closed</td>
+                                            <td>100000</td>
+                                            <td>12000</td>
+                                            <td>13000</td>
+
+                                        </tr>
+                                      </tbody>
+                                      <tfooter >
+                                          <tr>
+                                              <th width="15%">&nbsp;</th>
+                                              <th width="25%">&nbsp;</th>
+                                              <th width="10%">&nbsp;</th>
+                                              <th width="10%">&nbsp;</th>
+                                              <th width="10%">1230000</th>
+                                              <th width="10%">&nbsp;</th>
+                                              <th width="10%">&nbsp;</th>
+                                          </tr>
+                                      </tfooter>
+                                  </table>
+
+                              </div>
+                              <div class="row clearfix">
+                                  <div class="col-sm-6">
+                                      <div class="row">
+                                          <div class="col-sm-6">
+                                              <div class="checkbox check-primary" >
+                                                  <input type="checkbox" id="cbDailyTotal" ng-checked="direction.form.gf.is_daily_total==1" ng-true-value="1" ng-model="direction.form.gf.is_daily_total" >
+                                                  <label for="cbDailyTotal">Daily Total</label>
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Daily Amount</label>
+                                                  <input type="text" class="form-control" ng-model="profile.form.gf.mice_id">
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div pg-form-group class="form-group form-group-default" >
+                                              <label>Remarks</label>
+                                              <textarea rows="4" style="width:100%;border:none;" ng-model="remark.form.gf.remarks_cashier"></textarea>
+                                          </div>
+                                      </div>
+
+
+                                  </div>
+                                  <div class="col-sm-6">
+                                      <h5>Directed Transaction Code</h5>
+                                      <table class="table  table-hover">
+                                          <thead>
+                                          <tr>
+
+                                              <th width="25%">Code</th>
+                                              <th width="40%">Name</th>
+                                              <th width="35%">Class</th>
+
+                                          </tr>
+                                          </thead>
+
+                                          <tbody>
+                                          <!--<tr ng-repeat="item in items | filter:filterUser">
+                                              <td >{{item.product_name}}
+                                              </td>
+                                              <td style="text-align: right;">
+                                                  {{ item.qty | number : fractionSize }}
+                                              </td>
+                                              <td style="text-align: right;">
+                                                  {{ item.price | number : fractionSize }}
+
+                                              </td>
+                                              <td style="text-align: right;">
+                                                  {{ item.amount | number : fractionSize }}
+                                              </td>
+                                              <td >
+                                                  {{item.supplier_name}}
+                                              </td>
+                                          </tr>-->
+                                            <tr>
+                                                <td>C123</td>
+                                                <td>Breeze</td>
+                                                <td>BClass</td>
+
+                                            </tr>
+                                          </tbody>
+
+                                      </table>
+
+                                  </div>
+
+
+                              </div>
+                              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit('additional')" >Save</button>
+
+                          </div>
+                      </div>
+                  </div>
+                  <div class="tab-pane" id="tab-fillup6">
+                  </div>
               </div>
               <div class="clearfix"></div>
               <!--<button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Cancel Reservation</button>-->
