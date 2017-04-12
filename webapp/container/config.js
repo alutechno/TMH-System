@@ -1304,6 +1304,28 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state("app.fo.revenueGroup", {
+        url: "/foRevenueGroup",
+        templateUrl: "container/components/foRevenueGroup/view.html",
+        controller: "FoRevenueGroupCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load("container/components/foRevenueGroup/controller.js");
+                });
+            }]
+        }
+    })
     .state("app.fo.oTax", {
         url: "/foTax",
         templateUrl: "container/components/foTax/view.html",

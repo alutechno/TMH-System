@@ -1,7 +1,7 @@
 
 var userController = angular.module('app', []);
 userController
-.controller('FoTransactionClassCtrl',
+.controller('FoRevenueGroupCtrl',
 function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -12,7 +12,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope[$scope.el[i]] = true;
     }
 
-    var qstring = "select a.id,a.code,a.name,a.short_name,a.description,a.status,b.status_name from ref_guest_transaction_class a, "+
+    var qstring = "select a.id,a.code,a.name,a.short_name,a.description,a.status,b.status_name from ref_revenue_group a, "+
         "(select id as status_id, value as status_value,name as status_name  "+
             "from table_ref  "+
             "where table_name = 'ref_product_category' and column_name='status')b "+
@@ -48,7 +48,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     })
 
     $scope.focusinControl = {};
-    $scope.fileName = "Transaction Class Reference";
+    $scope.fileName = "Revenue Group Reference";
     $scope.exportExcel = function(){
 
         queryService.post('select code,name,short_name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
@@ -226,7 +226,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             }
             console.log(param)
 
-            queryService.post('insert into ref_guest_transaction_class SET ?',param)
+            queryService.post('insert into ref_revenue_group SET ?',param)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -267,7 +267,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 modified_by: $localStorage.currentUser.name.id
             }
             console.log(param)
-            queryService.post('update ref_guest_transaction_class SET ? WHERE id='+$scope.coa.id ,param)
+            queryService.post('update ref_revenue_group SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Update')
@@ -322,7 +322,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.execDelete = function(){
-        queryService.post('update ref_guest_transaction_class SET status=\'2\', '+
+        queryService.post('update ref_revenue_group SET status=\'2\', '+
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
         ' WHERE id='+$scope.coa.id ,undefined)
