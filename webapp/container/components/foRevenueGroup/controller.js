@@ -260,7 +260,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             var param = {
                 code: $scope.coa.code,
                 name: $scope.coa.name,
-                short_name: $scope.coa.name,
+                short_name: $scope.coa.short_name,
                 description: $scope.coa.description,
                 status: $scope.selected.status.selected.id,
                 modified_date: globalFunction.currentDate(),
@@ -303,7 +303,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             $scope.coa.id = result.data[0].id
             $scope.coa.code = result.data[0].code
             $scope.coa.name = result.data[0].name
-            $scope.coa.short_name = result.data[0].name
+            $scope.coa.short_name = result.data[0].short_name
             $scope.coa.description = result.data[0].description
             $scope.coa.status = result.data[0].status
             $scope.coa.status = result.data[0].status
