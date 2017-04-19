@@ -4,6 +4,7 @@
  * ============================================================ */
 angular.module('app').constant('API_URL','http://103.43.47.115:3000')
 angular.module('app').constant('APP_URL','http://103.43.47.115:3000')
+angular.module('app').constant('BIRT_URL','http://103.43.47.115:8888/birt')
 //angular.module('app').constant('API_URL','http://localhost:3000')
 //angular.module('app').constant('APP_URL','http://localhost:3000')
 angular.module('app')

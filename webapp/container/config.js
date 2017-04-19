@@ -1396,6 +1396,32 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state("app.fo.reservationMice", {
+        url: "/foReservationMice",
+        templateUrl: "container/components/foReservationMice/view.html",
+        controller: "FoReservationMiceCtrl",
+        resolve: {
+            deps: ["$ocLazyLoad", function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    "dataTables",
+                    "select",
+                    "datepicker",
+                    "daterangepicker",
+                    'timepicker',
+                    "tagsInput",
+                    "autonumeric"
+                ], {
+                    insertBefore: "#lazyload_placeholder"
+                })
+                .then(function() {
+                    return $ocLazyLoad.load([
+                        "container/components/foReservationMice/controller.js",
+                        //"container/components/foReservation/controllerProfile.js"
+                    ]);
+                });
+            }]
+        }
+    })
     .state("app.fo.housekeeping", {
         url: "/foHousekeeping",
         templateUrl: "container/components/foHousekeeping/view.html",
