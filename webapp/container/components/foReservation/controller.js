@@ -550,7 +550,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     }
     $scope.dtColumns.push(
         //DTColumnBuilder.newColumn('code').withTitle('Code Ori').notVisible(),
-        DTColumnBuilder.newColumn('folio_id').withTitle('ID'),
+        DTColumnBuilder.newColumn('folio_id').withTitle('ID')
     );
     $scope.dtColumns.push(DTColumnBuilder.newColumn('guest_name').withTitle('Guest Name <br /> <small>remarks</small>').notSortable()
     .renderWith($scope.colGuest).withOption('width', '20%'))
