@@ -28,7 +28,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         form: {},
         action: {}
     }
-    var qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
+    var qstringOri = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
       "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
       "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
       "if(reservation_type='I','Individual','House Guest') reservation_type_name,a.commission_amount,a.agent_id,a.payment_type_id, "+
@@ -63,8 +63,8 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
       "left join fd_mice_reservation s on a.mice_id = s.id "+
       "left join fd_mice_deposit t on a.mice_id = t.mice_id "+
       "left join (select a.id, a.folio_id, remarks "+
-      "	from fd_folio_remarks a "+
-      "    where a.remark_type_id = 1) u on a.id = u.folio_id "+
+      " from fd_folio_remarks a "+
+      " where a.remark_type_id = 1) u on a.id = u.folio_id "+
       "left join (select a.id, a.folio_id, remarks "+
       "	from fd_folio_remarks a "+
       "    where a.remark_type_id = 2) ae on a.id = ae.folio_id "+
@@ -99,6 +99,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
       "left join ref_kabupaten ac on a.dest_city_id = ac.id "+
       "left join ref_source_type ad on a.source_type_id = ad.id ";
     var qwhere = ''
+    var qstring = qstringOri + " where a.reservation_status in('0','1','2','3') "
     $scope.activeForm = 'reservation'
     $scope.activeClass={
         reservation: 'active',
@@ -123,7 +124,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         $scope.activeClass[a] = 'active'
 
         if (a=='reservation'){
-            qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
+            /*qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
               "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
               "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
               "if(reservation_type='I','Individual','House Guest') reservation_type_name,a.commission_amount,a.agent_id,a.payment_type_id, "+
@@ -192,12 +193,13 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
               "left join ref_currency aa on a.currency_id = aa.id "+
               "left join ref_kabupaten ab on a.origin_city_id = ab.id "+
               "left join ref_kabupaten ac on a.dest_city_id = ac.id "+
-              "left join ref_source_type ad on a.source_type_id = ad.id ";
+              "left join ref_source_type ad on a.source_type_id = ad.id ";*/
+              qstring = qstringOri+ " where a.reservation_status in ('0','1','2','3') "
               console.log(qstring)
             $scope.profile.form.gf.folio_type = '1'
         }
         else if (a=='inhouse'){
-            qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
+            /*qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
               "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
               "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
               "if(reservation_type='I','Individual','House Guest') reservation_type_name,a.commission_amount,a.agent_id,a.payment_type_id, "+
@@ -266,10 +268,11 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
               "left join ref_currency aa on a.currency_id = aa.id "+
               "left join ref_kabupaten ab on a.origin_city_id = ab.id "+
               "left join ref_kabupaten ac on a.dest_city_id = ac.id "+
-              "left join ref_source_type ad on a.source_type_id = ad.id where a.reservation_status=4 ";
+              "left join ref_source_type ad on a.source_type_id = ad.id where a.reservation_status=4 ";*/
+              qstring = qstringOri + " where a.reservation_status = 4 "
         }
         else if (a=='checkout'){
-            qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
+            /*qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
               "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
               "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
               "if(reservation_type='I','Individual','House Guest') reservation_type_name,a.commission_amount,a.agent_id,a.payment_type_id, "+
@@ -338,7 +341,8 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
               "left join ref_currency aa on a.currency_id = aa.id "+
               "left join ref_kabupaten ab on a.origin_city_id = ab.id "+
               "left join ref_kabupaten ac on a.dest_city_id = ac.id "+
-              "left join ref_source_type ad on a.source_type_id = ad.id where a.reservation_status=5 ";
+              "left join ref_source_type ad on a.source_type_id = ad.id where a.reservation_status=5 ";*/
+              qstring = qstringOri + " where a.reservation_status = 5 "
         }
         else if (a=='house'){
             qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_check_in a, "+
@@ -348,7 +352,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
                 "where a.status = b.status_value and a.status!=2 "
         }
         else if (a=='canceled'){
-            qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
+            /*qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
               "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
               "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
               "if(reservation_type='I','Individual','House Guest') reservation_type_name,a.commission_amount,a.agent_id,a.payment_type_id, "+
@@ -417,7 +421,8 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
               "left join ref_currency aa on a.currency_id = aa.id "+
               "left join ref_kabupaten ab on a.origin_city_id = ab.id "+
               "left join ref_kabupaten ac on a.dest_city_id = ac.id "+
-              "left join ref_source_type ad on a.source_type_id = ad.id where a.reservation_status=6 ";
+              "left join ref_source_type ad on a.source_type_id = ad.id where a.reservation_status=6 ";*/
+              qstring = qstringOri + " where a.reservation_status = 6 "
         }
 
         $scope.dtInstance.reloadData(function(obj){}, false)
@@ -640,8 +645,10 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
 
     $scope.submit = function(type){
         if (type=='profile'){
+            console.log('submit profile')
             $scope.profile.action.submit()
             .then(function(message){
+                console.log('profile success')
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
@@ -656,6 +663,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
                 $scope.clear()
             },
             function(err){
+                console.log('profile err')
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -725,7 +733,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         //$('#coa_code').prop('disabled', true);
 
         // console.log(obj)
-        queryService.post(qstring+ ' where a.id='+obj.id,undefined)
+        queryService.post(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             console.log(result)
 
@@ -902,7 +910,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         queryService.post('update fd_guest_folio SET reservation_status=\'4\', '+
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
-        ' WHERE id='+$scope.gf.id ,undefined)
+        ' WHERE id='+$scope.profile.form.gf.id ,undefined)
         .then(function (result){
             console.log(result)
             if (result.status = "200"){
@@ -913,7 +921,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
                 }, false)
                 $('body').pgNotification({
                     style: 'flip',
-                    message: 'Guest '+$scope.gf.guest_name+' success Check In',
+                    message: 'Success Check In',
                     position: 'top-right',
                     timeout: 2000,
                     type: 'success'
@@ -932,7 +940,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         queryService.post('update fd_guest_folio SET reservation_status=\'5\', '+
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
-        ' WHERE id='+$scope.gf.id ,undefined)
+        ' WHERE id='+$scope.profile.form.gf.id ,undefined)
         .then(function (result){
             console.log(result)
             if (result.status = "200"){
@@ -943,7 +951,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
                 }, false)
                 $('body').pgNotification({
                     style: 'flip',
-                    message: 'Guest '+$scope.gf.guest_name+' success Check In',
+                    message: 'Success Check Out',
                     position: 'top-right',
                     timeout: 2000,
                     type: 'success'
@@ -960,9 +968,12 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     }
     $scope.execCancel = function(){
         queryService.post('update fd_guest_folio SET reservation_status=\'6\', '+
+        ' cancellation_remarks=\''+$scope.profile.form.gf.cancellation_remarks+'\', ' +
+        ' cancellation_type_id='+$scope.profile.form.selected.cancellation_type.selected.id+', ' +
+        ' cancellation_date=\''+globalFunction.currentDate()+'\', ' +
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
-        ' WHERE id='+$scope.gf.id ,undefined)
+        ' WHERE id='+$scope.profile.form.gf.id ,undefined)
         .then(function (result){
             console.log(result)
             if (result.status = "200"){
@@ -973,7 +984,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
                 }, false)
                 $('body').pgNotification({
                     style: 'flip',
-                    message: 'Guest '+$scope.gf.guest_name+' success Check In',
+                    message: 'Success Cancelled',
                     position: 'top-right',
                     timeout: 2000,
                     type: 'success'
@@ -1199,8 +1210,15 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         origin_city: {},
         dest_city: {},
         check_in_type: {},
-        check_out_type: {}
+        check_out_type: {},
+        cancellation_type: {}
     }
+    $scope.profile.form.cancellation_type = []
+    queryService.get('select id,name from ref_cancellation_type where status=1 order by name asc',undefined)
+    .then(function(data){
+        $scope.profile.form.cancellation_type = data.data
+        $scope.profile.form.selected.cancellation_type['selected'] = $scope.profile.form.cancellation_type[0]
+    })
     $scope.profile.form.reservation_status = []
     queryService.get('select value as id,name from table_ref where table_name = \'fd_guest_folio\' and column_name=\'reservation_status\' and value in(0,1,2,3) order by name asc',undefined)
     .then(function(data){
@@ -1434,6 +1452,46 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         return arrays
     }
 
+    $scope.profile.form.getCustomer= function(){
+        queryService.get('select id,concat(first_name,\' \',last_name)as name, first_name, last_name,title,date_format(birth_date,\'%Y-%m-%d\') from mst_customer where id='+$scope.profile.form.selected.customer.selected.id,undefined)
+        .then(function(data){
+            $scope.profile.form.gf.first_name = data.data[0].first_name
+            $scope.profile.form.gf.last_name = data.data[0].last_name
+            $scope.profile.form.selected.title['selected'] = {id:data.data[0].title,name:data.data[0].title}
+            $scope.profile.form.gf.birth_date = data.data[0].birth_date
+        })
+    }
+    $scope.profile.form.getRoomRate= function(){
+        queryService.post("select a.id, a.name,b.rate_1_person,b.rate_2_person,rate_3_person,rate_4_person "+
+            "from mst_room_rate a "+
+            "left join mst_room_rate_line_item b on a.id = b.room_rate_id "+
+            "and room_type_id="+($scope.profile.form.selected.room_type.selected?$scope.profile.form.selected.room_type.selected.id:'0')+
+            " where a.id="+($scope.profile.form.selected.room_rate.selected?$scope.profile.form.selected.room_rate.selected.id:'0') ,undefined)
+        .then(function(data){
+            console.log(data.data)
+            if(data.data.length>0){
+                if ($scope.profile.form.gf.num_of_pax==1){
+                    $scope.profile.form.gf.room_rate_amount = data.data[0].rate_1_person;
+                }
+                else if ($scope.profile.form.gf.num_of_pax==2){
+                    $scope.profile.form.gf.room_rate_amount = data.data[0].rate_2_person;
+                }
+                else if ($scope.profile.form.gf.num_of_pax==3){
+                    $scope.profile.form.gf.room_rate_amount = data.data[0].rate_3_person;
+                }
+                else if ($scope.profile.form.gf.num_of_pax==4){
+                    $scope.profile.form.gf.room_rate_amount = data.data[0].rate_4_person;
+                }
+                else {
+                    $scope.profile.form.gf.room_rate_amount = data.data[0].rate_1_person;
+                }
+            }
+
+
+
+        })
+    }
+
     $scope.profile.action.checkInModal = function(){
         console.log($scope.profile.form.gf)
         $('#modalCheckIn').modal('show')
@@ -1456,7 +1514,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
 
     $scope.profile.action.submit = function(){
         var defer = $q.defer();
-        if ($scope.gf.id.length==0){
+        if ($scope.profile.form.gf.id.length==0){
             //exec creation
 
             var param = {
@@ -1708,6 +1766,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
                             modified_date:globalFunction.currentDate() ,
                             modified_by:$localStorage.currentUser.name.id
                         }
+                        defer.resolve('Success Update');
                         //var param_remark = [[result.data.insertId,2,$scope.gf.remarks_cashier,globalFunction.currentDate(),$localStorage.currentUser.name.id],
                         //    [result.data.insertId,1,$scope.gf.remarks_check_in,globalFunction.currentDate(),$localStorage.currentUser.name.id]]
                     },
@@ -1718,6 +1777,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
                 },
                 function (errx){
                     console.log('error customer',errx)
+                    defer.reject('Error Insert: '+err.code);
                 })
 
         }

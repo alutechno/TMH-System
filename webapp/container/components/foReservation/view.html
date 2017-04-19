@@ -254,7 +254,7 @@
                                           <div class="col-sm-6">
                                               <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                   <label>Room Type</label>
-                                                  <ui-select ng-model="profile.form.selected.room_type.selected" theme="bootstrap" on-select="profile.form.updateRoomList()">
+                                                  <ui-select ng-model="profile.form.selected.room_type.selected" theme="bootstrap" on-select="profile.form.updateRoomList();profile.form.getRoomRate()">
                                                       <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
                                                       <ui-select-choices repeat="item in profile.form.room_type | filter: $select.search">
                                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -366,7 +366,7 @@
                                           <div class="col-sm-6">
                                               <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                   <label>Customer</label>
-                                                  <ui-select ng-model="profile.form.selected.customer.selected" theme="bootstrap" >
+                                                  <ui-select ng-model="profile.form.selected.customer.selected" theme="bootstrap" on-select="profile.form.getCustomer()">
                                                       <ui-select-match placeholder="select customer">{{$select.selected.name}}</ui-select-match>
                                                       <ui-select-choices repeat="item in profile.form.customer | filter: $select.search">
                                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -393,7 +393,7 @@
                                               <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                   <label>Title</label>
                                                   <ui-select ng-model="profile.form.selected.title.selected" theme="bootstrap" >
-                                                      <ui-select-match placeholder="select title">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-match placeholder="title">{{$select.selected.name}}</ui-select-match>
                                                       <ui-select-choices repeat="item in profile.form.title | filter: $select.search">
                                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                                       </ui-select-choices>
@@ -406,7 +406,8 @@
                                           <div class="col-sm-3">
                                               <div pg-form-group class="form-group form-group-default" >
                                                   <label>Pax</label>
-                                                  <input type="text" class="form-control" ng-model="profile.form.gf.num_of_pax">
+
+                                                  <input type="text" class="form-control" ng-model="profile.form.gf.num_of_pax" ng-change="profile.form.getRoomRate()">
                                               </div>
                                           </div>
                                           <div class="col-sm-3">
@@ -433,12 +434,9 @@
                                                   <input type="text" class="form-control" ng-model="profile.form.gf.birth_date" name="birth_date" placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker" >
                                               </div>
                                           </div>
-
                                       </div>
                                       <h5>Company Info</h5>
                                       <div class="row clearfix">
-
-
                                           <div class="col-sm-6">
                                               <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                   <label>Company</label>
@@ -458,7 +456,7 @@
                                           <div class="col-sm-6">
                                               <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                   <label>Rate Code</label>
-                                                  <ui-select ng-model="profile.form.selected.room_rate.selected" theme="bootstrap" >
+                                                  <ui-select ng-model="profile.form.selected.room_rate.selected" theme="bootstrap" on-select="profile.form.getRoomRate()">
                                                       <ui-select-match placeholder="select rate">{{$select.selected.name}}</ui-select-match>
                                                       <ui-select-choices repeat="item in profile.form.room_rate | filter: $select.search">
                                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -1783,7 +1781,7 @@
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h5 class="no-margin p-b-10">Check in Guest {{gf.guest_name}} , {{gf.title}} ?</h5>
+                    <h5 class="no-margin p-b-10">Check in Guest {{profile.form.gf.guest_name}} {{profile.form.gf.title}} ?</h5>
                     <div >
                         <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execCheckIn()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
@@ -1800,9 +1798,9 @@
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h5 class="no-margin p-b-10">Check Out Guest {{gf.guest_name}} , {{gf.title}} ?</h5>
+                    <h5 class="no-margin p-b-10">Check Out Guest {{profile.form.gf.guest_name}} {{profile.form.gf.title}} ?</h5>
                     <div >
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execCheckIn()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execCheckOut()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
                     </div>
                 </div>
@@ -1817,9 +1815,35 @@
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h5 class="no-margin p-b-10">Cancel Guest {{gf.guest_name}} , {{gf.title}} ?</h5>
+                    <h5 class="no-margin p-b-10">Cancel Guest {{profile.form.gf.guest_name}} , {{profile.form.gf.title}} ?</h5>
+                    <div class="row clearfix">
+                        <div class="col-sm-12">
+                            <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                <label>Cancellation Type</label>
+                                <ui-select ng-model="profile.form.selected.cancellation_type.selected" theme="bootstrap" >
+                                    <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
+                                    <ui-select-choices repeat="item in profile.form.cancellation_type | filter: $select.search">
+                                        <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="row clearfix">
+
+
+                        <div class="col-sm-12">
+                            <div pg-form-group class="form-group form-group-default" >
+                                <label>Remark</label>
+                                <input type="text" class="form-control" ng-model="profile.form.gf.cancellation_remarks">
+                            </div>
+                        </div>
+                    </div>
+
                     <div >
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execCheckIn()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execCancel()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
                     </div>
                 </div>
