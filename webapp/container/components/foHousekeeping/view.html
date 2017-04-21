@@ -69,7 +69,7 @@
             </div>
             <div class="panel-body">
                 <div class="table-responsive">
-                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" >
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" width="1800px">
                     </table>
             </div>
         </div>
@@ -78,12 +78,12 @@
 </div>
 
 <!--START FORM INPUT-->
-<div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade slide-right form-input-big" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Day Type Information</div>
+       <div class="panel-title">Room Status Information</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -96,44 +96,112 @@
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
                   <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.code.$invalid && !coa.code.$pristine }">
-                          <label>Code</label>
-                          <input type="text" class="form-control" name="code" id="coa_code" ng-model="coa.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      <div class="row">
+                          <div class="col-sm-3">
+                              <h6 class="m-t-5">Room<h6>
+                          </div>
+                          <div class="col-sm-9">
+                              <h6 class="m-t-5">: {{coa.name}}</h6>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-sm-3">
+                              <h6 class="m-t-5">Room Type<h6>
+                          </div>
+                          <div class="col-sm-9">
+                              <h6 class="m-t-5">: {{coa.room_type_name}}</h6>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-sm-3">
+                              <h6 class="m-t-5">Guest Name<h6>
+                          </div>
+                          <div class="col-sm-9">
+                              <h6 class="m-t-5">: {{coa.customer_name}}</h6>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-sm-3">
+                              <h6 class="m-t-5">Remark<h6>
+                          </div>
+                          <div class="col-sm-9">
+                              <h6 class="m-t-5">: {{coa.check_in_remarks}}</h6>
+                          </div>
+                      </div>
+
+                  </div>
+                  <div class="col-sm-6">
+                      <div class="row">
+                          <div class="col-sm-3">
+                              <h6>Pax/Child <h6>
+                          </div>
+                          <div class="col-sm-9">
+                              <h6 >: {{coa.num_of_pax}} / {{coa.num_of_child}}</h6>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-sm-3">
+                              <h6 class="m-t-5">Nights <h6>
+                          </div>
+                          <div class="col-sm-9">
+                              <h6 class="m-t-5">: {{coa.num_of_nights}}</h6>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-sm-3">
+                              <h6 class="m-t-5">Section <h6>
+                          </div>
+                          <div class="col-sm-9">
+                              <h6 class="m-t-5">: {{coa.building_section_name}}</h6>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-sm-3">
+                              <h6 class="m-t-5">Room Info <h6>
+                          </div>
+                          <div class="col-sm-9">
+                              <h6 class="m-t-5">: {{coa.notes}}</h6>
+                          </div>
                       </div>
                   </div>
+
+
               </div>
 
-              <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.name.$invalid && !coa.name.$pristine }">
-                          <label>Name</label>
-                          <input type="text" class="form-control" name="name" ng-model="coa.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
-                      </div>
-                  </div>
-              </div>
 
               <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default">
-                          <label>Desc</label>
-                          <input type="text" class="form-control" name="name" ng-model="coa.description" >
+                  <div class="col-sm-3">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.hk_status.selected.$invalid && !selected.hk_status.selected.$pristine }">
+                          <label>HK Status</label>
+                          <ui-select ng-model="selected.hk_status.selected" theme="bootstrap" validate-attached-form-element required>
+                              <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in hk_status | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
                       </div>
                   </div>
+                  <div class="col-sm-3">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.fo_status.selected.$invalid && !selected.fo_status.selected.$pristine }">
+                          <label>FO Status</label>
+                          <ui-select ng-model="selected.fo_status.selected" theme="bootstrap" validate-attached-form-element required>
+                              <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in fo_status | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default " >
+                          <label>Notes</label>
+                          <input type="text" class="form-control" name="notes" ng-model="coa.notes" >
+                      </div>
+                  </div>
+
               </div>
-              <div class="row clearfix">
-                <div class="col-sm-12">
-                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.status.selected.$invalid && !selected.status.selected.$pristine }">
-                        <label>Status</label>
-                        <ui-select ng-model="selected.status.selected" theme="bootstrap" validate-attached-form-element required>
-                            <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                            <ui-select-choices repeat="item in arrActive | filter: $select.search">
-                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                            </ui-select-choices>
-                        </ui-select>
-                    </div>
-                </div>
-            </div>
-              </div>
+
+
 
               <br>
               <div class="clearfix"></div>

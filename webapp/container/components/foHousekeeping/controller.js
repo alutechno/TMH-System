@@ -12,11 +12,28 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope[$scope.el[i]] = true;
     }
 
-    var qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_day_type a, "+
-        "(select id as status_id, value as status_value,name as status_name  "+
-            "from table_ref  "+
-            "where table_name = 'ref_product_category' and column_name='status')b "+
-        "where a.status = b.status_value and a.status!=2 "
+    var qstring = "select a.id,a.code,a.name,a.status,d.status_name,a.fo_status,b.fo_status_name,a.hk_status,c.hk_status_name, "+
+            "cast(concat(b.fo_status_value,c.hk_status_value) as char) fo_hk_status, "+
+            "a.room_type_id,e.name room_type_name,a.building_section_id,f.name building_section_name, "+
+        "g.id folio_id,g.code folio_code,g.num_of_nights,g.num_of_stays,g.customer_id,g.customer_name,g.num_of_extra_bed, "+
+        "g.check_in_remarks,g.newspaper_name,g.num_of_pax,g.num_of_child "+
+    "from mst_room a "+
+    "left join (select id fo_status_id,name fo_status_name,value fo_status_value  "+
+    "        from table_ref where table_name='mst_room' and column_name='fo_status')b on a.fo_status = b.fo_status_value "+
+    "left join (select id hk_status_id,name hk_status_name,value hk_status_value  "+
+    "        from table_ref where table_name='mst_room' and column_name='hk_status')c on a.hk_status = c.hk_status_value "+
+    "left join (select id status_id,name status_name,value status_value  "+
+    "        from table_ref where table_name='mst_room' and column_name='status')d on a.fo_status = d.status_value "+
+    "left join ref_room_type e on a.room_type_id=e.id "+
+    "left join mst_building_section f on a.building_section_id=f.id "+
+    "left join (select a.id,a.code,a.num_of_nights,a.num_of_stays,room_id,customer_id,d.newspaper_name,a.num_of_pax,a.num_of_child, "+
+    "        cast(concat(b.first_name,' ',b.last_name) as char) customer_name,num_of_extra_bed,c.remarks check_in_remarks "+
+    "from fd_guest_folio a "+
+    "left join mst_customer b on a.customer_id = b.id "+
+    "left join fd_folio_remarks c on a.id = c.folio_id and c.remark_type_id=1 "+
+    "left join (select a.folio_id,a.newspaper_id,b.name newspaper_name from fd_folio_adds a "+
+    "        left join mst_newspaper b on a.newspaper_id = b.id) d on a.id = d.folio_id "+
+    "        where reservation_status in(0,1,2,3,4)) g on a.id=g.room_id where a.status!=2 "
     var qwhere = ''
 
     $scope.users = []
@@ -38,8 +55,22 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.selected = {
         status: {},
         filter_department: {},
-        filter_account_type: {}
+        filter_account_type: {},
+        hk_status: {},
+        fo_status: {}
     }
+    $scope.hk_status = [];
+    queryService.get("select value id,name from table_ref where table_name = 'mst_room' and column_name='hk_status' ",undefined)
+    .then(function(data){
+        $scope.hk_status = data.data
+        $scope.selected.hk_status['selected'] = $scope.hk_status[0]
+    })
+    $scope.fo_status = [];
+    queryService.get("select value id,name from table_ref where table_name = 'mst_room' and column_name='fo_status' ",undefined)
+    .then(function(data){
+        $scope.fo_status = data.data
+        $scope.selected.fo_status['selected'] = $scope.fo_status[0]
+    })
 
     queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1) order by name asc',undefined)
     .then(function(data){
@@ -128,14 +159,22 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml).withOption('width', '5%'))
     }
     $scope.dtColumns.push(
         //DTColumnBuilder.newColumn('code').withTitle('Code Ori').notVisible(),
-        DTColumnBuilder.newColumn('code').withTitle('Code'),
-        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
-        DTColumnBuilder.newColumn('description').withTitle('Description'),
-        DTColumnBuilder.newColumn('status_name').withTitle('Status')
+        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('fo_hk_status').withTitle('Status'),
+        DTColumnBuilder.newColumn('hk_status_name').withTitle('HK Status'),
+        DTColumnBuilder.newColumn('room_type_name').withTitle('Type'),
+        DTColumnBuilder.newColumn('num_of_extra_bed').withTitle('ExtraBed'),
+        DTColumnBuilder.newColumn('customer_name').withTitle('Customer'),
+        DTColumnBuilder.newColumn('num_of_pax').withTitle('Pax'),
+        DTColumnBuilder.newColumn('num_of_child').withTitle('Child'),
+        DTColumnBuilder.newColumn('check_in_remarks').withTitle('Remarks'),
+        DTColumnBuilder.newColumn('building_section_name').withTitle('Section'),
+        DTColumnBuilder.newColumn('num_of_nights').withTitle('Nights'),
+        DTColumnBuilder.newColumn('newspaper_name').withTitle('Newspaper')
     );
 
     var qwhereobj = {
@@ -214,77 +253,62 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         if ($scope.coa.id.length==0){
             //exec creation
 
-            var param = {
-                code: $scope.coa.code,
-                name: $scope.coa.name,
-                description: $scope.coa.description,
-                status: $scope.selected.status.selected.id,
-                created_date: globalFunction.currentDate(),
-                created_by: $localStorage.currentUser.name.id
-            }
-            console.log(param)
 
-            queryService.post('insert into ref_day_type SET ?',param)
-            .then(function (result){
-                    $('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
-                    }, false)
-                    $('body').pgNotification({
-                        style: 'flip',
-                        message: 'Success Insert '+$scope.coa.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'success'
-                    }).show();
-                    $scope.clear()
-
-            },
-            function (err){
-                console.log(err)
-                $('#form-input').pgNotification({
-                    style: 'flip',
-                    message: 'Error Insert: '+err.code,
-                    position: 'top-right',
-                    timeout: 2000,
-                    type: 'danger'
-                }).show();
-            })
 
         }
         else {
             //exec update
 
             var param = {
-                code: $scope.coa.code,
-                name: $scope.coa.name,
-                description: $scope.coa.description,
-                status: $scope.selected.status.selected.id,
+                hk_status: $scope.selected.hk_status.selected.id,
+                fo_status: $scope.selected.fo_status.selected.id,
+                notes: $scope.coa.notes,
                 modified_date: globalFunction.currentDate(),
                 modified_by: $localStorage.currentUser.name.id
             }
             console.log(param)
-            queryService.post('update ref_day_type SET ? WHERE id='+$scope.coa.id ,param)
+            queryService.post('update mst_room SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
                 if (result.status = "200"){
-                    console.log('Success Update')
-                    $('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
-                    }, false)
-                    $('body').pgNotification({
-                        style: 'flip',
-                        message: 'Success Update '+$scope.coa.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'success'
-                    }).show();
-                    $scope.clear()
+                    var param2 = {
+                          room_id: $scope.coa.id,
+                          status_change_date: globalFunction.currentDate(),
+                          folio_id: $scope.coa.folio_id,
+                          remarks: $scope.coa.notes,
+                          hk_status: $scope.selected.hk_status.selected.id,
+                          fo_status: $scope.selected.fo_status.selected.id,
+                          room_status:$scope.coa.status
+                    }
+                    console.log(param2)
+                    queryService.post('insert into hk_room_status_change_log SET ?' ,param2)
+                    .then(function (result2){
+                        if (result2.status = "200"){
+                            console.log('Success Update')
+                            $('#form-input').modal('hide')
+                            $scope.dtInstance.reloadData(function(obj){
+                                console.log(obj)
+                            }, false)
+                            $('body').pgNotification({
+                                style: 'flip',
+                                message: 'Success Update '+$scope.coa.name,
+                                position: 'top-right',
+                                timeout: 2000,
+                                type: 'success'
+                            }).show();
+                            $scope.clear()
+                        }
+                        else {
+                            console.log('Failed Update')
+                        }
+                    })
+
+
                 }
                 else {
                     console.log('Failed Update')
                 }
             })
+
         }
     }
 
@@ -298,12 +322,20 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             console.log(result)
 
             $scope.coa.id = result.data[0].id
-            $scope.coa.code = result.data[0].code
             $scope.coa.name = result.data[0].name
-            $scope.coa.description = result.data[0].description
+            $scope.coa.room_type_name = result.data[0].room_type_name
+            $scope.coa.customer_name = result.data[0].customer_name
+            $scope.coa.num_of_pax = result.data[0].num_of_pax
+            $scope.coa.num_of_child = result.data[0].num_of_child
+            $scope.coa.num_of_child = result.data[0].num_of_child
+            $scope.coa.num_of_nights = result.data[0].num_of_nights
+            $scope.coa.notes = result.data[0].notes
+            $scope.coa.folio_id = result.data[0].folio_id
             $scope.coa.status = result.data[0].status
-            $scope.coa.status = result.data[0].status
-            $scope.selected.status.selected = {id: result.data[0].status,name:result.data[0].status_name}
+            $scope.coa.building_section_name = result.data[0].building_section_name
+            $scope.selected.hk_status['selected'] = {id:result.data[0].hk_status,name:result.data[0].hk_status_name}
+            $scope.selected.fo_status['selected'] = {id:result.data[0].fo_status,name:result.data[0].fo_status_name}
+
 
         })
     }
