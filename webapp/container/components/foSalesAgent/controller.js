@@ -13,12 +13,9 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope[$scope.el[i]] = true;
     }
 
-    var qstring = "select a.*,b.code account_type_code, b.name account_type_name,c.name status_name, z.name dept_name, "+
-        "if(locate('-000',a.code)>0,'H','D') as is_header,if(locate('-000',a.code)>0,a.code,concat('  ',a.code)) as code_header "+
-        "from mst_ledger_account a "+
-        "left join ref_ledger_account_type b on a.account_type_id = b.id "+
+    var qstring = "select a.id,a.code,a.name,a.phone_number,a.status,c.name status_name "+
+        "from mst_sales_agent a "+
         "left join (select * from table_ref where table_name = 'ref_product_category' and column_name = 'status') c on a.status = c.value "+
-        "left join mst_department z on z.id = a.dept_id "+
         "where a.status != '2' "
     var qwhere = ''
 
@@ -172,18 +169,14 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
         .renderWith($scope.actionsHtml).withOption('width', '10%'))
     }
-    $scope.dtColumns.push(DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '12%')
-    .renderWith($scope.codeHtml))
+    //$scope.dtColumns.push(DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '12%')
+    //.renderWith($scope.codeHtml))
     $scope.dtColumns.push(
         //DTColumnBuilder.newColumn('code').withTitle('Code Ori').notVisible(),
         //DTColumnBuilder.newColumn('code_header').withTitle('Code'),
         DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
-        DTColumnBuilder.newColumn('account_type_name').withTitle('Account Type'),
-        DTColumnBuilder.newColumn('dept_name').withTitle('Dept'),
-        DTColumnBuilder.newColumn('report_level').withTitle('Level'),
-        DTColumnBuilder.newColumn('is_header').withTitle('H/D').withOption('width', '7%'),
-        DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
-        DTColumnBuilder.newColumn('description').withTitle('Description'),
+        DTColumnBuilder.newColumn('code').withTitle('Code'),
+        DTColumnBuilder.newColumn('phone_number').withTitle('Phone'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
 
@@ -277,18 +270,14 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             var param = {
                 code: $scope.coa.code,
                 name: $scope.coa.name,
-                short_name: $scope.coa.short_name,
-                description: $scope.coa.description,
+                phone_number: $scope.coa.phone_number,
                 status: $scope.selected.status.selected.id,
-                account_type_id: $scope.selected.account_type.selected.id,
-                report_level: $scope.selected.report_level.selected.id,
-                dept_id: $scope.selected.dept.selected.id,
                 created_date: globalFunction.currentDate(),
                 created_by: $localStorage.currentUser.name.id
             }
             console.log(param)
 
-            queryService.post('insert into mst_ledger_account SET ?',param)
+            queryService.post('insert into mst_sales_agent SET ?',param)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -328,17 +317,13 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             var param = {
                 code: $scope.coa.code,
                 name: $scope.coa.name,
-                short_name: $scope.coa.short_name,
-                description: $scope.coa.description,
+                phone_number: $scope.coa.phone_number,
                 status: $scope.selected.status.selected.id,
-                account_type_id: $scope.selected.account_type.selected.id,
-                report_level: $scope.selected.report_level.selected.id,
-                dept_id: $scope.selected.dept.selected.id,
                 modified_date: globalFunction.currentDate(),
                 modified_by: $localStorage.currentUser.name.id
             }
             console.log(param)
-            queryService.post('update mst_ledger_account SET ? WHERE id='+$scope.coa.id ,param)
+            queryService.post('update mst_sales_agent SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Update')
@@ -366,39 +351,12 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
             $scope.coa.id = result.data[0].id
             $scope.coa.code = result.data[0].code
-            $scope.coa.short_name = result.data[0].short_name
             $scope.coa.name = result.data[0].name
-            $scope.coa.description = result.data[0].description
-            $scope.coa.status = result.data[0].status
-            $scope.coa.report_level = result.data[0].report_level
-            $scope.coa.account_type_id = result.data[0].account_type_id
-            $scope.coa.dept_id = result.data[0].dept_id
+            $scope.coa.phone_number = result.data[0].phone_number
             $scope.coa.status = result.data[0].status
             $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
 
-            for (var i = $scope.departments.length - 1; i >= 0; i--) {
-                if ($scope.departments[i].id == result.data[0].dept_id){
-                    $scope.selected.dept.selected = {name: $scope.departments[i].name, id: $scope.departments[i].id}
-                }
-            };
-            for (var i = $scope.departments.length - 1; i >= 0; i--) {
-                if ($scope.departments[i].id == result.data[0].dept_id){
-                    $scope.selected.cost_center.selected = {name: $scope.departments[i].name, id: $scope.departments[i].id}
-                }
-            };
-            for (var i = $scope.account_types.length - 1; i >= 0; i--) {
-                if ($scope.account_types[i].id == result.data[0].account_type_id){
-                    $scope.selected.account_type.selected = {name: $scope.account_types[i].name, id: $scope.account_types[i].id}
-                }
-            };
-            for (var i = $scope.arrReportLevel.length - 1; i >= 0; i--) {
-                if ($scope.arrReportLevel[i].id == result.data[0].report_level){
-                    $scope.selected.report_level.selected = {name: $scope.arrReportLevel[i].name, id: $scope.arrReportLevel[i].id}
-                }
-            };
 
-            console.log($scope.coa)
-            console.log($scope.selected)
         })
     }
 
@@ -412,7 +370,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.execDelete = function(){
-        queryService.post('update mst_ledger_account SET status=\'2\', '+
+        queryService.post('update mst_sales_agent SET status=\'2\', '+
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
         ' WHERE id='+$scope.coa.id ,undefined)

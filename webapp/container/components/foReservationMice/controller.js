@@ -626,9 +626,9 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     }
     $scope.execCancel = function(){
         queryService.post('update fd_mice_reservation SET reservation_status=\'6\', '+
-        ' cancellation_remarks=\''+$scope.profile.form.gf.cancellation_remarks+'\', ' +
-        ' cancellation_type_id='+$scope.profile.form.selected.cancellation_type.selected.id+', ' +
-        ' cancellation_date=\''+globalFunction.currentDate()+'\', ' +
+        //' cancellation_remarks=\''+$scope.profile.form.gf.cancellation_remarks+'\', ' +
+        //' cancellation_type_id='+$scope.profile.form.selected.cancellation_type.selected.id+', ' +
+        //' cancellation_date=\''+globalFunction.currentDate()+'\', ' +
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
         ' WHERE id='+$scope.profile.form.gf.id ,undefined)
