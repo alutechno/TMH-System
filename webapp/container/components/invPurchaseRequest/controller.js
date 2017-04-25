@@ -1341,7 +1341,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             'left join ref_product_unit e on a.unit_type_id = e.id '+
             'where a.is_pr = \'Y\' '+
             'and a.status = \'1\' '+
-            'and lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
+            'and lower(a.name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
         .then(function(data){
             $scope.products = data.data
         })
