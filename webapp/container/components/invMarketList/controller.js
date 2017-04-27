@@ -254,26 +254,25 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     queryService.post('select sum(TotalSum)as sm from ('+qstring+qwhere+')a',undefined)
     .then(function(data){
         $scope.sums = data.data[0].sm;
-
     });
 
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '8%'))
+        .renderWith($scope.actionsHtml).withOption('width', '7%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('ID').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('code').withTitle('ML Number').withOption('width', '12%'),
-        DTColumnBuilder.newColumn('doc_status_name').withTitle('Status'),
-        DTColumnBuilder.newColumn('status').withTitle('Approval'),
-        DTColumnBuilder.newColumn('created_date').withTitle('Created Date').withOption('width', '12%'),
-        DTColumnBuilder.newColumn('delivery_date').withTitle('Expected At'),
+        //DTColumnBuilder.newColumn('id').withTitle('ID').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('code').withTitle('ML Number').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('doc_status_name').withTitle('ML Status').withOption('width', '8%'),
+        DTColumnBuilder.newColumn('status').withTitle('Approval').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('created_date').withTitle('ML Create Date').withOption('width', '11%'),
+        DTColumnBuilder.newColumn('delivery_date').withTitle('Expected AT').withOption('width', '9%'),
         DTColumnBuilder.newColumn('cost_center_name').withTitle('Cost Center').withOption('width', '12%'),
         DTColumnBuilder.newColumn('warehouse_name').withTitle('Store Location').withOption('width', '12%'),
-        DTColumnBuilder.newColumn('created_by').withTitle('Created by'),
-        DTColumnBuilder.newColumn('department_name').withTitle('Dept'),
-        DTColumnBuilder.newColumn('Total').withTitle('Total').withClass('text-right')
+        DTColumnBuilder.newColumn('Total').withTitle('Total').withClass('text-right').withOption('width', '9%'),
+        DTColumnBuilder.newColumn('created_by').withTitle('Created by').withOption('width', '9%'),
+        DTColumnBuilder.newColumn('department_name').withTitle('Dept').withOption('width', '9%')
     );
 
     var qwhereobj = {
@@ -317,8 +316,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             qwhereobj.warehouse = ' a.warehouse_id = '+$scope.selected.filter_warehouse.selected.id+ ' '
         }
         //console.log($scope.f.filter_date)
-        if ($scope.f.filter_date.length>0){
-            qwhereobj.date = ' a.created_date between \''+$scope.f.filter_date+ ' 00:00:00\'  and \''+$scope.f.filter_date+' 23:59:59\' '
+        if ($scope.f.filter_date1.length>0 && $scope.f.filter_date2.length>0){
+            qwhereobj.date = ' a.created_date between \''+$scope.f.filter_date1+ ' 00:00:00\'  and \''+$scope.f.filter_date2+' 23:59:59\' '
         }
         //console.log(setWhere())
         qwhere = setWhere()
