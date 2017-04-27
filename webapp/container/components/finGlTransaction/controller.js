@@ -20,6 +20,9 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     $scope.accounts = []
     $scope.total_debit = 0
     $scope.total_credit = 0
+    $scope.balanceStatus = {
+        status:true
+    }
     var qstring = 'select a.id, a.code, a.journal_type_id, date_format(a.bookkeeping_date,\'%Y-%m-%d\')bookkeeping_date, a.gl_status status, c.name as status_name, '+
          'a.notes, a.ref_account,d.code journal_type_code, d.name journal_type_name, '+
          'sum(case when b.transc_type = \'D\' then b.amount else 0 end) as debit_amount, '+
@@ -437,6 +440,11 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         $scope.statusShow.push($scope.status[0])
         $scope.selected.status['selected']=$scope.status[0]
         $('#form-input').modal('show')
+        $scope.items = []
+        $scope.itemsOri = []
+        $scope.total_debit = 0;
+        $scope.total_credit = 0;
+        $scope.balanceStatus.status = true
     }
 
     $scope.submit = function(){
@@ -545,6 +553,38 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
             })
         }
     }
+    function setItems(d){
+        //$scope.$apply(function(){
+            var d1 = 0,c1=0
+            $scope.items = []
+            $scope.itemsOri = []
+
+            for (var i=0;i<d.length;i++){
+                $scope.items.push(
+                    {
+                        id:(i+1),
+                        p_id: d[i].id,
+                        account_id:d[i].account_id,
+                        account_code:d[i].account_code,
+                        account_name: d[i].account_name,
+                        notes: d[i].notes,
+                        debit: d[i].transc_type=='D'?d[i].amount:'',
+                        credit: d[i].transc_type=='C'?d[i].amount:''
+                    }
+                )
+                d1 += d[i].transc_type=='D'?d[i].amount:0
+                c1 += d[i].transc_type=='C'?d[i].amount:0
+                $scope.account[i+1] = $scope.accounts
+
+            }
+            $scope.total_debit = d1
+            $scope.total_credit = c1
+            $scope.ap.debit = d1
+            $scope.ap.credit = c1
+            $scope.ap.balance = d1-c1
+            $scope.itemsOri = angular.copy($scope.items)
+        //});
+    }
 
     $scope.update = function(obj){
         console.log(qstring+ ' where a.id='+obj.id)
@@ -570,8 +610,6 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
             else if(result.data[0].status=="1"){
                 $scope.statusShow.push($scope.status[2])
             }
-            $scope.items = []
-            $scope.itemsOri = []
             var qd = 'select a.*, b.name account_name,b.code account_code '+
                   'from acc_gl_journal a '+
                   'left join mst_ledger_account b on a.account_id = b.id '+
@@ -580,33 +618,15 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
             .then(function(result2){
                 console.log(result2)
                 var d = result2.data
-                var d1 = 0,c1=0
 
-                for (var i=0;i<d.length;i++){
-                    $scope.items.push(
-                        {
-                            id:(i+1),
-                            p_id: d[i].id,
-                            account_id:d[i].account_id,
-                            account_code:d[i].account_code,
-                            account_name: d[i].account_name,
-                            notes: d[i].notes,
-                            debit: d[i].transc_type=='D'?d[i].amount:'',
-                            credit: d[i].transc_type=='C'?d[i].amount:''
-                        }
-                    )
-                    d1 += d[i].transc_type=='D'?d[i].amount:0
-                    c1 += d[i].transc_type=='C'?d[i].amount:0
-                    $scope.account[i+1] = $scope.accounts
+                setItems(d);
 
-                }
-                $scope.total_debit = d1
-                $scope.total_credit = c1
-                $scope.ap.debit = d1
-                $scope.ap.credit = c1
-                $scope.ap.balance = d1-c1
-                $scope.itemsOri = angular.copy($scope.items)
-                console.log($scope.items)
+
+
+
+
+
+
 
             },
             function(err2){
@@ -802,9 +822,19 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         }
         console.log($scope.items)
         console.log(sqlitem.join(';'))
+        console.log('balanceStatus1',$scope.balanceStatus)
         $scope.ap.debit = $scope.total_debit;
         $scope.ap.credit = $scope.total_credit;
         $scope.ap.balance = $scope.ap.debit-$scope.ap.credit;
+        if ($scope.total_debit!=$scope.total_credit) $scope.balanceStatus.status=false
+        else $scope.balanceStatus.status=true
+        console.log('balanceStatus2',$scope.balanceStatus)
+        /*setTimeout(function () {
+            $scope.$apply(function () {
+                $scope.balanceStatus.status= $scope.balanceStatus.status;
+                console.log('balanceStatus3',$scope.balanceStatus)
+            });
+        },100)*/
         return sqlitem
         //return $q.all(results);
     };
@@ -866,6 +896,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         console.log(d)
         console.log(p)
         console.log(t)
+        console.log('debitcredit',$scope.total_debit,$scope.total_credit)
         $scope.total_debit = 0
         $scope.total_credit = 0
         if (t=='debit') {
