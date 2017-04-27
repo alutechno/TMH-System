@@ -162,9 +162,14 @@
                          </div>
                          <div class="input-prepend input-group pull-left lDate m-r-5" >
                              <label>Created Date:</label><br />
-                            <input type="text" class="form-control" ng-model="f.filter_date" name="filter_date" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" >
+                            <input type="text" class="form-control" ng-model="f.filter_date1" name="filter_date1" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" >
                             <!--<span class="add-on input-group-addon bDate"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i></span>-->
                         </div>
+                        <div class="input-prepend input-group pull-left lDate m-r-5" >
+                            <label>&nbsp;</label><br />
+                           <input type="text" class="form-control" ng-model="f.filter_date2" name="filter_date2" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" >
+                           <!--<span class="add-on input-group-addon bDate"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i></span>-->
+                       </div>
                         <div class="btn-group form-group-default-select pull-left  m-r-5">
                             <label>Store Location:</label><br />
                             <ui-select ng-model="selected.filter_warehouse.selected" theme="bootstrap"  >
@@ -179,7 +184,7 @@
                              <ui-select ng-model="selected.filter_cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
                                  <ui-select-match placeholder="Pick Cost Center">{{$select.selected.code}}</ui-select-match>
                                  <ui-select-choices repeat="item in cost_center | filter: $select.search">
-                                     <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
+                                     <div ng-bind-html="trustAsHtml((item.code + ' - ' + item.name| highlight: $select.search))"></div>
                                      <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
                                  </ui-select-choices>
                              </ui-select>
@@ -296,7 +301,7 @@
                                   <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" validate-attached-form-element required>
                                       <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in cost_center | filter: $select.search">
-                                          <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
+                                          <div ng-bind-html="trustAsHtml((item.code + ' - ' + item.name  | highlight: $select.search))"></div>
                                           <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
                                       </ui-select-choices>
                                   </ui-select>

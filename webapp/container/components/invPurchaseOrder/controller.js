@@ -41,7 +41,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     "	left join user b on a.created_by = b.id "+
     "	left join mst_department c on b.department_id = c.id) g on a.ml_id = g.id"
     var qwhere = '';
-    var qstringdetail = 'select a.id as p_id,a.product_id,b.name as product_name,a.order_qty qty,a.price,a.amount,c.name unit_name '+
+    var qstringdetail = 'select a.id as p_id,a.product_id,b.code product_code, b.name as product_name,a.order_qty qty,a.price,a.amount,c.name unit_name '+
         'from inv_po_line_item a '+
         'left join mst_product b on a.product_id = b.id '+
         'left join ref_product_unit c on b.unit_type_id = c.id';
@@ -281,19 +281,21 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '8%'))
+        .renderWith($scope.actionsHtml).withOption('width', '7%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('doc_prev_code').withTitle('PR/ML Code'),
-        DTColumnBuilder.newColumn('prev_created_date').withTitle('PR/ML Date'),
-        DTColumnBuilder.newColumn('prev_created_name').withTitle('PR/ML Created By'),
-        DTColumnBuilder.newColumn('prev_dept').withTitle('PR/ML Dept'),
-        DTColumnBuilder.newColumn('code').withTitle('Code'),
-        DTColumnBuilder.newColumn('delivery_date').withTitle('Delivery'),
-        DTColumnBuilder.newColumn('expired_date').withTitle('Expired'),
-        DTColumnBuilder.newColumn('delivery_status_name').withTitle('Status'),
-        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier'),
-        DTColumnBuilder.newColumn('warehouse_name').withTitle('Store Location')
+        DTColumnBuilder.newColumn('code').withTitle('PO No').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('delivery_status_name').withTitle('Status').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('warehouse_name').withTitle('Store Location').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('cost_center_name').withTitle('Cost Center').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '12%'),
+        DTColumnBuilder.newColumn('Total').withTitle('Total').withClass('text-right').withOption('width', '8%'),
+        DTColumnBuilder.newColumn('delivery_date').withTitle('Expected').withOption('width', '8%'),
+        DTColumnBuilder.newColumn('expired_date').withTitle('Expired').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('doc_prev_code').withTitle('PR/ML No').withOption('width', '9%'),
+        DTColumnBuilder.newColumn('prev_created_date').withTitle('PR/ML Date').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('prev_created_name').withTitle('Created By').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('prev_dept').withTitle('Dept').withOption('width', '7%')
     );
 
     var qwhereobj = {
@@ -351,8 +353,8 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             qwhereobj.source = ' a.po_source = \''+$scope.selected.filter_source.selected.name+ '\' '
         }
         //console.log($scope.f.filter_date)
-        if ($scope.f.filter_date.length>0){
-            qwhereobj.date = ' a.delivery_date between \''+$scope.f.filter_date+ ' 00:00:00\'  and \''+$scope.f.filter_date+' 23:59:59\' '
+        if ($scope.f.filter_date1.length>0 && $scope.f.filter_date2.length>0){
+            qwhereobj.date = ' a.delivery_date between \''+$scope.f.filter_date1+ ' 00:00:00\'  and \''+$scope.f.filter_date2+' 23:59:59\' '
         }
         else qwhereobj.date = ''
         //console.log(setWhere())
@@ -883,6 +885,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                         id:(i+1),
                         p_id: result2.data[i].p_id,
                         product_id:result2.data[i].product_id,
+                        product_code:result2.data[i].product_code,
                         product_name: result2.data[i].product_name,
                         price:result2.data[i].price,
                         qty: result2.data[i].qty,

@@ -112,11 +112,12 @@
             <thead>
             <tr>
 
-                <td width="50%" align="center">PRODUCT</th>
-                <td width="15%" align="center">UNIT</th>
-                <td width="10%" align="center">QTY</th>
-                <td width="10%" align="center">PRICE</th>
-                <td width="10%" align="center">AMOUNT</th>
+                <td width="5%" align="center"><b>Code</b></th>
+                <td width="45%" align="center"><b>Product</b></th>
+                <td width="15%" align="center"><b>Unit</b></th>
+                <td width="10%" align="center"><b>Qty</b></th>
+                <td width="10%" align="center"><b>Price</b></th>
+                <td width="10%" align="center"><b>Amount</b></th>
 
             </tr>
             </thead>
@@ -124,6 +125,8 @@
             <tbody>
             <tr ng-repeat="item in items | filter:filterUser">
 
+                <td>{{item.product_code}}
+                </td>
                 <td>{{item.product_name}}
                 </td>
                 <td > {{item.unit_name}}
@@ -145,11 +148,12 @@
             </tbody>
             <tfooter width="80%" border="1" align="center">
                 <tr>
-                    <td width="10%" style="text-align: center;">Total</th>
-                    <td width="30%">&nbsp;</th>
-                    <td width="10%" style="text-align: right;"><span >{{totalQty| number : fractionSize}}</span></th>
-                    <td width="10%">&nbsp;</th>
-                    <td width="10%" style="text-align: right;"><span >{{tAmt| number : fractionSize}}</span></th>
+                    <td style="text-align: center;">&nbsp;</th>
+                    <td style="text-align: left;"><b>Total</b></th>
+                    <td style="text-align: center;">&nbsp;</th>
+                    <td style="text-align: right;"><span ><b>{{totalQty| number : fractionSize}}</b></span></th>
+                    <td style="text-align: center;">&nbsp;</th>
+                    <td style="text-align: right;"><span ><b>{{tAmt| number : fractionSize}}</b></span></th>
 
                 </tr>
             </tfooter>
@@ -249,10 +253,15 @@
                                 </ui-select>
                              </div>
                              <div class="input-prepend input-group pull-left lDate m-r-5" >
-                                 <label>Delivery Date:</label><br />
-                                <input type="text" class="form-control" ng-model="f.filter_date" name="filter_date" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" >
+                                 <label>Expected Delivery Date:</label><br />
+                                <input type="text" class="form-control" ng-model="f.filter_date1" name="filter_date1" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" >
                                 <!--<span class="add-on input-group-addon bDate"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i></span>-->
                             </div>
+                            <div class="input-prepend input-group pull-left lDate m-r-5" >
+                                <label>&nbsp;</label><br />
+                               <input type="text" class="form-control" ng-model="f.filter_date2" name="filter_date2" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" >
+                               <!--<span class="add-on input-group-addon bDate"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i></span>-->
+                           </div>
                             <div class="btn-group form-group-default-select pull-left  m-r-5">
                                 <label>Source:</label><br />
                                 <ui-select ng-model="selected.filter_source.selected" theme="bootstrap"  >
@@ -279,7 +288,7 @@
                                 <ui-select ng-model="selected.filter_cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
                                     <ui-select-match placeholder="Pick Cost Center">{{$select.selected.code}}</ui-select-match>
                                     <ui-select-choices repeat="item in cost_center | filter: $select.search">
-                                        <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
+                                        <div ng-bind-html="trustAsHtml((item.code+' - '+item.name | highlight: $select.search))"></div>
                                         <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
                                     </ui-select-choices>
                                 </ui-select>
@@ -403,19 +412,19 @@
                       <div class="col-sm-12">
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : po.delivery_date.$invalid && !po.delivery_date.$pristine }">
-                                  <label>Delivery Date</label>
+                                  <label>Expected Delivery Date</label>
                                   <input type="text" class="form-control" ng-model="po.delivery_date" name="delivery_date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
                               </div>
                           </div>
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default" >
-                                  <label>PR Code</label>
+                                  <label>Purchase Request No.</label>
                                   <input type="text" class="form-control" name="notes" ng-model="po.pr_code" ng-disabled="true">
                               </div>
                           </div>
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default" >
-                                  <label>ML Code</label>
+                                  <label>Market List No.</label>
                                   <input type="text" class="form-control" name="notes" ng-model="po.ml_code" ng-disabled="true">
                               </div>
                           </div>
@@ -489,7 +498,8 @@
                                             <thead>
                                             <tr>
                                                 <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
-                                                <th width="30%">Product</th>
+                                                <th width="10%">Code</th>
+                                                <th width="25%">Product</th>
                                                 <th width="10%">Unit</th>
                                                 <th width="10%">Qty</th>
                                                 <th width="15%">Price</th>
@@ -505,6 +515,7 @@
                                                         <button type="button" class="btn btn-default" ng-click="deleteUser(item.id)" ><i class="fa fa-trash-o"></i></button>
                                                     </div>
                                                 </td>
+                                                <td><span>{{item.product_code}}</span></td>
                                                 <td >
                                                     <!--<span editable-text="item.product_name" e-form="tableform" onbeforesave="checkName($data, user.id)" style="width:100%;">
                                                         {{ item.product_name }}
