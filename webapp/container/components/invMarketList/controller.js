@@ -392,7 +392,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     ml_notes: $scope.pr.purchase_notes,
                     doc_status_id:1,
                     delivery_date: $scope.pr.delivery_date,
-                    warehouse_id: $scope.selected.warehouse.selected.id,
+                    warehouse_id: ($scope.selected.warehouse.selected?$scope.selected.warehouse.selected.id:null),
                     cost_center_id: $scope.selected.cost_center.selected?$scope.selected.cost_center.selected.id:null,
                     created_by: $localStorage.currentUser.name.id,
                     created_date: globalFunction.currentDate(),
@@ -493,7 +493,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 ml_notes: $scope.pr.purchase_notes,
                 delivery_date:$scope.pr.delivery_date,
                 doc_status_id:($scope.selected.approval==2?1:$scope.selected.doc_status.selected.id),
-                warehouse_id:$scope.selected.warehouse.selected.id,
+                warehouse_id:($scope.selected.warehouse.selected?$scope.selected.warehouse.selected.id:null),
                 cost_center_id:$scope.selected.cost_center.selected.id,
                 revision_counter:($scope.pr.revision_counter+1),
                 modified_by:$localStorage.currentUser.name.id,
@@ -611,7 +611,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                                 //Generate PO
                                 //console.log('generatePO:'+$scope.selected.doc_status.selected.id+';'+$scope.selected.approval)
                                 if ($scope.selected.doc_status.selected.id == 4 && $scope.selected.approval == 1){
-                                    //console.log('generatePO process:'+ 'CALL `ml-po`('+$scope.pr.id+','+$localStorage.currentUser.name.id+')')
+                                    console.log('generatePO process:'+ 'CALL `ml-po`('+$scope.pr.id+','+$localStorage.currentUser.name.id+')')
                                     queryService.post('CALL `ml-po`('+$scope.pr.id+','+$localStorage.currentUser.name.id+')', undefined)
                                     .then(function (result){
                                         console.log(result)
@@ -986,6 +986,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             if (result.data[0].doc_status_id == 4){
                 $scope.releaseState = false
             }
+            else $scope.releaseState = true
             if ($scope.el.indexOf('approvalDeptHead')>-1 && (result.data[0].doc_status_id == 1 && result.data[0].approval_status == 1)){
                 //$scope.doc_status.push($scope.doc_status_def[0])
                 $scope.doc_status.push($scope.doc_status_def[1])

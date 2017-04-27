@@ -333,7 +333,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 status: $scope.selected.status.selected.id,
                 account_type_id: $scope.selected.account_type.selected.id,
                 report_level: $scope.selected.report_level.selected.id,
-                dept_id: $scope.selected.dept.selected.id,
+                dept_id: ($scope.selected.dept.selected?$scope.selected.dept.selected.id:null),
                 modified_date: globalFunction.currentDate(),
                 modified_by: $localStorage.currentUser.name.id
             }
@@ -346,6 +346,13 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
                     }, false)
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Update '+$scope.coa.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
                     $scope.clear()
                 }
                 else {
