@@ -3,5 +3,6 @@ webapp/assets/
 webapp/pages/
 webapp/tpl/
 node_modules/
+sql/
 .idea/
 .env
