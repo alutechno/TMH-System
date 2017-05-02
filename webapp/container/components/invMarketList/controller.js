@@ -356,9 +356,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.rejectState = true
         $scope.selected.approval = 1
         var dt = new Date()
-        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-        queryService.post('select cast(concat(\'ML/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'ML\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+        $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        //queryService.post('select cast(concat(\'ML/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(currval(\'ML'+ym+'\'),4,\'0\')) as char) as code ',undefined)
+        //console.log('select curr_document_no(\'ML\',\''+$scope.ym+'\') as code');
+        queryService.post('select curr_document_no(\'ML\',\''+$scope.ym+'\') as code',undefined)
         .then(function(data){
+            console.log('data',data);
             $scope.pr.code = data.data[0].code
         })
     }
@@ -386,6 +389,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             //exec creation
             if ($scope.items.length>0){
                 var param = {}
+                //fix document id
+                queryService.post('select next_document_no(\'ML\',\''+$scope.ym+'\')',undefined)
+                .then(function(data){
+                    $scope.pr.code = data.data[0].code
+                })
                 param = {
                     code: $scope.pr.code,
                     ml_notes: $scope.pr.purchase_notes,
@@ -415,6 +423,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     else {
                         paramDetail['approval_status'] = 0
                     }
+
                     queryService.post('insert into inv_ml_doc_state set ?',paramDetail)
                     .then(function (result2){
                         var paramItem = []

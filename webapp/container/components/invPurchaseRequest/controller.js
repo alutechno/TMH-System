@@ -370,8 +370,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.selected.approval = 1
         var dt = new Date()
 
-        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-        queryService.post('select cast(concat(\'PR/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'PR\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+        $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        //queryService.post('select cast(concat(\'PR/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'PR\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+        queryService.post('select curr_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
         .then(function(data){
             $scope.pr.code = data.data[0].code
         })
@@ -400,6 +401,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
             if ($scope.items.length>0 && $scope.child.totalQty>0){
                 var param = {}
+                queryService.post('select next_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
+                .then(function(data){
+                    $scope.pr.code = data.data[0].code
+                })
                 param = {
                     code: $scope.pr.code,
                     purchase_notes: $scope.pr.purchase_notes,
