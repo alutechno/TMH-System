@@ -57,10 +57,12 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
         mobile: '',
         email: '',
         default_menu: '',
-        default_module: ''
+        default_module: '',
+		default_department: '',
     }
     $scope.modules = []
     $scope.menus = []
+	$scope.department=[]
     $scope.selected= {
         //department: {selected:{}},
         module: {selected:{}},
@@ -83,12 +85,19 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
     $scope.setRolesFilter = function(a){
         $scope.filter.role = a
     }
+	queryService.post("select * from mst_department",undefined)
+	.then(function(result){
+		$scope.department = result.data
+
+	},function(err){
+		console.log(err)
+	})
 
     $scope.getModule = function(){
-        console.log($scope.role)
         var rid = []
 		var where=""
 
+<<<<<<< HEAD
         var qStrModule = 'select e.id, e.name '+
             'from user a, role_user b, role_menu c, menu f, group_menu d, module e '+
             'where a.id = b.user_id '+
@@ -99,49 +108,47 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
             //'and b.role_id in('+rid.join(',')+') '+
             //'and a.name = \''+$localStorage.currentUser.name.name+'\' '+
             'group by e.id, e.name order by e.name asc'
+=======
+>>>>>>> da883b457809a739182d263f55c22f80cda93dcd
 		if($scope.role.selected!=undefined){
 			for (var i=0;i<$scope.role.selected.length;i++){
 				rid.push($scope.role.selected[i].id)
 			}
+			var qStrModule = 'select e.id, e.name '+
+	            'from user a, role_user b, role_menu c, menu f, group_menu d, module e '+
+	            'where a.id = b.user_id '+
+	            'and b.role_id = c.role_id '+
+	            'and c.menu_id = f.id '+
+	            'and f.group_id = d.id '+
+	            'and d.module_id = e.id '+
+	            'and b.role_id in('+rid.join(',')+') '+
+	            //'and a.name = \''+$localStorage.currentUser.name.name+'\' '+
+	            'group by e.id, e.name order by e.name asc'
 			where=" and b.role_id in("+rid.join(',')+") "
-			var query="select c.id,c.name menu_name,c.group_id,d.name group_name,e.id modul_id,e.name module_name,GROUP_CONCAT(f.label separator ',')action "+
-				"from role_menu b,menu c,group_menu d,module e,menu_detail f "+
-				"where b.menu_id=c.id "+
-				"and c.group_id=d.id "+
-				"and d.module_id=e.id "+
-				"and b.menu_detail_id=f.id "+where+
-				"group by e.id,c.group_id,c.id "+
-				"order by e.id,c.group_id,c.id;"
-			queryService.post(query,undefined)
+
+			queryService.post(qStrModule,undefined)
 	        .then(function(result){
-				$scope.menu_detail=result.data
-			},function(err){
-				console.log(err)
-			})
+				$scope.modules = result.data
+	            if ($scope.user.default_module == undefined || $scope.user.default_module.length==0){
+	                $scope.selected.module['selected'] = $scope.modules[0]
+					//$scope.getMenu($scope.selected.module['selected'].id,$scope.user.default_menu)
+	            }
+	            else {
+	                for (var i=0;i<$scope.modules.length;i++){
+	                    if ($scope.user.default_module == $scope.modules[i].id){
+	                        $scope.selected.module['selected'] = $scope.modules[i]
+	                        //$scope.getMenu($scope.selected.module['selected'].id,$scope.user.default_menu)
+	                    }
+	                }
+	            }
+				$scope.getMenu($scope.selected.module['selected'].id,$scope.user.default_menu)
+	        },function(err){
+	            console.log(err)
+	        })
 		}else{
 			$scope.menu_detail=[]
 		}
-
-        queryService.get(qStrModule,undefined)
-        .then(function(result){
-            $scope.modules = result.data
-            if ($scope.user.default_module == undefined || $scope.user.default_module.length==0){
-                $scope.selected.module['selected'] = $scope.modules[0]
-            }
-            else {
-                for (var i=0;i<$scope.modules.length;i++){
-                    if ($scope.user.default_module == $scope.modules[i].id){
-                        $scope.selected.module['selected'] = $scope.modules[i]
-                        $scope.getMenu($scope.selected.module['selected'].id,$scope.user.default_menu)
-                    }
-                }
-            }
-        },function(err){
-            console.log(err)
-        })
     }
-
-
 
     $scope.getMenu = function(module_id,menu_id){
         var rid = []
@@ -163,16 +170,17 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
 
         queryService.get(qStrMenu,undefined)
         .then(function(result){
-            $scope.menus = result.data
-            if (menu_id!=undefined){
-                for (var i=0;i<$scope.menus.length;i++){
-                    if($scope.menus[i].id==menu_id){
-                        $scope.selected.menu.selected = {id:$scope.menus[i].id,name:$scope.menus[i].name}
-                        break
-                    }
-                }
-            }
-            else $scope.selected.menu.selected = {id:$scope.menus[0].id,name:$scope.menus[0].name}
+			$scope.menus = result.data
+			if ($scope.user.default_menu == undefined || $scope.user.default_menu.length==0){
+				$scope.selected.menu['selected'] = $scope.menus[0]
+			}
+			else {
+				for (var i=0;i<$scope.menus.length;i++){
+					if ($scope.user.default_menu == $scope.menus[i].id){
+						$scope.selected.menu['selected'] = $scope.menus[i]
+					}
+				}
+			}
         },function(err){
             console.log(err)
         })
@@ -277,7 +285,8 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
             $scope.user.roles = r.toString()
             $scope.user.default_module = $scope.selected.module.selected.id
             $scope.user.default_menu = $scope.selected.menu.selected.id
-            userService.createUser($scope.user)
+			$scope.user.default_department = $scope.selected.department.selected.id
+			userService.createUser($scope.user)
             .then(function (result){
                 if (result.status = "200"){
                     $('#form-input').modal('hide')
@@ -295,6 +304,9 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
                 arrRole.push($scope.role.selected[i].id)
             }
             $scope.user.rolesid = arrRole.toString()
+			$scope.user.default_module = $scope.selected.module.selected.id
+            $scope.user.default_menu = $scope.selected.menu.selected.id
+			$scope.user.default_department = $scope.selected.department.selected.id
             userService.updateUser($scope.user)
             .then(function (result){
                 if (result.status = "200"){

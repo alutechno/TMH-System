@@ -8,9 +8,7 @@ module.exports = function(connection,jwt){
             next();
         }
         else {
-            console.log('authorization checking')
             var user = jwt.verify(req.headers['authorization'].split(' ')[1], 'smrai.inc');
-            console.log('authorization:'+JSON.stringify(user))
             var sqlstr = 'select count(1) '+
             'from user a, role_user b,role_menu c, menu d '+
             'where a.id = b.user_id and b.role_id = c.role_id '+
@@ -20,7 +18,6 @@ module.exports = function(connection,jwt){
             'and d.state = "'+req.headers.state+'"';
 
             connection(sqlstr, undefined,function(err, rows, fields) {
-                console.log('middleware res:'+JSON.stringify(rows))
                 if (err){
                     res.status(500).send({error:'unavailable'})
                 }
@@ -28,7 +25,6 @@ module.exports = function(connection,jwt){
                     res.status(404).send({error:'failed authentication'})
                 }
                 else {
-                    console.log('Success authenticate')
                     req.username = user.username
                     next();
                 }
@@ -49,7 +45,6 @@ module.exports = function(connection,jwt){
         'and g.module_id = h.id ' +
         'and a.name="'+req.body.username+'" '+
         'and a.password="'+req.body.password+'" ';
-
         connection(sqlstr, undefined,function(err, rows, fields) {
             var obj = {
                 isAuthenticated: false,
@@ -78,7 +73,6 @@ module.exports = function(connection,jwt){
                 obj.data['roles'] = arrRoles.filter(onlyUnique);
                 obj.data['menu'] = arrMenu.filter(onlyUnique);
                 obj.data['object'] = arrObject;
-                console.log(obj)
                 res.send(obj)
             }
         });
@@ -122,9 +116,7 @@ module.exports = function(connection,jwt){
         'and a.name="'+req.username+'" '+
         'group by menuname,submenuname '+
         'order by menuname,e.sequence, submenuname ';
-
         //'and a.password="'+req.body.password+'" ';
-
         connection(sqlstr, undefined,function(err, rows, fields) {
             var obj = {
                 isAuthenticated: false,
@@ -275,7 +267,7 @@ module.exports = function(connection,jwt){
     app.get('/getUsers', function (req, res) {
         var dtParam = req.query
         var where = '';
-        if (req.query.id){
+		if (req.query.id){
             where += ' and a.id='+req.query.id
         }
         if (req.query.customSearch.length>0){
@@ -294,6 +286,7 @@ module.exports = function(connection,jwt){
         'from user a, role b, role_user c '+
         'where a.id = c.user_id '+
         'and b.id = c.role_id '+ where +
+<<<<<<< HEAD
         ' group by a.name ';*/
 
         var sqlstr = 'select a.password,a.name as username, full_name as fullname, GROUP_CONCAT(b.name) as roles, a.id , GROUP_CONCAT(b.id) as rolesid, '+
@@ -307,10 +300,14 @@ module.exports = function(connection,jwt){
                         'where a.status <> \'2\' '+ where +
                         'group by a.name '
         console.log(sqlstr);
+=======
+        ' group by a.name '
+>>>>>>> da883b457809a739182d263f55c22f80cda93dcd
         connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
             if (!err){
                 dtParam['recordsFiltered'] = rows[0].cnt
                 connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
+					console.log(rows)
                     if (!err2){
                         dtParam['recordsTotal'] = rows2.length
                         dtParam['data'] = rows2
@@ -365,7 +362,8 @@ module.exports = function(connection,jwt){
             default_menu: req.body.default_menu,
             default_module: req.body.default_module,
             mobile: req.body.mobile,
-            email: req.body.email
+            email: req.body.email,
+			department_id:req.body.default_department
         }
 
         connection(sqlstr, sqlparam,function(err, result) {
@@ -385,7 +383,7 @@ module.exports = function(connection,jwt){
 
     app.post('/updateUser', function(req,res){
         var sqlstr = 'update user SET ? WHERE id=' +req.body.id
-        var tokenuser = {username:req.body.username, password: req.body.password, roleid: req.body.roles};
+        var tokenuser = {username:req.body.username, password: req.body.password, roleid: req.body.rolesid};
         var sqlparam = {
             name:req.body.username,
             password: req.body.password,
@@ -394,7 +392,8 @@ module.exports = function(connection,jwt){
             default_menu: req.body.default_menu,
             default_module: req.body.default_module,
             mobile: req.body.mobile,
-            email: req.body.email
+            email: req.body.email,
+			department_id:req.body.default_department
         }
 
         connection(sqlstr, sqlparam,function(err, result) {
@@ -406,7 +405,7 @@ module.exports = function(connection,jwt){
                 for (var i=0;i<req.body.rolesid.split(',').length;i++){
                     sqlparam2.push([parseInt(req.body.rolesid.split(',')[i]),req.body.id])
                 }
-                connection(sqlstr2, [sqlparam2], function(err3) {
+				connection(sqlstr2, [sqlparam2], function(err3) {
                     if (err3) throw err3;
                 });
             });
