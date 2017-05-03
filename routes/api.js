@@ -335,7 +335,8 @@ module.exports = function(connection,jwt){
             default_menu: req.body.default_menu,
             default_module: req.body.default_module,
             mobile: req.body.mobile,
-            email: req.body.email
+            email: req.body.email,
+			department_id:req.body.default_department
         }
 
         connection(sqlstr, sqlparam,function(err, result) {
@@ -364,7 +365,8 @@ module.exports = function(connection,jwt){
             default_menu: req.body.default_menu,
             default_module: req.body.default_module,
             mobile: req.body.mobile,
-            email: req.body.email
+            email: req.body.email,
+			department_id:req.body.default_department
         }
 
         connection(sqlstr, sqlparam,function(err, result) {

@@ -141,7 +141,19 @@
                     </div>
                 </div>
               </div>
-
+			  <div class="row clearfix">
+				  <div class="col-sm-4">
+					  <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : user.default_department.$invalid && !user.default_department.$pristine }">
+                          <label>Department</label>
+                          <ui-select ng-model="selected.department.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="Select department">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in department | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+			  </div>
 			  <div class="row clearfix">
 				<table class="table border hover" border="1">
 				<tr >
