@@ -119,8 +119,7 @@ if (cluster.isMaster) {
             next()
         }
 	    else {
-	        console.log('authorization checking')
-            log(req.headers,req.path,'authorization',JSON.stringify(req.query),JSON.stringify(req.body),'Authorization')
+	        log(req.headers,req.path,'authorization',JSON.stringify(req.query),JSON.stringify(req.body),'Authorization')
 	        if (req.headers['authorization']){
 	            try{
 	                var user = jwt.verify(req.headers['authorization'].split(' ')[1], 'smrai.inc');
@@ -361,13 +360,12 @@ if (cluster.isMaster) {
 	    'and a.name="'+req.username+'" '+
 	    'group by submenuname '+
 	    'order by e.seqParent,menuname,e.sequence, submenuname ';
-
 	    connection(sqlstr,undefined, function(err, rows, fields) {
 	        var obj = {
 	            isAuthenticated: false,
 	            data: {}
 	        };
-	        if (err) {
+			if (err) {
                 log(req.headers,req.path,'authenticate-500',JSON.stringify(req.query),JSON.stringify(req.body),JSON.stringify(err))
                 res.status('500').send();
             }
