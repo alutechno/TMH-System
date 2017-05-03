@@ -64,7 +64,7 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
     $scope.menus = []
 	$scope.department=[]
     $scope.selected= {
-        //department: {selected:{}},
+        department: {selected:{}},
         module: {selected:{}},
         menu: {selected:{}}
     }
@@ -88,10 +88,28 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
 	queryService.post("select * from mst_department",undefined)
 	.then(function(result){
 		$scope.department = result.data
-
 	},function(err){
 		console.log(err)
 	})
+
+	$scope.getDept = function(){
+        queryService.post("select * from mst_department",undefined)
+        .then(function(result){
+			$scope.department = result.data
+            if ($scope.user.default_department == undefined || $scope.user.default_department.length==0){
+                $scope.selected.department['selected'] = $scope.department[0]
+            }
+            else {
+                for (var i=0;i<$scope.department.length;i++){
+                    if ($scope.user.default_department == $scope.department[i].id){
+                        $scope.selected.department['selected'] = $scope.department[i]
+                    }
+                }
+            }
+        },function(err){
+            console.log(err)
+        })
+    }
 
     $scope.getModule = function(){
         var rid = []
@@ -309,23 +327,27 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
-        userService.getUser(obj)
+		userService.getUser(obj)
         .then(function(result){
-            $scope.user = result.data.data[0]
-            $scope.role.selected = []
+			result.data.data[0].rolesid=result.data.data[0].rolesid.split(',')
+			$scope.user = result.data.data[0]
+			$scope.role.selected = []
             $scope.roles = []
             roleService.getRole()
             .then(function(data){
                 $scope.roles = data.data
-                var xx = []
-                for (var i=0;i<result.data.data[0].roles.split(',').length;i++){
+				var xx = []
+                for (var i=0;i<result.data.data[0].rolesid.length;i++){
                     xx.push({
-                        id:result.data.data[0].rolesid.split(',')[i],
+                        id:result.data.data[0].rolesid[i],
                         name:result.data.data[0].roles.split(',')[i]
                     })
                 }
-                $scope.role.selected = xx
-                $scope.getModule();
+				$scope.role.selected = xx
+				$scope.getModule()
+				$scope.selected.department['selected'] = {id:$scope.user.department_id,name:$scope.user.department_name}
+				$scope.selected.menu['selected'] = {id:$scope.user.default_menu,name:$scope.user.menu_name}
+				$scope.selected.module['selected'] = {id:$scope.user.default_module,name:$scope.user.module_name}
             })
         })
     }

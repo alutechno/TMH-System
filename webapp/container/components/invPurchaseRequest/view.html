@@ -309,6 +309,7 @@
                               <th width="7%">Code</th>
                               <th width="25%">Product</th>
                               <th width="10%">Unit</th>
+							  <th width="10%">Notes</th>
                               <th width="8%">Qty</th>
                               <th width="8%">Price</th>
                               <th width="9%">Amount</th>
@@ -349,6 +350,11 @@
                               </td>
 
                               <td style="vertical-align: middle;">{{ item.unit_name }}</td>
+							  <td style="text-align: right;vertical-align: middle;">
+                                  <span editable-text="item.notes" theme="bootstrap" e-form="tableform" >
+                                      {{ item.notes }}
+                                  </span>
+                              </td>
                               <td style="text-align: right;vertical-align: middle;">
                                   <span editable-text="item.qty" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updatePriceQty($event,item.id,$data)" >
                                       {{ item.qty | number : fractionSize}}

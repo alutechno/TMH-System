@@ -837,6 +837,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         product_code:data.data[i].product_code,
                         product_name:data.data[i].product_name,
                         unit_name:data.data[i].unit_name,
+						notes: data.data[i].order_notes,
                         qty: data.data[i].order_qty,
                         price: data.data[i].net_price,
                         amount: data.data[i].order_amount,
@@ -871,7 +872,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 DTColumnDefBuilder.newColumnDef(2).withOption('width', '5%'),
                 DTColumnDefBuilder.newColumnDef(3).withOption('width', '10%'),
                 DTColumnDefBuilder.newColumnDef(4).withOption('width', '10%'),
-                DTColumnDefBuilder.newColumnDef(5).withOption('width', '35%')
+                DTColumnDefBuilder.newColumnDef(5).withOption('width', '35%'),
+				DTColumnDefBuilder.newColumnDef(6).withOption('width', '10%'),
             ];
             /*$scope.item2Add = {
                 product_id:'',
@@ -1185,6 +1187,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.item = {
         product_id:'',
         product_name:'',
+		notes: '',
         qty: '',
         price: '',
         amount: '',
@@ -1221,6 +1224,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             product_code: '',
             product_name:'',
             unit_name: '',
+			notes: '',
             qty: 0,
             price: 0,
             amount: 0,
@@ -1251,7 +1255,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     // save edits
     $scope.child.saveTable = function(pr_id) {
         var results = [];
-
+console.log($scope.items)
         var sqlitem = [];
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];

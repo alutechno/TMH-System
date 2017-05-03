@@ -317,8 +317,9 @@ module.exports = function(connection,jwt){
     });
 
     app.get('/getUser', function (req, res) {
-		console.log('bbb')
-        var dtParam = req.query
+
+		var dtParam = req.query
+		console.log(dtParam)
         var where = '';
         if (req.query.id){
             where += ' and a.id='+req.query.id
@@ -330,7 +331,7 @@ module.exports = function(connection,jwt){
         'and b.id = c.role_id '+ where +
         ' group by a.name ';*/
 
-        var sqlstr = 'select a.password,a.name as username, full_name as fullname, GROUP_CONCAT(b.name) as roles, a.id , GROUP_CONCAT(b.id) as rolesid, '+
+        var sqlstr = 'select a.default_menu,f.name menu_name,a.default_module,g.name module_name,a.password,a.name as username, full_name as fullname, GROUP_CONCAT(b.name) as roles, a.id , GROUP_CONCAT(CONVERT(b.id,char)) as rolesid, '+
                        'a.department_id, d.name department_name, a.status, e.name as status_name '+
                         'from user a '+
                         'join role_user c on a.id = c.user_id '+
@@ -338,10 +339,13 @@ module.exports = function(connection,jwt){
                         'left join mst_department d on a.department_id = d.id '+
                         'left join (select value, name from table_ref where table_name = \'user\' and column_name = \'status\') e '+
                 			'on e.value = a.status '+
+						'left join menu f on a.default_menu=f.id '+
+						'left join module g on a.default_module=g.id '+
                         'where a.status <> \'2\' '+ where +
-                        'group by a.name ';
-
+                        ' group by a.name ';
+console.log(sqlstr)
         connection(sqlstr , undefined,function(err2, rows2, fields2) {
+			console.log(rows2)
             if (!err2){
                 dtParam['data'] = rows2
                 res.send(dtParam)

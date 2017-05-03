@@ -428,12 +428,12 @@
                                                           </editable-ui-select-choices>
                                                     </span>
                                                 </td>
-                                                <td style="text-align: right;">
+                                                <td style="text-align: left;">
                                                     <span editable-text="item.order_notes" theme="bootstrap" e-form="tableform">
-                                                        {{ item.order_notes }}
+                                                        {{ item.isNew }}
                                                     </span>
                                                 </td>
-                                                <td style="text-align: right;">
+												<td style="text-align: right;">
                                                     <span editable-text="item.qty" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updatePriceQty($event,item.id,$data)">
                                                         {{ item.qty | number : fractionSize}}
                                                     </span>
