@@ -14,11 +14,12 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     var qstring = "select a.*,b.code account_type_code, b.name account_type_name,c.name status_name, z.name dept_name, "+
-        "if(locate('-000',a.code)>0,'H','D') as is_header,if(locate('-000',a.code)>0,a.code,concat('  ',a.code)) as code_header "+
+        "x.code parent_code, concat(x.code, '-', x.name) parent_name "+
         "from mst_ledger_account a "+
         "left join ref_ledger_account_type b on a.account_type_id = b.id "+
         "left join (select * from table_ref where table_name = 'ref_product_category' and column_name = 'status') c on a.status = c.value "+
         "left join mst_department z on z.id = a.dept_id "+
+        "left join mst_ledger_account x on x.id = a.parent_id "+
         "where a.status != '2' "
     var qwhere = ''
 
@@ -40,7 +41,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         report_level: '',
         account_type_id: '',
         dept_id: '',
-        cost_center_id: ''
+        cost_center_id: '',
+        parent_id: ''
     }
 
     $scope.selected = {
@@ -50,7 +52,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         report_level: {},
         status: {},
         filter_department: {},
-        filter_account_type: {}
+        filter_account_type: {},
+        parent: {}
     }
 
     $scope.arrActive = [
@@ -82,16 +85,21 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     .then(function(data){
         $scope.account_types = data.data
     })
+    $scope.parents = []
+    queryService.get('select id, code, name from mst_ledger_account where status = \'1\' and parent_id is null order by code',undefined)
+    .then(function(data){
+        $scope.parents = data.data
+    })
 
     $scope.focusinControl = {};
     $scope.fileName = "Chart of Account";
     $scope.exportExcel = function(){
 
-        queryService.post('select id,code,short_name,name,report_level,account_type_name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
+        queryService.post('select id, code, name, parent_name, account_type_name, dept_name, status_name, short_name, description, report_level from('+qstring + qwhere+')aa order by code',undefined)
         .then(function(data){
             $scope.exportData = [];
             //Header
-            $scope.exportData.push(["ID","Code", "Short Name", "Name", 'Level','Account Type', 'Description','Status']);
+            $scope.exportData.push(["ID","Account", "Account Name", 'Parent Account', 'Account Type', 'Department', 'Status', 'Short Name', 'Description', 'Report Level']);
             //Data
             for(var i=0;i<data.data.length;i++){
                 var arr = []
@@ -135,10 +143,16 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         return html
     }
     $scope.codeHtml = function(data, type, full, meta) {
-        if (full.is_header=='D'){
-            return '&nbsp;&nbsp;&nbsp;&nbsp;'+full.code
+        if (full.parent_id==''||full.parent_id==undefined){
+            return '<b>'+full.code+'</b>'
         }
-        else return '<b>'+full.code+'</b>'
+        else return '&nbsp;&nbsp;&nbsp;'+full.code
+    }
+    $scope.nameHtml = function(data, type, full, meta) {
+        if (full.parent_id==''||full.parent_id==undefined){
+            return '<b>'+full.name+'</b>'
+        }
+        else return '&nbsp;&nbsp;&nbsp;'+full.name
     }
 
     $scope.createdRow = function(row, data, dataIndex) {
@@ -170,21 +184,20 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml).withOption('width', '7%'))
     }
-    $scope.dtColumns.push(DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '12%')
+    $scope.dtColumns.push(DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '7%')
     .renderWith($scope.codeHtml))
     $scope.dtColumns.push(
         //DTColumnBuilder.newColumn('code').withTitle('Code Ori').notVisible(),
         //DTColumnBuilder.newColumn('code_header').withTitle('Code'),
-        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
-        DTColumnBuilder.newColumn('account_type_name').withTitle('Account Type'),
-        DTColumnBuilder.newColumn('dept_name').withTitle('Dept'),
-        DTColumnBuilder.newColumn('report_level').withTitle('Level'),
-        DTColumnBuilder.newColumn('is_header').withTitle('H/D').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%').renderWith($scope.nameHtml),
+        DTColumnBuilder.newColumn('parent_name').withTitle('Parent Account').withOption('width', '15%'),
+        DTColumnBuilder.newColumn('account_type_name').withTitle('Account Type').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('dept_name').withTitle('Deptartment').withOption('width', '15%'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '7%'),
         DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
-        DTColumnBuilder.newColumn('description').withTitle('Description'),
-        DTColumnBuilder.newColumn('status_name').withTitle('Status')
+        DTColumnBuilder.newColumn('description').withTitle('Description')
     );
 
     var qwhereobj = {
@@ -260,6 +273,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.submit = function(){
+        console.log('$scope.selected', $scope.selected);
         if ($scope.coa.id.length==0){
             //exec creation
 
@@ -282,7 +296,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 status: $scope.selected.status.selected.id,
                 account_type_id: $scope.selected.account_type.selected.id,
                 report_level: $scope.selected.report_level.selected.id,
-                dept_id: $scope.selected.dept.selected.id,
+                dept_id: ($scope.selected.dept.selected?$scope.selected.dept.selected.id:null),
+                parent_id: ($scope.selected.parent.selected.id?$scope.selected.parent.selected.id:null),
                 created_date: globalFunction.currentDate(),
                 created_by: $localStorage.currentUser.name.id
             }
@@ -334,6 +349,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 account_type_id: $scope.selected.account_type.selected.id,
                 report_level: $scope.selected.report_level.selected.id,
                 dept_id: ($scope.selected.dept.selected?$scope.selected.dept.selected.id:null),
+                parent_id: ($scope.selected.parent.selected?$scope.selected.parent.selected.id:null),
                 modified_date: globalFunction.currentDate(),
                 modified_by: $localStorage.currentUser.name.id
             }
@@ -381,6 +397,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             $scope.coa.account_type_id = result.data[0].account_type_id
             $scope.coa.dept_id = result.data[0].dept_id
             $scope.coa.status = result.data[0].status
+            $scope.coa.parent_id = result.data[0].parent_id
             $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
 
             for (var i = $scope.departments.length - 1; i >= 0; i--) {
@@ -403,9 +420,14 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                     $scope.selected.report_level.selected = {name: $scope.arrReportLevel[i].name, id: $scope.arrReportLevel[i].id}
                 }
             };
+            for (var i = $scope.parents.length - 1; i >= 0; i--) {
+                if ($scope.parents[i].id == result.data[0].parent_id){
+                    $scope.selected.parent.selected = {name: $scope.parents[i].name, id: $scope.parents[i].id, code: $scope.parents[i].code}
+                }
+            };
 
             console.log($scope.coa)
-            console.log($scope.selected)
+            console.log('$scope.selected', $scope.selected)
         })
     }
 
@@ -448,7 +470,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             status: '',
             report_level: '',
             account_type_id: '',
-            dept_id: ''
+            dept_id: '',
+            parent_id: ''
         }
     }
 

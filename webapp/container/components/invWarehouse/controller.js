@@ -20,10 +20,11 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 
     $scope.table = 'mst_warehouse'
 
-    var qstring = "select a.*,d.status_name "+
+    var qstring = "select a.*,d.status_name, e.name account_name "+
                     "from "+ $scope.table +" a "+
                     "left join (select id as status_id, value as status_value,name as status_name from table_ref "+
-                    "where table_name = 'ref_product_category' and column_name='status' and value in (0,1)) d on a.status = d.status_value "+
+                      "where table_name = 'ref_product_category' and column_name='status' and value in (0,1)) d on a.status = d.status_value "+
+                    "left join mst_ledger_account e on e.id = a.account_id "+
                     "where a.status!=2 "
     var qwhere = ""
 
@@ -34,15 +35,18 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         code: '',
         short_name: '',
         description: '',
-        status: ''
+        status: '',
+        account_id: ''
     }
 
     $scope.selected = {
-        status: {}
+        status: {},
+        account: {}
     }
 
     $scope.arr = {
-        status: []
+        status: [],
+        coa: []
     }
 
     $scope.arr.status = []
@@ -51,6 +55,11 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         $scope.arr.status = data.data
     })
 
+    $scope.arr.coa = []
+    queryService.get('select id, code, name from mst_ledger_account where status = \'1\' and parent_id is not null order by code',undefined)
+    .then(function(data){
+        $scope.arr.coa = data.data
+    })
     $scope.filterVal = {
         search: ''
     }
@@ -86,6 +95,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         $compile(angular.element(row).contents())($scope);
     }
 
+    console.log('data.query', qstring + qwhere);
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL+'/apisql/datatable',
@@ -113,11 +123,12 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         .renderWith($scope.actionsHtml).withOption('width', '10%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('code').withTitle('Code'),
-        DTColumnBuilder.newColumn('name').withTitle('Name'),
-        DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
-        DTColumnBuilder.newColumn('description').withTitle('Description'),
-        DTColumnBuilder.newColumn('status_name').withTitle('Status')
+        DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('short_name').withTitle('Short Name').withOption('width', '13%'),
+        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
+        DTColumnBuilder.newColumn('description').withTitle('Description').withOption('width', '20%'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('account_name').withTitle('Account').withOption('width', '20%')
     );
 
     $scope.filter = function(type,event) {
@@ -157,6 +168,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         if ($scope.field.id.length==0){
             //exec creation
             $scope.field.status = $scope.selected.status.selected.id;
+            $scope.field.account_id = $scope.selected.account.selected.id;
             $scope.field['created_by'] = $localStorage.currentUser.name.id;
             $scope.field['created_date'] = globalFunction.currentDate();
 
@@ -188,6 +200,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         else {
             //exec update
             $scope.field.status = $scope.selected.status.selected.id;
+            $scope.field.account_id = $scope.selected.account.selected.id;
             $scope.field['modified_by'] = $localStorage.currentUser.name.id;
             $scope.field['modified_date'] = globalFunction.currentDate();
 
@@ -234,6 +247,12 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             for (var i = $scope.arr.status.length - 1; i >= 0; i--) {
                 if ($scope.arr.status[i].id == result.data[0].status){
                     $scope.selected.status.selected = {name: $scope.arr.status[i].name, id: $scope.arr.status[i].id}
+                }
+            }
+            $scope.field.account_id = result.data[0].account_id
+            for (var i = $scope.arr.coa.length - 1; i >= 0; i--) {
+                if ($scope.arr.coa[i].id == result.data[0].account_id){
+                    $scope.selected.account.selected = {name: $scope.arr.coa[i].name, id: $scope.arr.coa[i].id}
                 }
             }
 
@@ -286,12 +305,16 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             code: '',
             short_name: '',
             description: '',
-            status: ''
+            status: '',
+            account_id: ''
         }
 
         $scope.selected = {
             status: {
                 selected: $scope.arr.status[0]
+            },
+            account: {
+                selected: $scope.arr.coa[0]
             }
         }
     }
