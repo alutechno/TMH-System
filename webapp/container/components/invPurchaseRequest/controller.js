@@ -155,19 +155,19 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         return $sce.trustAsHtml(value);
     };
 
-    queryService.get('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+    queryService.get('select a.id, a.code,upper(a.name) as name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
         'from mst_cost_center a, mst_department b '+
         'where a.department_id = b.id and a.status!=2 '+
-        'order by a.code asc limit 10',undefined)
+        'order by a.code asc limit 50',undefined)
     .then(function(data){
         $scope.cost_center = data.data
     })
     $scope.costCenterUp = function(text){
-        queryService.post('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+        queryService.post('select a.id, a.code,upper(a.name) as name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
             'from mst_cost_center a, mst_department b '+
             'where a.department_id = b.id and a.status!=2 '+
-            ' and lower(a.code) like \'%'+text+'%\' '+
-            'order by a.code asc limit 10',undefined)
+            ' and lower(a.name) like \'%'+text+'%\' '+
+            'order by a.code asc limit 50',undefined)
         .then(function(data){
             $scope.cost_center = data.data
         })
