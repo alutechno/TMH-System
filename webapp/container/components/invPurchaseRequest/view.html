@@ -351,8 +351,8 @@
 
                               <td style="vertical-align: middle;">{{ item.unit_name }}</td>
 							  <td style="text-align: right;vertical-align: middle;">
-                                  <span editable-text="item.notes" theme="bootstrap" e-form="tableform" >
-                                      {{ item.notes }}
+                                  <span editable-textarea="item.order_notes" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updateNotes($event,item.id,$data)">
+                                      {{ item.order_notes }}
                                   </span>
                               </td>
                               <td style="text-align: right;vertical-align: middle;">

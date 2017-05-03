@@ -497,13 +497,14 @@
                                         <table class="table  table-hover itemtable">
                                             <thead>
                                             <tr>
-                                                <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
-                                                <th width="10%">Code</th>
-                                                <th width="25%">Product</th>
-                                                <th width="10%">Unit</th>
-                                                <th width="10%">Qty</th>
+                                                <th width="5%"><span ng-show="tableform.$visible">Action</span></th>
+                                                <th width="5%">Code</th>
+                                                <th width="20%">Product</th>
+                                                <th width="5%">Unit</th>
+												<th width="20%">Notes</th>
+                                                <th width="5%">Qty</th>
                                                 <th width="15%">Price</th>
-                                                <th width="20%">Amount</th>
+                                                <th width="15%">Amount</th>
                                             </tr>
                                             </thead>
 
@@ -534,6 +535,11 @@
                                                     </span>
                                                 </td>
                                                 <td><span>{{item.unit_name}}</span></td>
+												<td>
+                                                    <span editable-textarea="item.order_notes" e-form="tableform" data-e-ng-keyup="updateNotes($event,item.id,$data)">
+                                                        {{ item.order_notes }}
+                                                    </span></td>
+                                                <td >
                                                 <td>
                                                     <span editable-text="item.qty" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'qty')">
                                                         {{ item.qty | number : fractionSize}}

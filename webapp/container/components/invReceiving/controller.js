@@ -16,7 +16,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.itemsOri = []
     $scope.updateState = false;
     $scope.finalState = false;
-    console.log($scope.el)
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -44,7 +43,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
     var qwhere = '';
     var qstringdetail = 'select b.id rcv_id,a.id,a.code,a.po_id,c.name,a.created_date,a.currency_id,e.name supplier_name,f.code,a.total_amount, b.item_id,g.order_qty,g.price,g.amount,g.product_id,h.name product_name,b.received_qty,b.received_price, '+
-        'h.unit_type_id,h.lowest_unit_conversion,h.recipe_unit_conversion,h.lowest_unit_type_id '+
+        'h.unit_type_id,h.lowest_unit_conversion,h.recipe_unit_conversion,h.lowest_unit_type_id ,b.order_notes'+
         'from inv_po_receive a,inv_receive_line_item b,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f, inv_po_line_item g ,mst_product h '+
         'where a.id=b.receive_id  '+
         'and c.table_name=\'inv_po_receive\'  '+
@@ -170,7 +169,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.cost_center = data.data
     })
     $scope.costCenterUp = function(text){
-        console.log(text)
         queryService.post('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
             'from mst_cost_center a, mst_department b '+
             'where a.department_id = b.id '+
@@ -188,8 +186,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         'and (a.receive_status!=4 or isnull(receive_status)=true) order by a.id',undefined)
     .then(function(data){
         $scope.po_data = data.data
-        console.log($scope.po_data)
-
     })
     queryService.get('select id,code name from ref_currency order by id',undefined)
     .then(function(data){
@@ -236,7 +232,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         })
     }
     $scope.updateListItem = function(){
-        console.log($scope.selected.po)
         if ($scope.selected.po.selected.warehouse_id!=null){
             for(var i=0;i<$scope.warehouse.length;i++){
                 if($scope.selected.po.selected.warehouse_id==$scope.warehouse[i].id){
@@ -251,7 +246,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 ' and a.id = '+$scope.selected.po.selected.cost_center_id+' '+
                 'order by a.code asc limit 10',undefined)
             .then(function(data){
-                console.log(data.data[0])
                 $scope.selected.cost_center['selected'] = data.data[0]
             })
         }
@@ -1331,5 +1325,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             //$scope.items[d-1].rcv_price = p
         }
     }
-
+	$scope.updateNotes = function(e,d,p){
+		$scope.items[d-1].order_notes = p
+	}
 });

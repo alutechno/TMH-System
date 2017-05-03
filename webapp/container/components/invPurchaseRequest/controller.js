@@ -82,7 +82,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         'on a.created_by = e.id '+
     'where a.doc_status_id=b.id '
     var qwhere = '';
-    var qstringdetail = 'select a.id as p_id,a.product_id,b.code as product_code,d.name unit_name,b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name '+
+    var qstringdetail = 'select a.id as p_id,a.product_id,b.code as product_code,d.name unit_name,b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,a.order_notes '+
         'from inv_pr_line_item a '+
         'left join mst_product b on a.product_id = b.id '+
         'left join mst_supplier c on a.supplier_id = c.id '+
@@ -837,7 +837,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         product_code:data.data[i].product_code,
                         product_name:data.data[i].product_name,
                         unit_name:data.data[i].unit_name,
-						notes: data.data[i].order_notes,
+						order_notes: data.data[i].order_notes,
                         qty: data.data[i].order_qty,
                         price: data.data[i].net_price,
                         amount: data.data[i].order_amount,
@@ -1187,7 +1187,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.item = {
         product_id:'',
         product_name:'',
-		notes: '',
+		order_notes: '',
         qty: '',
         price: '',
         amount: '',
@@ -1224,7 +1224,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             product_code: '',
             product_name:'',
             unit_name: '',
-			notes: '',
+			order_notes: '',
             qty: 0,
             price: 0,
             amount: 0,
@@ -1255,7 +1255,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     // save edits
     $scope.child.saveTable = function(pr_id) {
         var results = [];
-console.log($scope.items)
         var sqlitem = [];
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
@@ -1274,8 +1273,8 @@ console.log($scope.items)
             //results.push($http.post('/saveUser', user));
             if (user.isNew && !user.isDeleted){
                 if (user.product_id.toString().length>0 && user.qty>0){
-                    sqlitem.push('insert into inv_pr_line_item (pr_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date) values('+
-                    pr_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    sqlitem.push('insert into inv_pr_line_item (pr_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date,order_notes) values('+
+                    pr_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
                 }
             }
             else if(!user.isNew && user.isDeleted){
@@ -1284,14 +1283,15 @@ console.log($scope.items)
             else if(!user.isNew){
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
-                        var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].supplier_id+$scope.itemsOri[j].qty+$scope.itemsOri[j].price
-                        var d2 = user.p_id+user.product_id+user.supplier_id+user.qty+user.price
+                        var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].supplier_id+$scope.itemsOri[j].qty+$scope.itemsOri[j].price+$scope.itemsOri[j].order_notes
+                        var d2 = user.p_id+user.product_id+user.supplier_id+user.qty+user.price+user.order_notes
                         if(d1 != d2){
                             sqlitem.push('update inv_pr_line_item set '+
                             ' product_id = '+user.product_id+',' +
                             ' supplier_id = '+user.supplier_id+',' +
                             ' order_qty = '+user.qty+',' +
                             ' net_price = '+user.price+',' +
+							' order_notes = "'+user.order_notes+'",' +
                             ' order_amount = '+user.amount+',' +
                             ' modified_by = '+$localStorage.currentUser.name.id+',' +
                             ' modified_date = \''+globalFunction.currentDate()+'\'' +
@@ -1449,5 +1449,7 @@ console.log($scope.items)
 
         return parseFloat(val.replace(/[, ]+/g, " ").trim())
     }
-
+	$scope.updateNotes = function(e,d,p){
+		$scope.items[d-1].order_notes = p
+	}
 });

@@ -651,12 +651,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         }
     }
     $scope.addItemDetail = function(pr_id){
-		console.log("add")
-		console.log($scope.items)
-        var sqli = $scope.child.saveTable(pr_id);
+		var sqli = $scope.child.saveTable(pr_id);
         var defer = $q.defer();
         var paramItem = []
         var sqlCtr = []
+		console.log('sqli')
+		console.log(sqli)
         queryService.post(sqli.join(';'),undefined)
         .then(function (result2){
             defer.resolve(result2)
@@ -1218,9 +1218,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         var results = [];
         var sqlitem = []
 		console.log("items")
-		console.log($scope.items)
+
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
+			console.log(user)
             // actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);
@@ -1233,9 +1234,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             // send on server
             //results.push($http.post('/saveUser', user));
             if (user.isNew && !user.isDeleted){
-                if (user.product_id && user.qty){
+				if (user.product_id && user.qty){
                     sqlitem.push('insert into inv_ml_line_item (ml_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,order_notes,created_by,created_date) values('+
-                    pr_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+user.order_notes+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    pr_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+',"'+user.order_notes+'",'+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }
             }
             else if(!user.isNew && user.isDeleted){
@@ -1253,7 +1254,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                             ' order_qty = '+user.qty+',' +
                             ' net_price = '+user.price+',' +
                             ' order_amount = '+user.amount+',' +
-                            ' order_notes = '+user.order_notes+',' +
+                            ' order_notes = "'+user.order_notes+'",' +
                             ' modified_by = '+$localStorage.currentUser.name.id+',' +
                             ' modified_date = \''+globalFunction.currentDate()+'\'' +
                             ' where id='+user.p_id)
@@ -1368,5 +1369,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         if ($scope.child.tAmt.toString()=='NaN') $scope.child.tAmt = 0
         if ($scope.child.totalQty.toString()=='NaN') $scope.child.totalQty = 0
     }
-
+	$scope.updateNotes = function(e,d,p){
+		$scope.items[d-1].order_notes = p
+	}
 });
