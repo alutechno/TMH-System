@@ -99,8 +99,9 @@
                 <div class="col-sm-4">
                     <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.password.$invalid && !user.password.$pristine }">
                         <label>Password</label>
-                        <input type="text" class="form-control" name="password" ng-model="user.password" validate-attached-form-element required placeholder="Minimum of 4 characters.">
+                        <input type="{{showPassword?'text':'password'}}" class="form-control" name="password" ng-model="user.password" validate-attached-form-element required placeholder="Minimum of 4 characters.">
                     </div>
+					<input type="checkbox" name="Show Password" title="Show Password" ng-model="showPassword" ng-checked="showPassword">Show Password
                 </div>
 				<div class="col-sm-4">
                     <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : user.default_module.$invalid && !user.default_module.$pristine }">

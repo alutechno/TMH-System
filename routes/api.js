@@ -267,8 +267,7 @@ module.exports = function(connection,jwt){
     app.get('/getUsers', function (req, res) {
         var dtParam = req.query
         var where = '';
-		console.log(req.query)
-        if (req.query.id){
+		if (req.query.id){
             where += ' and a.id='+req.query.id
         }
         if (req.query.customSearch.length>0){
