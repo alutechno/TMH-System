@@ -76,7 +76,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         'on a.created_by = e.id '+
     'where a.doc_status_id=b.id '
     var qwhere = '';
-    var qstringdetail = 'select a.id as p_id,a.product_id,b.code product_code, b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,d.name unit_name '+
+    var qstringdetail = 'select a.id as p_id,a.product_id,b.code product_code, b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,d.name unit_name, a.order_notes '+
         'from inv_ml_line_item a '+
         'left join mst_product b on a.product_id = b.id '+
         'left join mst_supplier c on a.supplier_id = c.id '+
@@ -836,7 +836,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         amount: data.data[i].order_amount,
                         supplier_id: data.data[i].supplier_id,
                         supplier_name: data.data[i].supplier_name,
-                        unit_name:data.data[i].unit_name
+                        unit_name:data.data[i].unit_name,
+                        order_notes:data.data[i].order_notes
                     })
                     $scope.child.totalQty += data.data[i].order_qty
                     $scope.child.tAmt += data.data[i].order_amount
@@ -1190,7 +1191,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         supplier_id: '',
         supplier_name: '',
         old_price: '',
-        new_price: ''
+        new_price: '',
+        order_notes: ''
     };
 
     $scope.checkName = function(data, id) {
@@ -1228,6 +1230,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             supplier_name: '',
             old_price: 0,
             new_price: 0,
+            order_notes: '',
             isNew: true
         };
         $scope.items.push($scope.item)
@@ -1274,8 +1277,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 console.log('New',user.product_id.length,user.qty.length)
                 if (user.product_id && user.qty){
                     console.log('masuk')
-                    sqlitem.push('insert into inv_ml_line_item (ml_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date) values('+
-                    pr_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    sqlitem.push('insert into inv_ml_line_item (ml_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,order_notes,created_by,created_date) values('+
+                    pr_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+user.order_notes+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }
             }
             else if(!user.isNew && user.isDeleted){
@@ -1285,8 +1288,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 console.log(user)
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
-                        var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].supplier_id+$scope.itemsOri[j].qty+$scope.itemsOri[j].price
-                        var d2 = user.p_id+user.product_id+user.supplier_id+user.qty+user.price
+                        var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].supplier_id+$scope.itemsOri[j].qty+$scope.itemsOri[j].price+$scope.itemsOri[j].order_notes
+                        var d2 = user.p_id+user.product_id+user.supplier_id+user.qty+user.price+user.order_notes
                         if(d1 != d2){
                             sqlitem.push('update inv_ml_line_item set '+
                             ' product_id = '+user.product_id+',' +
@@ -1294,6 +1297,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                             ' order_qty = '+user.qty+',' +
                             ' net_price = '+user.price+',' +
                             ' order_amount = '+user.amount+',' +
+                            ' order_notes = '+user.order_notes+',' +
                             ' modified_by = '+$localStorage.currentUser.name.id+',' +
                             ' modified_date = \''+globalFunction.currentDate()+'\'' +
                             ' where id='+user.p_id)
