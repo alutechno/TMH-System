@@ -210,7 +210,7 @@ module.exports = function(connection,jwt){
         order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
 
         var sqlstr = 'SELECT id,name from role'+where
-		
+
 		connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
             if (!err){
                 dtParam['recordsFiltered'] = rows[0].cnt
@@ -290,12 +290,23 @@ module.exports = function(connection,jwt){
         var order = '';
         order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
 
-        var sqlstr = 'select a.password,a.name as username, full_name as fullname, GROUP_CONCAT(b.name) as roles, a.id , GROUP_CONCAT(b.id) as rolesid '+
+        /*var sqlstr = 'select a.password,a.name as username, full_name as fullname, GROUP_CONCAT(b.name) as roles, a.id , GROUP_CONCAT(b.id) as rolesid '+
         'from user a, role b, role_user c '+
         'where a.id = c.user_id '+
         'and b.id = c.role_id '+ where +
-        ' group by a.name '
+        ' group by a.name ';*/
 
+        var sqlstr = 'select a.password,a.name as username, full_name as fullname, GROUP_CONCAT(b.name) as roles, a.id , GROUP_CONCAT(b.id) as rolesid, '+
+                       'a.department_id, d.name department_name, a.status, e.name as status_name '+
+                        'from user a '+
+                        'join role_user c on a.id = c.user_id '+
+                        'join role b on b.id = c.role_id '+
+                        'left join mst_department d on a.department_id = d.id '+
+                        'left join (select value, name from table_ref where table_name = \'user\' and column_name = \'status\') e '+
+                			'on e.value = a.status '+
+                        'where a.status <> \'2\' '+ where +
+                        'group by a.name '
+        console.log(sqlstr);
         connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
             if (!err){
                 dtParam['recordsFiltered'] = rows[0].cnt
@@ -318,11 +329,22 @@ module.exports = function(connection,jwt){
             where += ' and a.id='+req.query.id
         }
 
-        var sqlstr = 'select a.password,a.name as username, full_name as fullname, GROUP_CONCAT(CAST(b.name as CHAR)) as roles, a.id , GROUP_CONCAT(CAST(b.id as CHAR)) as rolesid, a.default_module,a.default_menu,a.mobile,a.email '+
+        /*var sqlstr = 'select a.password,a.name as username, full_name as fullname, GROUP_CONCAT(CAST(b.name as CHAR)) as roles, a.id , GROUP_CONCAT(CAST(b.id as CHAR)) as rolesid, a.default_module,a.default_menu,a.mobile,a.email '+
         'from user a, role b, role_user c '+
         'where a.id = c.user_id '+
         'and b.id = c.role_id '+ where +
-        ' group by a.name '
+        ' group by a.name ';*/
+
+        var sqlstr = 'select a.password,a.name as username, full_name as fullname, GROUP_CONCAT(b.name) as roles, a.id , GROUP_CONCAT(b.id) as rolesid, '+
+                       'a.department_id, d.name department_name, a.status, e.name as status_name '+
+                        'from user a '+
+                        'join role_user c on a.id = c.user_id '+
+                        'join role b on b.id = c.role_id '+
+                        'left join mst_department d on a.department_id = d.id '+
+                        'left join (select value, name from table_ref where table_name = \'user\' and column_name = \'status\') e '+
+                			'on e.value = a.status '+
+                        'where a.status <> \'2\' '+ where +
+                        'group by a.name ';
 
         connection(sqlstr , undefined,function(err2, rows2, fields2) {
             if (!err2){

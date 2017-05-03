@@ -8,8 +8,8 @@ var fs=require('fs');
 var cpuCount = require('os').cpus().length;
 var pool  = mysql.createPool({
     connectionLimit : 50,
-     host            : '103.43.47.115',
-    //host            : 'localhost',
+    //host            : '103.43.47.115',
+    host            : '127.0.0.1',
     user            : 'media',
     password        : 'media',
 	database		: 'media',

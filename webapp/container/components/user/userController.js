@@ -96,7 +96,7 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
             'and c.menu_id = f.id '+
             'and f.group_id = d.id '+
             'and d.module_id = e.id '+
-            'and b.role_id in('+rid.join(',')+') '+
+            //'and b.role_id in('+rid.join(',')+') '+
             //'and a.name = \''+$localStorage.currentUser.name.name+'\' '+
             'group by e.id, e.name order by e.name asc'
 		if($scope.role.selected!=undefined){
