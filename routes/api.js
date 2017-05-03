@@ -300,9 +300,7 @@ module.exports = function(connection,jwt){
                         'where a.status <> \'2\' '+ where +
                         'group by a.name '
         console.log(sqlstr);
-=======
-        ' group by a.name '
->>>>>>> da883b457809a739182d263f55c22f80cda93dcd
+
         connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
             if (!err){
                 dtParam['recordsFiltered'] = rows[0].cnt

@@ -97,19 +97,6 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
         var rid = []
 		var where=""
 
-<<<<<<< HEAD
-        var qStrModule = 'select e.id, e.name '+
-            'from user a, role_user b, role_menu c, menu f, group_menu d, module e '+
-            'where a.id = b.user_id '+
-            'and b.role_id = c.role_id '+
-            'and c.menu_id = f.id '+
-            'and f.group_id = d.id '+
-            'and d.module_id = e.id '+
-            //'and b.role_id in('+rid.join(',')+') '+
-            //'and a.name = \''+$localStorage.currentUser.name.name+'\' '+
-            'group by e.id, e.name order by e.name asc'
-=======
->>>>>>> da883b457809a739182d263f55c22f80cda93dcd
 		if($scope.role.selected!=undefined){
 			for (var i=0;i<$scope.role.selected.length;i++){
 				rid.push($scope.role.selected[i].id)
