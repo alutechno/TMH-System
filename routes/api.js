@@ -289,7 +289,7 @@ module.exports = function(connection,jwt){
 <<<<<<< HEAD
         ' group by a.name ';*/
 
-        var sqlstr = 'select a.password,a.name as username, full_name as fullname, GROUP_CONCAT(b.name) as roles, a.id , GROUP_CONCAT(b.id) as rolesid, '+
+        var sqlstr = 'select a.password,a.name as username, full_name as fullname, GROUP_CONCAT(b.name) as roles, a.id , GROUP_CONCAT(CONVERT(b.id,char)) as rolesid, '+
                        'a.department_id, d.name department_name, a.status, e.name as status_name '+
                         'from user a '+
                         'join role_user c on a.id = c.user_id '+

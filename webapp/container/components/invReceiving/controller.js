@@ -28,7 +28,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     	"		a.currency_id,d.supplier_id,e.name supplier_name,f.code currency_code,format(a.total_amount,0)total_amount,a.total_amount TotalSum,a. "+
         "       receive_notes notes,d.warehouse_id,d.cost_center_id,DATE_FORMAT(d.delivery_date,'%Y-%m-%d') delivery_date,a.home_currency_exchange,  "+
         "        d.code po_code,d.po_source,DATE_FORMAT(a.receive_date,'%Y-%m-%d')receive_date,a.receive_notes , "+
-        "        date_format(d.created_date,'%Y-%m-%d') po_created_date, date_format( d.released_date,'%Y-%m-%d') po_released_date, "+
+        "        date_format(d.created_date,'%Y-%m-%d') po_created_date, date_format( d.released_date,'%Y-%m-%d') po_released_date,a.inv_no,a.faktur_no, "+
         "        (select name from table_ref x where table_name='inv_purchase_order' and value in(3,4) and x.value = d.receive_status) as receive_status_name "+
     	"	from inv_po_receive a,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f  "+
         "    where c.table_name='inv_po_receive'   "+
@@ -148,6 +148,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         delivery_type: '',
         delivery_status: '',
         delivery_date: '',
+        inv_no:'',
+		faktur_no:''
         //receive_status: '',
         //payment_type: '',
         //due_days: '',
@@ -194,17 +196,14 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     })
     queryService.get('select id,name from mst_warehouse order by name',undefined)
     .then(function(data){
-        console.log(data)
         $scope.warehouse = data.data
         //$scope.selected.warehouse['selected'] = $scope.warehouse[0]
     })
-    queryService.get('select value as id,name from table_ref where table_name = \'inv_po_receive\' and column_name = \'received_status\' and value in (0,3) order by id',undefined)
+    queryService.get('select value as id,name from table_ref where table_name = \'inv_po_receive\' and column_name = \'received_status\' and value in (0,3,4) order by id',undefined)
     .then(function(data){
-        console.log(data)
         $scope.delivery_status = data.data
         $scope.selected.delivery_status['selected'] = $scope.delivery_status[0]
         //$scope.po.delivery_status = $scope.selected.delivery_status.selected.id
-        console.log($scope.po)
     })
 
     var sqlCtr = 'select a.id,a.name,a.address  '+
@@ -214,12 +213,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
     queryService.post(sqlCtr,undefined)
     .then(function(data){
-        console.log(data)
         $scope.supplier = data.data
     })
 
     $scope.supplierUp = function(text) {
-        console.log(text.toLowerCase())
         var sqlCtr = 'select a.id,a.name,a.address  '+
             'from mst_supplier a '+
             'where lower(a.name) like \''+text.toLowerCase()+'%\'' +
@@ -227,7 +224,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
         queryService.post(sqlCtr,undefined)
         .then(function(data){
-            console.log(data)
             $scope.supplier = data.data
         })
     }
@@ -279,7 +275,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 })
             }
             $scope.itemsOri = angular.copy($scope.items)
-            console.log($scope.items)
         },
         function(err2){
             console.log(err2)
@@ -375,6 +370,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         DTColumnBuilder.newColumn('po_code').withTitle('PO Number'),
         DTColumnBuilder.newColumn('receive_status_name').withTitle('Delivery Status'),
         DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '15%'),
+        DTColumnBuilder.newColumn('inv_no').withTitle('Inv#'),
+		DTColumnBuilder.newColumn('faktur_no').withTitle('Faktur#'),
         DTColumnBuilder.newColumn('currency_code').withTitle('Currency'),
         DTColumnBuilder.newColumn('total_amount').withTitle('Amount').withClass('text-right'),
         DTColumnBuilder.newColumn('po_created_date').withTitle('PO Created'),
@@ -411,7 +408,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         var dt = new Date()
 
         var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-        queryService.post('select cast(concat(\'RR/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'RR\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+        //queryService.post('select cast(concat(\'RR/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'RR\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+		queryService.post('select curr_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
         .then(function(data){
             $scope.po.code = data.data[0].code
         })
@@ -428,7 +426,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 }, false)
                 $('body').pgNotification({
                     style: 'flip',
-                    message: 'Success Insert PR '+$scope.po.code,
+                    message: 'Success Insert  '+$scope.po.code,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'success'
@@ -450,6 +448,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 received_status: $scope.selected.delivery_status.selected.id,
                 receive_date: $scope.po.delivery_date,
                 receive_notes: $scope.po.notes,
+                inv_no: $scope.po.inv_no,
+				faktur_no: $scope.po.faktur_no,
                 modified_by: $localStorage.currentUser.name.id,
                 modified_date: globalFunction.currentDate()
             }
@@ -761,9 +761,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 return d;
             }
             $scope.addItem = function() {
-                console.log($scope.item2Add)
-                console.log($scope.selected.product)
-                console.log($scope.selected.supplier)
                 $scope.item2Add.product_id = $scope.selected.product.selected?$scope.selected.product.selected.id:null
                 $scope.item2Add.product_name = $scope.selected.product.selected?$scope.selected.product.selected.name:null
                 if ($scope.selected.supplier){
@@ -782,7 +779,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     $scope.items.push(angular.copy($scope.item2Add));
                 }
 
-                console.log($scope.items)
                 //$scope.nested.dtInstanceItem.reloadData();
                 $scope.item2Add = {
                     id: '',
@@ -799,8 +795,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 };
             }
             $scope.modifyItem = function(index) {
-                console.log(index)
-                console.log($scope.items[index])
                 $scope.selected.product.selected = {
                     id: $scope.items[index].product_id,
                     name: $scope.items[index].product_name
@@ -829,7 +823,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
             }
             $scope.removeItem = function(index) {
-                console.log(index)
                 $scope.items.splice(index, 1);
             }
         })
@@ -841,11 +834,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.updateState = true;
         $('#form-input').modal('show');
         $scope.po.id = ids
-        console.log(qstring)
 
         queryService.post(qstring+' where z.id='+ids,undefined)
         .then(function (result){
-            console.log(result)
             if (result.data[0].status_id == 3){
                 $scope.finalState = true
             }
@@ -991,7 +982,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }
 
     $scope.clear = function(){
-        console.log('clear')
         $scope.po = {
             id: '',
             code: '',
@@ -1207,9 +1197,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             }
 
         }
-        sqlitem.push('insert into acc_ap_voucher(code,source,receive_id,supplier_id,currency_id,total_amount,home_total_amount,status,open_date,created_by)'+
+        sqlitem.push('insert into acc_ap_voucher(code,source,receive_id,supplier_id,currency_id,total_amount,home_total_amount,status,open_date,created_by,inv_no,faktur_no)'+
         'values(\''+$scope.po.code+'\',\'RR\','+pr_id+','+$scope.selected.supplier.selected.id+','+$scope.po.currency_id+','+amt+
-        ','+($scope.po.home_currency_exchange*amt)+',0,\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+')'
+        ','+($scope.po.home_currency_exchange*amt)+',0,\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+',"'+$scope.po.inv_no+'","'+$scope.po.faktur_no+'")'
         )
         console.log($scope.items)
         console.log(sqlitem)
