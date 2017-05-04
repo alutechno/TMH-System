@@ -29,7 +29,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     	"		a.currency_id,d.supplier_id,e.name supplier_name,f.code currency_code,format(a.total_amount,0)total_amount,a.total_amount TotalSum,a. "+
         "       receive_notes notes,d.warehouse_id,d.cost_center_id,DATE_FORMAT(d.delivery_date,'%Y-%m-%d') delivery_date,a.home_currency_exchange,  "+
         "        d.code po_code,d.po_source,DATE_FORMAT(a.receive_date,'%Y-%m-%d')receive_date,a.receive_notes , "+
-        "        date_format(d.created_date,'%Y-%m-%d') po_created_date, date_format( d.released_date,'%Y-%m-%d') po_released_date, "+
+        "        date_format(d.created_date,'%Y-%m-%d') po_created_date, date_format( d.released_date,'%Y-%m-%d') po_released_date,a.inv_no, "+
         "        (select name from table_ref x where table_name='inv_purchase_order' and value in(3,4) and x.value = d.receive_status) as receive_status_name "+
     	"	from inv_po_receive a,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f  "+
         "    where c.table_name='inv_po_receive'   "+
@@ -149,6 +149,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         delivery_type: '',
         delivery_status: '',
         delivery_date: '',
+        inv_no:''
         //receive_status: '',
         //payment_type: '',
         //due_days: '',
@@ -384,6 +385,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         DTColumnBuilder.newColumn('po_code').withTitle('PO Number'),
         DTColumnBuilder.newColumn('receive_status_name').withTitle('Delivery Status'),
         DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '15%'),
+        DTColumnBuilder.newColumn('inv_no').withTitle('Inv#'),
         DTColumnBuilder.newColumn('currency_code').withTitle('Currency'),
         DTColumnBuilder.newColumn('total_amount').withTitle('Amount').withClass('text-right'),
         DTColumnBuilder.newColumn('po_created_date').withTitle('PO Created'),
@@ -441,7 +443,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 }, false)
                 $('body').pgNotification({
                     style: 'flip',
-                    message: 'Success Insert PR '+$scope.po.code,
+                    message: 'Success Insert  '+$scope.po.code,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'success'
@@ -465,6 +467,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 received_status: $scope.selected.delivery_status.selected.id,
                 receive_date: $scope.po.delivery_date,
                 receive_notes: $scope.po.notes,
+                inv_no: $scope.po.inv_no,
                 modified_by: $localStorage.currentUser.name.id,
                 modified_date: globalFunction.currentDate()
             }
