@@ -521,13 +521,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 approval_status: ($scope.selected.approval==0?0:$scope.selected.approval)
             },$scope.pr.id]
 
-
             queryService.post('update inv_purchase_request set ? where id=?',param)
             .then(function (result){
                 var queryState = ''
                 var paramState = []
                 var paramPr = {}
-
 
                 if ($scope.pr.doc_status_id==$scope.selected.doc_status.selected.id &&
                     $scope.pr.approval_status==$scope.selected.approval ){
@@ -551,9 +549,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     },
                     function (err3){
                         console.log(err3)
-
                     })
-
                 }
                 else {
                     result.data['insertId'] = $scope.pr.id
@@ -581,9 +577,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         },
                         function (err3){
                             console.log(err3)
-
                         })
-
                         var approvalMsg = ''
                         if ($scope.selected.approval==1 || $scope.selected.approval==2){
                             approvalMsg = ($scope.selected.approval=='1'?'Approve':'Reject')

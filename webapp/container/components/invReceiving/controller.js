@@ -341,7 +341,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow)
     .withOption('footerCallback', function (tfoot, data) {
-
         if (data.length > 0) {
             // Need to call $apply in order to call the next digest
             $scope.$apply(function () {
@@ -385,17 +384,14 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             if (event.keyCode == 13){
                 if ($scope.filterVal.search.length>0) qwhere = ' where z.code like \'%'+$scope.filterVal.search+'%\' '
                 else qwhere = ''
-
                 $scope.nested.dtInstance.reloadData(function(obj){
                     console.log(obj)
                 }, false)
             }
         }
-
     }
 
     /*END AD ServerSide*/
-
     $scope.openQuickView = function(state){
         $scope.updateState = false
         if (state == 'add'){
@@ -408,8 +404,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         var dt = new Date()
 
         var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-        //queryService.post('select cast(concat(\'RR/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'RR\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
-		queryService.post('select curr_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
+        queryService.post('select curr_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
         .then(function(data){
             $scope.po.code = data.data[0].code
         })
