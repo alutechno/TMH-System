@@ -1699,6 +1699,25 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+    .state('app.inv.stockAdminCS', {
+        url: "/stockAdminCS",
+        templateUrl: "container/components/invCSStockAdmin/view.html",
+        controller: 'InvCostCenterStockAdminCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invCSStockAdmin/controller.js');
+                });
+            }]
+        }
+    })
     .state('app.inv.stockOpname', {
         url: "/stockOpname",
         templateUrl: "container/components/invWarehouseStockOpname/view.html",
