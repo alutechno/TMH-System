@@ -12,7 +12,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.buttonDelete = false;
     $scope.addItem = false;
     $scope.approveState = false;
-    //$scope.role = false;
     $scope.rejectState = false;
     $scope.viewMode = false;
     $scope.releaseState = true;
@@ -76,7 +75,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         'on a.created_by = e.id '+
     'where a.doc_status_id=b.id '
     var qwhere = '';
-    var qstringdetail = 'select a.id as p_id,a.product_id,b.code product_code, b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,d.name unit_name '+
+    var qstringdetail = 'select a.id as p_id,a.product_id,b.code product_code, b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,d.name unit_name, a.order_notes '+
         'from inv_ml_line_item a '+
         'left join mst_product b on a.product_id = b.id '+
         'left join mst_supplier c on a.supplier_id = c.id '+
@@ -99,8 +98,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.totalPrice = 0
     $scope.child.tAmt = 0
 
-
-
     $scope.id = '';
     $scope.pr = {
         id: '',
@@ -109,7 +106,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         delivery_date: '',
         cost_center_id: ''
     }
-
 
     $scope.delivery_types = [
         {
@@ -149,19 +145,19 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         return $sce.trustAsHtml(value);
     };
 
-    queryService.get('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+    queryService.get('select a.id, a.code,upper(a.name) name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
         'from mst_cost_center a, mst_department b '+
         'where a.department_id = b.id and a.status!=2 '+
-        'order by a.code asc limit 10',undefined)
+        'order by a.code asc limit 50',undefined)
     .then(function(data){
         $scope.cost_center = data.data
     })
     $scope.costCenterUp = function(text){
-        queryService.post('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+        queryService.post('select a.id, a.code,upper(a.name) name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
             'from mst_cost_center a, mst_department b '+
             'where a.department_id = b.id and a.status!=2 '+
-            ' and lower(a.code) like \'%'+text+'%\' '+
-            'order by a.code asc limit 10',undefined)
+            ' and lower(a.name) like \'%'+text+'%\' '+
+            'order by a.code asc limit 50',undefined)
         .then(function(data){
             $scope.cost_center = data.data
         })
@@ -177,16 +173,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.doc_status_def = data.data
     })
 
-    /*START AD ServerSide*/
-
-    //define default option
-
     $scope.dtOptionsItem = DTOptionsBuilder.newOptions();
-    //define colum
-    $scope.dtColumnsItem = [
-
-    ];
-    $scope.dtInstance = {} //Use for reloadData
+    $scope.dtColumnsItem = [];
+    $scope.dtInstance = {}
     $scope.nested = {};
     $scope.nested.dtInstance = {}
     $scope.actionsHtml = function(data, type, full, meta) {
@@ -211,7 +200,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }
 
     $scope.createdRow = function(row, data, dataIndex) {
-        // Recompiling so we can bind Angular directive to the DT
         $compile(angular.element(row).contents())($scope);
     }
     $scope.sums = 0
@@ -356,9 +344,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.rejectState = true
         $scope.selected.approval = 1
         var dt = new Date()
-        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-        queryService.post('select cast(concat(\'ML/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'ML\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+        $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        //queryService.post('select cast(concat(\'ML/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(currval(\'ML'+ym+'\'),4,\'0\')) as char) as code ',undefined)
+        //console.log('select curr_document_no(\'ML\',\''+$scope.ym+'\') as code');
+        queryService.post('select curr_document_no(\'ML\',\''+$scope.ym+'\') as code',undefined)
         .then(function(data){
+            console.log('data',data);
             $scope.pr.code = data.data[0].code
         })
     }
@@ -373,7 +364,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         }
     }
     $scope.openQuickViewItem = function(state){
-        //$scope.addDetail(1);
         $('#form-input-item').modal('show')
     }
     $scope.setApprovalStatus = function(ev){
@@ -383,9 +373,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
     $scope.submit = function(){
         if ($scope.pr.id.length==0 ){
-            //exec creation
             if ($scope.items.length>0){
                 var param = {}
+                queryService.post('select next_document_no(\'ML\',\''+$scope.ym+'\')',undefined)
+                .then(function(data){
+                    $scope.pr.code = data.data[0].code
+                })
                 param = {
                     code: $scope.pr.code,
                     ml_notes: $scope.pr.purchase_notes,
@@ -415,6 +408,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     else {
                         paramDetail['approval_status'] = 0
                     }
+
                     queryService.post('insert into inv_ml_doc_state set ?',paramDetail)
                     .then(function (result2){
                         var paramItem = []
@@ -426,7 +420,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                             ])
 
                         }
-                        //queryService.post('insert into inv_pr_line_item(pr_id,product_id,supplier_id,order_qty,net_price,order_amount,created_by,created_date) values ?',[paramItem])
                         $scope.addItemDetail(result.data.insertId)
                         .then(function (result3){
                             $('#form-input').modal('hide')
@@ -500,13 +493,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 approval_status: ($scope.selected.approval==0?0:$scope.selected.approval)
             },$scope.pr.id]
 
-
             queryService.post('update inv_market_list set ? where id=?',param)
             .then(function (result){
                 var queryState = ''
                 var paramState = []
                 var paramPr = {}
-
 
                 if ($scope.pr.doc_status_id==$scope.selected.doc_status.selected.id &&
                     $scope.pr.approval_status==$scope.selected.approval ){
@@ -660,15 +651,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         }
     }
     $scope.addItemDetail = function(pr_id){
-        console.log('addItemDetail')
-        console.log($scope.items)
-        console.log(pr_id)
-        var sqli = $scope.child.saveTable(pr_id);
-        console.log(sqli)
-
+		var sqli = $scope.child.saveTable(pr_id);
         var defer = $q.defer();
         var paramItem = []
         var sqlCtr = []
+		console.log('sqli')
+		console.log(sqli)
         queryService.post(sqli.join(';'),undefined)
         .then(function (result2){
             defer.resolve(result2)
@@ -743,10 +731,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.addDetail = function(ids){
         //$scope.show.prTable = false;
         //$scope.show.itemTable = true;
-        console.log(ids)
         queryService.post(qstring+' and a.id='+ids,undefined)
         .then(function (result){
-            console.log(result)
 
             /*queryService.get('select id,name,last_order_price from mst_product order by id limit 50 ',undefined)
             .then(function(data){
@@ -810,8 +796,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
             queryService.post(qstringdetail + ' where a.ml_id='+ids,undefined)
             .then(function(data){
-                console.log(data)
-                console.log($scope.items)
+
                 $scope.items = []
                 $scope.child.totalQty = 0
                 $scope.child.tAmt = 0
@@ -827,12 +812,13 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         amount: data.data[i].order_amount,
                         supplier_id: data.data[i].supplier_id,
                         supplier_name: data.data[i].supplier_name,
-                        unit_name:data.data[i].unit_name
+                        unit_name:data.data[i].unit_name,
+                        order_notes:data.data[i].order_notes
                     })
                     $scope.child.totalQty += data.data[i].order_qty
                     $scope.child.tAmt += data.data[i].order_amount
                 }
-                $scope.itemsOri = angular.copy($scope.items)
+				$scope.itemsOri = angular.copy($scope.items)
             })
             $scope.nested.dtInstanceItem = {}
 
@@ -852,9 +838,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 DTColumnDefBuilder.newColumnDef(0).withOption('width', '5%').notSortable(),
                 DTColumnDefBuilder.newColumnDef(1).withOption('width', '35%'),
                 DTColumnDefBuilder.newColumnDef(2).withOption('width', '5%'),
-                DTColumnDefBuilder.newColumnDef(3).withOption('width', '10%'),
+				DTColumnDefBuilder.newColumnDef(3).withOption('width', '10%'),
                 DTColumnDefBuilder.newColumnDef(4).withOption('width', '10%'),
-                DTColumnDefBuilder.newColumnDef(5).withOption('width', '35%')
+                DTColumnDefBuilder.newColumnDef(5).withOption('width', '35%'),
+				DTColumnDefBuilder.newColumnDef(6).withOption('width', '10%')
             ];
             /*$scope.item2Add = {
                 product_id:'',
@@ -945,14 +932,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.update = function(ids){
         $('#form-input').modal('show');
         $scope.pr.id = ids
-        console.log(qstring)
-        console.log($scope.updateState)
         //$scope.updateState = true
-        console.log($scope.updateState)
 
         queryService.post(qstring+' and a.id='+ids,undefined)
         .then(function (result){
-            console.log(result)
             if ($scope.seqState < parseInt(result.data[0].doc_status_id)){
                 $scope.disableAction = true;
             }
@@ -1016,31 +999,23 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             }
             //else $scope.doc_status.push($scope.doc_status_def[0])
 
-            console.log($scope.doc_status)
-            console.log($scope.doc_status_def)
-
             /*for (var i=result.data[0].doc_status_id;i<(result.data[0].doc_status_id+1);i++){
                 $scope.doc_status.push($scope.doc_status_def[i])
             }*/
             if ((result.data[0].approval_status==0||result.data[0].approval_status==2) && result.data[0].doc_status_id==1){
-                console.log('satu')
                 $scope.statusState=true
                 $scope.selected.approval = 0
                 $scope.approveState = false
                 $scope.rejectState = true
             }
             else if (result.data[0].approval_status==0 && result.data[0].doc_status_id>1){
-                console.log('dua')
                 $scope.statusState=true
             }
             else {
-                console.log('tiga')
                 $scope.selected.approval = 0
                 $scope.approveState = true
                 $scope.rejectState = true
-
             }
-
 
             if ((result.data[0].doc_status_id==1) && $scope.el.indexOf('buttonCreate')>-1) $scope.viewMode = false
             else if (((result.data[0].doc_status_id==2&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==1 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalDeptHead')>-1) $scope.viewMode = false
@@ -1051,7 +1026,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             else if (((result.data[0].doc_status_id==7&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==6 && result.data[0].approval_status==1)) && $scope.el.indexOf('orderReleased')>-1) $scope.viewMode = false
             else $scope.viewMode = true
 
-            console.log($scope.viewMode)
             $scope.addDetail(ids)
         },
         function (err){
@@ -1148,7 +1122,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }
 
     $scope.clear = function(){
-        console.log('clear')
         $scope.pr = {
             id: '',
             code: '',
@@ -1181,7 +1154,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         supplier_id: '',
         supplier_name: '',
         old_price: '',
-        new_price: ''
+        new_price: '',
+        order_notes: ''
     };
 
     $scope.checkName = function(data, id) {
@@ -1197,7 +1171,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
     // mark user as deleted
     $scope.deleteUser = function(id) {
-        console.log(id)
         var filtered = $filter('filter')($scope.items, {id: id});
         if (filtered.length) {
             filtered[0].isDeleted = true;
@@ -1219,6 +1192,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             supplier_name: '',
             old_price: 0,
             new_price: 0,
+            order_notes: '',
             isNew: true
         };
         $scope.items.push($scope.item)
@@ -1241,15 +1215,13 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
     // save edits
     $scope.child.saveTable = function(pr_id) {
-        console.log('asd')
         var results = [];
-        console.log($scope.itemsOri)
-
-        console.log(JSON.stringify($scope.items,null,2))
         var sqlitem = []
+		console.log("items")
+
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
-            console.log(user)
+			console.log(user)
             // actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);
@@ -1262,22 +1234,19 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             // send on server
             //results.push($http.post('/saveUser', user));
             if (user.isNew && !user.isDeleted){
-                console.log('New',user.product_id.length,user.qty.length)
-                if (user.product_id && user.qty){
-                    console.log('masuk')
-                    sqlitem.push('insert into inv_ml_line_item (ml_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date) values('+
-                    pr_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+				if (user.product_id && user.qty){
+                    sqlitem.push('insert into inv_ml_line_item (ml_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,order_notes,created_by,created_date) values('+
+                    pr_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+',"'+user.order_notes+'",'+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }
             }
             else if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from inv_ml_line_item where id='+user.p_id)
             }
             else if(!user.isNew){
-                console.log(user)
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
-                        var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].supplier_id+$scope.itemsOri[j].qty+$scope.itemsOri[j].price
-                        var d2 = user.p_id+user.product_id+user.supplier_id+user.qty+user.price
+                        var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].supplier_id+$scope.itemsOri[j].qty+$scope.itemsOri[j].price+$scope.itemsOri[j].order_notes
+                        var d2 = user.p_id+user.product_id+user.supplier_id+user.qty+user.price+user.order_notes
                         if(d1 != d2){
                             sqlitem.push('update inv_ml_line_item set '+
                             ' product_id = '+user.product_id+',' +
@@ -1285,6 +1254,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                             ' order_qty = '+user.qty+',' +
                             ' net_price = '+user.price+',' +
                             ' order_amount = '+user.amount+',' +
+                            ' order_notes = "'+user.order_notes+'",' +
                             ' modified_by = '+$localStorage.currentUser.name.id+',' +
                             ' modified_date = \''+globalFunction.currentDate()+'\'' +
                             ' where id='+user.p_id)
@@ -1294,8 +1264,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             }
 
         }
-        console.log($scope.items)
-        console.log(sqlitem.join(';'))
         return sqlitem
         //return $q.all(results);
     };
@@ -1335,12 +1303,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }*/
 
     $scope.getProductPrice = function(e,d){
-        console.log(e)
         $scope.items[d-1].product_id = e.id
         $scope.items[d-1].product_name = e.name
         $scope.items[d-1].product_code = e.product_code
         $scope.items[d-1].unit_name = e.unit_name
-        $scope.items[d-1].price = e.last_order_price
+		$scope.items[d-1].price = e.last_order_price
         $scope.items[d-1].amount = e.last_order_price * $scope.items[d-1].qty
         var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(concat(b.price,\' (valid until:\',date_format(contract_end_date,\'%Y-%m-%d\'),\')\' ),\' - \')) as char)as price_name,'+
             'b.contract_end_date,cast(concat(\'Type: \',c.name) as char) type_name  '+
@@ -1357,8 +1324,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         })
     }
     $scope.funcAsync = function(e,d){
-        console.log('funcAsync')
-        console.log($scope.items[d-1].product_id)
         var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(concat(b.price,\' (valid until:\',date_format(contract_end_date,\'%Y-%m-%d\'),\')\' ),\' - \')) as char)as price_name,'+
             'b.contract_end_date,cast(concat(\'Type: \',c.name) as char) type_name  '+
             'from mst_supplier a '+
@@ -1376,7 +1341,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         })
     }
     $scope.getProductPriceSupplier = function(e,d){
-        console.log(e)
         $scope.items[d-1].supplier_id = e.id
         $scope.items[d-1].supplier_name = e.name
         $scope.items[d-1].price = e.price
@@ -1405,5 +1369,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         if ($scope.child.tAmt.toString()=='NaN') $scope.child.tAmt = 0
         if ($scope.child.totalQty.toString()=='NaN') $scope.child.totalQty = 0
     }
-
+	$scope.updateNotes = function(e,d,p){
+		$scope.items[d-1].order_notes = p
+	}
 });

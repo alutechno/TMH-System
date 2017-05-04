@@ -301,7 +301,7 @@
                                   <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" validate-attached-form-element required>
                                       <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in cost_center | filter: $select.search">
-                                          <div ng-bind-html="trustAsHtml((item.code + ' - ' + item.name  | highlight: $select.search))"></div>
+                                          <div ng-bind-html="trustAsHtml((item.name  | highlight: $select.search))"></div>
                                           <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
                                       </ui-select-choices>
                                   </ui-select>
@@ -376,14 +376,15 @@
                                         <table class="table  table-hover itemtable">
                                             <thead>
                                             <tr>
-                                                <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
-                                                <th width="7%" >Code</th>
-                                                <th width="25%" >Product</th>
-                                                <th width="8%" >Unit</th>
-                                                <th width="8%" style="text-align:center">Qty</th>
-                                                <th width="8%" style="text-align:center">Price</th>
-                                                <th width="9%" style="text-align:center">Amount</th>
-                                                <th width="25%">Supplier</th>
+                                                <th width="1%"><span ng-show="tableform.$visible">Action</span></th>
+                                                <th width="1%" >Code</th>
+                                                <th width="15%" >Product</th>
+                                                <th width="1%" >Unit</th>
+                                                <th width="15%">Supplier</th>
+                                                <th width="10%" >Notes</th>
+                                                <th width="3%" style="text-align:center">Qty</th>
+                                                <th width="15%" style="text-align:center">Price</th>
+                                                <th width="15%" style="text-align:center">Amount</th>
                                             </tr>
                                             </thead>
 
@@ -403,17 +404,36 @@
                                                     <span editable-ui-select="item.product_name" theme="bootstrap" data-e-name="product_name" name="product_name" data-e-ng-model="selected.product.selected"
                                                     data-e-form="tableform" data-e-ng-keyup="productUp($select.search)" data-e-on-select="getProductPrice($item,item.id)" >
                                                     {{item.product_name}}
-                                                          <editable-ui-select-match placeholder="select product/item" style="width: 300px" >
+                                                          <editable-ui-select-match placeholder="select product/item" style="width: 250px" >
                                                               <!--{{$select.selected.name}}-->
                                                               {{item.product_name || 'Empty'}}
                                                           </editable-ui-select-match>
-                                                          <editable-ui-select-choices repeat="d in products | filter: $select.search" style="width: 300px" >
+                                                          <editable-ui-select-choices repeat="d in products | filter: $select.search" style="width: 250px" >
                                                               <div ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></div>
                                                           </editable-ui-select-choices>
                                                     </span>
                                                 </td>
                                                 <td style="vertical-align: middle;">{{ item.unit_name }}</td>
-                                                <td style="text-align: right;">
+                                                <td >
+                                                    <span editable-ui-select="item.supplier_name" theme="bootstrap" data-e-name="supplier_name" name="supplier_name" data-e-ng-model="selected.supplier.selected"
+                                                    data-e-form="tableform" data-e-on-select="getProductPriceSupplier($item,item.id)" >
+                                                    {{item.supplier_name}}
+                                                          <editable-ui-select-match placeholder="Supplier..."  style="width: 250px;">
+                                                              {{item.supplier_name}}
+                                                          </editable-ui-select-match>
+                                                          <editable-ui-select-choices repeat="item in suppliers | filter: $select.search" refresh="funcAsync($select.search,item.id)" refresh-delay="0" style="width: 250px;">
+                                                              <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                                                              <small ng-bind-html="trustAsHtml((item.type_name | highlight: $select.search))"></small><br />
+                                                              <small ng-bind-html="trustAsHtml((item.price_name | highlight: $select.search))"></small>
+                                                          </editable-ui-select-choices>
+                                                    </span>
+                                                </td>
+                                                <td style="text-align: left;">
+													<span editable-textarea="item.order_notes" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updateNotes($event,item.id,$data)">
+                                                        {{ item.order_notes }}
+                                                    </span>
+                                                </td>
+												<td style="text-align: right;">
                                                     <span editable-text="item.qty" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updatePriceQty($event,item.id,$data)">
                                                         {{ item.qty | number : fractionSize}}
                                                     </span>
@@ -426,20 +446,6 @@
                                                 <td style="text-align: right;">
                                                     <span editable-text="item.amount" e-form="tableform" onbeforesave="checkName($data, user.id)">
                                                         {{ item.amount | number : fractionSize}}
-                                                    </span>
-                                                </td>
-                                                <td >
-                                                    <span editable-ui-select="item.supplier_name" theme="bootstrap" data-e-name="supplier_name" name="supplier_name" data-e-ng-model="selected.supplier.selected"
-                                                    data-e-form="tableform" data-e-on-select="getProductPriceSupplier($item,item.id)" >
-                                                    {{item.supplier_name}}
-                                                          <editable-ui-select-match placeholder="Supplier..."  style="width: 300px;">
-                                                              {{item.supplier_name}}
-                                                          </editable-ui-select-match>
-                                                          <editable-ui-select-choices repeat="item in suppliers | filter: $select.search" refresh="funcAsync($select.search,item.id)" refresh-delay="0" style="width: 300px;">
-                                                              <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
-                                                              <small ng-bind-html="trustAsHtml((item.type_name | highlight: $select.search))"></small><br />
-                                                              <small ng-bind-html="trustAsHtml((item.price_name | highlight: $select.search))"></small>
-                                                          </editable-ui-select-choices>
                                                     </span>
                                                 </td>
                                             </tr>

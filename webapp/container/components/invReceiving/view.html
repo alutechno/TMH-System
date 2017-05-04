@@ -186,14 +186,15 @@
                                         <table class="table  table-hover itemtable">
                                             <thead>
                                             <tr>
-                                                <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
-                                                <th width="30%">Product</th>
-                                                <th width="10%">Order Qty</th>
-                                                <th width="10%">Remaining</th>
-                                                <th width="10%">Rcv Qty</th>
+                                                <th width="5%"><span ng-show="tableform.$visible">Action</span></th>
+                                                <th width="20%">Product</th>
+												<th width="15%">Notes</th>
+                                                <th width="5%">Order Qty</th>
+                                                <th width="5%">Remaining</th>
+                                                <th width="5%">Rcv Qty</th>
                                                 <th width="15%">Price</th>
                                                 <th width="15%">Rcv Price</th>
-                                                <th width="20%">Amount</th>
+                                                <th width="15%">Amount</th>
                                             </tr>
                                             </thead>
 
@@ -218,6 +219,11 @@
                                                     </span>
                                                 </td>-->
                                                 <td style="vertical-align: middle;"><span>{{item.product_name}}</span></td>
+												<td style="text-align: right;">
+                                                    <span editable-textarea="item.order_notes" e-form="tableform" data-e-ng-keyup="updateNotes($event,item.id,$data)" >
+                                                        {{ item.order_notes }}
+                                                    </span>
+                                                </td >
                                                 <td style="text-align: right;vertical-align: middle;"><span>{{item.qty | number : fractionSize}}</span></td>
                                                 <td style="text-align: right;vertical-align: middle;"><span>{{item.remaining_qty | number : fractionSize}}</span></td>
                                                 <td style="text-align: right;">
