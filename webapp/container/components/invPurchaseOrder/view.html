@@ -102,47 +102,36 @@
             <tbody>
             <tr ng-repeat="item in items | filter:filterUser">
 
-                <td>{{item.product_code}}
-                </td>
-                <td>{{item.product_name}}
-                </td>
-				<td>{{item.order_notes}}
-                </td>
-                <td > {{item.unit_name}}
-                </td>
+                <td>{{item.product_code}}</td>
+                <td>{{item.product_name}}</td>
+				<td>{{item.order_notes}}</td>
+                <td > {{item.unit_name}}</td>
                 <td style="text-align: right;">
                         {{ item.qty | number : fractionSize}}
-
                 </td>
                 <td style="text-align: right;">
                         {{ item.price | number : fractionSize}}
-
                 </td>
                 <td style="text-align: right;">
                         {{ item.amount | number : fractionSize}}
-
                 </td>
-
             </tr>
             </tbody>
             <tfooter width="80%" border="1" align="center">
 				<tr>
-                    <td colspan="3" style="text-align: center;"><b>SubTotal</b></th>
-                    <td style="text-align: center;">&nbsp;</th>
+                    <td colspan="4" style="text-align: center;"><b>SubTotal</b></th>
                     <td style="text-align: right;"><span ><b>{{totalQty| number : fractionSize}}</b></span></th>
                     <td style="text-align: center;">&nbsp;</th>
                     <td style="text-align: right;"><span ><b>{{tAmt| number : fractionSize}}</b></span></th>
                 </tr>
 				<tr>
-                    <td colspan="3" style="text-align: center;"><b>TAX</b></th>
-                    <td style="text-align: center;">&nbsp;</th>
+                    <td colspan="4" style="text-align: center;"><b>TAX</b></th>
                     <td style="text-align: center;">&nbsp;</th>
                     <td style="text-align: center;">&nbsp;</th>
                     <td style="text-align: right;"><span ><b>{{tAmt*0.1| number : fractionSize}}</b></span></th>
                 </tr>
                 <tr>
-                    <td colspan="3" style="text-align: center;"><b>Total</b></th>
-                    <td style="text-align: center;">&nbsp;</th>
+                    <td colspan="4" style="text-align: center;"><b>Total</b></th>
                     <td style="text-align: right;"><span ><b>{{totalQty| number : fractionSize}}</b></span></th>
                     <td style="text-align: center;">&nbsp;</th>
                     <td style="text-align: right;"><span ><b>{{tAmt+(tAmt*0.1)| number : fractionSize}}</b></span></th>
@@ -513,19 +502,14 @@
                                                 </td>
                                                 <td><span>{{item.product_code}}</span></td>
                                                 <td >
-                                                    <!--<span editable-text="item.product_name" e-form="tableform" onbeforesave="checkName($data, user.id)" style="width:100%;">
-                                                        {{ item.product_name }}
-                                                    </span>-->
                                                     <span editable-ui-select="item.product_name" theme="bootstrap" data-e-name="product_name" name="account" data-e-ng-model="selected.account.selected"
                                                     data-e-form="tableform" data-e-ng-keyup="productUp(item.id,$select.search)" data-e-on-select="getProduct($item,item.id)" >
                                                     {{item.product_name}}
                                                           <editable-ui-select-match placeholder="select product" style="width: 300px" >
-                                                              <!--{{$select.selected.name}}-->
                                                               {{item.product_name || 'Empty'}}
                                                           </editable-ui-select-match>
                                                           <editable-ui-select-choices repeat="d in product[item.id] | filter: $select.search" style="width: 300px" >
                                                               <div ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></div>
-                                                              <!--<small ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></small>-->
                                                           </editable-ui-select-choices>
                                                     </span>
                                                 </td>
@@ -534,7 +518,6 @@
                                                     <span editable-textarea="item.order_notes" e-form="tableform" data-e-ng-keyup="updateNotes($event,item.id,$data)">
                                                         {{ item.order_notes }}
                                                     </span></td>
-                                                <td >
                                                 <td>
                                                     <span editable-text="item.qty" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'qty')">
                                                         {{ item.qty | number : fractionSize}}
@@ -545,9 +528,7 @@
                                                     </span>
                                                 </td>
                                                 <td><span>{{item.amount | number : fractionSize}}</span></td>
-
                                             </tr>
-
                                             </tbody>
                                         </table>
 

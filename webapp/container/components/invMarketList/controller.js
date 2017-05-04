@@ -836,12 +836,14 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 });
             $scope.dtColumnDefs = [
                 DTColumnDefBuilder.newColumnDef(0).withOption('width', '5%').notSortable(),
-                DTColumnDefBuilder.newColumnDef(1).withOption('width', '35%'),
-                DTColumnDefBuilder.newColumnDef(2).withOption('width', '5%'),
-				DTColumnDefBuilder.newColumnDef(3).withOption('width', '10%'),
-                DTColumnDefBuilder.newColumnDef(4).withOption('width', '10%'),
-                DTColumnDefBuilder.newColumnDef(5).withOption('width', '35%'),
-				DTColumnDefBuilder.newColumnDef(6).withOption('width', '10%')
+                DTColumnDefBuilder.newColumnDef(1).withOption('width', '5%'),
+                DTColumnDefBuilder.newColumnDef(2).withOption('width', '20%'),
+				DTColumnDefBuilder.newColumnDef(3).withOption('width', '5%'),
+                DTColumnDefBuilder.newColumnDef(4).withOption('width', '20%'),
+                DTColumnDefBuilder.newColumnDef(5).withOption('width', '20%'),
+				DTColumnDefBuilder.newColumnDef(6).withOption('width', '5%'),
+				DTColumnDefBuilder.newColumnDef(7).withOption('width', '10%'),
+				DTColumnDefBuilder.newColumnDef(8).withOption('width', '10%')
             ];
             /*$scope.item2Add = {
                 product_id:'',
