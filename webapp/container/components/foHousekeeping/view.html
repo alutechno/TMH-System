@@ -1,14 +1,14 @@
 <nav class="secondary-sidebar padding-30">
     <p class="menu-title">MAIN</p>
     <ul class="main-menu">
-        <li ng-class="activeClass.statusBrowse">
-            <a href="javascript:void(0)" ng-click="setActiveForm('reservation')">Browse</a>
+        <li ng-class="cls.browse.tab">
+            <a href="javascript:void(0)" ng-click="setActiveView('browse')">Browse</a>
         </li>
-        <li ng-class="activeClass.statusLog">
-            <a href="javascript:void(0)" ng-click="setActiveForm('inhouse')">Status Log</a>
+        <li ng-class="cls.status.tab" ng-click="setActiveddd()">
+            <a href="javascript:void(0)" ng-click="setActiveView('status')">Status Log</a>
         </li>
-        <li ng-class="activeClass.maintenance">
-            <a href="javascript:void(0)" ng-click="setActiveForm('checkout')">Maintenance</a>
+        <li ng-class="cls.maintenance.tab">
+            <a href="javascript:void(0)" ng-click="setActiveView('maintenance')">Maintenance</a>
         </li>
     </ul>
 </nav>
@@ -16,7 +16,7 @@
     <!-- TABLES VIEW -->
     <div class="container-fluid container-fixed-lg">
         <!-- START PANEL -->
-        <div class="panel panel-transparent">
+        <div class="panel panel-transparent" ng-class="cls.browse.view">
             <div class="panel-heading">
                 <div class="panel-title">Housekeeping - Manage Room Status</div>
                 <div class="pull-right" style="width: 60%;">
@@ -86,9 +86,53 @@
             </div>
             <div class="panel-body">
                 <div class="table-responsive">
-                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns"
-                           dt-instance="dtInstance" width="1800px">
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptBrowse" dt-columns="dtColBrowse"
+                           dt-instance="dtInsBrowse" width="1800px">
                     </table>
+                </div>
+            </div>
+        </div>
+        <!-- END PANEL -->
+
+        <!-- START PANEL -->
+        <div class="panel panel-transparent" ng-class="cls.status.view">
+            <div class="panel-heading">
+                <div class="panel-title">Housekeeping - Status log</div>
+                <div class="pull-right" style="width: 60%;">
+                    <div class="input-group date col-sm-4 pull-right m-r-10">
+                        <input type="text" id="search-status" class="form-control pull-right" placeholder="Search room..."
+                               ng-keyup="filter('search', $event)" ng-model="filterVal.search">
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive" ng-controller="FoHousekeepingStatusCtrl">
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptStatus" dt-columns="dtColStatus"
+                           dt-instance="dtInsStatus">
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- END PANEL -->
+
+        <!-- START PANEL -->
+        <div class="panel panel-transparent" ng-class="cls.maintenance.view">
+            <div class="panel-heading">
+                <div class="panel-title">Housekeeping - Maintenance</div>
+                <div class="pull-right" style="width: 60%;">
+                    <div class="input-group date col-sm-4 pull-right m-r-10">
+                        <input type="text" id="search-maintenis" class="form-control pull-right" placeholder="Search room..."
+                               ng-keyup="filter('search', $event)" ng-model="filterVal.search">
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive" ng-controller="FoHousekeepingMaintenanceCtrl">
+                    <!--<table class="table table-hover table-condensed " datatable="" dt-options="dtOptions2" dt-columns="dtColumns2"-->
+                           <!--dt-instance="dtInstance2">-->
+                    <!--</table>-->
                 </div>
             </div>
         </div>
