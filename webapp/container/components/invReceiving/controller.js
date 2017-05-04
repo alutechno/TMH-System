@@ -196,17 +196,14 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     })
     queryService.get('select id,name from mst_warehouse order by name',undefined)
     .then(function(data){
-        console.log(data)
         $scope.warehouse = data.data
         //$scope.selected.warehouse['selected'] = $scope.warehouse[0]
     })
     queryService.get('select value as id,name from table_ref where table_name = \'inv_po_receive\' and column_name = \'received_status\' and value in (0,3,4) order by id',undefined)
     .then(function(data){
-        console.log(data)
         $scope.delivery_status = data.data
         $scope.selected.delivery_status['selected'] = $scope.delivery_status[0]
         //$scope.po.delivery_status = $scope.selected.delivery_status.selected.id
-        console.log($scope.po)
     })
 
     var sqlCtr = 'select a.id,a.name,a.address  '+
@@ -216,12 +213,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
     queryService.post(sqlCtr,undefined)
     .then(function(data){
-        console.log(data)
         $scope.supplier = data.data
     })
 
     $scope.supplierUp = function(text) {
-        console.log(text.toLowerCase())
         var sqlCtr = 'select a.id,a.name,a.address  '+
             'from mst_supplier a '+
             'where lower(a.name) like \''+text.toLowerCase()+'%\'' +
@@ -229,7 +224,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
         queryService.post(sqlCtr,undefined)
         .then(function(data){
-            console.log(data)
             $scope.supplier = data.data
         })
     }
@@ -281,7 +275,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 })
             }
             $scope.itemsOri = angular.copy($scope.items)
-            console.log($scope.items)
         },
         function(err2){
             console.log(err2)
@@ -415,7 +408,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         var dt = new Date()
 
         var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-        queryService.post('select cast(concat(\'RR/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'RR\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+        //queryService.post('select cast(concat(\'RR/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'RR\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+		queryService.post('select curr_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
         .then(function(data){
             $scope.po.code = data.data[0].code
         })
@@ -767,9 +761,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 return d;
             }
             $scope.addItem = function() {
-                console.log($scope.item2Add)
-                console.log($scope.selected.product)
-                console.log($scope.selected.supplier)
                 $scope.item2Add.product_id = $scope.selected.product.selected?$scope.selected.product.selected.id:null
                 $scope.item2Add.product_name = $scope.selected.product.selected?$scope.selected.product.selected.name:null
                 if ($scope.selected.supplier){
@@ -788,7 +779,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     $scope.items.push(angular.copy($scope.item2Add));
                 }
 
-                console.log($scope.items)
                 //$scope.nested.dtInstanceItem.reloadData();
                 $scope.item2Add = {
                     id: '',
@@ -805,8 +795,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 };
             }
             $scope.modifyItem = function(index) {
-                console.log(index)
-                console.log($scope.items[index])
                 $scope.selected.product.selected = {
                     id: $scope.items[index].product_id,
                     name: $scope.items[index].product_name
@@ -835,7 +823,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
             }
             $scope.removeItem = function(index) {
-                console.log(index)
                 $scope.items.splice(index, 1);
             }
         })
@@ -847,11 +834,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.updateState = true;
         $('#form-input').modal('show');
         $scope.po.id = ids
-        console.log(qstring)
 
         queryService.post(qstring+' where z.id='+ids,undefined)
         .then(function (result){
-            console.log(result)
             if (result.data[0].status_id == 3){
                 $scope.finalState = true
             }
@@ -997,7 +982,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }
 
     $scope.clear = function(){
-        console.log('clear')
         $scope.po = {
             id: '',
             code: '',

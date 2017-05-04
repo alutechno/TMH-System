@@ -592,7 +592,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         var dt = new Date()
 
         var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-        queryService.post('select cast(concat(\'PMT/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'PMT\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+        //queryService.post('select cast(concat(\'PMT/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'PMT\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+		queryService.post('select curr_document_no(\'PMT\',\''+$scope.ym+'\') as code',undefined)
         .then(function(data){
             $scope.ap.code = data.data[0].code
         })
@@ -612,6 +613,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 total_amount += $scope.trans[i].total_amount
                 home_total_amount += $scope.trans[i].home_total_amount
             }
+			queryService.post('select next_document_no(\'PMT\',\''+$scope.ym+'\')',undefined)
+			.then(function(data){
+				$scope.pr.code = data.data[0].code
+			})
             var param = {
                 code: $scope.ap.code,
             	check_no: $scope.ap.check,
