@@ -222,7 +222,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withOption('order', [1, 'desc'])
-    .withDisplayLength(10)
+    .withDisplayLength(15)
     .withOption('scrollX',true)
     .withOption('createdRow', $scope.createdRow)
     .withOption('footerCallback', function (tfoot, data) {

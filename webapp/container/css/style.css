@@ -189,3 +189,18 @@ span.ui-select-match-text.pull-left {
 .gray-text {
     color: #b5b5b5;
 }
+
+table thead {
+	background-color: #f9f7f3 !important;
+}
+table th {
+	font-family: tahoma !important;
+	font-weight: normal;
+	font-size: 14px !important;
+	background-color: #936a3b !important;
+	color: #f9f8f7 !important;
+}
+
+table td {
+	font-size: 14px !important;
+}
