@@ -1,0 +1,224 @@
+
+<div class="full-height m-t-40">
+    <!-- TABLES VIEW -->
+    <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">Warehouse Store Issue
+                </div>
+                <div class="pull-right" style="width: 60%;">
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add SR</button>
+
+                    <div class="input-group date col-sm-4 pull-right m-r-10">
+                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
+                    </div>
+
+                </div>
+                <div class="clearfix"></div>
+                <div class="tools">
+                    <a class="collapse" href="javascript:;"></a>
+                    <a class="config" data-toggle="modal" href="#grid-config"></a>
+                    <a class="reload" href="javascript:;"></a>
+                    <a class="remove" href="javascript:;"></a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
+                    </table>
+            </div>
+        </div>
+    </div>
+    <!-- END PANEL -->
+</div>
+
+<!--START FORM INPUT-->
+<div class="modal fade slide-right form-input-big" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content-wrapper">
+      <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
+      <div class="panel-heading">
+       <div class="panel-title">Request Information</div>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
+        </button>
+       </div>
+        <div class="container-xs-height full-height">
+          <div class="row-xs-height">
+            <div class="modal-body col-xs-height col-top">
+
+      <!-- START FORM -->
+      <div class="panel panel-transparent m-t-20">
+          <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : sr.code.$invalid && !sr.code.$pristine }">
+                          <label>Code</label>
+                          <input type="text" class="form-control" name="code" ng-model="sr.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : sr.request_status.$invalid && !sr.request_status.$pristine }">
+                          <label>Request Status</label>
+                          <ui-select ng-model="selected.request_status.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select reqest status">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in request_status | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : sr.date.$invalid && !sr.date.$pristine }">
+                          <label>Date</label>
+                          <input type="text" class="form-control" ng-model="sr.date" name="date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="sr.date" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
+                          <!--<input type="text" class="form-control" name="date" ng-model="sr.date" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >-->
+                      </div>
+                  </div>
+                  <div class="col-sm-6">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : sr.issued_status.$invalid && !sr.issued_status.$pristine }">
+                          <label>Issued Status</label>
+                          <ui-select ng-model="selected.issued_status.selected" theme="bootstrap" >
+                              <ui-select-match placeholder="select issued status">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in issued_status | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                <div class="col-sm-6">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : sr.warehouse_id.$invalid && !sr.warehouse_id.$pristine }">
+                        <label>Warehouse</label>
+                        <ui-select ng-model="selected.warehouse.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select warehouse">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in warehouse | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div pg-form-group class="form-group form-group-default " >
+                        <label>Notes</label>
+                        <input type="text" class="form-control" name="request_notes" ng-model="sr.request_notes" >
+                    </div>
+                </div>
+              </div>
+              <div class="row clearfix">
+                <div class="col-sm-6">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select ">
+                        <label>Cost Center</label>
+                        <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
+                            <ui-select-match placeholder="Pick Cost Center">{{$select.selected.code}}</ui-select-match>
+                            <ui-select-choices repeat="item in cost_center | filter: $select.search">
+                                <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
+                                <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+              </div>
+
+              <div ng-controller="EditableTableSrCtrl" ng-form editable-form name="tableform" oncancel="cancel()">
+                    <!-- table -->
+                    <table class="table  table-hover itemtable">
+                        <thead>
+                        <tr>
+                            <th width="25%">Item</th>
+                            <th width="10%">Stock in Hand</th>
+                            <th width="10%">Qty</th>
+                            <th width="10%">Unit</th>
+                            <th width="10%">Stock Issued</th>
+                            <th width="10%">Issued Qty</th>
+                            <th width="10%">Status</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr ng-repeat="item in items | filter:filterUser">
+                            <td >
+                                <span editable-ui-select="item.product_name" theme="bootstrap" data-e-name="product_name" name="product_name" data-e-ng-model="selected.product.selected"
+                                data-e-form="tableform" data-e-ng-keyup="productUp($select.search)" data-e-on-select="getProductPrice($item,item.id)" >
+                                {{item.product_name}}
+                                      <editable-ui-select-match placeholder="select product/item" style="width: 250px" >
+                                          <!--{{$select.selected.name}}-->
+                                          {{item.product_name || 'Empty'}}
+                                      </editable-ui-select-match>
+                                      <editable-ui-select-choices repeat="d in products | filter: $select.search">
+                                          <div ng-bind-html="trustAsHtml((d.product_name | highlight: $select.search))"></div>
+                                      </editable-ui-select-choices>
+                                </span>
+                            </td>
+                            <td><span>{{item.stock_in_hand}}</span></td>
+                            <td>
+                                <span editable-text="item.request_qty" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'rq')" ng-disabled="!buttonCreate">
+                                    {{ item.request_qty }}
+                                </span>
+                            </td>
+                            <td><span>{{item.unit_name}}</span></td>
+                            <td><span>{{item.issued_qty || 0}}</span></td>
+
+                            <td>
+                                <span editable-text="item.issued_qty_n" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'iq')" ng-disabled="!issuing">
+                                    {{ item.issued_qty_n }}
+                                </span>
+                            </td>
+                            <td><span>{{item.status_name}}</span></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <!-- buttons -->
+                    <div class="btn-edit">
+                      <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()" ng-disabled="!selected.warehouse.selected">
+                        Modify Item List
+                      </button>
+                    </div>
+                    <div class="btn-form" ng-show="tableform.$visible">
+                      <button type="submit" ng-disabled="tableform.$waiting" ng-click="child.saveTable(0)" class="btn btn-primary"> Save Item</button>
+                      <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
+                      <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
+                    </div>
+
+              </div>
+              <br>
+              <div class="row divider"></div>
+              <div class="clearfix"></div>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
+              <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
+          </form>
+      </div>
+      <!-- END FORM -->
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!--END FORM INPUT-->
+
+<!-- START MODAL CONTENT-->
+<div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{cat.name}} ?</h4>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<!-- END MODAL CONTENT-->

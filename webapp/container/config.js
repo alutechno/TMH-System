@@ -1756,6 +1756,25 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
+	.state('app.inv.storeIssue', {
+        url: "/storeIssue",
+        templateUrl: "container/components/invWarehouseStoreIssue/view.html",
+        controller: 'InvWarehouseStoreIssueCtrl',
+        resolve: {
+            deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                return $ocLazyLoad.load([
+                    'dataTables',
+                    'select',
+                    'datepicker'
+                ], {
+                    insertBefore: '#lazyload_placeholder'
+                })
+                .then(function() {
+                    return $ocLazyLoad.load('container/components/invWarehouseStoreIssue/controller.js');
+                });
+            }]
+        }
+    })
     .state('app.inv.mealTime', {
         url: "/mealTime",
         templateUrl: "container/components/invMealTime/view.html",

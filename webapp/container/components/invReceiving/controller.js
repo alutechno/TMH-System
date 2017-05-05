@@ -267,6 +267,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     rcv_qty: result2.data[i].received_qty,
                     price: result2.data[i].price,
                     rcv_price: result2.data[i].received_price,
+					rcv_price_dis: result2.data[i].received_price,
                     amount: result2.data[i].amount,
                     lowest_unit_conversion: result2.data[i].lowest_unit_conversion,
                     recipe_unit_conversion: result2.data[i].recipe_unit_conversion,
@@ -452,14 +453,16 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             queryService.post('update inv_po_receive set ? where id='+$scope.po.id,param)
             .then(function (result){
                 result.data['insertId'] = $scope.po.id
+				console.log($scope.selected.delivery_status)
                 //if ($scope.selected.delivery_status.selected.id == 1 || $scope.selected.delivery_status.selected.id == 3||$scope.selected.delivery_status.selected.id == 4){
                 if ($scope.selected.delivery_status.selected.id == 3){
                     //console.log('CALL `receive-ap`('+$scope.po.id+','+$localStorage.currentUser.name.id+')')
                     //queryService.post('CALL `receive-ap`('+$scope.po.id+','+$localStorage.currentUser.name.id+')', undefined)
                     var q = $scope.child.saveTable($scope.po.id)
-                    queryService.post(q.join(';'), undefined)
+					console.log(q.join(';'))
+					queryService.post(q.join(';'), undefined)
                     .then(function (result2){
-                        $('#form-input').modal('hide')
+						$('#form-input').modal('hide')
                         $scope.nested.dtInstance.reloadData(function(obj){
                             // console.log(obj)
                         }, false)
@@ -893,6 +896,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         rcv_qty: result2.data[i].received_qty,
                         price: result2.data[i].price,
                         rcv_price: result2.data[i].received_price,
+						rcv_price_dis: result2.data[i].received_price,
                         amount: result2.data[i].amount,
                         lowest_unit_conversion: result2.data[i].lowest_unit_conversion,
                         recipe_unit_conversion: result2.data[i].recipe_unit_conversion,
@@ -1019,6 +1023,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         rcv_qty: '',
         price: '',
         rcv_price: '',
+		rcv_price_dis: '',
         amount: ''
     };
 
@@ -1056,6 +1061,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             rcv_qty: '',
             price: '',
             rcv_price: '',
+			rcv_price_dis: '',
             amount: '',
             isNew: true
         };
@@ -1084,15 +1090,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
     // save edits
     $scope.child.saveTable = function(pr_id) {
-        console.log('asd')
         var results = [];
-        console.log($scope.itemsOri)
-
-        console.log(JSON.stringify($scope.items,null,2))
         var sqlitem = []
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
-            console.log(user)
             // actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);
@@ -1143,8 +1144,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                                 'qty,lowest_unit_type_id,qty_l,created_by) '+
                                 'values(\'RC\','+pr_id+','+$scope.selected.warehouse.selected.id+','+$scope.selected.warehouse.selected.id+','+user.product_id+','+user.unit_type_id+','+
                                 ' '+user.rcv_qty+', '+user.lowest_unit_type_id+','+(user.rcv_qty*user.lowest_unit_type_id)+','+$localStorage.currentUser.name.id+')')
-
-
                             }
                             else if($scope.selected.cost_center.selected){
                                 sqlitem.push('INSERT INTO inv_cost_center_stock(cost_center_id,product_id,stock_qty,stock_qty_l,stock_qty_in_recipe_unit,last_order_date,last_order_qty,last_order_supplier_id)'+
@@ -1188,6 +1187,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         	' last_supplier='+$scope.selected.supplier.selected.id + ' where id='+user.product_id)
                         }
                     }
+					console.log(sqlitem)
                 }
             }
 
@@ -1196,9 +1196,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         'values(\''+$scope.po.code+'\',\'RR\','+pr_id+','+$scope.selected.supplier.selected.id+','+$scope.po.currency_id+','+amt+
         ','+($scope.po.home_currency_exchange*amt)+',0,\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+',"'+$scope.po.inv_no+'","'+$scope.po.faktur_no+'")'
         )
-        console.log($scope.items)
-        console.log(sqlitem)
-        console.log(sqlitem.join(';'))
         return sqlitem
         //return $q.all(results);
     };
@@ -1232,7 +1229,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }*/
 
     $scope.getProduct = function(e,d){
-        console.log(e)
         $scope.items[d-1].product_id = e.id
         $scope.items[d-1].product_name = e.name
         //$scope.items[d-1].price = e.last_order_price
@@ -1241,7 +1237,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
 
     $scope.getProductPriceSupplier = function(e,d){
-        console.log(e)
         $scope.items[d-1].supplier_id = e.id
         $scope.items[d-1].supplier_name = e.name
         $scope.items[d-1].price = e.price
@@ -1256,10 +1251,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.items[d-1].amount = q * $scope.items[d-1].price
     }
     $scope.setValue = function(e,d,p,t){
-        console.log(e)
-        console.log(d)
-        console.log(p)
-        console.log(t)
         if (t=='qty') {
 
             if(parseFloat(p)>parseFloat($scope.items[d-1].qty)){
@@ -1274,15 +1265,30 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             //$scope.items[d-1].rcv_qty = (parseFloat(p)<=parseFloat($scope.items[d-1].qty)?p:(p.substring(0,p.length-1)))
         }
         if (t=='price') {
+			p=p.toString()
+			while (p.indexOf(",") != -1)
+            {
+                p = p.replace(",", "");
+            }
             if(parseFloat(p)>parseFloat($scope.items[d-1].price)){
                 $scope.items[d-1].rcv_price = $scope.items[d-1].price
-                e.target.value=$scope.items[d-1].price
+				p=$scope.items[d-1].price
+                //e.target.value=$scope.items[d-1].price
             }
             else {
-                $scope.items[d-1].rcv_price = p
-                e.target.value=p
+                $scope.items[d-1].rcv_price = parseFloat(p)
+                //e.target.value=p
             }
-            $scope.items[d-1].amount = $scope.items[d-1].rcv_qty*p
+            $scope.items[d-1].amount = $scope.items[d-1].rcv_qty*$scope.items[d-1].rcv_price
+			var prc=p.toString()
+			//$scope.items[d-1].rcv_price=parseFloat(prc)
+			//$scope.items[d-1].amount = $scope.items[d-1].rcv_qty*$scope.items[d-1].rcv_price
+            var parts = prc.toString().split(".");
+			$scope.items[d-1].rcv_price_dis =parts[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, ",") + (parts[1] ? "." + parts[1] : "")
+			console.log($scope.items[d-1].rcv_price)
+			console.log($scope.items[d-1].rcv_price_dis)
+			//console.log(parts[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, ",") + (parts[1] ? "." + parts[1] : ""))
+            //return parts[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, ",") + (parts[1] ? "." + parts[1] : "");
             //$scope.items[d-1].rcv_price = p
         }
     }

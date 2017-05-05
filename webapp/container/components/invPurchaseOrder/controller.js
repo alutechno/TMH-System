@@ -1174,10 +1174,6 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         $scope.items[d-1].amount = q * $scope.items[d-1].price
     }
     $scope.setValue = function(e,d,p,t){
-        console.log(e)
-        console.log(d)
-        console.log(p)
-        console.log(t)
         if (t=='qty') {
             $scope.items[d-1].amount = $scope.items[d-1].price*p
             $scope.items[d-1].qty = p

@@ -46,13 +46,11 @@ function($scope, $state, $sce, roleService, menuService, roleMenuService,
             $scope.dtInstance = {} //Use for reloadData
 
             $scope.actionsHtml = function(data, type, full, meta) {
-                console.log(data)
-                console.log(JSON.stringify(data.detail))
                 $scope.roles[data.id] = data;
                 var html = ''
                 var checked = ''
                 for (var i=0;i<data.detail.length;i++){
-                    if (data.detail[i].roles.split(',').indexOf($scope.role.selected.id.toString())>-1){
+                    if (data.detail[i].roles!=null && data.detail[i].roles.split(',').indexOf($scope.role.selected.id.toString())>-1){
                         checked = 'checked'
                         if ($scope.menuSelected.indexOf(data.id)<0){
                             $scope.menuSelected.push(data.id)
@@ -71,16 +69,16 @@ function($scope, $state, $sce, roleService, menuService, roleMenuService,
                 return html
             }
             $scope.actionsHtmlAccess = function(data, type, full, meta) {
+				console.log('test')
                 console.log(data)
                 $scope.roles[data.id] = data;
                 var html = '<div class="btn-group btn-group-xs">'
                 for (var i=0;i<data.detail.length;i++){
                     if ($scope.accessSelected.indexOf(data.group_id+'-'+data.id+'-'+data.detail[i].menu_detail_id)<0){
-                        if (data.detail[i].roles.split(',').indexOf($scope.role.selected.id.toString())>-1){
+                        if (data.detail[i].roles!=null && data.detail[i].roles.split(',').indexOf($scope.role.selected.id.toString())>-1){
                             //console.log(data.detail[i].roles+';'+$scope.role.selected.id.toString())
                             $scope.accessSelected.push(data.group_id+'-'+data.id+'-'+data.detail[i].menu_detail_id)
                         }
-
                     }
                     var d = data.group_id+'-'+data.id+'-'+data.detail[i].menu_detail_id
                     html +=
@@ -89,7 +87,6 @@ function($scope, $state, $sce, roleService, menuService, roleMenuService,
                     ' ng-click="updateSelectionAccess($event, \''+d+'\')">'+
                     '<label for="checkboxAcc'+data.detail[i].menu_detail_id+'">'+data.detail[i].label+'</label>'+
                     '</div><br/>' ;
-
                 }
                 html += '</div>'
                 return html
