@@ -203,12 +203,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         }
         $scope.items = []
         $scope.itemsOri = []
-        
+
         $('#form-input').modal('show')
     }
 
     $scope.submit = function(){
-        if ($scope.sr.id.length==0){
+		if ($scope.sr.id.length==0){
             //exec creation
             var param = {
                 code: $scope.sr.code,
@@ -222,24 +222,35 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             }
             queryService.post('insert into inv_store_request set ?',param)
             .then(function (result){
-                var qstr = $scope.child.saveTable(result.data.insertId)
-                console.log(qstr)
-                queryService.post(qstr.join(';'),undefined)
-                .then(function (result2){
-                    $('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){}, false)
-                    $('body').pgNotification({
-                        style: 'flip',
-                        message: 'Success Insert '+$scope.sr.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'success'
-                    }).show();
-                },
-                function (err2){
-                    console.log(err2)
-                })
-
+				var qstr = $scope.child.saveTable(result.data.insertId)
+				console.log(qstr)
+				if(qstr.length>0){
+					queryService.post(qstr.join(';'),undefined)
+	                .then(function (result2){
+	                    $('#form-input').modal('hide')
+	                    $scope.dtInstance.reloadData(function(obj){}, false)
+	                    $('body').pgNotification({
+	                        style: 'flip',
+	                        message: 'Success Insert '+$scope.sr.code,
+	                        position: 'top-right',
+	                        timeout: 2000,
+	                        type: 'success'
+	                    }).show();
+	                },
+	                function (err2){
+	                    console.log(err2)
+	                })
+				}else{
+					$('#form-input').modal('hide')
+					$scope.dtInstance.reloadData(function(obj){}, false)
+					$('body').pgNotification({
+						style: 'flip',
+						message: 'Success Insert '+$scope.sr.code,
+						position: 'top-right',
+						timeout: 2000,
+						type: 'success'
+					}).show();
+				}
             },
             function (err){
                 $('#form-input').pgNotification({
@@ -267,7 +278,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             queryService.post('update inv_store_request set ? where id='+$scope.sr.id,param)
             .then(function (result){
                 var qstr = $scope.child.saveTable($scope.sr.id)
-                console.log(qstr)
                 queryService.post(qstr.join(';'),undefined)
                 .then(function (result2){
                     $('#form-input').modal('hide')
@@ -301,7 +311,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         queryService.post(qstring+ ' and a.id='+ids,undefined)
         .then(function(result){
             $('#form-input').modal('show');
-            console.log(result.data)
             $scope.sr = result.data[0]
             $scope.sr.date = $scope.sr.required_date
             $scope.selected.cost_center['selected'] = {id:$scope.sr.dest_cost_center_id,name:$scope.sr.cost_center_name}
@@ -313,7 +322,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 $('#form-input').modal('show');
                 $scope.items = []
                 $scope.itemsOri = []
-                console.log(result2.data)
                 for (var i=0;i<result2.data.length;i++){
                     result2.data[i]['id'] = i+1
                     result2.data[i]['issued_qty_n'] = 0
@@ -403,8 +411,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         request_qty: '',
         unit_id: '',
         unit_name: '',
-        issued_qty_n: '',
-        issued_qty: '',
+        issued_qty_n: 0,
+        issued_qty: 0,
         issued_id: '',
         issued_status: ''
     };
@@ -440,7 +448,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             request_qty: '',
             unit_id: '',
             unit_name: '',
-            issued_qty_n: '',
+            issued_qty_n: 0,
             issued_qty: '',
             issued_id: '',
             issued_status: '',
@@ -479,11 +487,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
     // save edits
     $scope.child.saveTable = function(sr_id) {
-        console.log('asd')
         var results = [];
-        console.log($scope.itemsOri)
-
-        console.log(JSON.stringify($scope.items,null,2))
         var sqlitem = []
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
