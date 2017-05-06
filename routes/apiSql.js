@@ -104,11 +104,21 @@ module.exports = function(connection,jwt,log){
                         dtParam['data'] = rows2
                         log(req.headers,req.path,'query-response',JSON.stringify(req.query),JSON.stringify(req.body),JSON.stringify(dtParam))
                         res.send(dtParam)
+                    } else {
+                        console.error(req.path+'|'+JSON.stringify(err));
+                        res.send({
+                            query: sqlstr + order + limit,
+                            error: err2.message
+                        })
                     }
                 });
             }
             else{
-                console.error(req.path+'|'+JSON.stringify(err))
+                console.error(req.path+'|'+JSON.stringify(err));
+                res.send({
+                    query: sqlstr + order + limit,
+                    error: err2.message
+                })
             }
         });
 
