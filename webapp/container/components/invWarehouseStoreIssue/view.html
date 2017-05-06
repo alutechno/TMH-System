@@ -49,7 +49,7 @@
 
       <!-- START FORM -->
       <div class="panel panel-transparent m-t-20">
-          <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+          <form id="form-user" role="form" autocomplete="off" name="dodol" validate>
               <div class="row clearfix">
                   <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : sr.code.$invalid && !sr.code.$pristine }">
@@ -71,14 +71,14 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : sr.date.$invalid && !sr.date.$pristine }">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : sr.date.$invalid && !sr.date.$pristine }">
                           <label>Date</label>
                           <input type="text" class="form-control" ng-model="sr.date" name="date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="sr.date" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode">
                           <!--<input type="text" class="form-control" name="date" ng-model="sr.date" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >-->
                       </div>
                   </div>
                   <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : sr.issued_status.$invalid && !sr.issued_status.$pristine }">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : sr.issued_status.$invalid && !sr.issued_status.$pristine }">
                           <label>Issued Status</label>
                           <ui-select ng-model="selected.issued_status.selected" theme="bootstrap" >
                               <ui-select-match placeholder="select issued status">{{$select.selected.name}}</ui-select-match>
@@ -91,7 +91,7 @@
               </div>
               <div class="row clearfix">
                 <div class="col-sm-6">
-                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : sr.warehouse_id.$invalid && !sr.warehouse_id.$pristine }">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : sr.warehouse_id.$invalid && !sr.warehouse_id.$pristine }">
                         <label>Warehouse</label>
                         <ui-select ng-model="selected.warehouse.selected" theme="bootstrap" >
                             <ui-select-match placeholder="select warehouse">{{$select.selected.name}}</ui-select-match>
@@ -110,9 +110,9 @@
               </div>
               <div class="row clearfix">
                 <div class="col-sm-6">
-                    <div pg-form-group class="form-group form-group-default form-group-default-select ">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : sr.cost_center_id.$invalid && !sr.cost_center_id.$pristine }">
                         <label>Cost Center</label>
-                        <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
+                        <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="sr.cost_center_id=selected.cost_center.selected.id" >
                             <ui-select-match placeholder="Pick Cost Center">{{$select.selected.code}}</ui-select-match>
                             <ui-select-choices repeat="item in cost_center | filter: $select.search">
                                 <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
@@ -164,7 +164,7 @@
 
                             <td>
                                 <span editable-text="item.issued_qty_n" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'iq')" ng-disabled="!issuing">
-                                    {{ item.issued_qty_n }}
+                                    {{ item.issued_qty_n ||0}}
                                 </span>
                             </td>
                             <td><span>{{item.status_name}}</span></td>
