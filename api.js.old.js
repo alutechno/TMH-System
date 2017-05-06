@@ -20,35 +20,35 @@ allowCrossDomain = function(req, res, next) {
 
 app.use(allowCrossDomain);
 var db_config = {
-  host     : '103.43.47.115',
-  user     : 'media',
-  password : 'media',
-  database : 'media',
-  port: 3306,
+    host     : '103.43.47.115',
+    user     : 'media',
+    password : 'media',
+    database : 'media',
+    port: 3306,
 
 }
 var connection;
 //var connection = mysql.createConnection();
 
 function handleDisconnect() {
-  connection = mysql.createConnection(db_config); // Recreate the connection, since
-                                                  // the old one cannot be reused.
+    connection = mysql.createConnection(db_config); // Recreate the connection, since
+                                                    // the old one cannot be reused.
 
-  /*connection.connect(function(err) {              // The server is either down
-    if(err) {                                     // or restarting (takes a while sometimes).
-      console.log('error when connecting to db:', err);
-      setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
-    }                                     // to avoid a hot loop, and to allow our node script to
-});  */                                   // process asynchronous requests in the meantime.
+    /*connection.connect(function(err) {              // The server is either down
+      if(err) {                                     // or restarting (takes a while sometimes).
+        console.log('error when connecting to db:', err);
+        setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
+      }                                     // to avoid a hot loop, and to allow our node script to
+  });  */                                   // process asynchronous requests in the meantime.
                                           // If you're also serving http, display a 503 error.
-  connection.on('error', function(err) {
-    console.log('db error', err);
-    if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
-      handleDisconnect();                         // lost due to either server restart, or a
-    } else {                                      // connnection idle timeout (the wait_timeout
-      throw err;                                  // server variable configures this)
-    }
-  });
+    connection.on('error', function(err) {
+        console.log('db error', err);
+        if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
+            handleDisconnect();                         // lost due to either server restart, or a
+        } else {                                      // connnection idle timeout (the wait_timeout
+            throw err;                                  // server variable configures this)
+        }
+    });
 }
 
 handleDisconnect();
@@ -76,12 +76,12 @@ app.use(function (req, res, next) {
                 var user = jwt.verify(req.headers['authorization'].split(' ')[1], 'smrai.inc');
                 console.log('authorization:'+JSON.stringify(user))
                 var sqlstr = 'select count(1) '+
-                'from user a, role_user b,role_menu c, menu d '+
-                'where a.id = b.user_id and b.role_id = c.role_id '+
-                'and c.menu_id = d.id '+
-                'and a.name = "'+user.username+'" '+
-                'and a.password = "'+user.password+'" '+
-                'and d.state = "'+req.headers.state+'"';
+                    'from user a, role_user b,role_menu c, menu d '+
+                    'where a.id = b.user_id and b.role_id = c.role_id '+
+                    'and c.menu_id = d.id '+
+                    'and a.name = "'+user.username+'" '+
+                    'and a.password = "'+user.password+'" '+
+                    'and d.state = "'+req.headers.state+'"';
                 console.log(sqlstr)
 
                 connection.query(sqlstr, function(err, rows, fields) {
@@ -138,17 +138,17 @@ app.post('/authenticate_old', function (req, res) {
     console.log(req.body)
     //var sqlstr = 'SELECT name,password,token,role_id as roles from user where name="'+req.body.username+'" and password="'+req.body.password+'"';
     var sqlstr = 'select a.name as username, a.password, a.token, c.name as rolename, e.name as menuname, e.module, e.state, f.object, f.custom, a.default_module '+
-    'from user a, role_user b, role c, role_menu d, menu e, menu_detail f,group_menu g,module h '+
-    'where a.id = b.user_id '+
-    'and b.role_id = c.id '+
-    'and c.id = d.role_id '+
-    'and d.menu_id = e.id '+
-    'and d.menu_detail_id = f.id '+
-    'and a.default_module = h.id '+
-    'and e.group_id = g.id '+
-    'and g.module_id = h.id ' +
-    'and a.name="'+req.body.username+'" '+
-    'and a.password="'+req.body.password+'" ';
+        'from user a, role_user b, role c, role_menu d, menu e, menu_detail f,group_menu g,module h '+
+        'where a.id = b.user_id '+
+        'and b.role_id = c.id '+
+        'and c.id = d.role_id '+
+        'and d.menu_id = e.id '+
+        'and d.menu_detail_id = f.id '+
+        'and a.default_module = h.id '+
+        'and e.group_id = g.id '+
+        'and g.module_id = h.id ' +
+        'and a.name="'+req.body.username+'" '+
+        'and a.password="'+req.body.password+'" ';
 
 
     connection.query(sqlstr, function(err, rows, fields) {
@@ -194,8 +194,8 @@ app.post('/authorize', function (req, res) {
     var where = ''
     console.log(req.body)
     var sqlstr = 'select group_concat(object) as object from menu a, menu_detail b '+
-    'where a.id = b.menu_id '+
-    'and a.state = "'+req.body.state+'"';
+        'where a.id = b.menu_id '+
+        'and a.state = "'+req.body.state+'"';
     connection.query(sqlstr, function(err, rows, fields) {
         if (err) throw err;
         if (rows.length>0){
@@ -215,26 +215,26 @@ app.post('/authenticate', function (req, res) {
     console.log(req.body)
     //var sqlstr = 'SELECT name,password,token,role_id as roles from user where name="'+req.body.username+'" and password="'+req.body.password+'"';
     var sqlstr = 'select a.name as username, a.full_name,a.password, a.token, g.name as gname, e.l1 as menuname, e.l2 as submenuname, h.name as module, e.l2state, '+
-    'group_concat(f.object), f.custom, i.name as default_module, e.l2id,j.name as default_menu, j.state as default_state '+
-    'from user a, role_user b, role c, role_menu d, '+
-    '(SELECT t1.group_id,t1.name AS l1, t2.name as l2, t1.state as l1state, t2.state as l2state, t2.id as l2id,t2.sequence '+
-    'FROM menu AS t1 '+
-    'LEFT JOIN menu AS t2 ON t2.parent = t1.id '+
-    'where t2.name is not null '+
-    'order by t1.group_id, t1.id) e, menu_detail f,group_menu g,module h,module i,menu j '+
-    'where a.id = b.user_id  '+
-    //'and b.role_id = c.id  '+
-    'and b.role_id = d.role_id  '+
-    'and d.menu_id = e.l2id  '+
-    'and d.menu_detail_id = f.id  '+
-    //'and a.default_module = h.id  '+
-    'and e.group_id = g.id  '+
-    'and g.module_id = h.id  '+
-    'and a.default_module = i.id '+
-    'and a.default_menu = j.id '+
-    'and a.name="'+req.username+'" '+
-    'group by submenuname '+
-    'order by menuname,e.sequence, submenuname ';
+        'group_concat(f.object), f.custom, i.name as default_module, e.l2id,j.name as default_menu, j.state as default_state '+
+        'from user a, role_user b, role c, role_menu d, '+
+        '(SELECT t1.group_id,t1.name AS l1, t2.name as l2, t1.state as l1state, t2.state as l2state, t2.id as l2id,t2.sequence '+
+        'FROM menu AS t1 '+
+        'LEFT JOIN menu AS t2 ON t2.parent = t1.id '+
+        'where t2.name is not null '+
+        'order by t1.group_id, t1.id) e, menu_detail f,group_menu g,module h,module i,menu j '+
+        'where a.id = b.user_id  '+
+        //'and b.role_id = c.id  '+
+        'and b.role_id = d.role_id  '+
+        'and d.menu_id = e.l2id  '+
+        'and d.menu_detail_id = f.id  '+
+        //'and a.default_module = h.id  '+
+        'and e.group_id = g.id  '+
+        'and g.module_id = h.id  '+
+        'and a.default_module = i.id '+
+        'and a.default_menu = j.id '+
+        'and a.name="'+req.username+'" '+
+        'group by submenuname '+
+        'order by menuname,e.sequence, submenuname ';
 
     //'and a.password="'+req.body.password+'" ';
     console.log(sqlstr)
@@ -315,5 +315,5 @@ app.post('/authenticate', function (req, res) {
 });
 
 app.listen(3001, function () {
-  console.log('API Server listening on port 3001!');
+    console.log('API Server listening on port 3001!');
 });
