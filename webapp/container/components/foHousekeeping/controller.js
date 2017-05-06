@@ -1,15 +1,38 @@
-var userController = angular.module('app', []);
-userController
-.controller('FoHousekeepingCtrl', function (
-    $scope, $state, $sce, queryService, departmentService,
-    accountTypeService, DTOptionsBuilder, DTColumnBuilder,
-    $localStorage, $compile, $rootScope, globalFunction, API_URL
-) {
+function setWhere(qwhereobj) {
+    var arrWhere = [];
+    var strWhere = '';
+    for (var key in qwhereobj) {
+        if (qwhereobj[key].length > 0) arrWhere.push(qwhereobj[key])
+    }
+    if (arrWhere.length > 0) {
+        strWhere = ' and ' + arrWhere.join(' and ')
+    }
+    //console.log(strWhere)
+    return strWhere
+};
+function Fn(name) {
+    return function ($scope, $state, $sce, $q, queryService, departmentService,
+        accountTypeService, DTOptionsBuilder, DTColumnBuilder,
+        $localStorage, $compile, $rootScope, globalFunction, API_URL
+    ) {
+        var args = {};
+        for (var i in arguments) args[arguments.callee.$inject[i]] = arguments[i];
+        Fn[name](args);
+    }
+}
+Fn.FoHousekeepingCtrl = function (args) {
+    var {
+        $scope, $state, $sce, $compile, DTOptionsBuilder, API_URL,
+        $localStorage, queryService, DTColumnBuilder, globalFunction
+    } = args;
+
     $scope.el = [];
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+    $scope.nested = {};
+    $scope.cls = { browse: {}, status: {} };
 
     for (var i = 0; i < $scope.el.length; i++) $scope[$scope.el[i]] = true;
     var qwhere = '';
@@ -18,29 +41,59 @@ userController
         department: '',
         account_type: ''
     };
-    var qstring = "select a.id,a.code,a.name,a.status,d.status_name,a.fo_status,b.fo_status_name,a.hk_status,c.hk_status_name, " +
-        "cast(concat(b.fo_status_value,c.hk_status_value) as char) fo_hk_status, " +
-        "a.room_type_id,e.name room_type_name,a.building_section_id,f.name building_section_name, " +
-        "g.id folio_id,g.code folio_code,g.num_of_nights,g.num_of_stays,g.customer_id,g.customer_name,g.num_of_extra_bed, " +
-        "g.check_in_remarks,g.newspaper_name,g.num_of_pax,g.num_of_child " +
-        "from mst_room a " +
-        "left join (select id fo_status_id,name fo_status_name,value fo_status_value  " +
-        "        from table_ref where table_name='mst_room' and column_name='fo_status')b on a.fo_status = b.fo_status_value " +
-        "left join (select id hk_status_id,name hk_status_name,value hk_status_value  " +
-        "        from table_ref where table_name='mst_room' and column_name='hk_status')c on a.hk_status = c.hk_status_value " +
-        "left join (select id status_id,name status_name,value status_value  " +
-        "        from table_ref where table_name='mst_room' and column_name='status')d on a.fo_status = d.status_value " +
-        "left join ref_room_type e on a.room_type_id=e.id " +
-        "left join mst_building_section f on a.building_section_id=f.id " +
-        "left join (select a.id,a.code,a.num_of_nights,a.num_of_stays,room_id,customer_id,d.newspaper_name,a.num_of_pax,a.num_of_child, " +
-        "        cast(concat(b.first_name,' ',b.last_name) as char) customer_name,num_of_extra_bed,c.remarks check_in_remarks " +
-        "from fd_guest_folio a " +
-        "left join mst_customer b on a.customer_id = b.id " +
-        "left join fd_folio_remarks c on a.id = c.folio_id and c.remark_type_id=1 " +
-        "left join (select a.folio_id,a.newspaper_id,b.name newspaper_name from fd_folio_adds a " +
-        "        left join mst_newspaper b on a.newspaper_id = b.id) d on a.id = d.folio_id " +
-        "        where reservation_status in(0,1,2,3,4)) g on a.id=g.room_id where a.status!=2 ";
-
+    var qstring = `
+        select
+            a.id,a.code,a.name,a.status,d.status_name,a.fo_status,b.fo_status_name,a.hk_status,
+            c.hk_status_name,cast(concat(b.fo_status_value,c.hk_status_value) as char) fo_hk_status,
+            a.room_type_id,e.name room_type_name,a.building_section_id,f.name building_section_name,
+            g.id folio_id,g.code folio_code,g.num_of_nights,g.num_of_stays,g.customer_id,
+            g.customer_name,g.num_of_extra_bed,g.check_in_remarks,g.newspaper_name,g.num_of_pax,
+            g.num_of_child
+        from
+            mst_room a
+            left join (
+                select
+                    id fo_status_id,name fo_status_name,value fo_status_value
+                from
+                    table_ref
+                where
+                    table_name='mst_room' and column_name='fo_status'
+            ) b on a.fo_status = b.fo_status_value
+            left join (
+                select
+                    id hk_status_id,name hk_status_name,value hk_status_value
+                from
+                    table_ref
+                where
+                    table_name='mst_room' and column_name='hk_status'
+                ) c on a.hk_status = c.hk_status_value
+            left join (
+                select
+                    id status_id,name status_name,value status_value
+                from
+                    table_ref
+                where
+                    table_name='mst_room' and column_name='status'
+            ) d on a.fo_status = d.status_value
+            left join ref_room_type e on a.room_type_id=e.id
+            left join mst_building_section f on a.building_section_id=f.id
+            left join (
+                select
+                    a.id,a.code,a.num_of_nights,a.num_of_stays,room_id,customer_id,d.newspaper_name,
+                    a.num_of_pax,a.num_of_child,
+                    cast(concat(b.first_name,' ',b.last_name) as char) customer_name,
+                    num_of_extra_bed,c.remarks check_in_remarks
+                from
+                    fd_guest_folio a
+                    left join mst_customer b on a.customer_id = b.id
+                    left join fd_folio_remarks c on a.id = c.folio_id and c.remark_type_id=1
+                    left join (select a.folio_id,a.newspaper_id,b.name newspaper_name from fd_folio_adds a
+                    left join mst_newspaper b on a.newspaper_id = b.id) d on a.id = d.folio_id
+                where reservation_status in(0,1,2,3,4)
+            ) g on a.id=g.room_id where a.status!=2 
+    `;
+    qstring = qstring.replace(/\t\t+|\n\n+|\s\s+/g, ' ').trim();
+    //
     $scope.users = [];
     $scope.role = {selected: []};
     $scope.coas = {};
@@ -104,7 +157,7 @@ userController
     };
 
     /*START AD ServerSide*/
-    $scope.dtInsBrowse = {}; //Use for reloadData
+    $scope.nested.dtInsBrowse = {}; //Use for reloadData
     $scope.actionsHtml = function (data, type, full, meta) {
         $scope.coas[data] = {id: data};
         var html = ''
@@ -129,7 +182,7 @@ userController
         // Recompiling so we can bind Angular directive to the DT
         $compile(angular.element(row).contents())($scope);
     };
-    $scope.dtOptBrowse = DTOptionsBuilder.newOptions()
+    $scope.nested.dtOptBrowse = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL + '/apisql/datatable',
         type: 'POST',
@@ -138,6 +191,10 @@ userController
         },
         data: function (data) {
             data.query = qstring + qwhere;
+        },
+        complete: function () {
+            $scope.cls.browse.tab = 'active';
+            $scope.cls.browse.view = '';
         }
     })
     .withDataProp('data')
@@ -150,12 +207,12 @@ userController
     .withOption('order', [0, 'asc'])
     .withOption('createdRow', $scope.createdRow);
 
-    $scope.dtColBrowse = [];
+    $scope.nested.dtColBrowse = [];
     if ($scope.el.length > 0) {
-        $scope.dtColBrowse.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
+        $scope.nested.dtColBrowse.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
         .renderWith($scope.actionsHtml).withOption('width', '5%'))
     }
-    $scope.dtColBrowse.push(
+    $scope.nested.dtColBrowse.push(
         //DTColumnBuilder.newColumn('code').withTitle('Code Ori').notVisible(),
         DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '5%'),
         DTColumnBuilder.newColumn('fo_hk_status').withTitle('Status'),
@@ -177,15 +234,15 @@ userController
                 else qwhereobj.text = '';
                 qwhere = setWhere(qwhereobj);
 
-                //if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
-                //else qwhere = ''
-                $scope.dtInsBrowse.reloadData(function (obj) {
+                //if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like
+                // "%'+$scope.filterVal.search.toLowerCase()+'%"' else qwhere = ''
+                $scope.nested.dtInsBrowse.reloadData(function (obj) {
                     console.log(obj)
                 }, false)
             }
         }
         else {
-            $scope.dtInsBrowse.reloadData(function (obj) {
+            $scope.nested.dtInsBrowse.reloadData(function (obj) {
                 console.log(obj)
             }, false)
         }
@@ -201,7 +258,7 @@ userController
             qwhereobj.account_type = ' a.account_type_id = ' + $scope.selected.filter_account_type.selected.id + ' '
         }
         qwhere = setWhere(qwhereobj)
-        $scope.dtInsBrowse.reloadData(function (obj) {
+        $scope.nested.dtInsBrowse.reloadData(function (obj) {
             console.log(obj)
         }, false)
 
@@ -256,7 +313,7 @@ userController
                         if (result2.status = "200") {
                             console.log('Success Update')
                             $('#form-input').modal('hide')
-                            $scope.dtInsBrowse.reloadData(function (obj) {
+                            $scope.nested.dtInsBrowse.reloadData(function (obj) {
                                 console.log(obj)
                             }, false)
                             $('body').pgNotification({
@@ -302,8 +359,14 @@ userController
             $scope.coa.folio_id = result.data[0].folio_id
             $scope.coa.status = result.data[0].status
             $scope.coa.building_section_name = result.data[0].building_section_name
-            $scope.selected.hk_status['selected'] = {id: result.data[0].hk_status, name: result.data[0].hk_status_name}
-            $scope.selected.fo_status['selected'] = {id: result.data[0].fo_status, name: result.data[0].fo_status_name}
+            $scope.selected.hk_status['selected'] = {
+                id: result.data[0].hk_status,
+                name: result.data[0].hk_status_name
+            }
+            $scope.selected.fo_status['selected'] = {
+                id: result.data[0].fo_status,
+                name: result.data[0].fo_status_name
+            }
 
         })
     };
@@ -324,7 +387,7 @@ userController
             if (result.status = "200") {
                 console.log('Success Delete')
                 $('#form-input').modal('hide')
-                $scope.dtInsBrowse.reloadData(function (obj) {
+                $scope.nested.dtInsBrowse.reloadData(function (obj) {
                     // console.log(obj)
                 }, false)
                 $('body').pgNotification({
@@ -350,82 +413,62 @@ userController
             status: ''
         }
     };
-    $scope.setActiveView = function (name) {
-        $scope.activeView = name;
-        for (var key in $scope.cls) {
-            $scope.cls[key].tab = key == name ? 'active' : '';
-            $scope.cls[key].view = key == name ? '' : 'hide';
-        }
-    };
-    $scope.cls = {
-        browse: {tab: 'active', view: 0},
-        status: {tab: 0, view: 'hide'},
-        maintenance: {tab: 0, view: 'hide'}
+    $scope.nested.reloadBrowse = function(){
+        $scope.cls.browse.tab = 'active';
+        $scope.cls.status.tab = '';
+        $scope.cls.browse.view = '';
+        $scope.cls.status.view = 'hide';
     }
-})
-.controller('FoHousekeepingStatusCtrl', function (
-    $scope, $state, $sce, $q, queryService, departmentService,
-    accountTypeService, DTOptionsBuilder, DTColumnBuilder,
-    $localStorage, $compile, $rootScope, globalFunction, API_URL
-) {
-    var querystring = `
-        select 
-            a.id, a.room_id, b.name room, 
-            date_format(ifnull(a.modified_date,a.created_date),'%Y-%m-%d') system_date,
-            date_format(status_change_date,'%Y-%m-%d') status_date, a.remarks, 
-            cast(concat(a.hk_status, a.fo_status) as char) room_status,
-            a.folio_id, c.name user
-        from 
-            hk_room_status_change_log a,mst_room b, user c
-        where 
-            a.room_id= b.id
-            and a.created_by = c.id
-        
-        union
-        
-        select 
-            a.id, a.room_id, b.name room, 
-            date_format(ifnull(a.modified_date,a.created_date),'%Y-%m-%d') system_date,
-            date_format(maintenance_date,'%Y-%m-%d') status_date, a.notes remarks,
-            '' room_status,'' folio_id, c.name user
-        from
-            hk_room_maintenance_log a,mst_room b, user c
-        where
-            a.room_id= b.id
-            and a.created_by = c.id
-        
-        order by system_date desc
-    `.replace(/\t\t+|\n\n+|\s\s+/g, ' ');
+};
+Fn.statusCtrl = function (args) {
+    var {
+        $scope, $state, $sce, $compile, DTOptionsBuilder, API_URL,
+        $localStorage, queryService, DTColumnBuilder, globalFunction
+    } = args;
+    $scope.nested.reloadStatus = function(){
+        $scope.cls.browse.tab = '';
+        $scope.cls.status.tab = 'active';
+        $scope.cls.browse.view = 'hide';
+        $scope.cls.status.view = '';
+    };
+    var qstring = `
+            select 
+                a.id, a.room_id, b.name room, 
+                date_format(ifnull(a.modified_date,a.created_date),'%Y-%m-%d') system_date,
+                date_format(status_change_date,'%Y-%m-%d') status_date, a.remarks, 
+                cast(concat(a.hk_status, a.fo_status) as char) room_status,
+                a.folio_id, c.name user
+            from 
+                hk_room_status_change_log a,mst_room b, user c
+            where 
+                a.room_id= b.id
+                /*and a.created_by = c.id*/
+            
+            union
+            
+            select 
+                a.id, a.room_id, b.name room, 
+                date_format(ifnull(a.modified_date,a.created_date),'%Y-%m-%d') system_date,
+                date_format(maintenance_date,'%Y-%m-%d') status_date, a.notes remarks,
+                '' room_status,'' folio_id, c.name user
+            from
+                hk_room_maintenance_log a,mst_room b, user c
+            where
+                a.room_id= b.id
+                /*and a.created_by = c.id*/
+        `;
 
-    var querystring = `
-        select 
-            a.id, a.room_id, b.name room, 
-            date_format(ifnull(a.modified_date,a.created_date),'%Y-%m-%d') system_date,
-            date_format(status_change_date,'%Y-%m-%d') status_date, a.remarks, 
-            cast(concat(a.hk_status, a.fo_status) as char) room_status,
-            a.folio_id, c.name user
-        from 
-            hk_room_status_change_log a,mst_room b, user c
-        where 
-            a.room_id= b.id
-        
-        union
-        
-        select 
-            a.id, a.room_id, b.name room, 
-            date_format(ifnull(a.modified_date,a.created_date),'%Y-%m-%d') system_date,
-            date_format(maintenance_date,'%Y-%m-%d') status_date, a.notes remarks,
-            '' room_status,'' folio_id, c.name user
-        from
-            hk_room_maintenance_log a,mst_room b, user c
-        where
-            a.room_id= b.id
-        
-        order by system_date desc
-    `.replace(/\t\t+|\n\n+|\s\s+/g, ' ');
-
-    $scope.dtInsStatus = {};
-    $scope.dtOptStatus = DTOptionsBuilder.newOptions()
+    qstring = qstring.replace(/\t\t+|\n\n+|\s\s+/g, ' ').trim();
+    $scope.nested.dtInsStatus = {};
+    $scope.nested.dtColStatus = [
+        DTColumnBuilder.newColumn('status_date').withTitle('Date'),
+        DTColumnBuilder.newColumn('remarks').withTitle('Description'),
+        DTColumnBuilder.newColumn('room_status').withTitle('Status'),
+        DTColumnBuilder.newColumn('user').withTitle('User'),
+        DTColumnBuilder.newColumn('folio_id').withTitle('Folio#'),
+        DTColumnBuilder.newColumn('system_date').withTitle('System Date')
+    ];
+    $scope.nested.dtOptStatus = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL + '/apisql/datatable',
         type: 'POST',
@@ -433,7 +476,11 @@ userController
             "authorization": 'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.query = querystring;
+            data.query = qstring;
+        },
+        complete: function () {
+            $scope.cls.status.tab = '';
+            $scope.cls.status.view = 'hide';
         }
     })
     .withDataProp('data')
@@ -447,37 +494,14 @@ userController
     })
     .withPaginationType('full_numbers')
     .withDisplayLength(10);
-    $scope.dtColStatus = [];
-    $scope.dtColStatus.push(
-        DTColumnBuilder.newColumn('status_date').withTitle('Date'),
-        DTColumnBuilder.newColumn('remarks').withTitle('Description'),
-        DTColumnBuilder.newColumn('room_status').withTitle('Status'),
-        DTColumnBuilder.newColumn('user').withTitle('User'),
-        DTColumnBuilder.newColumn('folio_id').withTitle('Folio#'),
-        DTColumnBuilder.newColumn('system_date').withTitle('System Date')
-    );
     //
-    queryService.post('select format(sum(id), 0) tot from (' + querystring + ') a', undefined)
+    queryService.post('select format(sum(id), 0) tot from (' + qstring + ') a', undefined)
     .then(function (data) {
-        $scope.sumIssuing = data.data[0].tot
+        $scope.sumIssuing = data.data[0].tot;
     });
-})
-.controller('FoHousekeepingMaintenanceCtrl', function (
-    $scope, $state, $sce, $q, queryService, departmentService,
-    accountTypeService, DTOptionsBuilder, DTColumnBuilder,
-    $localStorage, $compile, $rootScope, globalFunction, API_URL) {
-        console.log('foHousekeepingMaintenanceCtrl', arguments)
-    });
-
-function setWhere(qwhereobj) {
-    var arrWhere = [];
-    var strWhere = '';
-    for (var key in qwhereobj) {
-        if (qwhereobj[key].length > 0) arrWhere.push(qwhereobj[key])
-    }
-    if (arrWhere.length > 0) {
-        strWhere = ' and ' + arrWhere.join(' and ')
-    }
-    //console.log(strWhere)
-    return strWhere
 };
+//
+angular.module('app', [])
+.controller('FoHousekeepingCtrl', Fn('FoHousekeepingCtrl'))
+.controller('browseCtrl', Fn('browseCtrl'))
+.controller('statusCtrl', Fn('statusCtrl'));

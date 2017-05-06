@@ -2,13 +2,10 @@
     <p class="menu-title">MAIN</p>
     <ul class="main-menu">
         <li ng-class="cls.browse.tab">
-            <a href="javascript:void(0)" ng-click="setActiveView('browse')">Browse</a>
+            <a href="javascript:void(0)" ng-click="nested.reloadBrowse()">Browse</a>
         </li>
-        <li ng-class="cls.status.tab" ng-click="setActiveddd()">
-            <a href="javascript:void(0)" ng-click="setActiveView('status')">Status Log</a>
-        </li>
-        <li ng-class="cls.maintenance.tab">
-            <a href="javascript:void(0)" ng-click="setActiveView('maintenance')">Maintenance</a>
+        <li ng-class="cls.status.tab">
+            <a href="javascript:void(0)" ng-click="nested.reloadStatus()">Status Log</a>
         </li>
     </ul>
 </nav>
@@ -20,16 +17,21 @@
             <div class="panel-heading">
                 <div class="panel-title">Housekeeping - Manage Room Status</div>
                 <div class="pull-right" style="width: 60%;">
-                    <!--<button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>-->
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i
+                    <!--<button id="show-modal2" class="btn btn-primary pull-right"-->
+                            <!--ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i-->
+                        <!--class="fa fa-search"></i></button>-->
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right"
+                            ng-click="openQuickView('add')" ng-show="buttonCreate"><i
                         class="fa fa-plus"></i> Add Type
                     </button>
                     <span ng-click="exportExcel()">
-                        <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl"></div>
+                        <div excel-export export-data="exportData" file-name="{{fileName}}"
+                             class="pull-right m-r-5" control="focusinControl"></div>
                     </span>
 
                     <div class="input-group date col-sm-4 pull-right m-r-10">
-                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search name..."
+                        <input type="text" id="search-table" class="form-control pull-right"
+                               placeholder="Search name..."
                                ng-keyup="filter('search',$event)" ng-model="filterVal.search">
                     </div>
 
@@ -86,8 +88,9 @@
             </div>
             <div class="panel-body">
                 <div class="table-responsive">
-                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptBrowse" dt-columns="dtColBrowse"
-                           dt-instance="dtInsBrowse" width="1800px">
+                    <table class="table table-hover table-condensed " datatable=""
+                           dt-options="nested.dtOptBrowse" dt-columns="nested.dtColBrowse"
+                           dt-instance="nested.dtInsBrowse" width="1800px">
                     </table>
                 </div>
             </div>
@@ -95,44 +98,24 @@
         <!-- END PANEL -->
 
         <!-- START PANEL -->
-        <div class="panel panel-transparent" ng-class="cls.status.view">
+        <div class="panel panel-transparent" ng-class="cls.status.view" ng-controller="statusCtrl">
             <div class="panel-heading">
                 <div class="panel-title">Housekeeping - Status log</div>
                 <div class="pull-right" style="width: 60%;">
                     <div class="input-group date col-sm-4 pull-right m-r-10">
-                        <input type="text" id="search-status" class="form-control pull-right" placeholder="Search room..."
+                        <input type="text" id="search-status" class="form-control pull-right"
+                               placeholder="Search room..."
                                ng-keyup="filter('search', $event)" ng-model="filterVal.search">
                     </div>
                 </div>
                 <div class="clearfix"></div>
             </div>
             <div class="panel-body">
-                <div class="table-responsive" ng-controller="FoHousekeepingStatusCtrl">
-                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptStatus" dt-columns="dtColStatus"
-                           dt-instance="dtInsStatus">
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed table-responsive" datatable=""
+                           dt-options="nested.dtOptStatus" dt-columns="nested.dtColStatus"
+                           dt-instance="nested.dtInsStatus">
                     </table>
-                </div>
-            </div>
-        </div>
-        <!-- END PANEL -->
-
-        <!-- START PANEL -->
-        <div class="panel panel-transparent" ng-class="cls.maintenance.view">
-            <div class="panel-heading">
-                <div class="panel-title">Housekeeping - Maintenance</div>
-                <div class="pull-right" style="width: 60%;">
-                    <div class="input-group date col-sm-4 pull-right m-r-10">
-                        <input type="text" id="search-maintenis" class="form-control pull-right" placeholder="Search room..."
-                               ng-keyup="filter('search', $event)" ng-model="filterVal.search">
-                    </div>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div class="panel-body">
-                <div class="table-responsive" ng-controller="FoHousekeepingMaintenanceCtrl">
-                    <!--<table class="table table-hover table-condensed " datatable="" dt-options="dtOptions2" dt-columns="dtColumns2"-->
-                           <!--dt-instance="dtInstance2">-->
-                    <!--</table>-->
                 </div>
             </div>
         </div>
@@ -140,13 +123,16 @@
     </div>
 
     <!--START FORM INPUT-->
-    <div class="modal fade slide-right form-input-big" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade slide-right form-input-big" id="form-input" tabindex="-1"
+    role="dialog"
+         aria-hidden="true">
         <div class="modal-dialog modal-sm">
             <div class="modal-content-wrapper">
                 <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
                     <div class="panel-heading">
                         <div class="panel-title">Room Status Information</div>
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            <i class="pg-close fs-14"></i>
                         </button>
                     </div>
                     <div class="container-xs-height full-height">
@@ -155,7 +141,8 @@
 
                                 <!-- START FORM -->
                                 <div class="panel panel-transparent m-t-20">
-                                    <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+                                    <form id="form-user" role="form" autocomplete="off" name="dodol"
+                                          novalidate>
                                         <div class="row clearfix">
                                             <div class="col-sm-6">
                                                 <div class="row">
@@ -171,7 +158,8 @@
                                                         <h6 class="m-t-5">Room Type</h6>
                                                     </div>
                                                     <div class="col-sm-9">
-                                                        <h6 class="m-t-5">: {{coa.room_type_name}}</h6>
+                                                        <h6 class="m-t-5">:
+                                                            {{coa.room_type_name}}</h6>
                                                     </div>
                                                 </div>
                                                 <div class="row">
@@ -179,7 +167,8 @@
                                                         <h6 class="m-t-5">Guest Name</h6>
                                                     </div>
                                                     <div class="col-sm-9">
-                                                        <h6 class="m-t-5">: {{coa.customer_name}}</h6>
+                                                        <h6 class="m-t-5">:
+                                                            {{coa.customer_name}}</h6>
                                                     </div>
                                                 </div>
                                                 <div class="row">
@@ -187,7 +176,8 @@
                                                         <h6 class="m-t-5">Remark</h6>
                                                     </div>
                                                     <div class="col-sm-9">
-                                                        <h6 class="m-t-5">: {{coa.check_in_remarks}}</h6>
+                                                        <h6 class="m-t-5">:
+                                                            {{coa.check_in_remarks}}</h6>
                                                     </div>
                                                 </div>
 
@@ -198,7 +188,8 @@
                                                         <h6>Pax/Child </h6>
                                                     </div>
                                                     <div class="col-sm-9">
-                                                        <h6>: {{coa.num_of_pax}} / {{coa.num_of_child}}</h6>
+                                                        <h6>: {{coa.num_of_pax}} /
+                                                            {{coa.num_of_child}}</h6>
                                                     </div>
                                                 </div>
                                                 <div class="row">
@@ -206,7 +197,8 @@
                                                         <h6 class="m-t-5">Nights </h6>
                                                     </div>
                                                     <div class="col-sm-9">
-                                                        <h6 class="m-t-5">: {{coa.num_of_nights}}</h6>
+                                                        <h6 class="m-t-5">:
+                                                            {{coa.num_of_nights}}</h6>
                                                     </div>
                                                 </div>
                                                 <div class="row">
@@ -214,7 +206,8 @@
                                                         <h6 class="m-t-5">Section </h6>
                                                     </div>
                                                     <div class="col-sm-9">
-                                                        <h6 class="m-t-5">: {{coa.building_section_name}}</h6>
+                                                        <h6 class="m-t-5">:
+                                                            {{coa.building_section_name}}</h6>
                                                     </div>
                                                 </div>
                                                 <div class="row">
@@ -231,35 +224,55 @@
 
                                         <div class="row clearfix">
                                             <div class="col-sm-3">
-                                                <div pg-form-group class="form-group form-group-default form-group-default-select  required"
+                                                <div pg-form-group
+                                                     class="form-group form-group-default form-group-default-select  required"
                                                      ng-class="{ 'has-error' : selected.hk_status.selected.$invalid && !selected.hk_status.selected.$pristine }">
                                                     <label>HK Status</label>
-                                                    <ui-select ng-model="selected.hk_status.selected" theme="bootstrap" validate-attached-form-element
-                                                               required>
-                                                        <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                                                        <ui-select-choices repeat="item in hk_status | filter: $select.search">
-                                                            <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                    <ui-select
+                                                        ng-model="selected.hk_status.selected"
+                                                        theme="bootstrap"
+                                                        validate-attached-form-element
+                                                        required>
+                                                        <ui-select-match
+                                                            placeholder="select status">
+                                                            {{$select.selected.name}}
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="item in hk_status | filter: $select.search">
+                                                            <span
+                                                                ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                                         </ui-select-choices>
                                                     </ui-select>
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
-                                                <div pg-form-group class="form-group form-group-default form-group-default-select  required"
+                                                <div pg-form-group
+                                                     class="form-group form-group-default form-group-default-select  required"
                                                      ng-class="{ 'has-error' : selected.fo_status.selected.$invalid && !selected.fo_status.selected.$pristine }">
                                                     <label>FO Status</label>
-                                                    <ui-select ng-model="selected.fo_status.selected" theme="bootstrap" validate-attached-form-element
-                                                               required>
-                                                        <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                                                        <ui-select-choices repeat="item in fo_status | filter: $select.search">
-                                                            <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                    <ui-select
+                                                        ng-model="selected.fo_status.selected"
+                                                        theme="bootstrap"
+                                                        validate-attached-form-element
+                                                        required>
+                                                        <ui-select-match
+                                                            placeholder="select status">
+                                                            {{$select.selected.name}}
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="item in fo_status | filter: $select.search">
+                                                            <span
+                                                                ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                                         </ui-select-choices>
                                                     </ui-select>
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
-                                                <div pg-form-group class="form-group form-group-default ">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default ">
                                                     <label>Notes</label>
-                                                    <input type="text" class="form-control" name="notes" ng-model="coa.notes">
+                                                    <input type="text" class="form-control"
+                                                           name="notes" ng-model="coa.notes">
                                                 </div>
                                             </div>
 
@@ -267,8 +280,13 @@
 
                                         <br>
                                         <div class="clearfix"></div>
-                                        <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()">Save</button>
-                                        <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
+                                        <button class="btn btn-primary" type="submit"
+                                                ng-disabled="dodol.$invalid" ng-click="submit()">
+                                            Save
+                                        </button>
+                                        <button class="btn btn-default"><i class="pg-close"></i>
+                                            Clear
+                                        </button>
                                     </form>
                                 </div>
                                 <!-- END FORM -->
@@ -285,15 +303,19 @@
     <!--END FORM INPUT-->
 
     <!-- START MODAL CONTENT-->
-    <div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog"
+         aria-hidden="false">
         <div class="modal-dialog modal-sm">
             <div class="modal-content-wrapper">
                 <div class="modal-content">
                     <div class="modal-body text-center m-t-20">
                         <h4 class="no-margin p-b-10">Are you sure want to delete {{coa.name}} ?</h4>
                         <div>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                    ng-click="execDelete()">Yes
+                            </button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">No
+                            </button>
                         </div>
                     </div>
                 </div>
