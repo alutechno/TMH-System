@@ -415,8 +415,8 @@ Fn.FoHousekeepingCtrl = function (args) {
     };
     $scope.nested.reloadBrowse = function(){
         $scope.cls.browse.tab = 'active';
-        $scope.cls.status.tab = '';
         $scope.cls.browse.view = '';
+        $scope.cls.status.tab = '';
         $scope.cls.status.view = 'hide';
     }
 };
@@ -427,8 +427,8 @@ Fn.statusCtrl = function (args) {
     } = args;
     $scope.nested.reloadStatus = function(){
         $scope.cls.browse.tab = '';
-        $scope.cls.status.tab = 'active';
         $scope.cls.browse.view = 'hide';
+        $scope.cls.status.tab = 'active';
         $scope.cls.status.view = '';
     };
     var qstring = `
