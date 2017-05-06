@@ -14,13 +14,14 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
     var qstring = 'select * from ( '+
         'select supplier_id, b.name as supplier_name, account_id, c.name as transc_type, '+
-                 'current, over30, over60, over90, total '+
+                 'current, over30, over60, over90,over120, total '+
             'from ( '+
                           'select supplier_id, account_id, '+
                                          'sum(case when status = \'1\' or (status = \'2\' and age <= 30) then amount end) as current, '+
                                          'sum(case when status = \'2\' and age between 31 and 60 then amount end) as over30, '+
                                          'sum(case when status = \'2\' and age between 61 and 90 then amount end) as over60, '+
-                                         'sum(case when status = \'2\' and age > 90 then amount end) as over90, '+
+										 'sum(case when status = \'2\' and age between 91 and 120 then amount end) as over90, '+
+                                         'sum(case when status = \'2\' and age > 120 then amount end) as over120, '+
                          'sum(amount) as total '+
                            'from ( '+
                                           'select a.supplier_id, a.status, c.account_id, c.amount,  '+
@@ -135,6 +136,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         DTColumnBuilder.newColumn('over30').withTitle('Over 30 Days'),
         DTColumnBuilder.newColumn('over60').withTitle('Over 60 Days'),
         DTColumnBuilder.newColumn('over90').withTitle('Over 90 Days'),
+		DTColumnBuilder.newColumn('over120').withTitle('Over 120 Days'),
         DTColumnBuilder.newColumn('total').withTitle('Total')
     );
 
@@ -187,13 +189,14 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     var qstringdetail = 'select * from ( '+
         'select supplier_id, b.name as supplier_name, account_id, c.name as transc_type, '+
         'source,DATE_FORMAT(due_date,\'%Y-%m-%d\') due_date,source_no,voucher_id,DATE_FORMAT(open_date,\'%Y-%m-%d\') open_date, '+
-                 'current, over30, over60, over90, total,age '+
+                 'current, over30, over60, over90,over120, total,age '+
             'from ( '+
                           'select supplier_id, account_id,source,due_date,source_no,voucher_id,open_date,age, '+
                                          'sum(case when status = \'1\'or (status = \'2\' and age <= 30) then amount end) as current, '+
                                          'sum(case when status = \'2\' and age between 31 and 60 then amount end) as over30, '+
                                          'sum(case when status = \'2\' and age between 61 and 90 then amount end) as over60, '+
-                                         'sum(case when status = \'2\' and age > 90 then amount end) as over90, '+
+										 'sum(case when status = \'2\' and age between 91 and 120 then amount end) as over90, '+
+                                         'sum(case when status = \'2\' and age > 120 then amount end) as over120, '+
                          'sum(amount) as total '+
                            'from ( '+
                                           'select a.supplier_id, a.status, c.account_id, c.amount,  '+
@@ -250,6 +253,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         DTColumnBuilder.newColumn('over30').withTitle('Over 30 Days'),
         DTColumnBuilder.newColumn('over60').withTitle('Over 60 Days'),
         DTColumnBuilder.newColumn('over90').withTitle('Over 90 Days'),
+		DTColumnBuilder.newColumn('over120').withTitle('Over 120 Days'),
         DTColumnBuilder.newColumn('total').withTitle('Total')
     );
 
