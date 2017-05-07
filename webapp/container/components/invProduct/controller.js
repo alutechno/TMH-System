@@ -283,12 +283,12 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '5%'))
+        .renderWith($scope.actionsHtml).withOption('width', '3%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('code').withTitle('Code'),
-        DTColumnBuilder.newColumn('name').withTitle('Name'),
-        DTColumnBuilder.newColumn('category').withTitle('Category'),
+        DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '3%'),
+        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('category').withTitle('Category').withOption('width', '5%'),
         DTColumnBuilder.newColumn('subcategory').withTitle('Sub Category'),
         DTColumnBuilder.newColumn('stockable').withTitle('Stockable'),
         DTColumnBuilder.newColumn('minimum_stock').withTitle('Min Stock'),
@@ -362,33 +362,36 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
             //$scope.product.lowest_unit_conversion = $scope.selected.lowest_unit_type_id.selected.id;
             //$scope.product.recipe_unit_conversion = $scope.selected.recipe_unit_type_id.selected.id;
             //delete $scope.product.id
-            console.log($scope.product)
+            //console.log($scope.product)
 
-            var query = "insert into mst_product set ?";
+            queryService.post('select next_product_code(\''+$scope.selected.category_id.selected.short_name+'\') as code',undefined)
+            .then(function(data){
+                $scope.product.code = data.data[0].code
+                var query = "insert into mst_product set ?";
+                queryService.post(query,$scope.product)
+                .then(function (result){
+                        $('#form-input').modal('hide')
+                        $scope.dtInstance.reloadData(function(obj){
+                            console.log(obj)
+                        }, false)
+                        $('body').pgNotification({
+                            style: 'flip',
+                            message: 'Success Insert '+$scope.product.name,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'success'
+                        }).show();
 
-            queryService.post(query,$scope.product)
-            .then(function (result){
-                    $('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
-                    }, false)
-                    $('body').pgNotification({
+                },
+                function (err){
+                    $('#form-input').pgNotification({
                         style: 'flip',
-                        message: 'Success Insert '+$scope.product.name,
+                        message: 'Error Insert: '+err.code,
                         position: 'top-right',
                         timeout: 2000,
-                        type: 'success'
+                        type: 'danger'
                     }).show();
-
-            },
-            function (err){
-                $('#form-input').pgNotification({
-                    style: 'flip',
-                    message: 'Error Insert: '+err.code,
-                    position: 'top-right',
-                    timeout: 2000,
-                    type: 'danger'
-                }).show();
+                })
             })
 
         }
@@ -471,7 +474,7 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
             }
             for (var i = $scope.arr.category_id.length - 1; i >= 0; i--) {
                 if ($scope.arr.category_id[i].id == result.data[0].category_id){
-                    $scope.selected.category_id.selected = {name: $scope.arr.category_id[i].name, id: $scope.arr.category_id[i].id}
+                    $scope.selected.category_id.selected = {name: $scope.arr.category_id[i].name, id: $scope.arr.category_id[i].id, short_name: $scope.arr.category_id[i].short_name}
                 }
             }
             $scope.getSubCategory({id:$scope.product.category_id},'new')
@@ -579,7 +582,8 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
             $scope.arr.subcategory_id = data.data
         })
         if (stat!='new'){
-            queryService.post('select cast(concat(\''+selectItem.short_name+'\',\'-\', lpad(seq(\''+selectItem.short_name+'\',\'\'),4,\'0\')) as char) as code ',undefined)
+            //queryService.post('select cast(concat(\''+selectItem.short_name+'\',\'-\', lpad(seq(\''+selectItem.short_name+'\',\'\'),4,\'0\')) as char) as code ',undefined)
+            queryService.post('select curr_product_code(\''+$scope.selected.category_id.selected.short_name+'\') as code',undefined)
             .then(function(data){
                 console.log(data)
                 $scope.product.code = data.data[0].code
