@@ -190,10 +190,7 @@ span.ui-select-match-text.pull-left {
     color: #b5b5b5;
 }
 
-table thead {
-	background-color: #f9f7f3 !important;
-}
-table th {
+table.dataTable th {
 	font-family: tahoma !important;
 	font-weight: normal;
 	font-size: 14px !important;
@@ -201,6 +198,6 @@ table th {
 	color: #f9f8f7 !important;
 }
 
-table td {
+table.dataTable td {
 	font-size: 14px !important;
 }
