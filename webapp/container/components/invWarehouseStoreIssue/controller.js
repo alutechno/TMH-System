@@ -1,7 +1,7 @@
 
 var userController = angular.module('app', []);
 userController
-.controller('InvWarehouseStoreRequestCtrl',
+.controller('InvWarehouseStoreIssueCtrl',
 function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 
     $scope.el = [];
@@ -512,7 +512,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 sqlitem.push('delete from inv_store_req_line_item where id='+user.p_id)
             }
             else if(!user.isNew){
-                console.log(user)
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
                         var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].request_qty+$scope.itemsOri[j].issued_qty_n

@@ -24,7 +24,8 @@ module.exports = function(connection,jwt,log){
         });
     });
     app.post('/query', function (req, res) {
-		//console.log(req.body)
+		console.log(req.body.query)
+		console.log(req.body.values)
         log(req.headers,req.path,'query-request',JSON.stringify(req.query),JSON.stringify(req.body),'POST - Prepare query')
 		connection(req.body.query, req.body.values,function(err, rows, fields) {
             if (!err){
