@@ -118,7 +118,7 @@ module.exports = function(connection,jwt,log){
                 console.error(req.path+'|'+JSON.stringify(err));
                 res.send({
                     query: sqlstr + order + limit,
-                    error: err2.message
+                    error: err.message
                 })
             }
         });
