@@ -77,7 +77,7 @@ Fn.FoHousekeepingGIHCtrl = function (args) {
     $scope.view = {
         inhouse: {name: 'In House', tab: 'active', adder: 4},
         checkout: {name: 'Checkout', tab: '', adder: 5},
-        house: {name: 'House', tab: ''},
+        house: {name: 'House', tab: '',adder:4},
         canceled: {name: 'Canceled', tab: '', adder: 6}
     };
     $scope.setActiveView = function (key) {
@@ -92,14 +92,14 @@ Fn.FoHousekeepingGIHCtrl = function (args) {
     //
     q.condition = '';
     q.query = `
-        select 
+        select
             a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,
             b.first_name,b.last_name, a.room_type_id,d.name room_type, a.room_id, e.name room_no,
             concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time,
             date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date,
             date_format(a.arrival_date,'%Y-%m-%d')arrival_date,
             date_format(a.departure_date,'%Y-%m-%d')departure_date,
-            a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, 
+            a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time,
             if(reservation_type='I','Individual','House Guest') reservation_type_name,
             a.commission_amount,a.agent_id,a.payment_type_id, a.member_id,a.customer_id,a.address,
             a.vip_type_id,a.cust_company_id,a.is_inside_allotment,a.is_comp_extra_bed,
@@ -112,23 +112,23 @@ Fn.FoHousekeepingGIHCtrl = function (args) {
             w.name reservation_status_name, g.code room_rate_code, a.room_rate_amount,
             a.discount_amount, k.name cust_segment, n.name nationality, a.reservation_type,
             a.mice_id, t.closing_amount balance,
-            if(isnull(c.name),'Individual',c.name) company_name, 
-            f.name vip_type, a.cancellation_type_id, r.name cancellation_type_name, 
-            u.remarks guest_check_in_remarks,ae.remarks guest_cashier_remarks, 
-            x.check_in_remarks mice_check_in_remarks,ad.name source_type_name, 
+            if(isnull(c.name),'Individual',c.name) company_name,
+            f.name vip_type, a.cancellation_type_id, r.name cancellation_type_name,
+            u.remarks guest_check_in_remarks,ae.remarks guest_cashier_remarks,
+            x.check_in_remarks mice_check_in_remarks,ad.name source_type_name,
             if(a.is_room_only='Y','Yes','No')is_room_only_name,
-            if(a.is_comp_extra_bed='Y','Yes','No')is_comp_extra_bed_name, 
+            if(a.is_comp_extra_bed='Y','Yes','No')is_comp_extra_bed_name,
             if(a.is_honeymoon='Y','Yes','No')is_honeymoon_name,
-            if(a.late_check_out_charge>0,'Yes','No')late_co, ab.name origin_city,ac.name dest_city, 
+            if(a.late_check_out_charge>0,'Yes','No')late_co, ab.name origin_city,ac.name dest_city,
             y.name check_in_type_name,z.name check_out_type_name,a.prev_room_type_id,
-            p.name prev_room_type_name,b.title,i.name payment_type_name,aa.name currency_name, 
+            p.name prev_room_type_name,b.title,i.name payment_type_name,aa.name currency_name,
             u.remarks remarks_cashier,u.id remarks_cashier_id,ae.remarks remarks_check_in,
             ae.id remarks_check_in_id, af.remarks remarks_drop,af.id remarks_drop_id,
             ag.remarks remarks_locator,ag.id remarks_locator_id,ah.remarks remarks_prefered,
             ah.id remarks_prefered_id, ai.remarks remarks_pickup,ai.id remarks_pickup_id,
             aj.remarks remarks_room_message,aj.id remarks_room_message_id
         from
-            fd_guest_folio a 
+            fd_guest_folio a
             left join mst_customer b on a.customer_id = b.id
             left join mst_cust_company c on a.cust_company_id = c.id
             left join ref_room_type d on a.room_type_id = d.id
@@ -139,7 +139,7 @@ Fn.FoHousekeepingGIHCtrl = function (args) {
             left join mst_room_rate_line_item h on a.room_type_id = h.room_type_id and a.room_rate_id = h.room_rate_id
             left join ref_payment_method i on a.payment_type_id = i.id
             left join ref_segment_type k on a.segment_type_id = k.id
-            left join ref_country n on a.origin_country_id = n.id 
+            left join ref_country n on a.origin_country_id = n.id
             left join ref_cancellation_type r on a.cancellation_type_id = r.id
             left join fd_mice_reservation s on a.mice_id = s.id
             left join fd_mice_deposit t on a.mice_id = t.mice_id
@@ -159,23 +159,23 @@ Fn.FoHousekeepingGIHCtrl = function (args) {
                 where a.remark_type_id = 3
             ) af on a.id = af.folio_id
             left join (
-                select a.id, a.folio_id, remarks 
-                from fd_folio_remarks a 
+                select a.id, a.folio_id, remarks
+                from fd_folio_remarks a
                 where a.remark_type_id = 4
             ) ag on a.id = ag.folio_id
             left join (
                 select a.id, a.folio_id, remarks
-                from fd_folio_remarks a 
+                from fd_folio_remarks a
                 where a.remark_type_id = 5
             ) ah on a.id = ah.folio_id
             left join (
-                select a.id, a.folio_id, remarks 
-                from fd_folio_remarks a 
+                select a.id, a.folio_id, remarks
+                from fd_folio_remarks a
                 where a.remark_type_id = 6
             ) ai on a.id = ai.folio_id
             left join (
                 select a.id, a.folio_id, remarks
-                from fd_folio_remarks a 
+                from fd_folio_remarks a
                 where a.remark_type_id = 7
             ) aj on a.id = aj.folio_id
             left join (
@@ -198,7 +198,7 @@ Fn.FoHousekeepingGIHCtrl = function (args) {
             left join ref_kabupaten ac on a.dest_city_id = ac.id
             left join ref_source_type ad on a.source_type_id = ad.id
         where
-            a.reservation_status = 
+            a.reservation_status =
     `;
     //
     $scope.dtInsGIH = {};
@@ -217,10 +217,13 @@ Fn.FoHousekeepingGIHCtrl = function (args) {
         data: function (data) {
             var current = $scope.activeView.key;
             if ( current == 'house') {
-                data.query = `select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_check_in a, (select id as status_id, value as status_value,name as status_name from table_ref where table_name = 'ref_product_category' and column_name='status')b where a.status = b.status_value and a.status!=2`;
+                //data.query = `select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_check_in a, (select id as status_id, value as status_value,name as status_name from table_ref where table_name = 'ref_product_category' and column_name='status')b where a.status = b.status_value and a.status!=2`;
+				data.query = setQuery(q.query, $scope.view[current].adder);
+				data.query+=' and a.segment_type_id=8'
             } else {
                 data.query = setQuery(q.query, $scope.view[current].adder);
             }
+			console.log(data.query)
         }
     })
     .withDataProp('data')

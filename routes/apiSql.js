@@ -56,7 +56,6 @@ module.exports = function(connection,jwt,log){
         order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
 
         var sqlstr =req.query.query
-
         connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
             if (!err){
                 dtParam['recordsFiltered'] = rows[0].cnt
@@ -95,7 +94,7 @@ module.exports = function(connection,jwt,log){
         order = ' order by ' +req.body.columns[req.body.order[0].column].data +' '+ req.body.order[0].dir
 
         var sqlstr =req.body.query
-
+console.log(sqlstr)
         connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
             if (!err){
                 dtParam['recordsFiltered'] = rows[0].cnt
