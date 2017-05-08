@@ -1466,7 +1466,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                 })
                 .then(function() {
                     return $ocLazyLoad.load([
-                        "container/components/FoHousekeepingGIH/controller.js"
+                        "container/components/foHousekeepingGIH/controller.js"
                     ]);
                 });
             }]
