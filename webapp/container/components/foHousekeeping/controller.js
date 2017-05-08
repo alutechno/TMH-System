@@ -1,3 +1,9 @@
+function setQuery({query, condition}) {
+    return [
+        query.replace(/\t\t+|\n\n+|\s\s+/g, ' ').trim(),
+        condition ? condition : ''
+    ].join(' ')
+}
 function setWhere(qwhereobj) {
     var arrWhere = [];
     var strWhere = '';
@@ -13,7 +19,7 @@ function setWhere(qwhereobj) {
 function Fn(name) {
     return function ($scope, $state, $sce, $q, queryService, departmentService,
         accountTypeService, DTOptionsBuilder, DTColumnBuilder,
-        $localStorage, $compile, $rootScope, globalFunction, API_URL
+        $localStorage, $compile, $rootScope, globalFunction, API_URL, $templateCache
     ) {
         var args = {};
         for (var i in arguments) args[arguments.callee.$inject[i]] = arguments[i];
@@ -31,8 +37,21 @@ Fn.FoHousekeepingCtrl = function (args) {
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+    for (var i = 0; i < $scope.el.length; i++) {
+        $scope[$scope.el[i]] = true;
+    }
     $scope.nested = {};
-    $scope.cls = { browse: {}, status: {} };
+    $scope.cls = {browse: {}, status: {}};
+    $scope.cls = {
+        browse: {
+            tab: 'active',
+            view: ''
+        },
+        status: {
+            tab: '',
+            view: 'hide'
+        }
+    };
 
     for (var i = 0; i < $scope.el.length; i++) $scope[$scope.el[i]] = true;
     var qwhere = '';
@@ -92,7 +111,6 @@ Fn.FoHousekeepingCtrl = function (args) {
                 where reservation_status in(0,1,2,3,4)
             ) g on a.id=g.room_id where a.status!=2 
     `;
-    qstring = qstring.replace(/\t\t+|\n\n+|\s\s+/g, ' ').trim();
     //
     $scope.users = [];
     $scope.role = {selected: []};
@@ -191,10 +209,6 @@ Fn.FoHousekeepingCtrl = function (args) {
         },
         data: function (data) {
             data.query = qstring + qwhere;
-        },
-        complete: function () {
-            $scope.cls.browse.tab = 'active';
-            $scope.cls.browse.view = '';
         }
     })
     .withDataProp('data')
@@ -249,7 +263,6 @@ Fn.FoHousekeepingCtrl = function (args) {
     };
     $scope.applyFilter = function () {
         //console.log($scope.selected.filter_status)
-
         //console.log($scope.selected.filter_cost_center)
         if ($scope.selected.filter_department.selected) {
             qwhereobj.department = ' a.dept_id = ' + $scope.selected.filter_department.selected.id + ' '
@@ -413,25 +426,21 @@ Fn.FoHousekeepingCtrl = function (args) {
             status: ''
         }
     };
-    $scope.nested.reloadBrowse = function(){
+    $scope.nested.reloadBrowse = function () {
         $scope.cls.browse.tab = 'active';
         $scope.cls.browse.view = '';
         $scope.cls.status.tab = '';
         $scope.cls.status.view = 'hide';
+        $scope.nested.dtInsBrowse.rerender();
     }
 };
 Fn.statusCtrl = function (args) {
-    var {
-        $scope, $state, $sce, $compile, DTOptionsBuilder, API_URL,
-        $localStorage, queryService, DTColumnBuilder, globalFunction
-    } = args;
-    $scope.nested.reloadStatus = function(){
-        $scope.cls.browse.tab = '';
-        $scope.cls.browse.view = 'hide';
-        $scope.cls.status.tab = 'active';
-        $scope.cls.status.view = '';
-    };
-    var qstring = `
+    var q = {};
+    var daterangeEl = $('#filter-daterange');
+    var {$scope, DTOptionsBuilder, API_URL, $localStorage, DTColumnBuilder, queryService} = args;
+    q.condition = '';
+    q.query = `
+        select * from (
             select 
                 a.id, a.room_id, b.name room, 
                 date_format(ifnull(a.modified_date,a.created_date),'%Y-%m-%d') system_date,
@@ -456,9 +465,30 @@ Fn.statusCtrl = function (args) {
             where
                 a.room_id= b.id
                 /*and a.created_by = c.id*/
-        `;
-
-    qstring = qstring.replace(/\t\t+|\n\n+|\s\s+/g, ' ').trim();
+        ) as x
+    `;
+    //
+    $scope.statusFitler = {startDate: '', endDate: '', user: '', type: ''};
+    $scope.filterStatus = function (type, event) {
+        var condirion = [];
+        var {endDate, startDate, user, type} = $scope.statusFitler;
+        if (startDate) condirion.push(`status_date >= '${startDate}'`);
+        if (endDate) condirion.push(`status_date <= '${endDate}'`);
+        if (user) condirion.push(`user LIKE '%${user}%'`);
+        if (type = type || {} && type.name) condirion.push(`room_status = '${type.name}'`);
+        if (condirion.length) {
+            q.condition = `WHERE ${condirion.join(' AND ')}`;
+            $scope.nested.dtInsStatus.reloadData();
+            $scope.nested.dtInsStatus.rerender()
+        }
+    };
+    $scope.nested.reloadStatus = function () {
+        $scope.cls.browse.tab = '';
+        $scope.cls.browse.view = 'hide';
+        $scope.cls.status.tab = 'active';
+        $scope.cls.status.view = '';
+        $scope.nested.dtInsStatus.rerender();
+    };
     $scope.nested.dtInsStatus = {};
     $scope.nested.dtColStatus = [
         DTColumnBuilder.newColumn('status_date').withTitle('Date'),
@@ -476,11 +506,11 @@ Fn.statusCtrl = function (args) {
             "authorization": 'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.query = qstring;
+            data.query = setQuery(q);
         },
         complete: function () {
-            $scope.cls.status.tab = '';
-            $scope.cls.status.view = 'hide';
+            //$scope.statusFitler = {startDate: '', endDate: '', user: '', type: ''};
+            //q.condition = '';
         }
     })
     .withDataProp('data')
@@ -489,19 +519,40 @@ Fn.statusCtrl = function (args) {
     .withOption('bLengthChange', false)
     .withOption('bFilter', false)
     .withOption('order', [0, 'desc'])
-    .withOption('createdRow', function (row, data, dataIndex) {
-        $compile(angular.element(row).contents())($scope);
-    })
+    .withOption('createdRow', $scope.createdRow)
+    .withOption('responsive', true)
     .withPaginationType('full_numbers')
     .withDisplayLength(10);
-    //
-    queryService.post('select format(sum(id), 0) tot from (' + qstring + ') a', undefined)
-    .then(function (data) {
-        $scope.sumIssuing = data.data[0].tot;
+
+    queryService.get(
+        'select distinct cast(concat(a.hk_status, a.fo_status) as char) as name ' +
+        'from hk_room_status_change_log a, user c',
+        undefined
+    ).then(function (data) {
+        $scope.statusTypes = data.data
+    });
+
+    daterangeEl.daterangepicker({
+        "showDropdowns": true,
+        "autoApply": true,
+        "minDate": "01-01-2001",
+        "maxDate": "05-08-2017",
+        "opens": "left"
+    });
+    daterangeEl.on('cancel.daterangepicker', function (ev, picker) {
+        $scope.statusFitler.startDate = '';
+        $scope.statusFitler.endDate = '';
+        $(this).val('');
+    });
+    daterangeEl.on('apply.daterangepicker', function (ev, picker) {
+        $scope.statusFitler.startDate = picker.startDate.format('YYYY-MM-DD');
+        $scope.statusFitler.endDate = picker.endDate.format('YYYY-MM-DD');
+        $(this).val(
+            [$scope.statusFitler.startDate, $scope.statusFitler.endDate].join(' ~ ')
+        );
     });
 };
 //
 angular.module('app', [])
 .controller('FoHousekeepingCtrl', Fn('FoHousekeepingCtrl'))
-.controller('browseCtrl', Fn('browseCtrl'))
 .controller('statusCtrl', Fn('statusCtrl'));

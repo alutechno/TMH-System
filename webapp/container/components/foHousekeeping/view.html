@@ -18,8 +18,8 @@
                 <div class="panel-title">Housekeeping - Manage Room Status</div>
                 <div class="pull-right" style="width: 60%;">
                     <!--<button id="show-modal2" class="btn btn-primary pull-right"-->
-                            <!--ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i-->
-                        <!--class="fa fa-search"></i></button>-->
+                    <!--ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i-->
+                    <!--class="fa fa-search"></i></button>-->
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right"
                             ng-click="openQuickView('add')" ng-show="buttonCreate"><i
                         class="fa fa-plus"></i> Add Type
@@ -43,48 +43,6 @@
                     <a class="reload" href="javascript:;"></a>
                     <a class="remove" href="javascript:;"></a>
                 </div>
-                <!--
-                <div class="panel panel-default m-t-5" pg-portlet ng-show="showAdvance">
-                    <div class="panel-heading">
-                        <div class="panel-title">Advanced Search
-                        </div>
-                        <div class="panel-controls">
-                            <ul>
-                                <li><a href="" ng-click="openAdvancedFilter(false)"><i class="portlet-icon portlet-icon-close"></i></a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="btn-group form-group-default-select pull-left  m-r-5">
-                            <label>Department:</label><br/>
-                            <ui-select ng-model="selected.filter_department.selected" theme="bootstrap" style="width:150px;">
-                                <ui-select-match placeholder="Select Department">{{$select.selected.name}}</ui-select-match>
-                                <ui-select-choices repeat="item in departments | filter: $select.search">
-                                    <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                </ui-select-choices>
-                            </ui-select>
-                        </div>
-                        <div class="btn-group form-group-default-select pull-left  m-r-5">
-                            <label>Account Type:</label><br/>
-                            <ui-select ng-model="selected.filter_account_type.selected" theme="bootstrap" style="width:150px;">
-                                <ui-select-match placeholder="Select Type">{{$select.selected.name}}</ui-select-match>
-                                <ui-select-choices repeat="item in account_types | filter: $select.search">
-                                    <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
-
-                                </ui-select-choices>
-                            </ui-select>
-                        </div>
-
-                        <div class="btn-group dropdown-default  m-r-5">
-                            <label>&nbsp;</label><br/>
-                            <button id="show-modal" class="btn btn-primary pull-right m-r-5" ng-click="applyFilter()"><i class="fa fa-search"></i>
-                                Apply
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                -->
             </div>
             <div class="panel-body">
                 <div class="table-responsive">
@@ -101,17 +59,48 @@
         <div class="panel panel-transparent" ng-class="cls.status.view" ng-controller="statusCtrl">
             <div class="panel-heading">
                 <div class="panel-title">Housekeeping - Status log</div>
-                <div class="pull-right" style="width: 60%;">
-                    <div class="input-group date col-sm-4 pull-right m-r-10">
-                        <input type="text" id="search-status" class="form-control pull-right"
-                               placeholder="Search room..."
-                               ng-keyup="filter('search', $event)" ng-model="filterVal.search">
-                    </div>
+                <div class="pull-right">
+                    <form class="form-inline">
+                        <button class="btn btn-primary pull-right m-l-5"
+                                ng-click="filterStatus()"><i
+                            class="fa fa-search"></i></button>
+                        <div class="form-group pull-right m-l-5">
+                            <label class="sr-only" for="filter-user">Related user</label>
+                            <input type="text" placeholder="Filter by user" class="form-control"
+                                   ng-model="statusFitler.user" style="width: 200px;"/>
+                        </div>
+                        <div class="form-group pull-right m-l-5">
+                            <label class="sr-only" for="filter-type">Related type</label>
+                            <style>
+                                a.ui-select-match span[ng-hide],
+                                a.ui-select-match span[ng-show] {
+                                    margin-top: -5px;
+                                }
+                            </style>
+                            <ui-select id="filter-type" ng-model="statusFitler.type"
+                                       theme="select2" ng-disabled="disabled" style="width: 150px;">
+                                <ui-select-match
+                                    placeholder="Filter by type">{{statusFitler.type.name}}
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="t in statusTypes | filter:$select.search">
+                                    {{t.name}}
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                        <div class="form-group pull-right">
+                            <label class="sr-only" for="filter-daterange">Related date</label>
+                            <input type="text" name="daterange" id="filter-daterange"
+                                   placeholder="Pick a date" class="form-control"
+                                   data-date-format="yyyy-mm-dd"
+                                   ng-model="filter.date" style="width: 190px"/>
+                        </div>
+                    </form>
                 </div>
                 <div class="clearfix"></div>
             </div>
             <div class="panel-body">
-                <div class="table-responsive">
+                <div class="clearfix">
                     <table class="table table-hover table-condensed table-responsive" datatable=""
                            dt-options="nested.dtOptStatus" dt-columns="nested.dtColStatus"
                            dt-instance="nested.dtInsStatus">
@@ -124,7 +113,7 @@
 
     <!--START FORM INPUT-->
     <div class="modal fade slide-right form-input-big" id="form-input" tabindex="-1"
-    role="dialog"
+         role="dialog"
          aria-hidden="true">
         <div class="modal-dialog modal-sm">
             <div class="modal-content-wrapper">
