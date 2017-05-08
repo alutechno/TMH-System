@@ -41,16 +41,9 @@ Fn.FoHousekeepingCtrl = function (args) {
         $scope[$scope.el[i]] = true;
     }
     $scope.nested = {};
-    $scope.cls = {browse: {}, status: {}};
     $scope.cls = {
-        browse: {
-            tab: 'active',
-            view: ''
-        },
-        status: {
-            tab: '',
-            view: 'hide'
-        }
+        browse: { tab: 'active', view: '' },
+        status: { tab: '', view: 'hide' }
     };
 
     for (var i = 0; i < $scope.el.length; i++) $scope[$scope.el[i]] = true;
