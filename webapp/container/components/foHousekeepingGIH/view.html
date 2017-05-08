@@ -1,0 +1,38 @@
+<nav class="secondary-sidebar padding-30">
+    <p class="menu-title">MAIN</p>
+    <ul class="main-menu">
+        <li ng-class="view.inhouse.tab">
+            <a href="javascript:void(0)" ng-click="setActiveView('inhouse')">In House</a>
+        </li>
+        <li ng-class="view.checkout.tab">
+            <a href="javascript:void(0)" ng-click="setActiveView('checkout')">Check Out</a>
+        </li>
+        <li ng-class="view.house.tab">
+            <a href="javascript:void(0)" ng-click="setActiveView('house')">House</a>
+        </li>
+        <li ng-class="view.canceled.tab">
+            <a href="javascript:void(0)" ng-click="setActiveView('canceled')">Canceled</a>
+        </li>
+    </ul>
+</nav>
+<div class="inner-content full-height m-t-40">
+    <!-- TABLES VIEW -->
+    <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">Housekeeping - {{activeView.name}}</div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed " datatable=""
+                           dt-options="dtOptGIH" dt-columns="dtColGIH"
+                           dt-instance="dtInsGIH" width="1800px">
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- END PANEL -->
+    </div>
+</div>
