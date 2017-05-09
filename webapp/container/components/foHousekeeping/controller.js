@@ -1,36 +1,30 @@
-function setQuery({query, condition}) {
-    return [
-        query.replace(/\t\t+|\n\n+|\s\s+/g, ' ').trim(),
-        condition ? condition : ''
-    ].join(' ')
-}
-function setWhere(qwhereobj) {
-    var arrWhere = [];
-    var strWhere = '';
-    for (var key in qwhereobj) {
-        if (qwhereobj[key].length > 0) arrWhere.push(qwhereobj[key])
-    }
-    if (arrWhere.length > 0) {
-        strWhere = ' and ' + arrWhere.join(' and ')
-    }
-    //console.log(strWhere)
-    return strWhere
-};
-function Fn(name) {
+hkMRS = function (name) {
     return function ($scope, $state, $sce, $q, queryService, departmentService,
         accountTypeService, DTOptionsBuilder, DTColumnBuilder,
         $localStorage, $compile, $rootScope, globalFunction, API_URL, $templateCache
     ) {
         var args = {};
         for (var i in arguments) args[arguments.callee.$inject[i]] = arguments[i];
-        Fn[name](args);
+        hkMRS[name](args);
     }
-}
-Fn.FoHousekeepingCtrl = function (args) {
+};
+hkMRS.main = function (args) {
     var {
         $scope, $state, $sce, $compile, DTOptionsBuilder, API_URL,
         $localStorage, queryService, DTColumnBuilder, globalFunction
     } = args;
+    var setWhere = function (qwhereobj) {
+        var arrWhere = [];
+        var strWhere = '';
+        for (var key in qwhereobj) {
+            if (qwhereobj[key].length > 0) arrWhere.push(qwhereobj[key])
+        }
+        if (arrWhere.length > 0) {
+            strWhere = ' and ' + arrWhere.join(' and ')
+        }
+        //console.log(strWhere)
+        return strWhere
+    };
 
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -427,10 +421,16 @@ Fn.FoHousekeepingCtrl = function (args) {
         $scope.nested.dtInsBrowse.rerender();
     }
 };
-Fn.statusCtrl = function (args) {
+hkMRS.statusCtrl = function (args) {
     var q = {};
     var daterangeEl = $('#filter-daterange');
     var {$scope, DTOptionsBuilder, API_URL, $localStorage, DTColumnBuilder, queryService} = args;
+    var setQuery = function ({query, condition}) {
+        return [
+            query.replace(/\t\t+|\n\n+|\s\s+/g, ' ').trim(),
+            condition ? condition : ''
+        ].join(' ')
+    };
     q.condition = '';
     q.query = `
         select * from (
@@ -547,5 +547,5 @@ Fn.statusCtrl = function (args) {
 };
 //
 angular.module('app', [])
-.controller('FoHousekeepingCtrl', Fn('FoHousekeepingCtrl'))
-.controller('statusCtrl', Fn('statusCtrl'));
+.controller('FoHousekeepingCtrl', hkMRS('main'))
+.controller('statusCtrl', hkMRS('statusCtrl'));
