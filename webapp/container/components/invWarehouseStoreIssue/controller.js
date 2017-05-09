@@ -335,10 +335,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             $('#form-input').modal('show');
             $scope.sr = result.data[0]
             $scope.sr.date = $scope.sr.required_date
-			console.log($scope.sr)
-            $scope.selected.cost_center['selected'] = {id:$scope.sr.dest_cost_center_id,name:$scope.sr.cost_center_name,account_id:$scope.sr.account_id,code:$scope.sr.cc_code,dept_desc:$scope.sr.dept_desc}
-			console.log($scope.selected.cost_center['selected'])
-			console.log($scope.cost_center)
+			$scope.selected.cost_center['selected'] = {id:$scope.sr.dest_cost_center_id,name:$scope.sr.cost_center_name,account_id:$scope.sr.account_id,code:$scope.sr.cc_code,dept_desc:$scope.sr.dept_desc}
 			$scope.selected.warehouse['selected'] = {id:$scope.sr.origin_warehouse_id,name:$scope.sr.warehouse_name,account_id:$scope.sr.coa_wr}
             $scope.selected.request_status['selected'] = {id:$scope.sr.request_status,name:$scope.sr.request_status_name}
             $scope.selected.issued_status['selected'] = {id:$scope.sr.issued_status,name:$scope.sr.issued_status_name}
@@ -628,11 +625,13 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         }
         else if (g=='iq') {
 			f=parseInt(f)
-			if($scope.items[d-1].stock_in_hand<$scope.items[d-1].issued_qty_n)
-				$scope.items[d-1].issued_qty_n=$scope.items[d-1].stock_in_hand
-			else if($scope.items[d-1].issued_qty_n+$scope.items[d-1].issued_qty>$scope.items[d-1].request_qty)
-				$scope.items[d-1].issued_qty_n=$scope.items[d-1].request_qty-$scope.items[d-1].issued_qty
-			else
+
+			if($scope.items[d-1].issued_qty_n+$scope.items[d-1].issued_qty>$scope.items[d-1].request_qty){
+				if($scope.items[d-1].stock_in_hand<$scope.items[d-1].issued_qty_n)
+					$scope.items[d-1].issued_qty_n=$scope.items[d-1].stock_in_hand
+				else
+					$scope.items[d-1].issued_qty_n=$scope.items[d-1].request_qty-$scope.items[d-1].issued_qty
+			}else
 				$scope.items[d-1].issued_qty_n = f
         }
     }
