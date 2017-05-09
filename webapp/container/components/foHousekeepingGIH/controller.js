@@ -37,7 +37,6 @@ Fn.FoHousekeepingGIHCtrl = function (args) {
             width: '15%',
             aria: 'In <br /> Nights',
             renderer: function (data, type, full, meta) {
-                console.log(full)
                 return full.arrival_date + '<br /> <small>Nights: ' + full.num_of_nights + '</small>'
             }
         },
@@ -77,7 +76,7 @@ Fn.FoHousekeepingGIHCtrl = function (args) {
     $scope.view = {
         inhouse: {name: 'In House', tab: 'active', adder: 4},
         checkout: {name: 'Checkout', tab: '', adder: 5},
-        house: {name: 'House', tab: '',adder:4},
+        house: {name: 'House', tab: '', adder:4},
         canceled: {name: 'Canceled', tab: '', adder: 6}
     };
     $scope.setActiveView = function (key) {
@@ -223,7 +222,6 @@ Fn.FoHousekeepingGIHCtrl = function (args) {
             } else {
                 data.query = setQuery(q.query, $scope.view[current].adder);
             }
-			console.log(data.query)
         }
     })
     .withDataProp('data')
