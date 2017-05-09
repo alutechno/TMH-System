@@ -213,7 +213,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.submit = function(){
 		if ($scope.sr.id.length==0){
             //exec creation
-			queryService.post('select next_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
+			queryService.post('select next_document_no(\'sR\',\''+$scope.ym+'\') as code',undefined)
 			.then(function(data){
 				$scope.sr.code = data.data[0].code
 			})
