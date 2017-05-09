@@ -116,7 +116,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        $scope.cats[data] = {id:data};
+		$scope.cats[data] = {id:data,code:full.code};
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
@@ -126,7 +126,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
-            if ($scope.el.indexOf('buttonDelete')>-1){
+			if ($scope.el.indexOf('buttonDelete')>-1 && full.issued_status==0 && full.request_status==0){
                 html+='<button class="btn btn-default" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
@@ -372,32 +372,28 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.delete = function(obj){
-        $scope.cat.id = obj.id;
-        //$scope.customer.name = obj.name;
-        productCategoryService.get(obj.id)
-        .then(function(result){
-            $scope.cat.name = result.data[0].name;
-            $('#modalDelete').modal('show')
-        })
+		console.log(obj)
+        $scope.sr.id = obj.id;
+		$scope.sr.name = obj.code;
+        $('#modalDelete').modal('show')
     }
 
     $scope.execDelete = function(){
-        queryService.post('update ref_product_category set status=2 where id='+$scope.cat.id,undefined)
+        queryService.post('delete from inv_store_req_line_item where sr_id='+$scope.sr.id+'; delete from inv_store_request where id='+$scope.sr.id,undefined)
         .then(function (result){
-                $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
                 }, false)
                 $('body').pgNotification({
                     style: 'flip',
-                    message: 'Success Delete '+$scope.cat.name,
+                    message: 'Success Delete '+$scope.sr.name,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'success'
                 }).show();
         },
         function (err){
-            $('#form-input').pgNotification({
+            $('body').pgNotification({
                 style: 'flip',
                 message: 'Error Delete: '+err.code,
                 position: 'top-right',

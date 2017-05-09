@@ -127,11 +127,11 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
-            if ($scope.el.indexOf('buttonDelete')>-1){
+            /*if ($scope.el.indexOf('buttonDelete')>-1){
                 html+='<button class="btn btn-default" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
-            }
+            }*/
             html += '</div>'
         }
         return html
