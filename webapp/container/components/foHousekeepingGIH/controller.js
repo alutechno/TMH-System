@@ -1,22 +1,22 @@
-function setQuery(query, adder) {
-    return [
-        query.replace(/\t\t+|\n\n+|\s\s+/g, ' ').trim(),
-        adder ? adder : ''
-    ].join(' ')
-}
-function Fn(name) {
+hkGIH = function (name) {
     return function ($scope, $state, $sce, $q, queryService, departmentService,
         accountTypeService, DTOptionsBuilder, DTColumnBuilder,
         $localStorage, $compile, $rootScope, globalFunction, API_URL, $templateCache
     ) {
         var args = {};
         for (var i in arguments) args[arguments.callee.$inject[i]] = arguments[i];
-        Fn[name](args);
+        hkGIH[name](args);
     }
-}
-Fn.FoHousekeepingGIHCtrl = function (args) {
+};
+hkGIH.main = function (args) {
     var q = {};
     var {$scope, DTOptionsBuilder, API_URL, $localStorage, DTColumnBuilder, $compile} = args;
+    var setQuery = function (query, adder) {
+        return [
+            query.replace(/\t\t+|\n\n+|\s\s+/g, ' ').trim(),
+            adder ? adder : ''
+        ].join(' ')
+    };
     //
     $scope.colConfig = {
         guest_name: {
@@ -239,4 +239,4 @@ Fn.FoHousekeepingGIHCtrl = function (args) {
     .withDisplayLength(10);
 };
 //
-angular.module('app', []).controller('FoHousekeepingGIHCtrl', Fn('FoHousekeepingGIHCtrl'));
+angular.module('app', []).controller('FoHousekeepingGIHCtrl', hkGIH('main'));
