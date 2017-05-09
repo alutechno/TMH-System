@@ -115,7 +115,7 @@
                         <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="sr.cost_center_id=selected.cost_center.selected.id" >
                             <ui-select-match placeholder="Pick Cost Center">{{$select.selected.code}}</ui-select-match>
                             <ui-select-choices repeat="item in cost_center | filter: $select.search">
-                                <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
+                                <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
                                 <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
                             </ui-select-choices>
                         </ui-select>
