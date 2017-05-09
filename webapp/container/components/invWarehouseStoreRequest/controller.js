@@ -63,6 +63,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     queryService.get('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
         'from mst_cost_center a, mst_department b '+
         'where a.department_id = b.id '+
+		'and a.account_id is not null '+
         'order by a.code asc limit 10',undefined)
     .then(function(data){
         $scope.cost_center = data.data
@@ -72,13 +73,14 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             'from mst_cost_center a, mst_department b '+
             'where a.department_id = b.id '+
             ' and lower(a.code) like \'%'+text+'%\' '+
+			' and a.account_id is not null '+
             'order by a.code asc limit 10',undefined)
         .then(function(data){
             $scope.cost_center = data.data
         })
     }
     $scope.warehouse = []
-    queryService.get('select id,name from mst_warehouse order by name',undefined)
+    queryService.get('select id,name from mst_warehouse where account_id is not null order by name',undefined)
     .then(function(data){
         $scope.warehouse = data.data
     })
