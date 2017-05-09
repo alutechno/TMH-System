@@ -13,14 +13,16 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstring = 'select a.id,a.code,a.request_status,c.name request_status_name,a.issued_status,b.name issued_status_name,DATE_FORMAT(a.required_date,\'%Y-%m-%d\') required_date,a.origin_warehouse_id,d.name warehouse_name,a.dest_cost_center_id,e.name cost_center_name,a.request_notes '+
+	var qstring = 'select concat(\'Department: \',f.name)  dept_desc,e.code cc_code,a.id,a.code,a.request_status,c.name request_status_name,a.issued_status,b.name issued_status_name,DATE_FORMAT(a.required_date,\'%Y-%m-%d\') required_date,a.origin_warehouse_id,d.name warehouse_name,d.account_id coa_wr,a.dest_cost_center_id,e.name cost_center_name,e.account_id,a.request_notes '+
         'from inv_store_request a,(select value,name from table_ref where table_name=\'store_request\' and column_name=\'issued_status\') b, '+
-        '(select value,name from table_ref where table_name=\'store_request\' and column_name=\'request_status\') c,mst_warehouse d,mst_cost_center e '+
+        '(select value,name from table_ref where table_name=\'store_request\' and column_name=\'request_status\') c,mst_warehouse d,mst_cost_center e, mst_department f '+
         'where a.request_status=c.value '+
         'and a.issued_status=b.value '+
         'and a.origin_warehouse_id=d.id '+
-        'and a.dest_cost_center_id=e.id '
-    var qstringdetail = 'select a.request_notes as item_notes,a.id p_id,a.product_id ,b.name product_name,d.stock_qty,d.stock_qty_l stock_in_hand,a.request_qty,e.name unit_name,a.issued_qty,a.issued_status,f.name issued_status,b.unit_type_id unit_id,b.lowest_unit_type_id unit_id2,b.lowest_unit_conversion unit_conversion,d.id warehouse_item_id,b.recipe_unit_conversion '+
+        'and a.dest_cost_center_id=e.id '+
+		'and e.department_id = f.id '+
+		'and a.request_status!=0 '
+    var qstringdetail = 'select b.price_per_lowest_unit,a.request_notes as item_notes,a.id p_id,a.product_id ,b.name product_name,d.stock_qty,d.stock_qty_l stock_in_hand,a.request_qty,e.name unit_name,a.issued_qty,a.issued_status,f.name issued_status,b.unit_type_id unit_id,b.lowest_unit_type_id unit_id2,b.lowest_unit_conversion unit_conversion,d.id warehouse_item_id,b.recipe_unit_conversion '+
         'from inv_store_req_line_item a,mst_product b,inv_store_request c,inv_warehouse_stock d,ref_product_unit e,(select value,name from table_ref where table_name=\'inv_store_req_line_item\')f '+
         'where a.product_id=b.id '+
         'and a.sr_id=c.id '+
@@ -330,8 +332,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             $('#form-input').modal('show');
             $scope.sr = result.data[0]
             $scope.sr.date = $scope.sr.required_date
-            $scope.selected.cost_center['selected'] = {id:$scope.sr.dest_cost_center_id,name:$scope.sr.cost_center_name}
-            $scope.selected.warehouse['selected'] = {id:$scope.sr.origin_warehouse_id,name:$scope.sr.warehouse_name}
+			$scope.selected.cost_center['selected'] = {id:$scope.sr.dest_cost_center_id,name:$scope.sr.cost_center_name,account_id:$scope.sr.account_id,code:$scope.sr.cc_code,dept_desc:$scope.sr.dept_desc}
+			$scope.selected.warehouse['selected'] = {id:$scope.sr.origin_warehouse_id,name:$scope.sr.warehouse_name,account_id:$scope.sr.coa_wr}
             $scope.selected.request_status['selected'] = {id:$scope.sr.request_status,name:$scope.sr.request_status_name}
             $scope.selected.issued_status['selected'] = {id:$scope.sr.issued_status,name:$scope.sr.issued_status_name}
 			if($scope.sr.issued_status!=0)

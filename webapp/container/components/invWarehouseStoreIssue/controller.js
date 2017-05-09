@@ -13,15 +13,16 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstring = 'select a.id,a.code,a.request_status,c.name request_status_name,a.issued_status,b.name issued_status_name,DATE_FORMAT(a.required_date,\'%Y-%m-%d\') required_date,a.origin_warehouse_id,d.name warehouse_name,a.dest_cost_center_id,e.name cost_center_name,a.request_notes '+
+    var qstring = 'select concat(\'Department: \',f.name)  dept_desc,e.code cc_code,a.id,a.code,a.request_status,c.name request_status_name,a.issued_status,b.name issued_status_name,DATE_FORMAT(a.required_date,\'%Y-%m-%d\') required_date,a.origin_warehouse_id,d.name warehouse_name,d.account_id coa_wr,a.dest_cost_center_id,e.name cost_center_name,e.account_id,a.request_notes '+
         'from inv_store_request a,(select value,name from table_ref where table_name=\'store_request\' and column_name=\'issued_status\') b, '+
-        '(select value,name from table_ref where table_name=\'store_request\' and column_name=\'request_status\') c,mst_warehouse d,mst_cost_center e '+
+        '(select value,name from table_ref where table_name=\'store_request\' and column_name=\'request_status\') c,mst_warehouse d,mst_cost_center e, mst_department f '+
         'where a.request_status=c.value '+
         'and a.issued_status=b.value '+
         'and a.origin_warehouse_id=d.id '+
         'and a.dest_cost_center_id=e.id '+
+		'and e.department_id = f.id '+
 		'and a.request_status!=0 '
-    var qstringdetail = 'select a.request_notes as item_notes,a.id p_id,a.product_id ,b.name product_name,d.stock_qty,d.stock_qty_l stock_in_hand,a.request_qty,e.name unit_name,a.issued_qty,a.issued_status,f.name issued_status,b.unit_type_id unit_id,b.lowest_unit_type_id unit_id2,b.lowest_unit_conversion unit_conversion,d.id warehouse_item_id,b.recipe_unit_conversion '+
+    var qstringdetail = 'select b.price_per_lowest_unit,a.request_notes as item_notes,a.id p_id,a.product_id ,b.name product_name,d.stock_qty,d.stock_qty_l stock_in_hand,a.request_qty,e.name unit_name,a.issued_qty,a.issued_status,f.name issued_status,b.unit_type_id unit_id,b.lowest_unit_type_id unit_id2,b.lowest_unit_conversion unit_conversion,d.id warehouse_item_id,b.recipe_unit_conversion '+
         'from inv_store_req_line_item a,mst_product b,inv_store_request c,inv_warehouse_stock d,ref_product_unit e,(select value,name from table_ref where table_name=\'inv_store_req_line_item\')f '+
         'where a.product_id=b.id '+
         'and a.sr_id=c.id '+
@@ -45,10 +46,11 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         code: '',
         warehouse_id: '',
         cost_center_id: '',
+		cost_center_account: '',
         request_status: '',
         issued_status: '',
         date: '',
-        notes: ''
+        request_notes: ''
     }
 
     $scope.selected = {
@@ -59,7 +61,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.cost_center = []
-    queryService.get('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+    queryService.get('select a.account_id,a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
         'from mst_cost_center a, mst_department b '+
         'where a.department_id = b.id '+
         'order by a.code asc limit 10',undefined)
@@ -67,7 +69,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope.cost_center = data.data
     })
     $scope.costCenterUp = function(text){
-        queryService.post('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+        queryService.post('select a.account_id,a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
             'from mst_cost_center a, mst_department b '+
             'where a.department_id = b.id '+
             ' and lower(a.code) like \'%'+text+'%\' '+
@@ -231,7 +233,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             queryService.post('insert into inv_store_request set ?',param)
             .then(function (result){
 				var qstr = $scope.child.saveTable(result.data.insertId)
-				console.log(qstr)
 				if(qstr.length>0){
 					queryService.post(qstr.join(';'),undefined)
 	                .then(function (result2){
@@ -286,6 +287,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             queryService.post('update inv_store_request set ? where id='+$scope.sr.id,param)
             .then(function (result){
                 var qstr = $scope.child.saveTable($scope.sr.id)
+				console.log(qstr.join(';'))
+				//qstr=[];
 				if(qstr.length>1){
 	                queryService.post(qstr.join(';'),undefined)
 	                .then(function (result2){
@@ -332,11 +335,13 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             $('#form-input').modal('show');
             $scope.sr = result.data[0]
             $scope.sr.date = $scope.sr.required_date
-            $scope.selected.cost_center['selected'] = {id:$scope.sr.dest_cost_center_id,name:$scope.sr.cost_center_name}
-            $scope.selected.warehouse['selected'] = {id:$scope.sr.origin_warehouse_id,name:$scope.sr.warehouse_name}
+			console.log($scope.sr)
+            $scope.selected.cost_center['selected'] = {id:$scope.sr.dest_cost_center_id,name:$scope.sr.cost_center_name,account_id:$scope.sr.account_id,code:$scope.sr.cc_code,dept_desc:$scope.sr.dept_desc}
+			console.log($scope.selected.cost_center['selected'])
+			console.log($scope.cost_center)
+			$scope.selected.warehouse['selected'] = {id:$scope.sr.origin_warehouse_id,name:$scope.sr.warehouse_name,account_id:$scope.sr.coa_wr}
             $scope.selected.request_status['selected'] = {id:$scope.sr.request_status,name:$scope.sr.request_status_name}
             $scope.selected.issued_status['selected'] = {id:$scope.sr.issued_status,name:$scope.sr.issued_status_name}
-			console.log($scope.selected.issued_status)
 			queryService.post(qstringdetail+ ' and c.id='+ids,undefined)
             .then(function(result2){
                 $('#form-input').modal('show');
@@ -506,8 +511,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         var sqlitem = []
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
-			console.log(user)
-            // actually delete user
+			// actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);
             }*/
@@ -528,6 +532,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 sqlitem.push('delete from inv_store_req_line_item where id='+user.p_id)
             }
             else if(!user.isNew){
+				console.log("a")
+				var amount_tot=0
+				sqlitem.push('START TRANSACTION')
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
                         var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].request_qty+$scope.itemsOri[j].issued_qty_n+$scope.itemsOri[j].item_notes
@@ -539,6 +546,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                                 ' modified_by = '+$localStorage.currentUser.name.id+',' +
                                 ' modified_date = \''+globalFunction.currentDate()+'\'' +
                                 ' where id='+user.p_id
+							sqlitem.push(sql1)
 							if(user.issued_qty_n>0){
 		                        var sql2 = 'insert into inv_wh_stock_move(transc_type,sr_id,origin_warehouse_id,dest_cost_center_id,product_id,qty,unit_type_id,qty_l,lowest_unit_type_id,created_by) values '+
 		                            '( \'SR\','+sr_id+','+$scope.selected.warehouse.selected.id+','+$scope.selected.cost_center.selected.id+','+
@@ -561,15 +569,24 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 		                            ' ,stock_qty_in_recipe_unit = (stock_qty_in_recipe_unit+'+(user.issued_qty_n*user.recipe_unit_conversion)+')'+
 		                            ' ,modified_by = '+$localStorage.currentUser.name.id+',' +
 		                            ' modified_date = \''+globalFunction.currentDate()+'\''
-
-		                        sqlitem.push(sql1)
-		                        sqlitem.push(sql2)
-		                        sqlitem.push(sql3)
-		                        sqlitem.push(sql4)
+		                        sqlitem.push(sql2,sql3,sql4)
+								amount_tot+=(user.price_per_lowest_unit*user.issued_qty_n)
 							}
                         }
                     }
                 }
+				if(sql2!=undefined){
+					var sql5=`insert into acc_gl_transaction (code,journal_type_id,sr_id,gl_status,notes)
+						values("`+$scope.sr.code+`",15,`+$scope.sr.id+`,1,"`+$scope.sr.request_notes+`")`
+					var sql6='set @id=(select last_insert_id())'
+					var sql7=`insert into acc_gl_journal (gl_id,account_id,transc_type,amount,notes)
+						values(@id,`+$scope.selected.cost_center.selected.account_id+`,'D',`+amount_tot+`,"`+$scope.sr.request_notes+`")`
+					var sql8=`insert into acc_gl_journal (gl_id,account_id,transc_type,amount,notes)
+						values(@id,`+$scope.selected.warehouse.selected.account_id+`,'C',`+amount_tot+`,"`+$scope.sr.request_notes+`")`
+					sqlitem.push(sql5,sql6,sql7,sql8)
+				}
+				console.log(sqlitem)
+				sqlitem.push('COMMIT')
             }
 
         }
