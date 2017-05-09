@@ -57,7 +57,7 @@
                           <input type="text" class="form-control" name="code" ng-model="sr.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
-                  <div class="col-sm-6">
+                  <!--<div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : sr.request_status.$invalid && !sr.request_status.$pristine }">
                           <label>Request Status</label>
                           <ui-select ng-model="selected.request_status.selected" theme="bootstrap" >
@@ -67,7 +67,7 @@
                               </ui-select-choices>
                           </ui-select>
                       </div>
-                  </div>
+                  </div>-->
               </div>
               <div class="row clearfix">
                   <div class="col-sm-6">
@@ -132,9 +132,9 @@
                             <th width="10%">Stock in Hand</th>
                             <th width="10%">Qty</th>
                             <th width="10%">Unit</th>
-                            <th width="10%">Stock Issued</th>
-                            <th width="10%">Issued Qty</th>
-                            <th width="10%">Status</th>
+							<th width="10%">ALready Issue Qty</th>
+							<th width="10%">Issue Qty</th>
+                            <th width="10%">Notes</th>
                         </tr>
                         </thead>
 
@@ -154,32 +154,32 @@
                                 </span>
                             </td>
                             <td><span>{{item.stock_in_hand}}</span></td>
-                            <td>
-                                <span editable-text="item.request_qty" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'rq')" ng-disabled="!buttonCreate">
-                                    {{ item.request_qty }}
-                                </span>
-                            </td>
+							<td><span>{{item.request_qty}}</span></td>
                             <td><span>{{item.unit_name}}</span></td>
-                            <td><span>{{item.issued_qty || 0}}</span></td>
-
-                            <td>
-                                <span editable-text="item.issued_qty_n" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'iq')" ng-disabled="!issuing">
-                                    {{ item.issued_qty_n ||0}}
+							<td><span>{{item.issued_qty}}</span></td>
+							<td>
+                                <span editable-text="item.issued_qty_n" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'iq')" ng-disabled="!buttonCreate">
+                                    {{ item.issued_qty_n }}
                                 </span>
                             </td>
-                            <td><span>{{item.status_name}}</span></td>
+                            <td>
+                                <span editable-textarea="item.item_notes" theme="bootstrap" e-form="tableform" data-e-ng-keyup="update($event,item.id,$data)">
+                                    {{ item.item_notes}}
+                                </span>
+                            </td>
                         </tr>
                         </tbody>
                     </table>
                     <!-- buttons -->
                     <div class="btn-edit">
-                      <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()" ng-disabled="!selected.warehouse.selected">
+                      <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()" ng-disabled=" !selected.warehouse.selected || selected.issued_status.selected.id==2 || selected.issued_status.selected.id==3">
                         Modify Item List
                       </button>
                     </div>
                     <div class="btn-form" ng-show="tableform.$visible">
-                      <button type="submit" ng-disabled="tableform.$waiting" ng-click="child.saveTable(0)" class="btn btn-primary"> Save Item</button>
-                      <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
+                      <!--<button type="submit" ng-disabled="tableform.$waiting" ng-click="child.saveTable(0)" class="btn btn-primary"> Save Item</button>-->
+					  <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
+					  <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
                       <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
                     </div>
 
