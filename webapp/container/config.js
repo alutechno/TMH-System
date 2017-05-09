@@ -1497,7 +1497,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
-    .state("app.fo.housekeepingworksheetassignment", {
+    .state("app.fo.housekeepingworksheetandassignment", {
         url: "/foWorksheetAssignment",
         templateUrl: "container/components/foHousekeepingWA/view.html",
         controller: "FoHousekeepingWACtrl",
