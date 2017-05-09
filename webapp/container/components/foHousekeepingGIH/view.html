@@ -1,6 +1,9 @@
 <nav class="secondary-sidebar padding-30">
     <p class="menu-title">MAIN</p>
     <ul class="main-menu">
+        <li ng-class="view.arrival.tab">
+            <a href="javascript:void(0)" ng-click="setActiveView('arrival')">Arrival</a>
+        </li>
         <li ng-class="view.inhouse.tab">
             <a href="javascript:void(0)" ng-click="setActiveView('inhouse')">In House</a>
         </li>
