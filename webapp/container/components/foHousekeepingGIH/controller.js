@@ -70,11 +70,12 @@ Fn.FoHousekeepingGIHCtrl = function (args) {
         },
     };
     $scope.activeView = {
-        name: 'In House',
-        key: 'inhouse'
+        name: 'Arrival',
+        key: 'arrival'
     };
     $scope.view = {
-        inhouse: {name: 'In House', tab: 'active', adder: 4},
+        arrival: {name: 'Arrival', tab: 'active', adder: 3},
+        inhouse: {name: 'In House', tab: '', adder: 4},
         checkout: {name: 'Checkout', tab: '', adder: 5},
         house: {name: 'House', tab: '', adder:4},
         canceled: {name: 'Canceled', tab: '', adder: 6}
