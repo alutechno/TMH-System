@@ -1473,7 +1473,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
         }
     })
     .state("app.fo.housekeepingroommaintenance", {
-        url: "/foGuestinHouseList",
+        url: "/foRoomMaintenance",
         templateUrl: "container/components/foHousekeepingRM/view.html",
         controller: "FoHousekeepingRMCtrl",
         resolve: {
@@ -1497,10 +1497,10 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
             }]
         }
     })
-    .state("app.fo.housekeepingassignment", {
-        url: "/foGuestinHouseList",
-        templateUrl: "container/components/foHousekeepingA/view.html",
-        controller: "FoHousekeepingACtrl",
+    .state("app.fo.housekeepingworksheetassignment", {
+        url: "/foWorksheetAssignment",
+        templateUrl: "container/components/foHousekeepingWA/view.html",
+        controller: "FoHousekeepingWACtrl",
         resolve: {
             deps: ["$ocLazyLoad", function($ocLazyLoad) {
                 return $ocLazyLoad.load([
@@ -1516,39 +1516,14 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
                 })
                 .then(function() {
                     return $ocLazyLoad.load([
-                        "container/components/foHousekeepingA/controller.js"
-                    ]);
-                });
-            }]
-        }
-    })
-    .state("app.fo.housekeepingworksheet", {
-        url: "/foGuestinHouseList",
-        templateUrl: "container/components/foHousekeepingW/view.html",
-        controller: "FoHousekeepingWCtrl",
-        resolve: {
-            deps: ["$ocLazyLoad", function($ocLazyLoad) {
-                return $ocLazyLoad.load([
-                    "dataTables",
-                    "select",
-                    "datepicker",
-                    "daterangepicker",
-                    'timepicker',
-                    "tagsInput",
-                    "autonumeric"
-                ], {
-                    insertBefore: "#lazyload_placeholder"
-                })
-                .then(function() {
-                    return $ocLazyLoad.load([
-                        "container/components/foHousekeepingWCtrl/controller.js"
+                        "container/components/foHousekeepingWA/controller.js"
                     ]);
                 });
             }]
         }
     })
     .state("app.fo.housekeepingguestlogbrowser", {
-        url: "/foGuestinHouseList",
+        url: "/foGuestinLogBrowse",
         templateUrl: "container/components/foHousekeepingGLB/view.html",
         controller: "FoHousekeepingGLBCtrl",
         resolve: {
@@ -1573,7 +1548,7 @@ function($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider,
         }
     })
     .state("app.fo.housekeepingroster", {
-        url: "/foGuestinHouseList",
+        url: "/foHousekeepingRoster",
         templateUrl: "container/components/foHousekeepingR/view.html",
         controller: "FoHousekeepingRCtrl",
         resolve: {
