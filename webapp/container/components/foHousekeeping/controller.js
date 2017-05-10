@@ -292,7 +292,6 @@ hkMRS.main = function (args) {
                 modified_date: globalFunction.currentDate(),
                 modified_by: $localStorage.currentUser.name.id
             }
-            console.log(param)
             queryService.post('update mst_room SET ? WHERE id=' + $scope.coa.id, param)
             .then(function (result) {
                 if (result.status = "200") {
@@ -524,11 +523,11 @@ hkMRS.statusCtrl = function (args) {
     });
 
     daterangeEl.daterangepicker({
-        "showDropdowns": true,
-        "autoApply": true,
-        "minDate": "01-01-2001",
-        "maxDate": "05-08-2017",
-        "opens": "left"
+        showDropdowns: true,
+        autoApply: true,
+        minDate: '01-01-2001',
+        maxDate: moment().format('DD-MM-YYYY'),
+        opens: 'left'
     });
     daterangeEl.on('cancel.daterangepicker', function (ev, picker) {
         $scope.statusFitler.startDate = '';
