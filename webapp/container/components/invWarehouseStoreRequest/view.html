@@ -128,6 +128,7 @@
                     <table class="table  table-hover itemtable">
                         <thead>
                         <tr>
+							<th width="10%">Action</th>
                             <th width="25%">Item</th>
                             <th width="10%">Stock in Hand</th>
                             <th width="10%">Qty</th>
@@ -138,6 +139,11 @@
 
                         <tbody>
                         <tr ng-repeat="item in items | filter:filterUser">
+							<td style="vertical-align: middle;">
+								<div class="btn-group btn-group-xs" ng-show="tableform.$visible">
+									<button type="button" class="btn btn-default" ng-click="deleteUser(item.id)" ><i class="fa fa-trash-o"></i></button>
+								</div>
+							</td>
                             <td >
                                 <span editable-ui-select="item.product_name" theme="bootstrap" data-e-name="product_name" name="product_name" data-e-ng-model="selected.product.selected"
                                 data-e-form="tableform" data-e-ng-keyup="productUp($select.search)" data-e-on-select="getProductPrice($item,item.id)" >
