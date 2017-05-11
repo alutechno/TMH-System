@@ -1,0 +1,62 @@
+<nav class="secondary-sidebar padding-30">
+    <p class="menu-title">MAIN</p>
+    <ul class="main-menu">
+        <li ng-class="view.available">
+            <a href="javascript:void(0)" ng-click="setActiveView('available')">Available</a>
+        </li>
+        <li ng-class="view.onhand">
+            <a href="javascript:void(0)" ng-click="setActiveView('onhand')">On Hand</a>
+        </li>
+        <li ng-class="view.revenue">
+            <a href="javascript:void(0)" ng-click="setActiveView('revenue')">Revenue</a>
+        </li>
+        <li ng-class="view.rate">
+            <a href="javascript:void(0)" ng-click="setActiveView('rate')">Rate</a>
+        </li>
+        <!--<li ng-class="view.detail">
+            <a href="javascript:void(0)" ng-click="setActiveView('detail')">Detail</a>
+        </li>
+        <li ng-class="view.block">
+            <a href="javascript:void(0)" ng-click="setActiveView('block')">Block</a>
+        </li>
+        <li ng-class="view.mice">
+            <a href="javascript:void(0)" ng-click="setActiveView('mice')">Mice</a>
+        </li>-->
+    </ul>
+</nav>
+<div class="inner-content full-height m-t-40" style="font-size: 11px !important;"
+     data-ng-init="setActiveView('available')">
+    <!-- TABLES VIEW -->
+    <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">Housekeeping - Room Inventory</div>
+                <div class="pull-right">
+                    <form class="form-inline">
+                        <button class="btn btn-primary pull-right m-l-5"
+                                ng-click="filter()"><i
+                            class="fa fa-search"></i></button>
+                        <div class="form-group">
+                            <label class="sr-only" for="input-daterange">Related date</label>
+                            <input type="text" name="daterange" id="input-daterange"
+                                   placeholder="Pick a date" class="form-control"
+                                   data-date-format="yyyy-mm-dd"
+                                   ng-model="model.dateRange" style="width: 190px"/>
+                        </div>
+                    </form>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed " datatable=""
+                           dt-options="dtOpt" dt-columns="dtCol"
+                           dt-instance="dtIns">
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- END PANEL -->
+    </div>
+</div>
