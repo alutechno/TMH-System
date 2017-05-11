@@ -1,12 +1,7 @@
 var trim = function (str) {
     return str.replace(/\t\t+|\n\n+|\s\s+/g, ' ').trim()
 };
-/*
-SELECT * FROM `hk_room_maintenance`;
-SELECT * FROM `mst_room`;
-SELECT * FROM `ref_maintenance_req_type`;
-SELECT * FROM `table_ref` WHERE table_name = 'mst_room' AND column_name = 'hk_status';
- */
+
 angular.module('app', []).controller('FoHousekeepingRMCtrl', function ($scope, $state, $sce, $q,
     queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder,
     $localStorage, $compile, $rootScope, globalFunction, API_URL, $templateCache
