@@ -4,7 +4,6 @@ userController
 .controller('InvPurchaseOrderCtrl',
 function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOptionsBuilder, DTColumnBuilder,DTColumnDefBuilder, $localStorage, $compile, $rootScope, API_URL,
     warehouseService) {
-
     $scope.el = [];
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
@@ -15,7 +14,6 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     $scope.items = []
     $scope.itemsOri = []
     $scope.finalState = false;
-    console.log($scope.el)
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -57,8 +55,6 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     }
     $scope.updateState = false
     $scope.items = []
-
-
     $scope.id = '';
     $scope.po = {
         id: '',
@@ -79,7 +75,6 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         due_days: '',
         currency_id: ''
     }
-
 
     $scope.delivery_types = [
         {
@@ -163,7 +158,6 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         $scope.cost_center = data.data
     })
     $scope.costCenterUp = function(text){
-        console.log(text)
         queryService.post('select a.id, a.code,a.name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
             'from mst_cost_center a, mst_department b '+
             'where a.department_id = b.id '+
@@ -181,17 +175,14 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     })
     queryService.get('select id,name from mst_warehouse order by name',undefined)
     .then(function(data){
-        console.log(data)
         $scope.warehouse = data.data
         //$scope.selected.warehouse['selected'] = $scope.warehouse[0]
     })
     queryService.get('select value as id,name from table_ref where table_name = \'inv_purchase_order\' and column_name = \'delivery_status\' and value in(0,1) order by id',undefined)
     .then(function(data){
-        console.log(data)
         $scope.delivery_status = data.data
         $scope.selected.delivery_status['selected'] = $scope.delivery_status[0]
         //$scope.po.delivery_status = $scope.selected.delivery_status.selected.id
-        console.log($scope.po)
     })
 
     var sqlCtr = 'select a.id,a.name,a.address  '+
@@ -201,7 +192,6 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
     queryService.post(sqlCtr,undefined)
     .then(function(data){
-        console.log(data)
         $scope.supplier = data.data
     })
 
@@ -274,7 +264,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     .withOption('bLengthChange', false)
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
-    .withDisplayLength(10)
+    .withDisplayLength(15)
     .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
@@ -1174,10 +1164,6 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         $scope.items[d-1].amount = q * $scope.items[d-1].price
     }
     $scope.setValue = function(e,d,p,t){
-        console.log(e)
-        console.log(d)
-        console.log(p)
-        console.log(t)
         if (t=='qty') {
             $scope.items[d-1].amount = $scope.items[d-1].price*p
             $scope.items[d-1].qty = p

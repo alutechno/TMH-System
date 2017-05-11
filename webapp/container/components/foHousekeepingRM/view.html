@@ -1,0 +1,246 @@
+<div class="full-height m-t-40">
+    <!-- TABLES VIEW -->
+    <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
+        <div class="panel panel-transparent" ng-class="cls.browse.view">
+            <div class="panel-heading">
+                <div class="panel-title">Housekeeping - Room Maintenance</div>
+                <div class="pull-right">
+                    <form class="form-inline">
+                        <button id="show-modal" class="btn btn-primary pull-right m-l-5"
+                                ng-click="openQuickView('add')" ng-show="elAuthorize.buttonCreate">
+                            <i class="fa fa-plus"></i> New Request
+                        </button>
+                        <div class="pull-right  m-l-10 m-r-5"
+                             style="background-color: grey; height: 35px; width: 1px"></div>
+                        <button class="btn btn-primary pull-right m-l-5"
+                                ng-click="filterStatus()"><i
+                            class="fa fa-search"></i></button>
+                        <div class="form-group pull-right m-l-5">
+                            <label class="sr-only" for="filter-val">Search</label>
+                            <input type="text" id="filter-val" class="form-control pull-right"
+                                   placeholder="Search" ng-model="model.search"
+                                   ng-keyup="filter('search',$event)">
+                        </div>
+                        <div class="form-group pull-right">
+                            <label class="sr-only" for="filter-type">Show</label>
+                            <style>
+                                a.ui-select-match span[ng-hide],
+                                a.ui-select-match span[ng-show] {
+                                    margin-top: -5px;
+                                }
+                            </style>
+                            <ui-select id="filter-type" ng-model="model.type"
+                                       theme="select2" style="width: 130px;">
+                                <ui-select-match
+                                    placeholder="All status">{{model.type.name}}
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="t in data.type | filter:$select.search">
+                                    {{t.name}}
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </form>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed" datatable=""
+                           dt-options="dtOpt" dt-columns="dtCol" dt-instance="dtIns">
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- END PANEL -->
+    </div>
+
+    <!--START FORM INPUT-->
+    <div class="modal fade slide-right form-input-big" id="form-input" tabindex="-1"
+         role="dialog"
+         aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content-wrapper">
+                <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
+                    <div class="panel-heading">
+                        <div class="panel-title">{{isUpdateOpt ? 'Update' : 'New'}} Maintenance
+                            Request</div>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            <i class="pg-close fs-14"></i>
+                        </button>
+                    </div>
+                    <div class="container-xs-height full-height">
+                        <div class="row-xs-height">
+                            <div class="modal-body col-xs-height col-top">
+                                <!-- START FORM -->
+                                <div class="panel panel-transparent m-t-20">
+                                    <form id="form-user" role="form" autocomplete="off" name="dodol"
+                                          novalidate>
+                                        <div class="row clearfix">
+                                            <div class="col-sm-4">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default form-group-default-select required"
+                                                     ng-class="{ 'has-error' : model.room.$invalid && !model.room.$pristine }">
+                                                    <label>Room</label>
+                                                    <ui-select
+                                                        ng-model="model.room"
+                                                        theme="bootstrap"
+                                                        validate-attached-form-element
+                                                        on-select="loadRoomInfo($item)"
+                                                        required>
+                                                        <ui-select-match
+                                                            placeholder="Select room">
+                                                            {{$select.selected.name}}
+                                                            <!--{{model.room.name}}-->
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="t in data.room | filter: $select.search">
+                                                            <span
+                                                                ng-bind-html="trustAsHtml((t.name | highlight: $select.search))"></span>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default form-group-default-select required"
+                                                     ng-class="{ 'has-error' : model.status.$invalid && !model.status.$pristine }">
+                                                    <label>Status</label>
+                                                    <ui-select
+                                                        ng-model="model.status"
+                                                        theme="bootstrap"
+                                                        validate-attached-form-element
+                                                        required>
+                                                        <ui-select-match
+                                                            placeholder="Select status">
+                                                            {{$select.selected.name}}
+                                                            <!--{{model.status.name}}-->
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="t in data.status | filter: $select.search">
+                                                            <span
+                                                                ng-bind-html="trustAsHtml((t.name | highlight: $select.search))"></span>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="form-group" style="margin-top: -6px;">
+                                                    <label for="input-daterange">DATE</label>
+                                                    <label class="sr-only"
+                                                           for="input-daterange">DATE</label>
+                                                    <input type="text" name="daterange"
+                                                           id="input-daterange"
+                                                           placeholder="Pick a range"
+                                                           class="form-control"
+                                                           data-date-format="yyyy-mm-dd"
+                                                           ng-model="model.dateRange"
+                                                           style="width: 100%"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row clearfix">
+                                            <div class="col-sm-4">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default form-group-default-select required"
+                                                     ng-class="{ 'has-error' : model.orderType.$invalid && !model.orderType.$pristine }">
+                                                    <label>Order Type</label>
+                                                    <ui-select
+                                                        ng-model="model.orderType"
+                                                        theme="bootstrap"
+                                                        validate-attached-form-element
+                                                        required>
+                                                        <ui-select-match
+                                                            placeholder="Select order type">
+                                                            {{$select.selected.name}}
+                                                            <!--{{model.orderType.name}}-->
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="t in data.orderType | filter: $select.search">
+                                                            <span
+                                                                ng-bind-html="trustAsHtml((t.name | highlight: $select.search))"></span>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default form-group-default-select required"
+                                                     ng-class="{ 'has-error' : model.maintenance.$invalid && !model.maintenance.$pristine }">
+                                                    <label>Maintenance</label>
+                                                    <ui-select
+                                                        ng-model="model.maintenance"
+                                                        theme="bootstrap"
+                                                        validate-attached-form-element
+                                                        required>
+                                                        <ui-select-match
+                                                            placeholder="Select maintenance">
+                                                            {{$select.selected.name}}
+                                                            <!--{{model.maintenance.name}}-->
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="t in data.maintenance | filter: $select.search">
+                                                            <span
+                                                                ng-bind-html="trustAsHtml((t.name | highlight: $select.search))"></span>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default ">
+                                                    <label>Notes</label>
+                                                    <input type="text" class="form-control"
+                                                           name="notes" ng-model="model.notes">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <br>
+                                        <div class="clearfix"></div>
+                                        <button class="btn btn-primary" type="submit"
+                                                ng-disabled="dodol.$invalid"
+                                                ng-click="submit()">
+                                            Save
+                                        </button>
+                                        <button class="btn btn-default"><i class="pg-close"></i>
+                                            Clear
+                                        </button>
+                                    </form>
+                                </div>
+                                <!-- END FORM -->
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!--END FORM INPUT-->
+
+    <!-- START MODAL CONTENT-->
+    <div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog"
+         aria-hidden="false">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content-wrapper">
+                <div class="modal-content">
+                    <div class="modal-body text-center m-t-20">
+                        <h4 class="no-margin p-b-10">Are you sure want to delete?</h4>
+                        <div>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                ng-click="execDelete()">Yes
+                            </button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">No
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+    </div>
+    <!-- END MODAL CONTENT-->
+</div>

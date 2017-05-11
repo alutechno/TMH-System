@@ -54,11 +54,31 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
     $scope.cc_origin = []
     $scope.cc_dest = []
-    queryService.get('select id,code, name from mst_cost_center order by name',undefined)
+	queryService.get('select a.id, a.code,upper(a.name) name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+        'from mst_cost_center a, mst_department b '+
+        'where a.department_id = b.id and a.status!=2 '+
+		'and a.account_id is not null '+
+        'order by a.code asc limit 50',undefined)
     .then(function(data){
-        $scope.cc_origin = data.data
+		$scope.cc_origin = data.data
         $scope.cc_dest = data.data
     })
+    $scope.costCenterUp = function(text,type){
+        queryService.post('select a.id, a.code,upper(a.name) name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+            'from mst_cost_center a, mst_department b '+
+            'where a.department_id = b.id and a.status!=2 '+
+			'and a.account_id is not null '+
+            ' and lower(a.name) like \'%'+text+'%\' '+
+            'order by a.code asc limit 50',undefined)
+        .then(function(data){
+			console.log(data)
+			if(type='ori')
+            	$scope.cc_origin = data.data
+			else
+				$scope.cc_dest = data.data
+        })
+
+    }
     $scope.request_status = []
     queryService.get('select value id,value,name from table_ref where table_name=\'store_request\' and column_name=\'request_status\' ',undefined)
     .then(function(data){

@@ -91,12 +91,12 @@
                         <tr>
                             <th width="5%">ID</th>
                             <th width="25%">Item</th>
-                            <th width="10%">Stock</th>
-                            <th width="10%">Stock Unit</th>
-                            <th width="10%">stock lowest/recipe</th>
-                            <th width="10%">stock lowest/recipe unit</th>
+                            <!--<th width="10%">Stock</th>
+                            <th width="10%">Stock Unit</th>-->
+                            <th width="10%">stock inventory</th>
+                            <th width="10%">stock inventory unit</th>
                             <th width="10%">real stock</th>
-                            <th width="10%">real stock lowest/recipe</th>
+                            <!--<th width="10%">real stock unit</th>-->
                         </tr>
                         </thead>
 
@@ -104,8 +104,8 @@
                         <tr ng-repeat="item in items | filter:filterUser">
                             <td style="vertical-align: middle;"><span>{{item.w_id}}</span></td>
                             <td style="vertical-align: middle;"><span>{{item.item}}</span></td>
-                            <td style="text-align: right;vertical-align: middle;"><span>{{item.stock_qty| number : fractionSize}}</span></td>
-                            <td style="vertical-align: middle;"><span>{{item.stock_unit}}</span></td>
+                            <!--<td style="text-align: right;vertical-align: middle;"><span>{{item.stock_qty| number : fractionSize}}</span></td>
+                            <td style="vertical-align: middle;"><span>{{item.stock_unit}}</span></td>-->
                             <td style="text-align: right;vertical-align: middle;"><span>{{item.stock_qty_l| number : fractionSize}}</span></td>
                             <td style="vertical-align: middle;"><span>{{item.stock_unit2}}</span></td>
                             <td style="text-align: right;vertical-align: middle;">
@@ -113,11 +113,11 @@
                                     {{ item.real_stock | number : fractionSize}}
                                 </span>
                             </td>
-                            <td style="text-align: right;vertical-align: middle;">
+                            <!--<td style="text-align: right;vertical-align: middle;">
                                 <span editable-text="item.real_stock_l" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'rsl')">
                                     {{ item.real_stock_l | number : fractionSize}}
                                 </span>
-                            </td>
+                            </td>-->
                         </tr>
                         </tbody>
                     </table>

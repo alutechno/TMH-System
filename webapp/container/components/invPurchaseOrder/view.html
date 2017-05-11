@@ -6,56 +6,40 @@
                     <div class="brand inline text-center center">
                         <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="200" height="40">
                     </div>
+
                     <br><br><br>
                     <span class="text-center" style="align:center;">JL. GUNUNG SAHARI RAYA NO.3 JAKARTA 10720</span>
                     <br>
                     <span class="text-center">PHONE : (62-21) 626 3001</span>&nbsp;&nbsp;
                     <span class="text-center">FAX : (62-21) 626 3024</span>
-                    <br><br>
-                    <span class="text-center">OWNED BY PT.GRAHASAHARI SURYAJAYA</span>
                     <br>
                     <span class="text-center">NPWP. 01.573.522.8-026.000</span>
                 </td>
                 <td width="50%">
-                    <span>
-                        <i>Pengiriman ke The Media Hotel & Towers di tempat</i>
-                    </span>
+					<span style="font-size:30px">
+						<b>Purchase Order</b>
+					</span>
+					<br>
                     <br>
-                    <span>
-                        <i>penerimaan di Jalan Industri Entrance Weekdays - 8.30 AM to 3.00 PM</i>
-                    </span>
-                    <br><br>
-                    <span>
-                        <i>Delivery to the Media Hotel & Towers receiving bay at</i>
-                    </span>
-                    <br>
-                    <span>
-                        <i>Jalan Industri Entrance Weekdays - 8.30 AM to 3.00 PM</i>
-                    </span>
-                    <br><br>
-                    <span>
-                        <i>Invoice asli untuk pihak Hotel</i>
-                    </span>
-                    <br>
-                    <span>
-                        <i>Original Invoice/Statement to Hotel</i>
-                    </span>
-                    <br><br>
-                    <span>
-                        <i>No.PO ini harus tertera pada setiap pak, slip pengepakan, perintah pengiriman dan invoice</i>
-                    </span>
-                    <br>
-                    <span>
-                        <i>This Order Number must appear on each package, packing slip, Delivery Note and Invoice</i>
-                    </span>
-                    <br>
+					<span>
+						<b>DATE OF ORDER :</b> {{po.created_date}}
+					</span>
+					<br>
+					<span>
+						<b>DATE REQUIRED :</b> {{po.delivery_date}}
+					</span>
+					<br>
+					<span>
+						<b>PO NO. :</b> {{po.code}}
+					</span>
+					<br>
+					<span>
+						<b>REQUESTED BY DEPT :</b> {{po.dept}}
+					</span>
+
                 </td>
             </tr>
             <br>
-            <tr>
-                <td>&nbsp;</td>
-                <td align="center"> <b>Purchase Order</b> </td>
-            </tr>
             <tr>
                 <td>
                     <table border="1" width="80%" align="center">
@@ -66,28 +50,20 @@
                             <td>
                                 {{po.supplier_name}}<br>
                                 {{po.supplier_address}}<br>
-                                Contact Person: {{po.supplier_cp}}
+                                Contact Person: {{po.supplier_cp}}<br>
+								PHONE NO : {{po.supplier_phone}}<br>
+								FAX NO : {{po.supplier_fax}}
                             </td>
                         </tr>
                     </table>
                     <br>
-                    <table border="1" width="80%" align="center">
-                        <tr>
-                            <td align="center" style="background-color: #000000;color: white;"><b>PHONE NO.</b></td>
-                            <td align="center" style="background-color: #000000;color: white;"><b>FAX NO.</b></td>
-                        </tr>
-                        <tr>
-                            <td align="center">{{po.supplier_phone}}</td>
-                            <td align="center">{{po.supplier_fax}}</td>
-                        </tr>
-                    </table>
                 </td>
                 <td>
-                    <table border="1" width="80%" align="center">
+                    <!--<table border="1" width="80%" align="center">
                         <tr>
-                            <td align="center" style="background-color: #000000;color: white;"><b>DATE OF ORDER</b></td>
-                            <td align="center" style="background-color: #000000;color: white;"><b>DATE REQUIRED</b></td>
-                            <td align="center" style="background-color: #000000;color: white;"><b>PO NO.</b></td>
+                            <td align="center" style="background-color: #000000;color: white;"><b>DATE OF ORDER :</b> {{po.created_date}}</td>
+                            <td align="center" style="background-color: #000000;color: white;"><b>DATE REQUIRED :</b> {{po.delivery_date}}</td>
+                            <td align="center" style="background-color: #000000;color: white;"><b>PO NO. :</b> {{po.code}}</td>
                         </tr>
                         <tr>
                             <td align="center">{{po.created_date}}</td>
@@ -103,7 +79,7 @@
                         <tr>
                             <td align="center" >{{po.dept}}</td>
                         </tr>
-                    </table>
+                    </table>-->
                 </td>
             </tr>
         </table>
@@ -113,9 +89,10 @@
             <tr>
 
                 <td width="5%" align="center"><b>Code</b></th>
-                <td width="45%" align="center"><b>Product</b></th>
-                <td width="15%" align="center"><b>Unit</b></th>
-                <td width="10%" align="center"><b>Qty</b></th>
+                <td width="25%" align="center"><b>Product</b></th>
+				<td width="25%" align="center"><b>Notes</b></th>
+                <td width="5%" align="center"><b>Unit</b></th>
+                <td width="5%" align="center"><b>Qty</b></th>
                 <td width="10%" align="center"><b>Price</b></th>
                 <td width="10%" align="center"><b>Amount</b></th>
 
@@ -125,61 +102,68 @@
             <tbody>
             <tr ng-repeat="item in items | filter:filterUser">
 
-                <td>{{item.product_code}}
-                </td>
-                <td>{{item.product_name}}
-                </td>
-                <td > {{item.unit_name}}
-                </td>
+                <td>{{item.product_code}}</td>
+                <td>{{item.product_name}}</td>
+				<td>{{item.order_notes}}</td>
+                <td > {{item.unit_name}}</td>
                 <td style="text-align: right;">
                         {{ item.qty | number : fractionSize}}
-
                 </td>
                 <td style="text-align: right;">
                         {{ item.price | number : fractionSize}}
-
                 </td>
                 <td style="text-align: right;">
                         {{ item.amount | number : fractionSize}}
-
                 </td>
-
             </tr>
             </tbody>
             <tfooter width="80%" border="1" align="center">
-                <tr>
-                    <td style="text-align: center;">&nbsp;</th>
-                    <td style="text-align: left;"><b>Total</b></th>
-                    <td style="text-align: center;">&nbsp;</th>
+				<tr>
+                    <td colspan="4" style="text-align: center;"><b>SubTotal</b></th>
                     <td style="text-align: right;"><span ><b>{{totalQty| number : fractionSize}}</b></span></th>
                     <td style="text-align: center;">&nbsp;</th>
                     <td style="text-align: right;"><span ><b>{{tAmt| number : fractionSize}}</b></span></th>
-
+                </tr>
+				<tr>
+                    <td colspan="4" style="text-align: center;"><b>TAX</b></th>
+                    <td style="text-align: center;">&nbsp;</th>
+                    <td style="text-align: center;">&nbsp;</th>
+                    <td style="text-align: right;"><span ><b>{{tAmt*0.1| number : fractionSize}}</b></span></th>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align: center;"><b>Total</b></th>
+                    <td style="text-align: right;"><span ><b>{{totalQty| number : fractionSize}}</b></span></th>
+                    <td style="text-align: center;">&nbsp;</th>
+                    <td style="text-align: right;"><span ><b>{{tAmt+(tAmt*0.1)| number : fractionSize}}</b></span></th>
                 </tr>
             </tfooter>
         </table>
-        <span width="89%" style="padding-left:60px;">
+		<span style="padding-left:87px;">
+			<i>Pengiriman ke The Media Hotel & Towers di tempat</i>
+		</span>
+		<br>
+		<span style="padding-left:87px;">
+			<i>penerimaan di Jalan Industri Entrance Weekdays - 8.30 AM to 3.00 PM</i>
+		</span>
+		<br><br>
+        <span width="89%" style="padding-left:87px;">
             <b><i>Notes: This document is valid without a signature or the company stamp</i></b>
-
         </span>
-        <br><br><br><br>
         <table width="89%" cellpadding="5" border="0" align="center">
             <tr>
                 <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
-                    <br><br><br><br><br>
+
                 </td>
                 <td>&nbsp;</td>
                 <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
-                    <br><br><br><br><br>
+
                 </td>
                 <td>&nbsp;</td>
                 <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
-                    <br><br><br><br><br>
+
                 </td>
                 <td>&nbsp;</td>
                 <td valign="top">
-
-                    <br><br><br><br><br>
                 </td>
             </tr>
             <tr>
@@ -518,19 +502,14 @@
                                                 </td>
                                                 <td><span>{{item.product_code}}</span></td>
                                                 <td >
-                                                    <!--<span editable-text="item.product_name" e-form="tableform" onbeforesave="checkName($data, user.id)" style="width:100%;">
-                                                        {{ item.product_name }}
-                                                    </span>-->
                                                     <span editable-ui-select="item.product_name" theme="bootstrap" data-e-name="product_name" name="account" data-e-ng-model="selected.account.selected"
                                                     data-e-form="tableform" data-e-ng-keyup="productUp(item.id,$select.search)" data-e-on-select="getProduct($item,item.id)" >
                                                     {{item.product_name}}
                                                           <editable-ui-select-match placeholder="select product" style="width: 300px" >
-                                                              <!--{{$select.selected.name}}-->
                                                               {{item.product_name || 'Empty'}}
                                                           </editable-ui-select-match>
                                                           <editable-ui-select-choices repeat="d in product[item.id] | filter: $select.search" style="width: 300px" >
                                                               <div ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></div>
-                                                              <!--<small ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></small>-->
                                                           </editable-ui-select-choices>
                                                     </span>
                                                 </td>
@@ -539,7 +518,6 @@
                                                     <span editable-textarea="item.order_notes" e-form="tableform" data-e-ng-keyup="updateNotes($event,item.id,$data)">
                                                         {{ item.order_notes }}
                                                     </span></td>
-                                                <td >
                                                 <td>
                                                     <span editable-text="item.qty" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'qty')">
                                                         {{ item.qty | number : fractionSize}}
@@ -550,9 +528,7 @@
                                                     </span>
                                                 </td>
                                                 <td><span>{{item.amount | number : fractionSize}}</span></td>
-
                                             </tr>
-
                                             </tbody>
                                         </table>
 

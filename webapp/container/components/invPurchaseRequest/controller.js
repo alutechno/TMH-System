@@ -240,7 +240,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withOption('order', [1, 'desc'])
-    .withDisplayLength(10)
+    .withDisplayLength(15)
     .withOption('scrollX',true)
     .withOption('createdRow', $scope.createdRow)
     .withOption('footerCallback', function (tfoot, data) {
@@ -521,13 +521,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 approval_status: ($scope.selected.approval==0?0:$scope.selected.approval)
             },$scope.pr.id]
 
-
             queryService.post('update inv_purchase_request set ? where id=?',param)
             .then(function (result){
                 var queryState = ''
                 var paramState = []
                 var paramPr = {}
-
 
                 if ($scope.pr.doc_status_id==$scope.selected.doc_status.selected.id &&
                     $scope.pr.approval_status==$scope.selected.approval ){
@@ -551,9 +549,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     },
                     function (err3){
                         console.log(err3)
-
                     })
-
                 }
                 else {
                     result.data['insertId'] = $scope.pr.id
@@ -581,9 +577,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         },
                         function (err3){
                             console.log(err3)
-
                         })
-
                         var approvalMsg = ''
                         if ($scope.selected.approval==1 || $scope.selected.approval==2){
                             approvalMsg = ($scope.selected.approval=='1'?'Approve':'Reject')
@@ -830,6 +824,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 $scope.child.totalQty = 0
                 $scope.child.tAmt = 0
                 for (var i=0;i<data.data.length;i++){
+					var p=''
+					if(data.data[i].net_price!=null)
+						p=data.data[i].net_price.toString()
                     $scope.items.push({
                         id: i+1,
                         p_id: data.data[i].p_id,
@@ -840,6 +837,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 						order_notes: data.data[i].order_notes,
                         qty: data.data[i].order_qty,
                         price: data.data[i].net_price,
+						price_dis: p.replace(/\B(?=(?:\d{3})+(?!\d))/g, ","),
                         amount: data.data[i].order_amount,
                         supplier_id: data.data[i].supplier_id,
                         supplier_name: data.data[i].supplier_name
@@ -1190,6 +1188,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 		order_notes: '',
         qty: '',
         price: '',
+		price_dis: '',
         amount: '',
         supplier_id: '',
         supplier_name: '',
@@ -1227,6 +1226,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 			order_notes: '',
             qty: 0,
             price: 0,
+			price_dis: 0,
             amount: 0,
             supplier_id: '',
             supplier_name: '',
@@ -1417,6 +1417,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.items[d-1].amount = e.price * $scope.items[d-1].qty
     }
     $scope.updatePrice = function(e,d,p){
+		p=p.toString()
+		while (p.indexOf(",") != -1)
+		{
+			p = p.replace(",", "");
+		}
+		p=parseFloat(p).toString()=='NaN'?0:parseFloat(p)
         $scope.items[d-1].price = p
         $scope.items[d-1].amount = p * $scope.items[d-1].qty
         $scope.totalPrice = 0
@@ -1427,7 +1433,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         }
         if ($scope.child.tAmt.toString()=='NaN') $scope.child.tAmt = 0
         if ($scope.child.totalQty.toString()=='NaN') $scope.child.totalQty = 0
-
+		var prc=p.toString()
+		var parts = prc.toString().split(".");
+		console.log(parts[0])
+		$scope.items[d-1].price_dis =parts[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, ",") + (parts[1] ? "." + parts[1] : "")
     }
     $scope.updatePriceQty = function(e,d,q){
         $scope.items[d-1].qty = q

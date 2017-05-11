@@ -224,7 +224,6 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
             $scope.supplier.supplier_type_id = $scope.selected.supplier_type.selected?$scope.selected.supplier_type.selected.id:null;
             $scope.supplier['created_by'] = $localStorage.currentUser.name.id;
             $scope.supplier['created_date'] = globalFunction.currentDate();
-            console.log($scope.supplier)
             queryService.post('insert into mst_supplier SET ?',$scope.supplier)
             .then(function (result){
                     $('#form-input').modal('hide')

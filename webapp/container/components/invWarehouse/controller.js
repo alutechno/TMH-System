@@ -171,7 +171,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.field.account_id = $scope.selected.account.selected.id;
             $scope.field['created_by'] = $localStorage.currentUser.name.id;
             $scope.field['created_date'] = globalFunction.currentDate();
-
+			delete $scope.field.id
             queryService.post('insert into '+ $scope.table +' SET ?',$scope.field)
             .then(function (result){
                     $('#form-input').modal('hide')

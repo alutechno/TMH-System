@@ -74,25 +74,18 @@
             <tbody>
             <tr ng-repeat="item in items | filter:filterUser">
 
-                <td>{{item.product_name}}
-                </td>
-                <td > {{item.unit_name}}
-                </td>
+                <td>{{item.product_name}}</td>
+                <td > {{item.unit_name}}</td>
                 <td style="text-align: right;">
                         {{ item.qty | number : fractionSize}}
-
                 </td>
                 <td style="text-align: right;">
                         {{ item.price | number : fractionSize}}
-
                 </td>
                 <td style="text-align: right;">
                         {{ item.amount | number : fractionSize}}
-
                 </td>
-                <td>{{item.supplier_name}}
-                </td>
-
+                <td>{{item.supplier_name}}</td>
 
             </tr>
             </tbody>
@@ -103,7 +96,7 @@
                     <td width="10%" style="text-align: right;"><span >{{child.totalQty| number : fractionSize}}</span></th>
                     <td width="10%">&nbsp;</th>
                     <td width="10%" style="text-align: right;"><span >{{child.tAmt| number : fractionSize}}</span></th>
-                        <td width="30%">&nbsp;</th>
+                    <td width="30%">&nbsp;</th>
 
                 </tr>
             </tfooter>
@@ -221,13 +214,9 @@
                         <th></th>
                         <th></th>
                         <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
                         <th class="text-right">Total:</th>
+						<th></th>
                         <th class="text-right">{{ sums| number : fractionSize }}</th>
-
                     </script>
                 </div>
                 <!--<div class="col-sm-12" ng-show="show.itemTable">
@@ -439,8 +428,8 @@
                                                     </span>
                                                 </td>
                                                 <td style="text-align: right;">
-                                                    <span editable-text="item.price" e-form="tableform" data-e-ng-keyup="updatePrice($event,item.id,$data)">
-                                                        {{ item.price | number : fractionSize}}
+                                                    <span editable-text="item.price_dis" e-form="tableform" data-e-ng-keyup="updatePrice($event,item.id,$data)">
+                                                        {{ item.price_dis }}
                                                     </span>
                                                 </td>
                                                 <td style="text-align: right;">
@@ -452,14 +441,15 @@
                                             </tbody>
                                             <tfooter >
                                                 <tr>
-                                                    <th width="10%" style="text-align: center;">Total</th>
-                                                    <th width="8%">&nbsp;</th>
-                                                    <th width="25%">&nbsp;</th>
-                                                    <th width="7%">&nbsp;</th>
-                                                    <th width="8%" style="text-align: right;"><span >{{child.totalQty| number : fractionSize}}</span></th>
-                                                    <th width="8%">&nbsp;</th>
-                                                    <th width="9%" style="text-align: right;"><span >{{child.tAmt| number : fractionSize}}</span></th>
-                                                    <th width="25%">&nbsp;</th>
+                                                    <th width="5%" style="text-align: center;">Total</th>
+                                                    <th width="5%">&nbsp;</th>
+                                                    <th width="20%">&nbsp;</th>
+                                                    <th width="5%">&nbsp;</th>
+													<th width="20%">&nbsp;</th>
+													<th width="20%">&nbsp;</th>
+                                                    <th width="5%" style="text-align: right;"><span >{{child.totalQty| number : fractionSize}}</span></th>
+                                                    <th width="10%">&nbsp;</th>
+                                                    <th width="10%" style="text-align: right;"><span >{{child.tAmt| number : fractionSize}}</span></th>
                                                 </tr>
                                             </tfooter>
                                         </table>

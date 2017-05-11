@@ -121,7 +121,7 @@
                              <ui-select ng-model="selected.filter_cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
                                  <ui-select-match placeholder="Pick Cost Center">{{$select.selected.code}}</ui-select-match>
                                  <ui-select-choices repeat="item in cost_center | filter: $select.search">
-                                     <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                                     <div ng-bind-html="trustAsHtml((item.code + ' - ' + item.name| highlight: $select.search))"></div>
                                      <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
                                  </ui-select-choices>
                              </ui-select>
@@ -158,13 +158,11 @@
                         <th></th>
                         <th></th>
                         <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
+						<th></th>
                         <th class="text-right">Total:</th>
                         <th class="text-right">{{ sums| number : fractionSize }}</th>
-
+						<th></th>
+						<th></th>
                     </script>
                 </div>
 
@@ -228,11 +226,11 @@
                                   <div pg-form-group class="form-group form-group-default form-group-default-select ">
                                       <label>Cost Center</label>
                                       <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
-                                          <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
-                                          <ui-select-choices repeat="item in cost_center | filter: $select.search">
-                                              <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
-                                              <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
-                                          </ui-select-choices>
+										  <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
+	                                      <ui-select-choices repeat="item in cost_center | filter: $select.search">
+	                                          <div ng-bind-html="trustAsHtml((item.name  | highlight: $select.search))"></div>
+	                                          <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
+	                                      </ui-select-choices>
                                       </ui-select>
                                   </div>
                               </div>
@@ -319,14 +317,12 @@
 
                           <tbody>
                           <tr ng-repeat="item in items | filter:filterUser">
-
                               <td style="vertical-align: middle;">
                                   <div class="btn-group btn-group-xs" ng-show="tableform.$visible">
                                       <button type="button" class="btn btn-default" ng-click="deleteUser(item.id)" ><i class="fa fa-trash-o"></i></button>
                                   </div>
                               </td>
                               <td style="vertical-align: middle;">{{ item.product_code }}</td>
-
                               <td style="vertical-align: middle;">
                                   <!--<span editable-text="item.product_name" e-form="tableform" onbeforesave="checkName($data, user.id)" style="width:100%;">
                                       {{ item.product_name }}
@@ -361,13 +357,13 @@
                                   </span>
                               </td>
                               <td style="text-align: right;vertical-align: middle;" ng-if="seqState>2">
-                                  <span editable-text="item.price" e-form="tableform" data-e-ng-keyup="updatePrice($event,item.id,$data)" >
-                                      {{ item.price | number : fractionSize}}
+                                  <span editable-text="item.price_dis" e-form="tableform" data-e-ng-keyup="updatePrice($event,item.id,$data)" >
+                                      {{ item.price_dis }}
                                   </span>
                               </td>
                               <td style="text-align: right;vertical-align: middle;" ng-if="seqState==1||seqState==2">
                                   <span >
-                                      {{ item.price | number : fractionSize}}
+                                      {{ item.price_dis }}
                                   </span>
                               </td>
                               <td style="text-align: right;vertical-align: middle;"  ng-if="seqState>2">
@@ -405,10 +401,11 @@
                                   <th width="7%" style="text-align: center;">Total</th>
                                   <th width="7%">&nbsp;</th>
                                   <th width="25%">&nbsp;</th>
+								  <th width="10%">&nbsp;</th>
                                   <th width="10%">&nbsp;</th>
-                                  <th width="10%" style="text-align: right;"><span >{{child.totalQty | number : fractionSize}}</span></th>
-                                  <th width="10%">&nbsp;</th>
-                                  <th width="10%" style="text-align: right;"><span >{{child.tAmt | number : fractionSize}}</span></th>
+                                  <th width="8%" style="text-align: right;"><span >{{child.totalQty | number : fractionSize}}</span></th>
+                                  <th width="8%">&nbsp;</th>
+                                  <th width="9%" style="text-align: right;"><span >{{child.tAmt | number : fractionSize}}</span></th>
                                   <th width="26%">&nbsp;</th>
                               </tr>
                           </tfooter>
