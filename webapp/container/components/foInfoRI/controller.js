@@ -45,9 +45,11 @@ angular.module('app', []).controller('FoInfoRICtrl', function ($scope, $state, $
             $scope.view[v] = v == name ? 'active' : '';
         }
         if (!$scope.model.endDate) {
-            var s = '2017-04-06', //moment(new Date()).format('YYYY-MM-DD'),
-                e = '2017-04-08';
-            //moment(new Date(new Date().getTime() + (3 * 24 * 3600000))).format('YYYY-MM-DD');
+            var t = new Date(),
+                y = new Date(new Date().getTime() + (3 * 24 * 3600000)),
+                s = moment(t).format('YYYY-MM-DD'); //'2017-04-04',
+                e = moment(y).format('YYYY-MM-DD'); //'2017-04-06'
+
             $scope.model.startDate = s;
             $scope.model.endDate = e;
             $scope.model.dateRange = [s, e].join(' ~ ');
@@ -113,7 +115,7 @@ angular.module('app', []).controller('FoInfoRICtrl', function ($scope, $state, $
         var dateDiff = moment(new Date(endDate)).diff(moment(new Date(startDate)));
         var dateGap = moment.duration(dateDiff).asDays();
         $scope.dates = [];
-        for (var c = dateGap; c >= 0; c--) {
+        for (var c = 0; c <= dateGap; c++) {
             var t = new Date(startDate).getTime() + (c * 24 * 3600000);
             $scope.dates.push(moment(new Date(t)).format('YYYY-MM-DD'));
         }
@@ -129,13 +131,21 @@ angular.module('app', []).controller('FoInfoRICtrl', function ($scope, $state, $
                 return `<b>${data.description}</b>`
             })
         ].concat($scope.dates.map(function (date) {
-            return DTColumnBuilder.newColumn(date).withTitle(date).withOption('width', '100px')
+            return DTColumnBuilder.newColumn(date)
+            .withTitle(date).withOption('width', '100px').withOption('fixedColumns', true)
             .renderWith(function (i, type, data, prop) {
                 var r = ['revenue', 'rate'];
-                if (r.indexOf($scope.activeView) > -1) {
-                    return `<div class="text-right">${curR(rounD(data[date] || 0))}</div>`
+                var val = data[date];
+
+                if ($scope.activeView == 'available' && val == null) {
+                    val = data.total;
+                } else if (r.indexOf($scope.activeView) > -1) {
+                    if ($scope.activeView == 'rate') {
+                        val = data.room_rate;
+                    }
+                    return `<div class="text-right">${curR(rounD(val || 0))}</div>`
                 }
-                return `<div class="text-right">${data[date] || 0}</div>`;
+                return `<div class="text-right">${val || 0}</div>`;
             })
         }));
         $scope.dtOpt = DTOptionsBuilder.newOptions()
@@ -151,16 +161,24 @@ angular.module('app', []).controller('FoInfoRICtrl', function ($scope, $state, $
             complete: $scope.onLoadedDatable
         })
         .withDataProp('data')
+        //.withOption('scrollY', '100%')
+        //.withOption('scrollX', '100%')
+        //.withOption('scrollCollapse', true)
+        .withOption('paging', false)
+        .withOption('lengthChange', false)
+        .withOption('paging', false)
         .withOption('processing', true)
         .withOption('serverSide', true)
         .withOption('bLengthChange', false)
         .withOption('bFilter', false)
+        .withOption('responsive', true)
         .withPaginationType('full_numbers')
-        .withDisplayLength(10)
+        .withDisplayLength(100)
         .withOption('order', [0, 'asc'])
         .withOption('createdRow', function (row, data, dataIndex) {
             $compile(angular.element(row).contents())($scope);
-        });
+        })
+        //.withFixedColumns({ leftColumns: 1 });
     };
     $scope.calculate = function () {
         var mode = $scope.activeView;
@@ -190,20 +208,19 @@ angular.module('app', []).controller('FoInfoRICtrl', function ($scope, $state, $
                     'discount': d.discount
                 };
 
-                if (mode === 'available') {
-                    o.available = z;
-                    o.onhand = o.total - z;
-                } else if (mode === 'onhand') {
-                    o.onhand = z;
-                    o.available = o.total - z;
-                } else if (mode === 'revenue') {
+                if (mode == 'available') {
+                    o.available = z == null ? o.total : z;
+                    o.onhand = o.total - o.available;
+                } else if (mode == 'onhand') {
+                    o.onhand = z == null ? 0 : z;
+                    o.available = o.total - o.onhand;
+                } else if (mode == 'revenue') {
                     o.onhand = z / o.room_rate;
                     o.available = o.total - o.onhand;
-                } else if (mode === 'rate') {
-                    o.onhand = d[`onhand-${date}`];
+                } else if (mode == 'rate') {
+                    o.onhand = d[`onhand-${date}`] || 0;
                     o.available = o.total - o.onhand;
                 }
-
                 o.bruto = o.room_rate * o.onhand;
                 o.package_val = (d.room_rate * d.package / 100) * o.onhand;
                 o.discount_val = (d.room_rate * d.discount / 100) * o.onhand;
@@ -223,8 +240,8 @@ angular.module('app', []).controller('FoInfoRICtrl', function ($scope, $state, $
 
             oo.occupancy = oo.onhand / oo.total * 100;
             oo.netto = oo.bruto - (oo.package + oo.discount);
-            oo.avg_netto = oo.netto / oo.onhand;
-            oo.avg_bruto = oo.bruto / oo.onhand;
+            oo.avg_netto = isNaN(oo.netto / oo.onhand) ? 0 : (oo.netto / oo.onhand);
+            oo.avg_bruto = isNaN(oo.bruto / oo.onhand) ? 0 : (oo.bruto / oo.onhand);
             oo.delta_avg = oo.avg_bruto - oo.avg_netto;
             //
             agg[date] = oo;
@@ -233,7 +250,7 @@ angular.module('app', []).controller('FoInfoRICtrl', function ($scope, $state, $
     };
     $scope.onLoadedDatable = function () {
         $scope.data = $scope.calculate();
-        var foot = $('<tfoot style="background-color: antiquewhite;">');
+        var foot = $('<tfoot style="background-color: #fdf7f0;">');
         var tr = {};
         tr.available = $('<tr>');
         tr.onhand = $('<tr>');
@@ -282,6 +299,6 @@ angular.module('app', []).controller('FoInfoRICtrl', function ($scope, $state, $
         }
         $($scope.dtIns.dataTable[0]).find('tfoot').remove();
         $($scope.dtIns.dataTable[0]).append(foot);
-        console.log($scope.data)
+        $('.dataTables_info').parent().remove();
     }
 });
