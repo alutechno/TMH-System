@@ -28,6 +28,14 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         form: {},
         action: {}
     }
+    $scope.account = {
+        form: {},
+        action: {}
+    }
+    $scope.message = {
+        form: {},
+        action: {}
+    }
     var qstringOri = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
       "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
       "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
@@ -99,10 +107,12 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
       "left join ref_kabupaten ac on a.dest_city_id = ac.id "+
       "left join ref_source_type ad on a.source_type_id = ad.id ";
     var qwhere = ''
-    var qstring = qstringOri + " where a.reservation_status in('0','1','2','3') "
-    $scope.activeForm = 'reservation'
+    //var qstring = qstringOri + " where a.reservation_status in('0','1','2','3') "
+    var qstring = qstringOri + " where a.reservation_status in('0','1','2','3','4','5','6') "
+    $scope.activeForm = 'all'
     $scope.activeClass={
-        reservation: 'active',
+        all: 'active',
+        reservation: '',
         inhouse: '',
         checkout: '',
         house: '',
@@ -122,226 +132,26 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
             $scope.activeClass[key] = ''
         }
         $scope.activeClass[a] = 'active'
+        console.log($scope.activeForm)
 
-        if (a=='reservation'){
-            /*qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
-              "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
-              "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
-              "if(reservation_type='I','Individual','House Guest') reservation_type_name,a.commission_amount,a.agent_id,a.payment_type_id, "+
-              "a.member_id,a.customer_id,a.address,a.vip_type_id,a.cust_company_id,a.is_inside_allotment,a.is_comp_extra_bed, "+
-              "a.room_rate_id,a.num_of_extra_bed,a.extra_bed_charge_amount,a.late_check_out_charge,a.discount_percent,a.is_room_only, "+
-              "a.currency_id,a.card_no,a.card_valid_until_year,a.card_valid_until_month, a.voucher,a.segment_type_id, a.source_type_id, "+
-              "a.is_honeymoon,a.origin_country_id,a.origin_city_id,a.dest_city_id,a.check_in_type_id,a.check_out_type_id,b.mobile_phone,b.phone_no phone,b.email, "+
-              "a.num_of_nights,a.num_of_stays, a.num_of_pax, a.num_of_child, a.reservation_status,  "+
-              "w.name reservation_status_name, g.code room_rate_code, a.room_rate_amount, a.discount_amount,  "+
-              "k.name cust_segment, n.name nationality, a.reservation_type, a.mice_id, t.closing_amount balance, "+
-              "if(isnull(c.name),'Individual',c.name) company_name, f.name vip_type, a.cancellation_type_id, r.name cancellation_type_name, "+
-              "u.remarks guest_check_in_remarks,ae.remarks guest_cashier_remarks, x.check_in_remarks mice_check_in_remarks,ad.name source_type_name, "+
-              "if(a.is_room_only='Y','Yes','No')is_room_only_name,if(a.is_comp_extra_bed='Y','Yes','No')is_comp_extra_bed_name, "+
-              "if(a.is_honeymoon='Y','Yes','No')is_honeymoon_name,if(a.late_check_out_charge>0,'Yes','No')late_co, ab.name origin_city,ac.name dest_city, "+
-              "y.name check_in_type_name,z.name check_out_type_name,a.prev_room_type_id,p.name prev_room_type_name,b.title,i.name payment_type_name,aa.name currency_name, "+
-              "u.remarks remarks_cashier,u.id remarks_cashier_id,ae.remarks remarks_check_in,ae.id remarks_check_in_id, "+
-              "af.remarks remarks_drop,af.id remarks_drop_id,ag.remarks remarks_locator,ag.id remarks_locator_id,ah.remarks remarks_prefered,ah.id remarks_prefered_id, "+
-              "ai.remarks remarks_pickup,ai.id remarks_pickup_id,aj.remarks remarks_room_message,aj.id remarks_room_message_id "+
-              "from fd_guest_folio a "+
-              "left join mst_customer b on a.customer_id = b.id "+
-              "left join mst_cust_company c on a.cust_company_id = c.id "+
-              "left join ref_room_type d on a.room_type_id = d.id "+
-              "left join ref_room_type p on a.prev_room_type_id = p.id "+
-              "left join mst_room e on a.room_id = e.id "+
-              "left join ref_vip_type f on a.vip_type_id = f.id "+
-              "left join mst_room_rate g on a.room_rate_id = g.id "+
-              "left join mst_room_rate_line_item h on a.room_type_id = h.room_type_id and a.room_rate_id = h.room_rate_id "+
-              "left join ref_payment_method i on a.payment_type_id = i.id "+
-              "left join ref_segment_type k on a.segment_type_id = k.id "+
-              "left join ref_country n on a.origin_country_id = n.id "+
-              "left join ref_cancellation_type r on a.cancellation_type_id = r.id "+
-              "left join fd_mice_reservation s on a.mice_id = s.id "+
-              "left join fd_mice_deposit t on a.mice_id = t.mice_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 1) u on a.id = u.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 2) ae on a.id = ae.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 3) af on a.id = af.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 4) ag on a.id = ag.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 5) ah on a.id = ah.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 6) ai on a.id = ai.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 7) aj on a.id = aj.folio_id "+
-              " left join (select a.id, a.folio_id,  "+
-              "    group_concat(concat_ws('|', b.name, b.legend_image_name,  "+
-              "    b.legend_image_uri, b.legend_image_path),',') legend "+
-              "    from fd_folio_legend a "+
-              " left join ref_guest_legend b on a.legend_id = b.id "+
-                "group by a.folio_id) v on a.id = v.folio_id         "+
-              "left join (select value, name from table_ref where table_name = 'fd_guest_folio' "+
-                "and column_name = 'reservation_status') w on a.reservation_status = w.value "+
-              "left join fd_mice_remarks x on a.mice_id = x.mice_id "+
-              "left join ref_check_in y on a.check_in_type_id = y.id "+
-              "left join ref_check_in z on a.check_out_type_id = z.id "+
-              "left join ref_currency aa on a.currency_id = aa.id "+
-              "left join ref_kabupaten ab on a.origin_city_id = ab.id "+
-              "left join ref_kabupaten ac on a.dest_city_id = ac.id "+
-              "left join ref_source_type ad on a.source_type_id = ad.id ";*/
+        if (a=='all'){
+
+              qstring = qstringOri
+              console.log(qstring)
+            $scope.profile.form.gf.folio_type = '1'
+        }
+        else if (a=='reservation'){
+
               qstring = qstringOri+ " where a.reservation_status in ('0','1','2','3') "
               console.log(qstring)
             $scope.profile.form.gf.folio_type = '1'
         }
         else if (a=='inhouse'){
-            /*qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
-              "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
-              "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
-              "if(reservation_type='I','Individual','House Guest') reservation_type_name,a.commission_amount,a.agent_id,a.payment_type_id, "+
-              "a.member_id,a.customer_id,a.address,a.vip_type_id,a.cust_company_id,a.is_inside_allotment,a.is_comp_extra_bed, "+
-              "a.room_rate_id,a.num_of_extra_bed,a.extra_bed_charge_amount,a.late_check_out_charge,a.discount_percent,a.is_room_only, "+
-              "a.currency_id,a.card_no,a.card_valid_until_year,a.card_valid_until_month, a.voucher,a.segment_type_id, a.source_type_id, "+
-              "a.is_honeymoon,a.origin_country_id,a.origin_city_id,a.dest_city_id,a.check_in_type_id,a.check_out_type_id,b.mobile_phone,b.phone_no phone,b.email, "+
-              "a.num_of_nights,a.num_of_stays, a.num_of_pax, a.num_of_child, a.reservation_status,  "+
-              "w.name reservation_status_name, g.code room_rate_code, a.room_rate_amount, a.discount_amount,  "+
-              "k.name cust_segment, n.name nationality, a.reservation_type, a.mice_id, t.closing_amount balance, "+
-              "if(isnull(c.name),'Individual',c.name) company_name, f.name vip_type, a.cancellation_type_id, r.name cancellation_type_name, "+
-              "u.remarks guest_check_in_remarks,ae.remarks guest_cashier_remarks, x.check_in_remarks mice_check_in_remarks,ad.name source_type_name, "+
-              "if(a.is_room_only='Y','Yes','No')is_room_only_name,if(a.is_comp_extra_bed='Y','Yes','No')is_comp_extra_bed_name, "+
-              "if(a.is_honeymoon='Y','Yes','No')is_honeymoon_name,if(a.late_check_out_charge>0,'Yes','No')late_co, ab.name origin_city,ac.name dest_city, "+
-              "y.name check_in_type_name,z.name check_out_type_name,a.prev_room_type_id,p.name prev_room_type_name,b.title,i.name payment_type_name,aa.name currency_name, "+
-              "u.remarks remarks_cashier,u.id remarks_cashier_id,ae.remarks remarks_check_in,ae.id remarks_check_in_id, "+
-              "af.remarks remarks_drop,af.id remarks_drop_id,ag.remarks remarks_locator,ag.id remarks_locator_id,ah.remarks remarks_prefered,ah.id remarks_prefered_id, "+
-              "ai.remarks remarks_pickup,ai.id remarks_pickup_id,aj.remarks remarks_room_message,aj.id remarks_room_message_id "+
-              "from fd_guest_folio a "+
-              "left join mst_customer b on a.customer_id = b.id "+
-              "left join mst_cust_company c on a.cust_company_id = c.id "+
-              "left join ref_room_type d on a.room_type_id = d.id "+
-              "left join ref_room_type p on a.prev_room_type_id = p.id "+
-              "left join mst_room e on a.room_id = e.id "+
-              "left join ref_vip_type f on a.vip_type_id = f.id "+
-              "left join mst_room_rate g on a.room_rate_id = g.id "+
-              "left join mst_room_rate_line_item h on a.room_type_id = h.room_type_id and a.room_rate_id = h.room_rate_id "+
-              "left join ref_payment_method i on a.payment_type_id = i.id "+
-              "left join ref_segment_type k on a.segment_type_id = k.id "+
-              "left join ref_country n on a.origin_country_id = n.id "+
-              "left join ref_cancellation_type r on a.cancellation_type_id = r.id "+
-              "left join fd_mice_reservation s on a.mice_id = s.id "+
-              "left join fd_mice_deposit t on a.mice_id = t.mice_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 1) u on a.id = u.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 2) ae on a.id = ae.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 3) af on a.id = af.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 4) ag on a.id = ag.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 5) ah on a.id = ah.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 6) ai on a.id = ai.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 7) aj on a.id = aj.folio_id "+
-              " left join (select a.id, a.folio_id,  "+
-              "    group_concat(concat_ws('|', b.name, b.legend_image_name,  "+
-              "    b.legend_image_uri, b.legend_image_path),',') legend "+
-              "    from fd_folio_legend a "+
-              " left join ref_guest_legend b on a.legend_id = b.id "+
-                "group by a.folio_id) v on a.id = v.folio_id         "+
-              "left join (select value, name from table_ref where table_name = 'fd_guest_folio' "+
-                "and column_name = 'reservation_status') w on a.reservation_status = w.value "+
-              "left join fd_mice_remarks x on a.mice_id = x.mice_id "+
-              "left join ref_check_in y on a.check_in_type_id = y.id "+
-              "left join ref_check_in z on a.check_out_type_id = z.id "+
-              "left join ref_currency aa on a.currency_id = aa.id "+
-              "left join ref_kabupaten ab on a.origin_city_id = ab.id "+
-              "left join ref_kabupaten ac on a.dest_city_id = ac.id "+
-              "left join ref_source_type ad on a.source_type_id = ad.id where a.reservation_status=4 ";*/
+
               qstring = qstringOri + " where a.reservation_status = 4 "
         }
         else if (a=='checkout'){
-            /*qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
-              "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
-              "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
-              "if(reservation_type='I','Individual','House Guest') reservation_type_name,a.commission_amount,a.agent_id,a.payment_type_id, "+
-              "a.member_id,a.customer_id,a.address,a.vip_type_id,a.cust_company_id,a.is_inside_allotment,a.is_comp_extra_bed, "+
-              "a.room_rate_id,a.num_of_extra_bed,a.extra_bed_charge_amount,a.late_check_out_charge,a.discount_percent,a.is_room_only, "+
-              "a.currency_id,a.card_no,a.card_valid_until_year,a.card_valid_until_month, a.voucher,a.segment_type_id, a.source_type_id, "+
-              "a.is_honeymoon,a.origin_country_id,a.origin_city_id,a.dest_city_id,a.check_in_type_id,a.check_out_type_id,b.mobile_phone,b.phone_no phone,b.email, "+
-              "a.num_of_nights,a.num_of_stays, a.num_of_pax, a.num_of_child, a.reservation_status,  "+
-              "w.name reservation_status_name, g.code room_rate_code, a.room_rate_amount, a.discount_amount,  "+
-              "k.name cust_segment, n.name nationality, a.reservation_type, a.mice_id, t.closing_amount balance, "+
-              "if(isnull(c.name),'Individual',c.name) company_name, f.name vip_type, a.cancellation_type_id, r.name cancellation_type_name, "+
-              "u.remarks guest_check_in_remarks,ae.remarks guest_cashier_remarks, x.check_in_remarks mice_check_in_remarks,ad.name source_type_name, "+
-              "if(a.is_room_only='Y','Yes','No')is_room_only_name,if(a.is_comp_extra_bed='Y','Yes','No')is_comp_extra_bed_name, "+
-              "if(a.is_honeymoon='Y','Yes','No')is_honeymoon_name,if(a.late_check_out_charge>0,'Yes','No')late_co, ab.name origin_city,ac.name dest_city, "+
-              "y.name check_in_type_name,z.name check_out_type_name,a.prev_room_type_id,p.name prev_room_type_name,b.title,i.name payment_type_name,aa.name currency_name, "+
-              "u.remarks remarks_cashier,u.id remarks_cashier_id,ae.remarks remarks_check_in,ae.id remarks_check_in_id, "+
-              "af.remarks remarks_drop,af.id remarks_drop_id,ag.remarks remarks_locator,ag.id remarks_locator_id,ah.remarks remarks_prefered,ah.id remarks_prefered_id, "+
-              "ai.remarks remarks_pickup,ai.id remarks_pickup_id,aj.remarks remarks_room_message,aj.id remarks_room_message_id "+
-              "from fd_guest_folio a "+
-              "left join mst_customer b on a.customer_id = b.id "+
-              "left join mst_cust_company c on a.cust_company_id = c.id "+
-              "left join ref_room_type d on a.room_type_id = d.id "+
-              "left join ref_room_type p on a.prev_room_type_id = p.id "+
-              "left join mst_room e on a.room_id = e.id "+
-              "left join ref_vip_type f on a.vip_type_id = f.id "+
-              "left join mst_room_rate g on a.room_rate_id = g.id "+
-              "left join mst_room_rate_line_item h on a.room_type_id = h.room_type_id and a.room_rate_id = h.room_rate_id "+
-              "left join ref_payment_method i on a.payment_type_id = i.id "+
-              "left join ref_segment_type k on a.segment_type_id = k.id "+
-              "left join ref_country n on a.origin_country_id = n.id "+
-              "left join ref_cancellation_type r on a.cancellation_type_id = r.id "+
-              "left join fd_mice_reservation s on a.mice_id = s.id "+
-              "left join fd_mice_deposit t on a.mice_id = t.mice_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 1) u on a.id = u.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 2) ae on a.id = ae.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 3) af on a.id = af.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 4) ag on a.id = ag.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 5) ah on a.id = ah.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 6) ai on a.id = ai.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 7) aj on a.id = aj.folio_id "+
-              " left join (select a.id, a.folio_id,  "+
-              "    group_concat(concat_ws('|', b.name, b.legend_image_name,  "+
-              "    b.legend_image_uri, b.legend_image_path),',') legend "+
-              "    from fd_folio_legend a "+
-              " left join ref_guest_legend b on a.legend_id = b.id "+
-                "group by a.folio_id) v on a.id = v.folio_id         "+
-              "left join (select value, name from table_ref where table_name = 'fd_guest_folio' "+
-                "and column_name = 'reservation_status') w on a.reservation_status = w.value "+
-              "left join fd_mice_remarks x on a.mice_id = x.mice_id "+
-              "left join ref_check_in y on a.check_in_type_id = y.id "+
-              "left join ref_check_in z on a.check_out_type_id = z.id "+
-              "left join ref_currency aa on a.currency_id = aa.id "+
-              "left join ref_kabupaten ab on a.origin_city_id = ab.id "+
-              "left join ref_kabupaten ac on a.dest_city_id = ac.id "+
-              "left join ref_source_type ad on a.source_type_id = ad.id where a.reservation_status=5 ";*/
+
               qstring = qstringOri + " where a.reservation_status = 5 "
         }
         else if (a=='house'){
@@ -352,76 +162,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
                 "where a.status = b.status_value and a.status!=2 "
         }
         else if (a=='canceled'){
-            /*qstring = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
-              "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
-              "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
-              "if(reservation_type='I','Individual','House Guest') reservation_type_name,a.commission_amount,a.agent_id,a.payment_type_id, "+
-              "a.member_id,a.customer_id,a.address,a.vip_type_id,a.cust_company_id,a.is_inside_allotment,a.is_comp_extra_bed, "+
-              "a.room_rate_id,a.num_of_extra_bed,a.extra_bed_charge_amount,a.late_check_out_charge,a.discount_percent,a.is_room_only, "+
-              "a.currency_id,a.card_no,a.card_valid_until_year,a.card_valid_until_month, a.voucher,a.segment_type_id, a.source_type_id, "+
-              "a.is_honeymoon,a.origin_country_id,a.origin_city_id,a.dest_city_id,a.check_in_type_id,a.check_out_type_id,b.mobile_phone,b.phone_no phone,b.email, "+
-              "a.num_of_nights,a.num_of_stays, a.num_of_pax, a.num_of_child, a.reservation_status,  "+
-              "w.name reservation_status_name, g.code room_rate_code, a.room_rate_amount, a.discount_amount,  "+
-              "k.name cust_segment, n.name nationality, a.reservation_type, a.mice_id, t.closing_amount balance, "+
-              "if(isnull(c.name),'Individual',c.name) company_name, f.name vip_type, a.cancellation_type_id, r.name cancellation_type_name, "+
-              "u.remarks guest_check_in_remarks,ae.remarks guest_cashier_remarks, x.check_in_remarks mice_check_in_remarks,ad.name source_type_name, "+
-              "if(a.is_room_only='Y','Yes','No')is_room_only_name,if(a.is_comp_extra_bed='Y','Yes','No')is_comp_extra_bed_name, "+
-              "if(a.is_honeymoon='Y','Yes','No')is_honeymoon_name,if(a.late_check_out_charge>0,'Yes','No')late_co, ab.name origin_city,ac.name dest_city, "+
-              "y.name check_in_type_name,z.name check_out_type_name,a.prev_room_type_id,p.name prev_room_type_name,b.title,i.name payment_type_name,aa.name currency_name, "+
-              "u.remarks remarks_cashier,u.id remarks_cashier_id,ae.remarks remarks_check_in,ae.id remarks_check_in_id, "+
-              "af.remarks remarks_drop,af.id remarks_drop_id,ag.remarks remarks_locator,ag.id remarks_locator_id,ah.remarks remarks_prefered,ah.id remarks_prefered_id, "+
-              "ai.remarks remarks_pickup,ai.id remarks_pickup_id,aj.remarks remarks_room_message,aj.id remarks_room_message_id "+
-              "from fd_guest_folio a "+
-              "left join mst_customer b on a.customer_id = b.id "+
-              "left join mst_cust_company c on a.cust_company_id = c.id "+
-              "left join ref_room_type d on a.room_type_id = d.id "+
-              "left join ref_room_type p on a.prev_room_type_id = p.id "+
-              "left join mst_room e on a.room_id = e.id "+
-              "left join ref_vip_type f on a.vip_type_id = f.id "+
-              "left join mst_room_rate g on a.room_rate_id = g.id "+
-              "left join mst_room_rate_line_item h on a.room_type_id = h.room_type_id and a.room_rate_id = h.room_rate_id "+
-              "left join ref_payment_method i on a.payment_type_id = i.id "+
-              "left join ref_segment_type k on a.segment_type_id = k.id "+
-              "left join ref_country n on a.origin_country_id = n.id "+
-              "left join ref_cancellation_type r on a.cancellation_type_id = r.id "+
-              "left join fd_mice_reservation s on a.mice_id = s.id "+
-              "left join fd_mice_deposit t on a.mice_id = t.mice_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 1) u on a.id = u.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 2) ae on a.id = ae.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 3) af on a.id = af.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 4) ag on a.id = ag.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 5) ah on a.id = ah.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 6) ai on a.id = ai.folio_id "+
-              "left join (select a.id, a.folio_id, remarks "+
-              "	from fd_folio_remarks a "+
-              "    where a.remark_type_id = 7) aj on a.id = aj.folio_id "+
-              " left join (select a.id, a.folio_id,  "+
-              "    group_concat(concat_ws('|', b.name, b.legend_image_name,  "+
-              "    b.legend_image_uri, b.legend_image_path),',') legend "+
-              "    from fd_folio_legend a "+
-              " left join ref_guest_legend b on a.legend_id = b.id "+
-                "group by a.folio_id) v on a.id = v.folio_id         "+
-              "left join (select value, name from table_ref where table_name = 'fd_guest_folio' "+
-                "and column_name = 'reservation_status') w on a.reservation_status = w.value "+
-              "left join fd_mice_remarks x on a.mice_id = x.mice_id "+
-              "left join ref_check_in y on a.check_in_type_id = y.id "+
-              "left join ref_check_in z on a.check_out_type_id = z.id "+
-              "left join ref_currency aa on a.currency_id = aa.id "+
-              "left join ref_kabupaten ab on a.origin_city_id = ab.id "+
-              "left join ref_kabupaten ac on a.dest_city_id = ac.id "+
-              "left join ref_source_type ad on a.source_type_id = ad.id where a.reservation_status=6 ";*/
+
               qstring = qstringOri + " where a.reservation_status = 6 "
         }
 
@@ -494,27 +235,38 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         }
         return html
     }
+    $scope.color = {
+        '0': 'orange',
+        '1': 'orange',
+        '2': 'orange',
+        '3': 'orange',
+        '4': 'blue',
+        '5': 'green',
+        '6': 'red',
+        'else': 'black'
+
+    }
     $scope.colGuest = function(data,type,full,meta){
-        return full.guest_name + '<br /> <small>Remarks:'+full.guest_check_in_remarks+'</small>'
+        return '<span style="color:'+$scope.color[full.reservation_status]+'">'+full.guest_name+'</span>' + '<br /> <small style="color:'+$scope.color[full.reservation_status]+'">Remarks:'+full.guest_check_in_remarks+'</small>'
     }
     $scope.colRoom = function(data,type,full,meta){
-        return full.room_no + '<br /> <small>Type:'+full.room_type+' | Status:'+full.room_status+'</small>'
+        return '<span style="color:'+$scope.color[full.reservation_status]+'">'+full.room_no+'</span>' + '<br /> <small style="color:'+$scope.color[full.reservation_status]+'">Type:'+full.room_type+' | Status:'+full.room_status+'</small>'
     }
     $scope.colIn = function(data,type,full,meta){
-        console.log(full)
-        return full.arrival_date + '<br /> <small>Nights: '+full.num_of_nights+'</small>'
+        //console.log(full)
+        return '<span style="color:'+$scope.color[full.reservation_status]+'">'+full.arrival_date+'</span>' + '<br /> <small style="color:'+$scope.color[full.reservation_status]+'">Nights: '+full.num_of_nights+'</small>'
     }
     $scope.colOut = function(data,type,full,meta){
-        return full.out_date + '<br /> <small>Pax: '+full.num_of_pax+' | Child:'+full.num_of_child+'</small>'
+        return '<span style="color:'+$scope.color[full.reservation_status]+'">'+full.out_date+'</span>' + '<br /> <small style="color:'+$scope.color[full.reservation_status]+'">Pax: '+full.num_of_pax+' | Child:'+full.num_of_child+'</small>'
     }
     $scope.colCompany = function(data,type,full,meta){
-        return full.company_name + '<br /> <small>Remarks: '+full.mice_check_in_remarks+' </small>'
+        return '<span style="color:'+$scope.color[full.reservation_status]+'">'+full.company_name+'</span>' + '<br /> <small style="color:'+$scope.color[full.reservation_status]+'">Remarks: '+full.mice_check_in_remarks+' </small>'
     }
     $scope.colFolio = function(data,type,full,meta){
-        return full.folio_code + '<br /> <small>Status: '+full.reservation_status_name+' </small>'
+        return '<span style="color:'+$scope.color[full.reservation_status]+'">'+full.folio_code +'</span>'+ '<br /> <small style="color:'+$scope.color[full.reservation_status]+'">Status: '+full.reservation_status_name+' </small>'
     }
     $scope.colRate = function(data,type,full,meta){
-        return full.room_rate_code + '<br /> <small>Charge: '+full.room_rate_amount+' </small>'
+        return '<span style="color:'+$scope.color[full.reservation_status]+'">'+full.room_rate_code+'</span>' + '<br /> <small style="color:'+$scope.color[full.reservation_status]+'">Charge: '+full.room_rate_amount+' </small>'
     }
 
     $scope.createdRow = function(row, data, dataIndex) {
@@ -642,6 +394,9 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         $scope.profile.form.setCode();
 
     }
+    $scope.openQuickViewHouse = function(state){
+        $('#form-input-house').modal('show')
+    }
 
     $scope.submit = function(type){
         if (type=='profile'){
@@ -741,6 +496,8 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
             $scope.profile.form.gf.id= result.data[0].folio_id;
             $scope.remark.form.gf.id= result.data[0].folio_id;
             $scope.additional.form.gf.id= result.data[0].folio_id;
+            $scope.message.form.gf.data['id']= result.data[0].folio_id;
+            $scope.message.form.gf.data['customer_id']= result.data[0].customer_id;
 
 
             $scope.profile.form.gf.code= result.data[0].folio_code ;
@@ -890,11 +647,9 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
                     else if (data.data[0].internet_code_status == 2) $scope.additional.form.selected.internet_code['selected'] = {id:'2',name: 'Pre Paid'}
                     else if (data.data[0].internet_code_status == 3) $scope.additional.form.selected.internet_code['selected'] = {id:'3',name: 'Post Paid'}
                 }
-
-
-
-
             })
+            $scope.message.action.requeryMessage();
+
         })
     }
 
@@ -908,6 +663,8 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     }
     $scope.execCheckIn = function(){
         queryService.post('update fd_guest_folio SET reservation_status=\'4\', '+
+        ' check_in_by='+$localStorage.currentUser.name.id+', ' +
+        ' check_in_date=\''+globalFunction.currentDate()+'\', ' +
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
         ' WHERE id='+$scope.profile.form.gf.id ,undefined)
@@ -938,6 +695,8 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     }
     $scope.execCheckOut = function(){
         queryService.post('update fd_guest_folio SET reservation_status=\'5\', '+
+        ' check_out_by='+$localStorage.currentUser.name.id+', ' +
+        ' check_out_date=\''+globalFunction.currentDate()+'\', ' +
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
         ' WHERE id='+$scope.profile.form.gf.id ,undefined)
@@ -968,6 +727,8 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     }
     $scope.execCancel = function(){
         queryService.post('update fd_guest_folio SET reservation_status=\'6\', '+
+        ' cancel_by='+$localStorage.currentUser.name.id+', ' +
+        ' cancel_date=\''+globalFunction.currentDate()+'\', ' +
         ' cancellation_remarks=\''+$scope.profile.form.gf.cancellation_remarks+'\', ' +
         ' cancellation_type_id='+$scope.profile.form.selected.cancellation_type.selected.id+', ' +
         ' cancellation_date=\''+globalFunction.currentDate()+'\', ' +
@@ -1433,7 +1194,6 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
                     }
                 }
             }
-
         }
         if ($scope.profile.form.room.length==0) $scope.profile.form.room=$scope.profile.form.roomOri
         console.log(dist($scope.profile.form.room,'id'))
@@ -2034,6 +1794,668 @@ function($scope, $state, $sce, queryService, $q,departmentService, accountTypeSe
         $scope.additional.form.newspaper = data.data
     })
     $scope.additional.action.submit = function(){
+        var defer = $q.defer();
+        //exec update
+        var qcommand = ''
+        var param = {}
+        queryService.get('select count(1) cnt from fd_folio_adds where folio_id=  '+$scope.additional.form.gf.id,undefined)
+        .then(function(data){
+            if (data.data[0].cnt>0){
+                //update
+                qcommand = 'update fd_folio_adds set ? where folio_id='+$scope.additional.form.gf.id
+                param = {
+                    //folio_id: '',
+                    //transfer_folio_id: '',
+                    internet_code_status: $scope.additional.form.gf.internet_code_status,
+                    pay_tv_status: $scope.additional.form.gf.pay_tv_status,
+                    deposit_box_id: ($scope.additional.form.gf.deposit_box_id.toString().length>0?$scope.additional.form.gf.deposit_box_id:null),
+                    deposit_box_notes: $scope.additional.form.gf.deposit_box_notes,
+                    newspaper_id: ($scope.additional.form.gf.newspaper_id.toString().length>0?$scope.additional.form.gf.newspaper_id:null),
+                    car_no: $scope.additional.form.gf.car_no,
+                    total_car: $scope.additional.form.gf.total_car,
+                    amenities_notes: $scope.additional.form.gf.amenities_notes,
+                    fruit_notes: $scope.additional.form.gf.fruit_notes,
+                    is_closed_transc: $scope.additional.form.gf.is_closed_transc,
+                    is_cash_transc_only: $scope.additional.form.gf.is_cash_transc_only,
+                    is_incognito: $scope.additional.form.gf.is_incognito,
+                    is_sleep_out: $scope.additional.form.gf.is_sleep_out,
+                    is_lock_minibar: $scope.additional.form.gf.is_lock_minibar,
+                    is_block_phone: $scope.additional.form.gf.is_block_phone,
+                    is_no_alcohol_in_pos: $scope.additional.form.gf.is_no_alcohol_in_pos,
+                    is_sick_guest: $scope.additional.form.gf.is_sick_guest,
+                    is_handicap_guest: $scope.additional.form.gf.is_handicap_guest,
+                    is_reject_for_cleaning: $scope.additional.form.gf.is_reject_for_cleaning,
+                    is_door_double_lock: $scope.additional.form.gf.is_door_double_lock,
+                    modified_date: globalFunction.currentDate(),
+                    modified_by: $localStorage.currentUser.name.id
+
+                }
+            }
+            else {
+                //insert
+                qcommand = 'insert into fd_folio_adds set ?'
+                param = {
+                    folio_id: $scope.additional.form.gf.id,
+                    //transfer_folio_id: '',
+                    internet_code_status: $scope.additional.form.gf.internet_code_status,
+                    pay_tv_status: $scope.additional.form.gf.pay_tv_status,
+                    deposit_box_id: ($scope.additional.form.gf.deposit_box_id.toString().length>0?$scope.additional.form.gf.deposit_box_id:null),
+                    deposit_box_notes: $scope.additional.form.gf.deposit_box_notes,
+                    newspaper_id: ($scope.additional.form.gf.newspaper_id.toString().length>0?$scope.additional.form.gf.newspaper_id:null),
+                    car_no: $scope.additional.form.gf.car_no,
+                    total_car: $scope.additional.form.gf.total_car,
+                    amenities_notes: $scope.additional.form.gf.amenities_notes,
+                    fruit_notes: $scope.additional.form.gf.fruit_notes,
+                    is_closed_transc: $scope.additional.form.gf.is_closed_transc,
+                    is_cash_transc_only: $scope.additional.form.gf.is_cash_transc_only,
+                    is_incognito: $scope.additional.form.gf.is_incognito,
+                    is_sleep_out: $scope.additional.form.gf.is_sleep_out,
+                    is_lock_minibar: $scope.additional.form.gf.is_lock_minibar,
+                    is_block_phone: $scope.additional.form.gf.is_block_phone,
+                    is_no_alcohol_in_pos: $scope.additional.form.gf.is_no_alcohol_in_pos,
+                    is_sick_guest: $scope.additional.form.gf.is_sick_guest,
+                    is_handicap_guest: $scope.additional.form.gf.is_handicap_guest,
+                    is_reject_for_cleaning: $scope.additional.form.gf.is_reject_for_cleaning,
+                    is_door_double_lock: $scope.additional.form.gf.is_door_double_lock,
+                    created_date: globalFunction.currentDate(),
+                    created_by: $localStorage.currentUser.name.id
+
+                }
+            }
+            console.log('additional',data)
+            queryService.post(qcommand,param)
+            .then(function (result2){
+                defer.resolve('Success Update Additional Data');
+
+            },
+            function (err2){
+                defer.reject('Error Insert: '+err2.code);
+
+
+            })
+        })
+
+
+        //queryService.post('update fd_folio_remarks SET ? where folio_id='+$scope.gf.id+' and remark_type_id=1;update fd_folio_remarks SET ? where folio_id='+$scope.gf.id+' and remark_type_id=2',[param_remark1,param_remark2])
+
+         return defer.promise;
+    }
+})
+.controller('FoReservationAccountCtrl',
+function($scope, $window, $state, $sce, queryService, $q,departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+    $scope.account.form.gf = {
+        folio_id: '',
+        transfer_folio_id: '',
+        internet_code_status: '',
+        pay_tv_status: '',
+        deposit_box_id: '',
+        deposit_box_notes: '',
+        newspaper_id: '',
+        car_no: '',
+        total_car: '',
+        amenities_notes: '',
+        fruit_notes: '',
+        is_closed_transc: '0',
+        is_cash_transc_only: '0',
+        is_incognito: '0',
+        is_sleep_out: '0',
+        is_lock_minibar: '0',
+        is_block_phone: '0',
+        is_no_alcohol_in_pos: '0',
+        is_sick_guest: '0',
+        is_handicap_guest: '0',
+        is_reject_for_cleaning: '0',
+        is_door_double_lock: '0'
+
+    }
+    $scope.account.form.selected = {
+        newspaper: {},
+        pay_tv: {},
+        internet_code: {}
+    }
+    $scope.account.form.internetCode = [
+        {id:'1',name: 'Blocked'},
+        {id:'2',name: 'Pre Paid'},
+        {id:'3',name: 'Post Paid'}
+    ]
+
+    $scope.account.form.newspaper = []
+    queryService.get('select id,code,name from mst_newspaper where status!=2 order by id  ',undefined)
+    .then(function(data){
+        $scope.additional.form.newspaper = data.data
+    })
+    $scope.account.action.showDetail = function(a){
+        console.log(a)
+        $scope.account.stat = 'detail'
+        var element = $window.document.getElementById('test');
+        if(element)
+          element.focus();
+    }
+    $scope.account.action.submit = function(){
+        var defer = $q.defer();
+        //exec update
+        var qcommand = ''
+        var param = {}
+        queryService.get('select count(1) cnt from fd_folio_adds where folio_id=  '+$scope.additional.form.gf.id,undefined)
+        .then(function(data){
+            if (data.data[0].cnt>0){
+                //update
+                qcommand = 'update fd_folio_adds set ? where folio_id='+$scope.additional.form.gf.id
+                param = {
+                    //folio_id: '',
+                    //transfer_folio_id: '',
+                    internet_code_status: $scope.additional.form.gf.internet_code_status,
+                    pay_tv_status: $scope.additional.form.gf.pay_tv_status,
+                    deposit_box_id: ($scope.additional.form.gf.deposit_box_id.toString().length>0?$scope.additional.form.gf.deposit_box_id:null),
+                    deposit_box_notes: $scope.additional.form.gf.deposit_box_notes,
+                    newspaper_id: ($scope.additional.form.gf.newspaper_id.toString().length>0?$scope.additional.form.gf.newspaper_id:null),
+                    car_no: $scope.additional.form.gf.car_no,
+                    total_car: $scope.additional.form.gf.total_car,
+                    amenities_notes: $scope.additional.form.gf.amenities_notes,
+                    fruit_notes: $scope.additional.form.gf.fruit_notes,
+                    is_closed_transc: $scope.additional.form.gf.is_closed_transc,
+                    is_cash_transc_only: $scope.additional.form.gf.is_cash_transc_only,
+                    is_incognito: $scope.additional.form.gf.is_incognito,
+                    is_sleep_out: $scope.additional.form.gf.is_sleep_out,
+                    is_lock_minibar: $scope.additional.form.gf.is_lock_minibar,
+                    is_block_phone: $scope.additional.form.gf.is_block_phone,
+                    is_no_alcohol_in_pos: $scope.additional.form.gf.is_no_alcohol_in_pos,
+                    is_sick_guest: $scope.additional.form.gf.is_sick_guest,
+                    is_handicap_guest: $scope.additional.form.gf.is_handicap_guest,
+                    is_reject_for_cleaning: $scope.additional.form.gf.is_reject_for_cleaning,
+                    is_door_double_lock: $scope.additional.form.gf.is_door_double_lock,
+                    modified_date: globalFunction.currentDate(),
+                    modified_by: $localStorage.currentUser.name.id
+
+                }
+            }
+            else {
+                //insert
+                qcommand = 'insert into fd_folio_adds set ?'
+                param = {
+                    folio_id: $scope.additional.form.gf.id,
+                    //transfer_folio_id: '',
+                    internet_code_status: $scope.additional.form.gf.internet_code_status,
+                    pay_tv_status: $scope.additional.form.gf.pay_tv_status,
+                    deposit_box_id: ($scope.additional.form.gf.deposit_box_id.toString().length>0?$scope.additional.form.gf.deposit_box_id:null),
+                    deposit_box_notes: $scope.additional.form.gf.deposit_box_notes,
+                    newspaper_id: ($scope.additional.form.gf.newspaper_id.toString().length>0?$scope.additional.form.gf.newspaper_id:null),
+                    car_no: $scope.additional.form.gf.car_no,
+                    total_car: $scope.additional.form.gf.total_car,
+                    amenities_notes: $scope.additional.form.gf.amenities_notes,
+                    fruit_notes: $scope.additional.form.gf.fruit_notes,
+                    is_closed_transc: $scope.additional.form.gf.is_closed_transc,
+                    is_cash_transc_only: $scope.additional.form.gf.is_cash_transc_only,
+                    is_incognito: $scope.additional.form.gf.is_incognito,
+                    is_sleep_out: $scope.additional.form.gf.is_sleep_out,
+                    is_lock_minibar: $scope.additional.form.gf.is_lock_minibar,
+                    is_block_phone: $scope.additional.form.gf.is_block_phone,
+                    is_no_alcohol_in_pos: $scope.additional.form.gf.is_no_alcohol_in_pos,
+                    is_sick_guest: $scope.additional.form.gf.is_sick_guest,
+                    is_handicap_guest: $scope.additional.form.gf.is_handicap_guest,
+                    is_reject_for_cleaning: $scope.additional.form.gf.is_reject_for_cleaning,
+                    is_door_double_lock: $scope.additional.form.gf.is_door_double_lock,
+                    created_date: globalFunction.currentDate(),
+                    created_by: $localStorage.currentUser.name.id
+
+                }
+            }
+            console.log('additional',data)
+            queryService.post(qcommand,param)
+            .then(function (result2){
+                defer.resolve('Success Update Additional Data');
+
+            },
+            function (err2){
+                defer.reject('Error Insert: '+err2.code);
+
+
+            })
+        })
+
+
+        //queryService.post('update fd_folio_remarks SET ? where folio_id='+$scope.gf.id+' and remark_type_id=1;update fd_folio_remarks SET ? where folio_id='+$scope.gf.id+' and remark_type_id=2',[param_remark1,param_remark2])
+
+         return defer.promise;
+    }
+})
+.controller('FoReservationMessageCtrl',
+function($scope, $window, $state, $sce, queryService, $q,departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+    $scope.message.form.gf = {
+        data: {},
+        message: {},
+        flag: {},
+        complain: {},
+        mr: {},
+        history: {},
+        remark: {}
+    }
+    $scope.message.ref = {
+        section: [],
+        flag: []
+    }
+    $scope.message.selected = {
+        section: {},
+        flag: {}
+    }
+    $scope.message.form.table = {
+        message: [],
+        flag: [],
+        complain: [],
+        mr: [],
+        history: [],
+        remark: []
+    }
+    $scope.message.stat = {
+        message: false,
+        flag: false,
+        complain: false,
+        mr: false,
+        history: false,
+        remark: false
+    }
+    $scope.message.form.selected = {
+        message: {},
+        flag: {},
+        complain: {},
+        mr: {},
+        history: {},
+        remark: {}
+    }
+    $scope.message.form.internetCode = [
+        {id:'1',name: 'Blocked'},
+        {id:'2',name: 'Pre Paid'},
+        {id:'3',name: 'Post Paid'}
+    ]
+
+    $scope.message.form.newspaper = []
+    queryService.get('select id,code,name from mst_newspaper where status!=2 order by id  ',undefined)
+    .then(function(data){
+        $scope.message.form.newspaper = data.data
+    })
+    $scope.message.action.showDetail = function(a){
+        console.log(a)
+        $scope.account.stat = 'detail'
+        var element = $window.document.getElementById('test');
+        if(element)
+          element.focus();
+    }
+    queryService.post("select id, name from mst_fo_section where status!=2 order by id ",undefined)
+    .then(function(data){
+        $scope.message.ref.section = data.data;
+    })
+    queryService.post("select id, name from ref_guest_flag where status!=2 order by id ",undefined)
+    .then(function(data){
+        $scope.message.ref.flag = data.data;
+    })
+    $scope.test = function(a){
+        console.log(a)
+    }
+
+    $scope.message.action.requeryMessage = function(){
+        queryService.post("select a.id,customer_id,folio_id, "+
+            "msg_from,date_format(msg_date,'%Y-%m-%d') msg_date,msg_status,msg_phone,msg_address,msg_message,  "+
+            "cust_flag_id,b.name cust_flag_name,flag_valid_until,date_format(flag_date,'%Y-%m-%d') flag_date,flag_action,flag_section_id,d.name flag_section_name, "+
+            "date_format(complain_date,'%Y-%m-%d') complain_date,date_format(complain_created_date,'%Y-%m-%d') complain_created_date,complain_section_id,e.name complain_section_name,complain_status,complain_type_id,c.name complain_type_name, "+
+            "date_format(maintenance_req_date,'%Y-%m-%d') maintenance_req_date,maintenance_req_location_id,f.name maintenance_req_location_name,maintenance_req_person_id,h.name maintenance_req_person_name,maintenance_req_status,maintenance_req_type_id,g.name maintenance_req_type_name, "+
+            "guest_position,hk_message,date_format(a.created_date,'%Y-%m-%d') created_date "+
+            "from fd_guest_mesages a "+
+            "left join ref_guest_flag b on a.cust_flag_id = b.id "+
+            "left join ref_guest_complain c on a.complain_type_id = c.id "+
+            "left join mst_fo_section d on a.flag_section_id = d.id "+
+            "left join mst_fo_section e on a.complain_section_id = e.id "+
+            "left join ref_maintenance_req_location f on a.maintenance_req_location_id = f.id "+
+            "left join ref_maintenance_req_type g on a.maintenance_req_type_id = g.id "+
+            "left join ref_maintenance_req_person h on a.maintenance_req_person_id = h.id "+
+            " where customer_id="+$scope.message.form.gf.data.customer_id+" and folio_id="+$scope.message.form.gf.data.id+" order by id  ",undefined)
+        .then(function(data){
+            $scope.message.form.table = {
+                message: [],
+                flag: [],
+                complain: [],
+                mr: [],
+                history: [],
+                remark: []
+            }
+            for (var i=0;i<data.data.length;i++){
+                if(data.data[i].msg_from != null||data.data[i].msg_date != null||data.data[i].msg_phone != null||data.data[i].msg_status != null){
+                    $scope.message.form.table.message.push(data.data[i]);
+                }
+                if(data.data[i].cust_flag_id != null||data.data[i].flag_date != null||data.data[i].flag_section_id != null||data.data[i].flag_action != null){
+                    $scope.message.form.table.flag.push(data.data[i]);
+                }
+                if(data.data[i].complain_date != null||data.data[i].complain_type_id != null||data.data[i].complain_section_id != null||data.data[i].complain_status != null){
+                    $scope.message.form.table.complain.push(data.data[i]);
+                }
+                if(data.data[i].maintenance_req_type_id != null||data.data[i].maintenance_req_person_id != null||data.data[i].maintenance_req_date != null||data.data[i].maintenance_req_location_id != null){
+                    $scope.message.form.table.mr.push(data.data[i]);
+                }
+                if(data.data[i].guest_position != null||data.data[i].hk_message != null){
+                    $scope.message.form.table.remark.push(data.data[i]);
+                    $scope.message.form.gf.data.remarkHk = data.data[i].hk_message
+                    $scope.message.form.gf.data.remarkPos = data.data[i].guest_position
+                    $scope.message.stat.remark = data.data[i].id
+                }
+            }
+            if($scope.message.form.gf.data.remarkHk == null||$scope.message.form.gf.data.remarkPos == null){
+                $scope.message.stat.remark = 'add'
+            }
+
+            //$scope.message.form.table.message = data.data
+        })
+    }
+
+    $scope.message.action.addnewMessage = function(){
+        $scope.message.stat.message = 'add'
+    }
+    $scope.message.action.updateMessage = function(ids){
+        $scope.message.stat.message = ids
+        queryService.post("select a.id,customer_id,folio_id, "+
+            "msg_from,date_format(msg_date,'%Y-%m-%d') msg_date,msg_status,msg_phone,msg_address,msg_message,  "+
+            "cust_flag_id,b.name cust_flag_name,flag_valid_until,date_format(flag_date,'%Y-%m-%d') flag_date,flag_action,flag_section_id,d.name flag_section_name, "+
+            "date_format(complain_date,'%Y-%m-%d') complain_date,date_format(complain_created_date,'%Y-%m-%d') complain_created_date,complain_section_id,e.name complain_section_name,complain_status,complain_type_id,c.name complain_type_name, "+
+            "date_format(maintenance_req_date,'%Y-%m-%d') maintenance_req_date,maintenance_req_location_id,f.name maintenance_req_location_name,maintenance_req_person_id,h.name maintenance_req_person_name,maintenance_req_status,maintenance_req_type_id,g.name maintenance_req_type_name, "+
+            "guest_position,hk_message,date_format(a.created_date,'%Y-%m-%d') created_date "+
+            "from fd_guest_mesages a "+
+            "left join ref_guest_flag b on a.cust_flag_id = b.id "+
+            "left join ref_guest_complain c on a.complain_type_id = c.id "+
+            "left join mst_fo_section d on a.flag_section_id = d.id "+
+            "left join mst_fo_section e on a.complain_section_id = e.id "+
+            "left join ref_maintenance_req_location f on a.maintenance_req_location_id = f.id "+
+            "left join ref_maintenance_req_type g on a.maintenance_req_type_id = g.id "+
+            "left join ref_maintenance_req_person h on a.maintenance_req_person_id = h.id "+
+            "where a.id="+ids,undefined)
+        .then(function(data){
+            $scope.message.form.gf.data['messageFrom'] = data.data[0].msg_from
+            $scope.message.form.gf.data['messageDate'] = data.data[0].msg_date
+            $scope.message.form.gf.data['messageStatus'] = data.data[0].msg_status
+            $scope.message.form.gf.data['messagePhone'] = data.data[0].msg_phone
+            $scope.message.form.gf.data['messageAddress'] = data.data[0].msg_address
+            $scope.message.form.gf.data['messageMessage'] = data.data[0].msg_message
+        })
+    }
+
+    $scope.message.action.submitMessage = function(){
+        console.log($scope.message.form.gf.data)
+        console.log('stat',$scope.message.stat.message)
+        var param = {
+            customer_id: $scope.message.form.gf.data.customer_id,
+            folio_id: $scope.message.form.gf.data.id,
+            msg_from: $scope.message.form.gf.data.messageFrom,
+            msg_date: $scope.message.form.gf.data.messageDate,
+            msg_status: $scope.message.form.gf.data.messageStatus,
+            msg_phone: $scope.message.form.gf.data.messagePhone,
+            msg_address: $scope.message.form.gf.data.messageAddress,
+            msg_message: $scope.message.form.gf.data.messageMessage
+        }
+        var s = 'insert into fd_guest_mesages SET ?'
+        if ($scope.message.stat.message=='add') s = 'insert into fd_guest_mesages SET ?'
+        else s = 'update fd_guest_mesages SET ? where id='+$scope.message.stat.message
+        queryService.post(s,param)
+        .then(function (result){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Success Process Message',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.message.stat.message = false
+            $scope.message.action.requeryMessage();
+
+        },
+        function (err){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Process Message: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
+    }
+    $scope.message.action.addnewFlag = function(){
+        $scope.message.stat.flag = 'add'
+    }
+    $scope.message.action.updateFlag = function(ids){
+        $scope.message.stat.flag = ids
+        queryService.post("select a.id,customer_id,folio_id, "+
+            "msg_from,date_format(msg_date,'%Y-%m-%d') msg_date,msg_status,msg_phone,msg_address,msg_message,  "+
+            "cust_flag_id,b.name cust_flag_name,flag_valid_until,date_format(flag_date,'%Y-%m-%d') flag_date,flag_action,flag_section_id,d.name flag_section_name, "+
+            "date_format(complain_date,'%Y-%m-%d') complain_date,date_format(complain_created_date,'%Y-%m-%d') complain_created_date,complain_section_id,e.name complain_section_name,complain_status,complain_type_id,c.name complain_type_name, "+
+            "date_format(maintenance_req_date,'%Y-%m-%d') maintenance_req_date,maintenance_req_location_id,f.name maintenance_req_location_name,maintenance_req_person_id,h.name maintenance_req_person_name,maintenance_req_status,maintenance_req_type_id,g.name maintenance_req_type_name, "+
+            "guest_position,hk_message,date_format(a.created_date,'%Y-%m-%d') created_date "+
+            "from fd_guest_mesages a "+
+            "left join ref_guest_flag b on a.cust_flag_id = b.id "+
+            "left join ref_guest_complain c on a.complain_type_id = c.id "+
+            "left join mst_fo_section d on a.flag_section_id = d.id "+
+            "left join mst_fo_section e on a.complain_section_id = e.id "+
+            "left join ref_maintenance_req_location f on a.maintenance_req_location_id = f.id "+
+            "left join ref_maintenance_req_type g on a.maintenance_req_type_id = g.id "+
+            "left join ref_maintenance_req_person h on a.maintenance_req_person_id = h.id "+
+            "where a.id="+ids,undefined)
+        .then(function(data){
+            $scope.message.form.gf.data['flagSection'] = data.data[0].flag_section_id
+            $scope.message.form.gf.data['flagFlag'] = data.data[0].cust_flag_id
+            $scope.message.form.gf.data['flagValid'] = data.data[0].flag_valid_until
+            $scope.message.form.gf.data['flagMessage'] = data.data[0].flag_action
+            $scope.message.selected.section['selected'] = {id:data.data[0].flag_section_id,name:data.data[0].flag_section_name}
+            $scope.message.selected.flag['selected'] = {id:data.data[0].cust_flag_id,name:data.data[0].cust_flag_name}
+        })
+    }
+
+    $scope.message.action.submitFlag = function(){
+        console.log($scope.message.form.gf.data)
+        console.log('stat',$scope.message.stat.flag)
+        var param = {
+            customer_id: $scope.message.form.gf.data.customer_id,
+            folio_id: $scope.message.form.gf.data.id,
+            flag_section_id: $scope.message.form.gf.data.flagSection,
+            cust_flag_id: $scope.message.form.gf.data.flagFlag,
+            flag_valid_until: $scope.message.form.gf.data.flagValid,
+            flag_action: $scope.message.form.gf.data.flagMessage
+        }
+        var s = 'insert into fd_guest_mesages SET ?'
+        if ($scope.message.stat.flag=='add') s = 'insert into fd_guest_mesages SET ?'
+        else s = 'update fd_guest_mesages SET ? where id='+$scope.message.stat.flag
+        queryService.post(s,param)
+        .then(function (result){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Success Process Flag',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.message.stat.flag = false
+            $scope.message.action.requeryMessage();
+
+        },
+        function (err){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Process Flag: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
+    }
+
+    $scope.message.action.addnewComplain = function(){
+        $scope.message.stat.complain = 'add'
+    }
+    $scope.message.action.updateComplain = function(ids){
+        $scope.message.stat.complain = ids
+        queryService.post("select a.id,customer_id,folio_id, "+
+            "msg_from,date_format(msg_date,'%Y-%m-%d') msg_date,msg_status,msg_phone,msg_address,msg_message,  "+
+            "cust_flag_id,b.name cust_flag_name,flag_valid_until,date_format(flag_date,'%Y-%m-%d') flag_date,flag_action,flag_section_id,d.name flag_section_name, "+
+            "date_format(complain_date,'%Y-%m-%d') complain_date,date_format(complain_created_date,'%Y-%m-%d') complain_created_date,complain_section_id,e.name complain_section_name,complain_status,complain_type_id,c.name complain_type_name,complain_msg, "+
+            "date_format(maintenance_req_date,'%Y-%m-%d') maintenance_req_date,maintenance_req_location_id,f.name maintenance_req_location_name,maintenance_req_person_id,h.name maintenance_req_person_name,maintenance_req_status,maintenance_req_type_id,g.name maintenance_req_type_name, "+
+            "guest_position,hk_message,date_format(a.created_date,'%Y-%m-%d') created_date "+
+            "from fd_guest_mesages a "+
+            "left join ref_guest_flag b on a.cust_flag_id = b.id "+
+            "left join ref_guest_complain c on a.complain_type_id = c.id "+
+            "left join mst_fo_section d on a.flag_section_id = d.id "+
+            "left join mst_fo_section e on a.complain_section_id = e.id "+
+            "left join ref_maintenance_req_location f on a.maintenance_req_location_id = f.id "+
+            "left join ref_maintenance_req_type g on a.maintenance_req_type_id = g.id "+
+            "left join ref_maintenance_req_person h on a.maintenance_req_person_id = h.id "+
+            "where a.id="+ids,undefined)
+        .then(function(data){
+            $scope.message.form.gf.data['complainSection'] = data.data[0].complain_section_id
+            $scope.message.form.gf.data['complainCode'] = data.data[0].complain_type_name
+            $scope.message.form.gf.data['complainDate'] = data.data[0].complain_date
+            $scope.message.form.gf.data['complainMessage'] = data.data[0].complain_msg
+            $scope.message.selected.section2['selected'] = {id:data.data[0].complain_section_id,name:data.data[0].complain_section_name}
+            $scope.message.selected.complain_type['selected'] = {id:data.data[0].complain_type_id,name:data.data[0].complain_type_name}
+        })
+    }
+
+    $scope.message.action.submitComplain = function(){
+        console.log($scope.message.form.gf.data)
+        console.log('stat',$scope.message.stat.complain)
+        var param = {
+            customer_id: $scope.message.form.gf.data.customer_id,
+            folio_id: $scope.message.form.gf.data.id,
+            complain_section_id: $scope.message.form.gf.data.complainSection,
+            complain_type_id: $scope.message.form.gf.data.complainCode,
+            complain_date: $scope.message.form.gf.data.complainDate,
+            complain_status: 1
+        }
+        var s = 'insert into fd_guest_mesages SET ?'
+        if ($scope.message.stat.complain=='add') s = 'insert into fd_guest_mesages SET ?'
+        else s = 'update fd_guest_mesages SET ? where id='+$scope.message.stat.complain
+        queryService.post(s,param)
+        .then(function (result){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Success Process Complain',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.message.stat.complain = false
+            $scope.message.action.requeryMessage();
+
+        },
+        function (err){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Process Complain: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
+    }
+
+    $scope.message.action.addnewMr = function(){
+        $scope.message.stat.mr = 'add'
+    }
+    $scope.message.action.updateMr = function(ids){
+        $scope.message.stat.mr = ids
+        queryService.post("select a.id,customer_id,folio_id, "+
+            "msg_from,date_format(msg_date,'%Y-%m-%d') msg_date,msg_status,msg_phone,msg_address,msg_message,  "+
+            "cust_flag_id,b.name cust_flag_name,flag_valid_until,date_format(flag_date,'%Y-%m-%d') flag_date,flag_action,flag_section_id,d.name flag_section_name, "+
+            "date_format(complain_date,'%Y-%m-%d') complain_date,date_format(complain_created_date,'%Y-%m-%d') complain_created_date,complain_section_id,e.name complain_section_name,complain_status,complain_type_id,c.name complain_type_name,complain_msg, "+
+            "date_format(maintenance_req_date,'%Y-%m-%d') maintenance_req_date,maintenance_req_location_id,f.name maintenance_req_location_name,maintenance_req_person_id,h.name maintenance_req_person_name,maintenance_req_status,maintenance_req_type_id,g.name maintenance_req_type_name,maintenance_msg, "+
+            "guest_position,hk_message,date_format(a.created_date,'%Y-%m-%d') created_date "+
+            "from fd_guest_mesages a "+
+            "left join ref_guest_flag b on a.cust_flag_id = b.id "+
+            "left join ref_guest_complain c on a.complain_type_id = c.id "+
+            "left join mst_fo_section d on a.flag_section_id = d.id "+
+            "left join mst_fo_section e on a.complain_section_id = e.id "+
+            "left join ref_maintenance_req_location f on a.maintenance_req_location_id = f.id "+
+            "left join ref_maintenance_req_type g on a.maintenance_req_type_id = g.id "+
+            "left join ref_maintenance_req_person h on a.maintenance_req_person_id = h.id "+
+            "where a.id="+ids,undefined)
+        .then(function(data){
+            $scope.message.form.gf.data['mrLocation'] = data.data[0].maintenance_req_location_id
+            $scope.message.form.gf.data['mrCode'] = data.data[0].maintenance_req_type_id
+            $scope.message.form.gf.data['mrDate'] = data.data[0].maintenance_req_date
+            $scope.message.form.gf.data['mrMessage'] = data.data[0].maintenance_msg
+            $scope.message.selected.location['selected'] = {id:data.data[0].maintenance_req_location_id,name:data.data[0].maintenance_req_location_name}
+            $scope.message.selected.maintenance_type['selected'] = {id:data.data[0].maintenance_req_type_id,name:data.data[0].maintenance_req_type_name}
+        })
+    }
+
+    $scope.message.action.submitMr = function(){
+        console.log($scope.message.form.gf.data)
+        console.log('stat',$scope.message.stat.mr)
+        var param = {
+            customer_id: $scope.message.form.gf.data.customer_id,
+            folio_id: $scope.message.form.gf.data.id,
+            maintenance_req_location_id: $scope.message.form.gf.data.mrLocation,
+            maintenance_req_type_id: $scope.message.form.gf.data.mrCode,
+            maintenance_req_date: $scope.message.form.gf.data.mrDate,
+            maintenance_req_status: 1
+
+        }
+        var s = 'insert into fd_guest_mesages SET ?'
+        if ($scope.message.stat.mr=='add') s = 'insert into fd_guest_mesages SET ?'
+        else s = 'update fd_guest_mesages SET ? where id='+$scope.message.stat.mr
+        queryService.post(s,param)
+        .then(function (result){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Success Process Flag',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.message.stat.mr = false
+            $scope.message.action.requeryMessage();
+
+        },
+        function (err){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Process Flag: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
+    }
+
+
+    $scope.message.action.submitRemark = function(){
+        console.log('submit remark')
+        var param = {
+            customer_id: $scope.message.form.gf.data.customer_id,
+            folio_id: $scope.message.form.gf.data.id,
+            guest_position: $scope.message.form.gf.data.remarkPos,
+            hk_message: $scope.message.form.gf.data.remarkHk
+
+        }
+        var s = 'insert into fd_guest_mesages SET ?'
+        if ($scope.message.stat.remark=='add') s = 'insert into fd_guest_mesages SET ?'
+        else s = 'update fd_guest_mesages SET ? where id='+$scope.message.stat.remark
+        queryService.post(s,param)
+        .then(function (result){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Success Process Remark',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.message.stat.mr = false
+            $scope.message.action.requeryMessage();
+
+        },
+        function (err){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Process Remark: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
+    }
+    $scope.message.action.submit = function(){
         var defer = $q.defer();
         //exec update
         var qcommand = ''

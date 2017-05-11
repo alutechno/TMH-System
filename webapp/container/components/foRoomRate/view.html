@@ -176,28 +176,40 @@
                 </div>
             </div>
             <div class="row clearfix">
-              <div class="col-sm-3">
-                  <div pg-form-group class="form-group form-group-default form-group-default-select " >
-                      <label>Tax</label>
-                      <ui-select ng-model="selected.tax.selected" theme="bootstrap" >
-                          <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
-                          <ui-select-choices repeat="item in tax | filter: $select.search">
-                              <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                          </ui-select-choices>
-                      </ui-select>
-                  </div>
-              </div>
-              <div class="col-sm-3">
-                  <div pg-form-group class="form-group form-group-default form-group-default-select " >
-                      <label>Rhythm Type</label>
-                      <ui-select ng-model="selected.rhythm_type.selected" theme="bootstrap" >
-                          <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
-                          <ui-select-choices repeat="item in rhythm_type | filter: $select.search">
-                              <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                          </ui-select-choices>
-                      </ui-select>
-                  </div>
-              </div>
+                <div class="col-sm-3">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                        <label>Room Charge Type</label>
+                        <ui-select ng-model="selected.room_transc_type.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in room_transc_type | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                        <label>Extra Bed Charge Type</label>
+                        <ui-select ng-model="selected.ext_bed_transc_type.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in ext_bed_transc_type | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                        <label>Discount Charge Type</label>
+                        <ui-select ng-model="selected.disc_transc_type.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in disc_transc_type | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+
           </div>
           <div class="row clearfix">
               <div class="col-sm-3">
@@ -210,6 +222,17 @@
                   <div pg-form-group class="form-group form-group-default">
                       <label>Extra Bed Cost</label>
                       <input type="text" class="form-control" name="extra_bed_cost" ng-model="coa.extra_bed_cost" >
+                  </div>
+              </div>
+              <div class="col-sm-3">
+                  <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                      <label>Rhythm Type</label>
+                      <ui-select ng-model="selected.rhythm_type.selected" theme="bootstrap" >
+                          <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                          <ui-select-choices repeat="item in rhythm_type | filter: $select.search">
+                              <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                          </ui-select-choices>
+                      </ui-select>
                   </div>
               </div>
           </div>
