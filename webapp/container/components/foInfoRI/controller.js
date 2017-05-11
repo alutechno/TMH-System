@@ -46,7 +46,7 @@ angular.module('app', []).controller('FoInfoRICtrl', function ($scope, $state, $
         }
         if (!$scope.model.endDate) {
             var t = new Date(),
-                y = new Date(new Date().getTime() + (3 * 24 * 3600000)),
+                y = new Date(new Date().getTime() + (2 * 24 * 3600000)),
                 s = moment(t).format('YYYY-MM-DD'); //'2017-04-04',
                 e = moment(y).format('YYYY-MM-DD'); //'2017-04-06'
 
