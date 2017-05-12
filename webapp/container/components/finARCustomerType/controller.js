@@ -12,12 +12,13 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope[$scope.el[i]] = true;
     }
 
-    var qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_customer_type a, "+
-        "(select id as status_id, value as status_value,name as status_name ,receavable_account_id,"+
-            "from table_ref  "+
-            "where table_name = 'ref_product_category' and column_name='status')b "+
-        "where a.status = b.status_value and a.status!=2 "
-    var qwhere = ''
+    var qstring = `select a.id,a.code,a.name,a.description,a.status,b.status_name,receavable_account_id,d.name receavable_account_name,deposit_account_id,c.name deposit_account_name,c.code deposit_account_code,d.code receavable_account_code
+		from (select id as status_id, value as status_value,name as status_name from table_ref
+		where table_name = 'ref_product_category' and column_name='status')b,ref_customer_type a
+		left join mst_ledger_account c on a.deposit_account_id=c.id
+		left join mst_ledger_account d on a.receavable_account_id=d.id
+		where a.status = b.status_value and a.status!=2 `
+	var qwhere = ''
 
     $scope.users = []
 
@@ -140,6 +141,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
     $scope.dtColumns.push(
         //DTColumnBuilder.newColumn('code').withTitle('Code Ori').notVisible(),
+		DTColumnBuilder.newColumn('id').withTitle('ID'),
         DTColumnBuilder.newColumn('code').withTitle('Code'),
         DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
@@ -304,7 +306,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         //$('#coa_code').prop('disabled', true);
 
         // console.log(obj)
-        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
+        queryService.post(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             $scope.coa.id = result.data[0].id
             $scope.coa.code = result.data[0].code
@@ -313,8 +315,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             $scope.coa.status = result.data[0].status
             $scope.coa.status = result.data[0].status
             $scope.selected.status.selected = {id: result.data[0].status,name:result.data[0].status_name}
-			$scope.selected.receiveable_account_id.selected.id= {id: result.data[0].status,name:result.data[0].status_name}
-			$scope.selected.deposit_account_id.selected.id= {id: result.data[0].status,name:result.data[0].status_name}
+			$scope.selected.receiveable_account_id.selected= {id: result.data[0].receavable_account_id,name:result.data[0].receavable_account_name,code:result.data[0].receavable_account_code}
+			$scope.selected.deposit_account_id.selected= {id: result.data[0].deposit_account_id,name:result.data[0].deposit_account_name,code:result.data[0].deposit_account_code}
         })
     }
 
