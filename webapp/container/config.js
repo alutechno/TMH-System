@@ -2818,6 +2818,75 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
+		.state("app.fin.ARCC", {
+            url: "/finARCC",
+            templateUrl: "container/components/finARCustomerType/view.html",
+            params: {'currentPeriod': null},
+            controller: "FinCustomerTypeCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/finARCustomerType/controller.js");
+                    });
+                }]
+            }
+        })
+		.state("app.fin.ARCustomerType", {
+            url: "/finARCustType",
+            templateUrl: "container/components/finARCustomerType/view.html",
+            params: {'currentPeriod': null},
+            controller: "FinCustomerTypeCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/finARCustomerType/controller.js");
+                    });
+                }]
+            }
+        })
+		.state("app.fin.ARConfig", {
+            url: "/finARConfig",
+            templateUrl: "container/components/finARCustomerType/view.html",
+            params: {'currentPeriod': null},
+            controller: "FinCustomerTypeCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/finARCustomerType/controller.js");
+                    });
+                }]
+            }
+        })
 
         // Extra - Others
         .state('access', {

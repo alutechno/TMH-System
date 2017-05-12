@@ -60,26 +60,27 @@ if (cluster.isMaster) {
                 if(typeof connection !== "undefined")
                     connection.release();
                 callback(err);
-            }
-            if(typeof data === "undefined") {
-                connection.query( sql, function(err, rows,fields) {
-                    connection.release();
-                    if(err) {
-                        callback(err, rows,fields);
-                    }else{
-                        callback(err, rows,fields);
-                    }
-                });
-            } else {
-                connection.query( sql, data, function(err, rows,fields){
-                    connection.release();
-                    if(err) {
-                        callback(err, rows,fields);
-                    }else{
-                        callback(err, rows,fields);
-                    }
-                });
-            }
+            }else{
+	            if(typeof data === "undefined") {
+	                connection.query( sql, function(err, rows,fields) {
+	                    connection.release();
+	                    if(err) {
+	                        callback(err, rows,fields);
+	                    }else{
+	                        callback(err, rows,fields);
+	                    }
+	                });
+	            } else {
+	                connection.query( sql, data, function(err, rows,fields){
+	                    connection.release();
+	                    if(err) {
+	                        callback(err, rows,fields);
+	                    }else{
+	                        callback(err, rows,fields);
+	                    }
+	                });
+	            }
+			}
         });
     }
     var connection2=function(callback){
