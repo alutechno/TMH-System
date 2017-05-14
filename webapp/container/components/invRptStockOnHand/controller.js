@@ -16,11 +16,13 @@ function($scope, $state, $sce, globalFunction,BIRT_URL) {
         period: globalFunction.currentDate().split(' ')[0]
     }
     $scope.setFilter = function(){
+      /*
         var param = []
         for (var key in $scope.filter){
             param.push(key+'='+$scope.filter[key])
         }
-        $scope.urlReport = $sce.trustAsResourceUrl(BIRT_URL+'/frameset?__report=report/inv/stockOnHand.rptdesign&'+param.join('&'))
+        */
+        $scope.urlReport = $sce.trustAsResourceUrl(BIRT_URL+'/frameset?__report=report/inv/stockOnHand.rptdesign')
     }
     $scope.setFilter()
 
