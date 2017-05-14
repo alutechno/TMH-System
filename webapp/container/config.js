@@ -2887,6 +2887,29 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
+		.state("app.fin.ARCashReceipt", {
+            url: "/finARCashReceipt",
+            templateUrl: "container/components/finARCashReceipt/view.html",
+            params: {'currentPeriod': null},
+            controller: "FinArCashReceiptCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/finARCashReceipt/controller.js");
+                    });
+                }]
+            }
+        })
 
         // Extra - Others
         .state('access', {
