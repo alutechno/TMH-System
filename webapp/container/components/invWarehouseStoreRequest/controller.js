@@ -376,8 +376,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.delete = function(obj){
-		console.log(obj)
-        $scope.sr.id = obj.id;
+		$scope.sr.id = obj.id;
 		$scope.sr.name = obj.code;
         $('#modalDelete').modal('show')
     }

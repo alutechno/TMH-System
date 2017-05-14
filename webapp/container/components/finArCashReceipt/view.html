@@ -1,0 +1,293 @@
+<div class="full-height m-t-40">
+    <!-- TABLES VIEW -->
+    <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">Cash Receipt
+                </div>
+                <div class="pull-right" style="width: 100%;">
+                    <!--<span ng-click="exportExcel()">
+                        <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
+                    </span>-->
+					<button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Cash Receipt</button>
+					<div class="input-group date col-sm-2 pull-right m-r-10">
+                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
+                    </div>
+					<!--<button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>-->
+
+                </div>
+                <div class="clearfix"></div>
+                <div class="tools">
+                    <a class="collapse" href="javascript:;"></a>
+                    <a class="config" data-toggle="modal" href="#grid-config"></a>
+                    <a class="reload" href="javascript:;"></a>
+                    <a class="remove" href="javascript:;"></a>
+                </div>
+
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive" id="printThisElement">
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" width="1250px">
+                    </table>
+            </div>
+        </div>
+    </div>
+    <!-- END PANEL -->
+</div>
+
+<!--START FORM INPUT-->
+<div class="modal fade slide-right form-input-big" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content-wrapper">
+      <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
+      <div class="panel-heading">
+       <div class="panel-title">Payment Information</div>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
+        </button>
+       </div>
+        <div class="container-xs-height full-height">
+          <div class="row-xs-height">
+            <div class="modal-body col-xs-height col-top">
+
+      <!-- START FORM -->
+      <div class="panel panel-transparent m-t-20">
+          <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
+              <div class="row clearfix">
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.code.$invalid && !ap.code.$pristine }">
+                          <label>Document No</label>
+                          <input type="text" class="form-control" name="name" ng-model="ap.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-readonly="true">
+                      </div>
+                  </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.status.$invalid && !ap.status.$pristine }">
+                          <label>Status</label>
+                          <ui-select ng-model="selected.status.selected" theme="bootstrap" on-select="ap.status=selected.status.selected.id;setStatus()" validate-attached-form-element required >
+                              <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in statusShow | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+
+              </div>
+
+              <div class="row clearfix">
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.bank.selected.$invalid && !selected.bank.selected.$pristine }">
+                          <label>Bank</label>
+                          <ui-select ng-model="selected.bank.selected" theme="bootstrap" on-select="setBankAccount($item)" validate-attached-form-element required >
+                              <ui-select-match placeholder="select bank">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in bank | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.bank_account.selected.$invalid && !selected.bank_account.selected.$pristine }">
+                          <label>Bank Account</label>
+                          <ui-select ng-model="selected.bank_account.selected" theme="bootstrap" validate-attached-form-element required >
+                              <ui-select-match placeholder="select bank account">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in bank_account | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.open_date.$invalid && !ap.open_date.$pristine }">
+                          <label>Open Date</label>
+                          <input type="text" class="form-control" ng-model="ap.open_date" name="open_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required >
+                      </div>
+                  </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.due_date.$invalid && !ap.due_date.$pristine }">
+                          <label>Check Due Date</label>
+                          <input type="text" class="form-control" ng-model="ap.due_date" name="due_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker"  data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required >
+                      </div>
+                  </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.prepared_date.$invalid && !ap.prepared_date.$pristine }">
+                          <label>Prepared Date</label>
+                          <input type="text" class="form-control" ng-model="ap.prepared_date" name="prepared_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker"  data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required >
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.code.$invalid && !ap.code.$pristine }">
+                          <label>Check No</label>
+                          <input type="text" class="form-control" name="name" ng-model="ap.check" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                      </div>
+                  </div>
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.currency_id.$invalid && !ap.currency_id.$pristine }">
+                        <label>Currency</label>
+                        <ui-select ng-model="selected.currency.selected" theme="bootstrap" on-select="ap.currency_id=selected.currency.selected.currency_id;ap.exchange=selected.currency.selected.exchange;setExchange()" validate-attached-form-element required >
+                            <ui-select-match placeholder="select currency">{{$select.selected.currency_name}}</ui-select-match>
+                            <ui-select-choices repeat="item in currency | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.currency_name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default" >
+                        <label>Exchange (in IDR)</label>
+                        <input type="text" class="form-control" name="exchange" ng-model="ap.exchange" ng-change="setExchange()">
+                    </div>
+                </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                          <label>Supplier</label>
+                          <ui-select ng-model="selected.supplier.selected" theme="bootstrap" on-select="setSupplier($item)" ng-keyup="findSupplier($select.search)" >
+                              <ui-select-match placeholder="select supplier">{{$select.selected.supplier_name}}</ui-select-match>
+                              <ui-select-choices repeat="item in supplier | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.supplier_name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
+                <div class="col-sm-8">
+                    <div pg-form-group class="form-group form-group-default required" >
+                        <label>Notes</label>
+                        <input type="text" class="form-control" name="notes" ng-model="ap.notes" validate-attached-form-element required >
+                    </div>
+                </div>
+              </div>
+              <div class="panel panel-transparent ">
+                  <div class="row">
+                      <div ng-controller="EditableTableAppgCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()" ng-if="selected.status.selected.id>=1">
+                                            <!-- table -->
+                                            <table class="table  table-hover itemtable">
+                                                <thead>
+                                                <tr>
+                                                    <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
+                                                    <th width="10%">Account ID</th>
+                                                    <th width="20%">Account Name</th>
+                                                    <th width="20%">Notes</th>
+                                                    <th width="10%">Debit (Foreign Currency)</th>
+                                                    <th width="10%">Credit (Foreign Currency)</th>
+                                                    <th width="10%">Debit</th>
+                                                    <th width="10%">Credit</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr ng-repeat="item in items | filter:filterUser">
+                                                    <td style="vertical-align: middle;">
+                                                        <div class="btn-group btn-group-xs" ng-show="tableform.$visible">
+                                                            <button type="button" class="btn btn-default" ng-click="deleteUser(item.id)" ><i class="fa fa-trash-o"></i></button>
+                                                        </div>
+                                                    </td>
+                                                    <td >
+                                                        <span editable-ui-select="item.account_code" theme="bootstrap" data-e-name="account_code" name="account_code" data-e-ng-model="selected.account.selected"
+                                                        data-e-form="tableform" data-e-ng-keyup="accountUp(item.id,$select.search)" data-e-on-select="getAccount($item,item.id)" >
+                                                        {{item.account_code}}
+                                                              <editable-ui-select-match placeholder="select account" style="width: 200px" >
+                                                                  {{item.account_code || 'Empty'}}
+                                                              </editable-ui-select-match>
+                                                              <editable-ui-select-choices repeat="d in account[item.id] | filter: $select.search">
+                                                                  <div ng-bind-html="trustAsHtml((d.code | highlight: $select.search))"></div>
+                                                                  <small ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></small>
+                                                              </editable-ui-select-choices>
+                                                        </span>
+                                                    </td>
+                                                    <td><span>{{item.account_name}}</span></td>
+                                                    <td >
+                                                        <span editable-text="item.notes" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'notes')">
+                                                            {{ item.notes }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-right">
+                                                        <span editable-text="item.debit_f" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit_f')" data-e-ng-disabled="selected.currency.selected.currency_id==1">
+                                                            {{ item.debit_f | number : fractionSize}}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-right">
+                                                        <span editable-text="item.credit_f" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit_f')" data-e-ng-disabled="selected.currency.selected.currency_id==1">
+                                                            {{ item.credit_f | number : fractionSize}}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-right">
+                                                        <span editable-text="item.debit" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')" data-e-ng-disabled="selected.currency.selected.currency_id!=1">
+                                                            {{ item.debit | number : fractionSize}}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-right">
+                                                        <span editable-text="item.credit" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')" data-e-ng-disabled="selected.currency.selected.currency_id!=1">
+                                                            {{ item.credit | number : fractionSize }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>&nbsp;</td>
+                                                    <td>&nbsp;</td>
+                                                    <td>&nbsp;</td>
+                                                    <td>Total</td>
+                                                    <td class="text-right"><span id="totalDebitF">{{total_debit_f| number : fractionSize }}</span></td>
+                                                    <td class="text-right"><span id="totalCreditF">{{total_credit_f| number : fractionSize }}</span></td>
+                                                    <td class="text-right"><span id="totalDebit">{{total_debit| number : fractionSize }}</span></td>
+                                                    <td class="text-right"><span id="totalCredit">{{total_credit| number : fractionSize }}</span></td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+
+                                            <!-- buttons -->
+                                            <div class="btn-edit">
+                                              <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()">
+                                                Modify Item List
+                                              </button>
+                                            </div>
+                                            <div class="btn-form" ng-show="tableform.$visible">
+                                              <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
+                                              <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
+                                              <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
+                                            </div>
+                      </div>
+                  </div>
+              </div>
+              <br>
+              <div class="clearfix"></div>
+              <div class="divider"></div>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
+              <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
+          </form>
+      </div>
+      <!-- END FORM -->
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!--END FORM INPUT-->
+
+<!-- START MODAL CONTENT-->
+<div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{cat.name}} ?</h4>
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+<!-- END MODAL CONTENT-->
