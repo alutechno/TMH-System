@@ -15,14 +15,16 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
     }
 
     var qstring = `
-    SELECT 
-	    b.code transient_account_code, b.name transient_account_name, c.code gain_loss_curr_account_code,
-	    c.name gain_loss_curr_account_name, a.*
-	FROM
-		ref_ar_config a
-		LEFT JOIN mst_ledger_account b on b.id = a.transient_account_id
-		LEFT JOIN mst_ledger_account c on c.id = a.gain_loss_curr_account_id 
-    WHERE a.status = 1 `;
+    SELECT
+        /* id, code, name, short_name, description, status, percent_fee, doc_type_id */
+        a.*, b.name bank_account_name, b.code bank_account_code, b.short_name bank_account_codename,
+        c.name ar_account_name, c.code ar_account_code, c.name fee_account_name, c.code fee_account_code
+    FROM 
+        mst_credit_card a
+        LEFT JOIN mst_cash_bank_account b on b.id = a.bank_account_id
+        LEFT JOIN mst_ledger_account c on c.id = a.ar_account_id
+        LEFT JOIN mst_ledger_account d on d.id = a.fee_account_id 
+    WHERE a.status = 1 AND b.status = 1 AND c.status = 1 AND d.status = 1 `;
     var qwhere = '';
 
     $scope.users = [];
@@ -34,39 +36,55 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
     $scope.id = '';
     $scope.data = {
         id: '',
+        name: '',
+        code: '',
+        codename: '',
+        description: '',
         status: '',
-        transient_account: null,
-        gain_loss_curr_account: null
+        percentfee: '',
+        bank_account: null,
+        ar_account: null,
+        fee_account: null
     };
 
     $scope.selected = {
-        status: {},
-        filter_department: {},
-        filter_account_type: {},
-        transient_account: {},
-        gain_loss_curr_account: {}
+        bank_account: {},
+        ar_account: {},
+        fee_account: {}
     };
-    $scope.ar_accounts = [];
+    $scope.mst_cash_bank_accounts = [];
+    $scope.mst_ledger_accounts = [];
     queryService.get('select id, code, name from mst_ledger_account where status = \'1\' and parent_id is not null order by code', undefined)
     .then(function (data) {
-        $scope.ar_accounts = data.data
+        $scope.mst_ledger_accounts = data.data
+    });
+    queryService.get(`select id, code, name, short_name from mst_cash_bank_account where status = '1'`, undefined)
+    .then(function (data) {
+        console.log(arguments)
+        $scope.mst_cash_bank_accounts = data.data
     });
 
     $scope.focusinControl = {};
-    $scope.fileName = "Customer Type Reference";
+    $scope.fileName = "Account Receivable CC";
     $scope.exportExcel = function () {
         queryService.post(trim(`
             select
-                id, transient_account_id, transient_account_code, transient_account_name,
-                gain_loss_curr_account_id, gain_loss_curr_account_code, gain_loss_curr_account_name
+                id,code,name,short_name,description,status,percent_fee,doc_type_id,
+                bank_account_id,bank_account_name,bank_account_code,bank_account_codename,
+                ar_account_id,ar_account_name,ar_account_code,
+                fee_account_id,fee_account_name,fee_account_code,
+                created_date,modified_date,created_by,modified_by
             from (${qstring} ${qwhere}) xxx order by id
         `), undefined)
         .then(function (data) {
             $scope.exportData = [];
             //Header
             $scope.exportData.push([
-                `id`, `transient_account_id`, `transient_account_code`, `transient_account_name`,
-                `gain_loss_curr_account_id`, `gain_loss_curr_account_code`, `gain_loss_curr_account_name`
+                "id", "code", "name", "short_name", "description", "status", "percent_fee",
+                "doc_type_id", "bank_account_id", "bank_account_name", "bank_account_code",
+                "bank_account_codename", " ar_account_id", "ar_account_name", "ar_account_code",
+                "fee_account_id", "fee_account_name", "fee_account_code",
+                "created_date", "modified_date", "created_by", "modified_by"
             ]);
             //Data
             for (var i = 0; i < data.data.length; i++) {
@@ -139,21 +157,29 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
     $scope.dtColumns = [];
     if ($scope.el.length > 0) {
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml).withOption('width', '70px'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('transient_account_code')
-        .withTitle('Transient Account').renderWith(function (i, type, data, prop) {
-            return `${data.transient_account_code} : ${data.transient_account_name}`
-        }),
-        DTColumnBuilder.newColumn('gain_loss_curr_account_code')
-        .withTitle('Gain Loss Current Account').renderWith(function (i, type, data, prop) {
-            return `${data.gain_loss_curr_account_code} : ${data.gain_loss_curr_account_name}`
-        }),
-        DTColumnBuilder.newColumn('created_date')
-        .withTitle('Date Created').renderWith(function (i, type, data, prop) {
-            return moment(new Date(data.created_date)).format('YYYY-MM-DD H:mm:ss')
-        })
+        DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '100px'),
+        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '120px'),
+        DTColumnBuilder.newColumn('short_name').withTitle('Short Name').withOption('width', '100px'),
+        DTColumnBuilder.newColumn('description').withTitle('Desc').withOption('width', '120px'),
+        DTColumnBuilder.newColumn('percent_fee').withTitle('Percent Fee').withOption('width', '100px'),
+        DTColumnBuilder.newColumn('bank_account_code').withTitle('Bank Account')
+        .renderWith(function (i, type, data, prop) {
+            var e = `${data.bank_account_code} : ${data.bank_account_name}`;
+            return e.length > 25 ? e.substr(0, 22) + '...' : e;
+        }).withOption('width', '200px'),
+        DTColumnBuilder.newColumn('ar_account_code').withTitle('Receivable Account')
+        .renderWith(function (i, type, data, prop) {
+            var e = `${data.ar_account_code} : ${data.ar_account_name}`;
+            return e.length > 25 ? e.substr(0, 22) + '...' : e;
+        }).withOption('width', '200px'),
+        DTColumnBuilder.newColumn('fee_account_code').withTitle('Fee Account')
+        .renderWith(function (i, type, data, prop) {
+            var e = `${data.fee_account_code} : ${data.fee_account_name}`;
+            return e.length > 25 ? e.substr(0, 22) + '...' : e;
+        }).withOption('width', '200px')
     );
 
     var qwhereobj = {
@@ -163,7 +189,11 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
         if (type == 'search') {
             if (event.keyCode == 13) {
                 if ($scope.filterVal.search.length > 0) {
-                    var fields = ["a.transient_account_id", "b.code", "b.name", "a.gain_loss_curr_account_id", "c.code", "c.name"];
+                    var fields = [
+                        "a.id", "a.code", "a.name", "a.short_name", "a.description",
+                        "a.status", "a.percent_fee", "a.doc_type_id", "b.name",
+                        "b.code", "b.short_name", "c.name", "c.code", "c.name", "c.code"
+                    ];
                     fields = fields.map(function(x){
                         return `${x} LIKE '%${$scope.filterVal.search}%'`
                     }).join(' OR ');
@@ -176,17 +206,6 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
         else {
             $scope.dtInstance.reloadData()
         }
-    };
-    $scope.applyFilter = function () {
-        if ($scope.selected.filter_department.selected) {
-            qwhereobj.department = ' a.dept_id = ' + $scope.selected.filter_department.selected.id + ' '
-        }
-        if ($scope.selected.filter_account_type.selected) {
-            qwhereobj.account_type = ' a.account_type_id = ' + $scope.selected.filter_account_type.selected.id + ' '
-        }
-        qwhere = setWhere();
-        $scope.dtInstance.reloadData()
-
     };
     function setWhere() {
         var arrWhere = []
@@ -210,20 +229,27 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
     $scope.submit = function () {
         if ($scope.data.id.length == 0) {
             var param = { //exec insertion
+                id: $scope.data.id,
+                name: $scope.data.name,
+                code: $scope.data.code,
+                short_name: $scope.data.codename,
+                description: $scope.data.description,
+                percent_fee: $scope.data.percentfee,
                 status: 1,
+                bank_account_id: $scope.selected.bank_account.selected.id,
+                ar_account_id: $scope.selected.ar_account.selected.id,
+                fee_account_id: $scope.selected.fee_account.selected.id,
                 created_date: globalFunction.currentDate(),
-                created_by: $localStorage.currentUser.name.id,
-                transient_account_id: $scope.selected.transient_account.selected.id,
-                gain_loss_curr_account_id: $scope.selected.gain_loss_curr_account.selected.id
+                created_by: $localStorage.currentUser.name.id
             };
 
-            queryService.post('insert into ref_ar_config SET ?', param)
+            queryService.post('insert into mst_credit_card SET ?', param)
             .then(function (result) {
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData()
                     $('body').pgNotification({
                         style: 'flip',
-                        message: 'Success Insert',
+                        message: 'Success Insert ' + $scope.data.name,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'success'
@@ -243,19 +269,25 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
 
         } else { //exec update
             var param = {
+                name: $scope.data.name,
+                code: $scope.data.code,
+                short_name: $scope.data.codename,
+                description: $scope.data.description,
+                percent_fee: $scope.data.percentfee,
+                bank_account_id: $scope.selected.bank_account.selected.id,
+                ar_account_id: $scope.selected.ar_account.selected.id,
+                fee_account_id: $scope.selected.fee_account.selected.id,
                 modified_date: globalFunction.currentDate(),
-                modified_by: $localStorage.currentUser.name.id,
-                transient_account_id: $scope.selected.transient_account.selected.id,
-                gain_loss_curr_account_id: $scope.selected.gain_loss_curr_account.selected.id
+                modified_by: $localStorage.currentUser.name.id
             }
-            queryService.post('update ref_ar_config SET ? WHERE id=' + $scope.data.id, param)
+            queryService.post('update mst_credit_card SET ? WHERE id=' + $scope.data.id, param)
             .then(function (result) {
                 if (result.status = "200") {
                     $('#form-input').modal('hide');
                     $scope.dtInstance.reloadData();
                     $('body').pgNotification({
                         style: 'flip',
-                        message: 'Success Update',
+                        message: 'Success Update ' + $scope.data.name,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'success'
@@ -273,15 +305,25 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
         queryService.post(qstring + 'AND a.id=' + obj.id, undefined)
         .then(function (result) {
             $scope.data.id = result.data[0].id;
-            $scope.selected.transient_account.selected = {
-                id: result.data[0].transient_account_id,
-                name: result.data[0].transient_account_name,
-                code: result.data[0].transient_account_code
+            $scope.data.code = result.data[0].code;
+            $scope.data.name = result.data[0].name;
+            $scope.data.codename = result.data[0].short_name;
+            $scope.data.description = result.data[0].description;
+            $scope.data.percentfee = result.data[0].percent_fee;
+            $scope.selected.bank_account.selected = {
+                id: result.data[0].bank_account_id,
+                name: result.data[0].bank_account_name,
+                code: result.data[0].bank_account_code
             }
-            $scope.selected.gain_loss_curr_account.selected = {
-                id: result.data[0].gain_loss_curr_account_id,
-                name: result.data[0].gain_loss_curr_account_name,
-                code: result.data[0].gain_loss_curr_account_code
+            $scope.selected.ar_account.selected = {
+                id: result.data[0].ar_account_id,
+                name: result.data[0].ar_account_name,
+                code: result.data[0].ar_account_code
+            }
+            $scope.selected.fee_account.selected = {
+                id: result.data[0].fee_account_id,
+                name: result.data[0].fee_account_name,
+                code: result.data[0].fee_account_code
             }
         })
     };
@@ -289,11 +331,12 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
         $scope.data.id = obj.id;
         queryService.get(trim(qstring + 'AND a.id=' + obj.id), undefined)
         .then(function (result) {
+            $scope.data.name = '"' + result.data[0].code + ' : ' + result.data[0].name + '"';
             $('#modalDelete').modal('show')
         })
     };
     $scope.execDelete = function () {
-        queryService.post('update ref_ar_config SET status=\'2\', ' +
+        queryService.post('update mst_credit_card SET status=\'2\', ' +
             ' modified_by=' + $localStorage.currentUser.name.id + ', ' +
             ' modified_date=\'' + globalFunction.currentDate() + '\' ' +
             ' WHERE id=' + $scope.data.id, undefined)
@@ -317,7 +360,15 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
     $scope.clear = function () {
         $scope.data = {
             id: '',
-            status: ''
+            name: '',
+            code: '',
+            codename: '',
+            description: '',
+            status: '',
+            percentfee: '',
+            bank_account: null,
+            ar_account: null,
+            fee_account: null
         }
     };
 })
