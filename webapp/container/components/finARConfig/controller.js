@@ -53,7 +53,7 @@ angular.module('app', []).controller('FinARConfigCtrl', function ($scope, $state
     });
 
     $scope.focusinControl = {};
-    $scope.fileName = "Customer Type Reference";
+    $scope.fileName = "Account Receivable Config";
     $scope.exportExcel = function () {
         queryService.post(trim(`
             select
