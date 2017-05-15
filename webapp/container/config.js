@@ -2820,9 +2820,9 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
         })
 		.state("app.fin.ARCC", {
             url: "/finARCC",
-            templateUrl: "container/components/finARCustomerType/view.html",
+            templateUrl: "container/components/finARCreditCard/view.html",
             params: {'currentPeriod': null},
-            controller: "FinCustomerTypeCtrl",
+            controller: "FinARCreditCardCtrl",
             resolve: {
                 deps: ["$ocLazyLoad", function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
@@ -2836,7 +2836,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                         insertBefore: "#lazyload_placeholder"
                     })
                     .then(function () {
-                        return $ocLazyLoad.load("container/components/finARCustomerType/controller.js");
+                        return $ocLazyLoad.load("container/components/finARCreditCard/controller.js");
                     });
                 }]
             }
@@ -2866,9 +2866,9 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
         })
 		.state("app.fin.ARConfig", {
             url: "/finARConfig",
-            templateUrl: "container/components/finARCustomerType/view.html",
+            templateUrl: "container/components/finARConfig/view.html",
             params: {'currentPeriod': null},
-            controller: "FinCustomerTypeCtrl",
+            controller: "FinARConfigCtrl",
             resolve: {
                 deps: ["$ocLazyLoad", function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
@@ -2882,7 +2882,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                         insertBefore: "#lazyload_placeholder"
                     })
                     .then(function () {
-                        return $ocLazyLoad.load("container/components/finARCustomerType/controller.js");
+                        return $ocLazyLoad.load("container/components/finARConfig/controller.js");
                     });
                 }]
             }
