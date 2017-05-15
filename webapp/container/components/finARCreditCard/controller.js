@@ -60,7 +60,6 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
     });
     queryService.get(`select id, code, name, short_name from mst_cash_bank_account where status = '1'`, undefined)
     .then(function (data) {
-        console.log(arguments)
         $scope.mst_cash_bank_accounts = data.data
     });
 
