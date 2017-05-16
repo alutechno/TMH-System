@@ -54,11 +54,12 @@ userController
     $scope.focusinControl = {};
     $scope.fileName = "Revenue Group Reference";
     $scope.exportExcel = function () {
-        queryService.post('select code,name,short_name,description,status_name from(' + qstring + qwhere + ')aa order by code', undefined)
+        queryService.post('select code,name,account_code,short_name,description,status_name' +
+            ' from(' + qstring + qwhere + ')aa order by code', undefined)
         .then(function (data) {
             $scope.exportData = [];
             //Header
-            $scope.exportData.push(["Code", "Name", 'Short Name', 'Description', 'Status']);
+            $scope.exportData.push(["Code", "Name", "Account ID", 'Short Name', 'Description', 'Status']);
             //Data
             for (var i = 0; i < data.data.length; i++) {
                 var arr = []
@@ -137,7 +138,7 @@ userController
         DTColumnBuilder.newColumn('account_id').withTitle('Account ID')
         .renderWith(function (i, type, data, prop) {
             if (data.account_id) {
-                return `${data.account_code} : ${data.account_name}`
+                return `${data.account_code} - ${data.account_name}`
             }
             return ''
         }).withOption('width', '250px'),
