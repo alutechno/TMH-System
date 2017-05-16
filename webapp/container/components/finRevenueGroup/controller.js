@@ -1,6 +1,6 @@
 var userController = angular.module('app', []);
 userController
-.controller('FoRevenueGroupCtrl', function ($scope, $state, $sce, queryService, departmentService,
+.controller('FinRevenueGroupCtrl', function ($scope, $state, $sce, queryService, departmentService,
     accountTypeService, DTOptionsBuilder,
     DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction, API_URL
 ) {

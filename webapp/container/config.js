@@ -2078,7 +2078,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
         .state("app.fin.revenueGroup", {
             url: "/finRevenueGroup",
             templateUrl: "container/components/finRevenueGroup/view.html",
-            controller: "FoRevenueGroupCtrl",
+            controller: "FinRevenueGroupCtrl",
             resolve: {
                 deps: ["$ocLazyLoad", function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
