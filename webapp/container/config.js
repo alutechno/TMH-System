@@ -1298,28 +1298,6 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
-        .state("app.fo.revenueGroup", {
-            url: "/foRevenueGroup",
-            templateUrl: "container/components/foRevenueGroup/view.html",
-            controller: "FoRevenueGroupCtrl",
-            resolve: {
-                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
-                    return $ocLazyLoad.load([
-                        "dataTables",
-                        "select",
-                        "datepicker",
-                        "daterangepicker",
-                        "tagsInput",
-                        "autonumeric"
-                    ], {
-                        insertBefore: "#lazyload_placeholder"
-                    })
-                    .then(function () {
-                        return $ocLazyLoad.load("container/components/foRevenueGroup/controller.js");
-                    });
-                }]
-            }
-        })
         .state("app.fo.oTax", {
             url: "/foTax",
             templateUrl: "container/components/foTax/view.html",
@@ -2096,6 +2074,28 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
         .state('app.fin', {
             url: '/fin',
             template: '<div ui-view></div>'
+        })
+        .state("app.fin.revenueGroup", {
+            url: "/finRevenueGroup",
+            templateUrl: "container/components/finRevenueGroup/view.html",
+            controller: "FoRevenueGroupCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/finRevenueGroup/controller.js");
+                    });
+                }]
+            }
         })
         .state('app.fin.accType', {
             url: "/acctype",
