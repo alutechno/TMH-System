@@ -2,7 +2,7 @@ var trim = function (str) {
     return str.replace(/\t\t+|\n\n+|\s\s+/g, ' ').trim()
 };
 var toProperCase = function (str) {
-    return str.replace(/\w\S*/g, function(txt){
+    return str.replace(/\w\S*/g, function (txt) {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     });
 };
@@ -61,7 +61,7 @@ angular.module('app', []).controller('FinARCCBatchCtrl', function ($scope, $stat
         })
     };
 
-    $scope.filterVal = { search: '' };
+    $scope.filterVal = {search: ''};
     $scope.trustAsHtml = function (value) {
         return $sce.trustAsHtml(value);
     };
@@ -125,7 +125,7 @@ angular.module('app', []).controller('FinARCCBatchCtrl', function ($scope, $stat
         .renderWith($scope.actionsHtml).withOption('width', '10%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('code').withTitle('Code'),
+        DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '130px'),
         //DTColumnBuilder.newColumn('bank_account_id').withTitle('Account Bank ID'),
         //DTColumnBuilder.newColumn('outlet_type_id').withTitle('Outlet Type ID'),
         DTColumnBuilder.newColumn('transc_date').withTitle('Transaction Date')
@@ -178,40 +178,51 @@ angular.module('app', []).controller('FinARCCBatchCtrl', function ($scope, $stat
     /*END AD ServerSide*/
     $scope.openQuickView = function (state) {
         if (state == 'add') {
-            $scope.clear()
+            $scope.clear();
+            queryService.post(`select curr_document_no('CCB','${moment().format('YYYY/MM')}') code`)
+            .then(function (res) {
+                Object.assign($scope.data, res.data[0]);
+                $('#form-input').modal('show')
+            });
+        } else {
+            $('#form-input').modal('show')
         }
-        $('#form-input').modal('show')
     };
     $scope.submit = function () {
         var param = Object.assign({}, $scope.data);
         param.status = 1;
         if (!$scope.data.id) {
-            param.created_date = globalFunction.currentDate();
-            param.created_by = $localStorage.currentUser.name.id;
+            queryService.post(`select next_document_no('CCB','${moment().format('YYYY/MM')}') code`)
+            .then(function (res) {
+                Object.assign(param, res.data[0]);
+                param.created_date = globalFunction.currentDate();
+                param.created_by = $localStorage.currentUser.name.id;
+                queryService.post('insert into acc_ar_ccard_batch SET ?', param)
+                .then(
+                    function (result) {
+                        $('#form-input').modal('hide');
+                        $scope.dtInstance.reloadData();
+                        $('body').pgNotification({
+                            style: 'flip',
+                            message: 'Success Insert',
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'success'
+                        }).show();
+                        $scope.clear()
 
-            queryService.post('insert into acc_ar_ccard_batch SET ?', param)
-            .then(function (result) {
-                    $('#form-input').modal('hide');
-                    $scope.dtInstance.reloadData();
-                    $('body').pgNotification({
-                        style: 'flip',
-                        message: 'Success Insert',
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'success'
-                    }).show();
-                    $scope.clear()
-
-                },
-                function (err) {
-                    $('#form-input').pgNotification({
-                        style: 'flip',
-                        message: 'Error Insert: ' + err.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'danger'
-                    }).show();
-                })
+                    },
+                    function (err) {
+                        $('#form-input').pgNotification({
+                            style: 'flip',
+                            message: 'Error Insert: ' + err.code,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'danger'
+                        }).show();
+                    }
+                )
+            });
 
         } else { //exec update
             param.modified_date = globalFunction.currentDate();

@@ -62,7 +62,15 @@
                                                      class="form-group form-group-default required"
                                                      ng-class="{ 'has-error' : !data.code }">
                                                     <label>Code</label>
-                                                    <input type="text" class="form-control" name="code" id="data_code" ng-model="data.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                                                    <input type="text"
+                                                           class="form-control" name="code" id="data_code"
+                                                           ng-model="data.code" ui-jq="popover"
+                                                           disabled
+                                                           data-container="body" data-placement="top"
+                                                           data-content="This field is required"
+                                                           data-trigger="manual"
+                                                           validate-attached-form-element
+                                                           required>
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
@@ -70,7 +78,7 @@
                                                      class="form-group form-group-default required"
                                                      ng-class="{ 'has-error' : !data.transc_date }">
                                                     <label for="data_transc_date">Transaction
-                                                    Date</label>
+                                                        Date</label>
                                                     <input type="text" name="transc_date"
                                                            id="data_transc_date"
                                                            placeholder="Pick a date"
