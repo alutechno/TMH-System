@@ -3047,6 +3047,28 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
+        .state("app.inv.sumStockOnHand", {
+                url: "/invSumStockOnHand",
+                templateUrl: "container/components/invSumRptStockOnHand/view.html",
+                controller: "InvRptStockOnHand",
+                resolve: {
+                    deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                        return $ocLazyLoad.load([
+                            "dataTables",
+                            "select",
+                            "datepicker",
+                            "daterangepicker",
+                            "tagsInput",
+                            "autonumeric"
+                        ], {
+                            insertBefore: "#lazyload_placeholder"
+                        })
+                        .then(function () {
+                            return $ocLazyLoad.load("container/components/invSumRptStockOnHand/controller.js");
+                        });
+                    }]
+                }
+            })
 
         // Extra - Others
         .state('access', {
