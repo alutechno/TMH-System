@@ -3050,7 +3050,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
         .state("app.inv.sumStockOnHand", {
                 url: "/invSumStockOnHand",
                 templateUrl: "container/components/invSumRptStockOnHand/view.html",
-                controller: "InvRptStockOnHand",
+                controller: "InvSumRptStockOnHand",
                 resolve: {
                     deps: ["$ocLazyLoad", function ($ocLazyLoad) {
                         return $ocLazyLoad.load([
