@@ -13,7 +13,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstring = 'select a.id,b.name warehouse,a.product_id,c.name product,format(a.stock_qty,0)stock_qty,d.name stock_unit,format(a.stock_qty_l,0)stock_qty_l,e.name lowest_stock_unit,format(a.stock_qty_l*c.price_per_lowest_unit,0) amount '+
+    var qstring = 'select a.id,b.name warehouse,a.product_id,c.name product,format(a.stock_qty,2)stock_qty,d.name stock_unit,format(a.stock_qty_l,2)stock_qty_l,e.name lowest_stock_unit,format(a.stock_qty_l*c.price_per_lowest_unit,2) amount '+
         'from inv_warehouse_stock a,mst_warehouse b, mst_product c,ref_product_unit d,ref_product_unit e '+
         'where a.warehouse_id=b.id '+
         'and a.product_id=c.id '+
@@ -165,7 +165,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             var param = {
                 product_id:$scope.selected.product.selected.id,
                 warehouse_id:$scope.selected.warehouse.selected.id,
-                stock_qty:$scope.ws.stock_qty,
+                stock_qty:parseFloat($scope.ws.stock_qty),
                 stock_qty_l:$scope.ws.stock_qty*$scope.selected.product.selected.lowest_unit_conversion,
                 created_by: $localStorage.currentUser.name.id,
                 created_date: globalFunction.currentDate()

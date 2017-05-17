@@ -17,10 +17,26 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.trans = []
     $scope.transOri = []
     $scope.child = {}
-	$scope.cr = {}
-	var qstring = 'select * from acc_ar_cash_receipt '
+	$scope.cr = {
+		id: '',
+		invoice_id:'',
+		receipt_date:'',
+		receipt_notes:'',
+		receipt_amount:'',
+		receipt_status:''
+	}
+	$scope.selected = {
+        receipt_status: {}
+	}
+	var qstring = 'select a.*,b.name receipt_status_name from acc_ar_cash_receipt a,(select value as id,name from table_ref where table_name='acc_ar_cash_receipt') b
+where a.receipt_status=b.id '
 	var qwhere = ''
 	var qstringt='select * from acc_ar_receipt_line_item '
+
+	$scope.receipt_status = []
+	queryService.get(`select value id, value,name from table_ref where table_name='acc_ar_cash_receipt' order by value`,undefined)
+	.then(function(data){
+	})
 
 	$scope.dtInstance = {}
     $scope.actionsHtml = function(data, type, full, meta) {
@@ -77,7 +93,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('id').withTitle('id').withOption('width', '5%'),
         DTColumnBuilder.newColumn('invoice_id').withTitle('Invoice ID').withOption('width', '15%'),
-        DTColumnBuilder.newColumn('status').withTitle('Status').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('receipt_status_name').withTitle('Status').withOption('width', '10%'),
 		DTColumnBuilder.newColumn('created_by').withTitle('Created By').withOption('width', '10%'),
 		DTColumnBuilder.newColumn('created_date').withTitle('Created Date').withOption('width', '10%')
     );
@@ -85,7 +101,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere = ' where invoice_id like "%'+$scope.filterVal.search+'%"'
+                if ($scope.filterVal.search.length>0) qwhere = ' and invoice_id like "%'+$scope.filterVal.search+'%"'
                 else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
@@ -104,13 +120,101 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             $scope.clear()
         }
         $('#form-input').modal('show')
-        $scope.viewMode = false
-        $scope.addDetail(0)
+		var dt = new Date()
+		$scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        queryService.post('select curr_document_no(\'AR\',\''+$scope.ym+'\') as code',undefined)
+        .then(function(data){
+            $scope.cr.invoice_id = data.data[0].code
+        })
+        //$scope.viewMode = false
+        //$scope.addDetail(0)
     }
 	$scope.submit = function(){
-		if ($scope.sr.id.length==0){
+		if ($scope.cr.id.length==0){
+			queryService.post('select next_document_no(\'AR\',\''+$scope.ym+'\') as code',undefined)
+			.then(function(data){
+				$scope.cr.invoice_id = data.data[0].code
+			})
+            var param = {
+				invoice_id:$scope.cr.invoice_id,
+				receipt_date:$scope.cr.receipt_date,
+				receipt_notes:$scope.cr.receipt_notes,
+				receipt_amount:$scope.cr.receipt_amount,
+				receipt_status:$scope.selected.receipt_status.selected.id
+			}
+            queryService.post('insert into acc_ar_cash_receipt set ?',param)
+            .then(function (result){
+				var qstr = $scope.child.saveTable(result.data.insertId)
+				if(qstr.length>0){
+					queryService.post(qstr.join(';'),undefined)
+	                .then(function (result2){
+	                    $('#form-input').modal('hide')
+	                    $scope.dtInstance.reloadData(function(obj){}, false)
+	                    $('body').pgNotification({
+	                        style: 'flip',
+	                        message: 'Success Insert '+$scope.cr.invoice_id,
+	                        position: 'top-right',
+	                        timeout: 2000,
+	                        type: 'success'
+	                    }).show();
+	                },
+	                function (err2){
+	                    console.log(err2)
+	                })
+				}else{
+					$('#form-input').modal('hide')
+					$scope.dtInstance.reloadData(function(obj){}, false)
+					$('body').pgNotification({
+						style: 'flip',
+						message: 'Success Insert '+$scope.cr.invoice_id,
+						position: 'top-right',
+						timeout: 2000,
+						type: 'success'
+					}).show();
+				}
+            },
+            function (err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert: '+err.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
 		}else{
-
+			var param = {
+				invoice_id:$scope.cr.invoice_id,
+				receipt_date:$scope.cr.receipt_date,
+				receipt_notes:$scope.cr.receipt_notes,
+				receipt_amount:$scope.cr.receipt_amount,
+				receipt_status:$scope.selected.receipt_status.selected.id
+			}
+            queryService.post('update acc_ar_cash_receipt set ? where id='+$scope.cr.id,param)
+			var qstr = $scope.child.saveTable()
+			if(qstr.length>0){
+				queryService.post(qstr.join(';'),undefined)
+				.then(function (result2){
+					$('#form-input').modal('hide')
+					$scope.dtInstance.reloadData(function(obj){}, false)
+					$('body').pgNotification({
+						style: 'flip',
+						message: 'Success Insert '+$scope.cr.invoice_id,
+						position: 'top-right',
+						timeout: 2000,
+						type: 'success'
+					}).show();
+				},
+				function (err){
+					$('#form-input').pgNotification({
+	                    style: 'flip',
+	                    message: 'Error Insert: '+err.code,
+	                    position: 'top-right',
+	                    timeout: 2000,
+	                    type: 'danger'
+	                }).show();
+				})
+			}
 		}
 	}
 	$scope.update = function(ids){
@@ -174,16 +278,15 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             }
         };
 	}
-	$scope.child.saveTable = function(sr_id) {
+	$scope.child.saveTable = function(cr_id) {
         var results = [];
         var sqlitem = []
-        for (var i = $scope.items.length; i--;) {
+		sqlitem.push('START TRANSACTION')
+		for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
 			if (user.isNew && !user.isDeleted){
                 sqlitem.push('insert into inv_store_req_line_item(sr_id,product_id,request_qty,issued_qty,created_by,request_notes) values '+
-                    '( '+sr_id+', '+user.product_id+','+parseInt(user.request_qty)+', '+parseInt(user.issued_qty_n)+', '+$localStorage.currentUser.name.id+' ,"'+user.item_notes+'")')
-                //sqlitem.push('insert into inv_pr_line_item (pr_id,product_id,'+(user.supplier_id.length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date) values('+
-                //pr_id+','+user.product_id+','+(user.supplier_id.length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    '( '+cr_id+', '+user.product_id+','+parseInt(user.request_qty)+', '+parseInt(user.issued_qty_n)+', '+$localStorage.currentUser.name.id+' ,"'+user.item_notes+'")')
             }
             else if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from inv_store_req_line_item where id='+user.p_id)
@@ -201,6 +304,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 				}
 			}
 		}
+		sqlitem.push('COMMIT')
 		return sqlitem
 	}
 	$scope.trustAsHtml = function(value) {

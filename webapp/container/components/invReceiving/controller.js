@@ -168,7 +168,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     .then(function(data){
         $scope.warehouse = data.data
     })
-    queryService.get('select value as id,name from table_ref where table_name = \'inv_po_receive\' and column_name = \'received_status\' order by id',undefined)
+    queryService.get('select value as id,name from table_ref where table_name = \'inv_po_receive\' and column_name = \'received_status\' order by value ',undefined)
     .then(function(data){
         $scope.delivery_status_all = data.data
         $scope.selected.delivery_status['selected'] = $scope.delivery_status[0]
@@ -246,7 +246,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             $scope.itemsOri = angular.copy($scope.items)
         },
         function(err2){
-            console.log(err2)
+            //console.log(err2)
         })
     }
 
@@ -256,7 +256,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.nested = {};
     $scope.nested.dtInstance = {}
     $scope.actionsHtml = function(data, type, full, meta) {
-        var html = ''
+		var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
@@ -266,8 +266,13 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(\'' + data + '\')" )"="">' +
+                html+='<button class="btn btn-default" ng-click="delete(\'' + data + '\')">' +
                 '   <i class="fa fa-trash-o"></i>' +
+                '</button>';
+            }
+			if (full.receive_status_name=='Partially Delivered' && (full.status_id==2||full.status_id==1)){
+                html+='<button class="btn btn-default" ng-click="update(\'' + data + '\',1)">' +
+                '   <i class="fa fa-plus"></i>' +
                 '</button>';
             }
             html += '</div>'
@@ -279,7 +284,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $compile(angular.element(row).contents())($scope);
     }
     $scope.sums = 0
-
     $scope.dtOptions = DTOptionsBuilder.newOptions()
     .withOption('ajax', {
         url: API_URL+'/apisql/datatable',
@@ -342,7 +346,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 if ($scope.filterVal.search.length>0) qwhere = ' where z.code like \'%'+$scope.filterVal.search+'%\' '
                 else qwhere = ''
                 $scope.nested.dtInstance.reloadData(function(obj){
-                    console.log(obj)
+                    //console.log(obj)
                 }, false)
             }
         }
@@ -352,6 +356,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.updateState = false
         if (state == 'add'){
             $scope.clear()
+			$scope.apply()
         }
         $scope.finalState = false;
         $('#form-input').modal('show')
@@ -366,9 +371,33 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }
 
     $scope.submit = function(){
-        if ($scope.po.id.length==0 ){
-            queryService.post('CALL `po-receive`('+$scope.selected.po.selected.id+','+$localStorage.currentUser.name.id+')', undefined)
-            .then(function (result2){
+		if ($scope.po.id.length==0 ){
+			var param={
+				code:$scope.po.code,
+				po_id:$scope.po.po_id,
+				receive_date: globalFunction.currentDate(),
+				receive_notes:$scope.po.notes,
+				received_status:0,
+				currency_id:$scope.po.currency_id,
+				home_currency_exchange:$scope.po.home_currency_exchange,
+				total_amount:$scope.po.total_amount,
+				inv_no:$scope.po.inv_no,
+				faktur_no:$scope.po.faktur_no,
+				created_by:$localStorage.currentUser.name.id
+			}
+			var sql=`start transaction;
+			insert into inv_po_receive (code,po_id,receive_date,receive_notes,received_status,currency_id,home_currency_exchange,total_amount,inv_no,faktur_no,created_by)
+			values('`+$scope.po.code+`',`+$scope.po.po_id+`,'`+$scope.po.delivery_date+`','`+$scope.po.notes+`',0,`+$scope.po.currency_id+`,`+$scope.po.home_currency_exchange+`
+				,`+$scope.po.TotalSum+`,`+$scope.po.inv_no+`,`+$scope.po.faktur_no+`,`+$localStorage.currentUser.name.id+`);
+			set @id=(select last_insert_id());`
+			for (var i = $scope.items.length; i--;) {
+				var user = $scope.items[i];
+				sql+='insert into inv_receive_line_item (item_id,receive_id,product_id,received_qty,received_price,total_amount,created_by,order_notes) values('+user.item_id+',@id,'+user.product_id+','+user.rcv_qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+',"'+user.order_notes+'");'
+			}
+			sql+='commit;'
+			console.log(sql)
+			queryService.post(sql,param)
+			.then(function (result2){
                 $('#form-input').modal('hide')
                 $scope.nested.dtInstance.reloadData(function(obj){
                 }, false)
@@ -379,6 +408,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     timeout: 2000,
                     type: 'success'
                 }).show();
+				$scope.clear();
             },
             function(err2){
                 $('#form-input').pgNotification({
@@ -404,39 +434,37 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             queryService.post('update inv_po_receive set ? where id='+$scope.po.id,param)
             .then(function (result){
                 result.data['insertId'] = $scope.po.id
-				//if ($scope.selected.delivery_status.selected.id == 1 || $scope.selected.delivery_status.selected.id == 3||$scope.selected.delivery_status.selected.id == 4){
-                //if ($scope.selected.delivery_status.selected.id == 3){
-                    var q = $scope.child.saveTable($scope.po.id)
+				    var q = $scope.child.saveTable($scope.po.id)
 					queryService.post(q.join(';'), undefined)
                     .then(function (result2){
-						$('#form-input').modal('hide')
-                        $scope.nested.dtInstance.reloadData(function(obj){
-                        }, false)
-                        $('body').pgNotification({
-                            style: 'flip',
-                            message: 'Success Insert RR '+$scope.po.code,
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'success'
-                        }).show();
-
-                        queryService.post('select a.order_notes,po_id,sum(order_qty)order_qty,sum(received_qty)received_qty,sum(order_qty-received_qty)delta from( '+
+                        queryService.post('select po_id,sum(order_qty)order_qty,sum(received_qty)received_qty,sum(order_qty-received_qty)delta from( '+
                         	  'select a.id,a.po_id,a.product_id,a.order_qty,a.price,a.amount,b.item_id,ifnull(b.received_qty,0)received_qty,ifnull(b.received_price,0)received_price '+
                         	  'from inv_po_line_item a '+
                         	  'left join (select item_id,sum(received_qty)received_qty,sum(received_price)received_price from inv_receive_line_item group by item_id) b on a.id=b.item_id '+
                               'where a.po_id='+$scope.po.po_id+
                           ')a group by po_id',undefined)
                         .then(function(data){
-                            var paramPo = {
+							var paramPo = {
                                 receive_status: null
                             }
                             if (data.data[0].delta==0){
-                                paramPo.receive_status = 4
+                                paramPo.receive_status = 3
                             }
-                            else paramPo.receive_status = 3
+                            else paramPo.receive_status = 4
                             queryService.post('update inv_purchase_order SET ? where id='+$scope.po.po_id,paramPo)
                             .then(function(result9){
+								console.log(result9)
                                 $scope.clear();
+								$('#form-input').modal('hide')
+		                        $scope.nested.dtInstance.reloadData(function(obj){
+		                        }, false)
+		                        $('body').pgNotification({
+		                            style: 'flip',
+		                            message: 'Success Insert RR '+$scope.po.code,
+		                            position: 'top-right',
+		                            timeout: 2000,
+		                            type: 'success'
+		                        }).show();
                         	})
                         })
                     },
@@ -449,25 +477,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                             type: 'danger'
                         }).show();
                     })
-                /*}
-                else {
-                    $('#form-input').modal('hide')
-                    $('body').pgNotification({
-                        style: 'flip',
-                        message: 'Success Insert RR '+$scope.po.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'success'
-                    }).show();
-                    $scope.clear();
-                }*/
 
                 var queryState = ''
                 var paramState = []
                 var paramPr = {}
             },
             function (err){
-                console.log(err)
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Update: '+err.code,
@@ -516,7 +531,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             $scope.productUp = function(text) {
                 queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
                 .then(function(data){
-                    console.log(data)
                     $scope.products = data.data
                 })
             }
@@ -634,20 +648,14 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         })
     }
 
-    $scope.update = function(ids){
+    $scope.update = function(ids,flag){
         $scope.updateState = true;
         $('#form-input').modal('show');
-        $scope.po.id = ids
-
         queryService.post(qstring+' where z.id='+ids,undefined)
         .then(function (result){
-            /*if (result.data[0].status_id == 0){
-                $scope.finalState = false
-            }
-            else*/ $scope.finalState = true
-
+			$scope.finalState = true
             $scope.po = result.data[0]
-            $scope.po.delivery_date = result.data[0].receive_date
+			$scope.po.delivery_date = result.data[0].receive_date
             $scope.po.notes = result.data[0].receive_notes
             $scope.selected.po['selected'] = {
                 id: result.data[0].po_id,
@@ -671,18 +679,27 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     name:result.data[0].cost_center_name
                 }
             }
-			if(result.data[0].status_id==1){
+			if(result.data[0].status_id==1 && flag==undefined){
 				$scope.delivery_status = [$scope.delivery_status_all[1],$scope.delivery_status_all[2]]
-			}else if(result.data[0].status_id==2){
-				$scope.delivery_status = [$scope.delivery_status_all[0],$scope.delivery_status_all[2]]
+			}else if(result.data[0].status_id==2 && flag==undefined){
+				$scope.flag=true;
+				$scope.delivery_status=[{id:result.data[0].status_id,name:result.data[0].status_name}]
+			}else if(result.data[0].status_id==3 && flag==undefined){
+				$scope.delivery_status=[{id:result.data[0].status_id,name:result.data[0].status_name}]
+			}else{
+				$scope.delivery_status = [$scope.delivery_status_all[0],$scope.delivery_status_all[1]]
 			}
-            $scope.selected.delivery_status = {
-                selected: {
-                    id:result.data[0].status_id,
-                    name:result.data[0].status_name
-                }
-            }
-            $scope.selected.supplier = {
+			if(flag==undefined ){
+	            $scope.selected.delivery_status = {
+	                selected: {
+	                    id:result.data[0].status_id,
+	                    name:result.data[0].status_name
+	                }
+	            }
+			}else{
+				$scope.selected.delivery_status.selected=$scope.delivery_status[0]
+			}
+			$scope.selected.supplier = {
                 selected: {
                     id:result.data[0].supplier_id,
                     name:result.data[0].supplier_name
@@ -703,7 +720,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         qty: result2.data[i].order_qty,
 						order_notes: result2.data[i].order_notes,
                         remaining_qty: (result2.data[i].order_qty - result2.data[i].received_qty),
-                        rcv_qty: result2.data[i].received_qty,
+                        rcv_qty: flag==undefined?result2.data[i].received_qty:0,
                         price: result2.data[i].price,
                         rcv_price: result2.data[i].received_price,
 						rcv_price_dis: result2.data[i].received_price,
@@ -715,13 +732,23 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     })
                 }
                 $scope.itemsOri = angular.copy($scope.items)
+				var date = new Date()
+				if(flag!=undefined){
+					$scope.po.id=''
+					$scope.po.delivery_date = date.getFullYear()+'-'+((date.getMonth() + 1)>9?(date.getMonth() + 1):'0'+(date.getMonth() + 1) )+ '-' + (date.getDate()>9?date.getDate():'0'+date.getDate())
+					$scope.ym = date.getFullYear() + '/' + (date.getMonth()<9?'0':'') + (date.getMonth()+1)
+					queryService.post('select curr_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
+					.then(function(data){
+						console.log(data)
+						$scope.po.code = data.data[0].code
+					})
+				}
             },
             function(err2){
-                console.log(err2)
+                //console.log(err2)
             })
         },
         function (err){
-            console.log(err)
             $('#form-input').pgNotification({
                 style: 'flip',
                 message: 'Error Insert: '+err.code,
@@ -737,12 +764,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         var qstring = 'select id, code from inv_po_receive where id='+ids
         queryService.post(qstring,undefined)
         .then(function (result){
-            console.log(result)
             $scope.po = result.data[0]
             $('#modalDelete').modal('show')
         },
         function (err){
-            console.log(err)
             $('#form-input').pgNotification({
                 style: 'flip',
                 message: 'Error Display: '+err.code,
@@ -755,13 +780,13 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
     $scope.execDelete = function(){
         var param = [{
-            received_status: 2
+            received_status: 3
         },$scope.po.id]
         queryService.post('update inv_po_receive set ? where id=?',param)
         .then(function (result){
             $('#modalDelete').modal('hide')
             $scope.nested.dtInstance.reloadData(function(obj){
-                console.log(obj)
+                //console.log(obj)
             }, false)
             $('body').pgNotification({
                 style: 'flip',
@@ -798,6 +823,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             receive_status: '',
 
         }
+		$scope.flag=false;
         $scope.items = []
         $scope.itemsOri = []
         $scope.selected = {
@@ -832,9 +858,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     };
 
     $scope.checkName = function(data, id) {
-        console.log('checkName')
-        console.log(data)
-        console.log(id)
         if (id === 2 && data !== 'awesome') {
             return "Username 2 should be `awesome`";
         }
@@ -845,7 +868,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     };
 
     $scope.deleteUser = function(id) {
-        console.log(id)
         var filtered = $filter('filter')($scope.items, {id: id});
         if (filtered.length) {
             filtered[0].isDeleted = true;
@@ -890,11 +912,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         var sqlitem = []
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
-            if (user.isNew && !user.isDeleted){
-                sqlitem.push('insert into inv_receive_line_item (receive_id,product_id,order_qty,price,amount,created_by,created_date,order_notes) values('+
-                pr_id+','+user.product_id+','+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
-            }
-            else if(!user.isNew && user.isDeleted){
+            if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from inv_po_line_item where id='+user.p_id)
             }
             else if(!user.isNew){
@@ -914,6 +932,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                             ' modified_by = '+$localStorage.currentUser.name.id+',' +
                             ' modified_date = \''+globalFunction.currentDate()+'\'' +
                             ' where id='+user.p_id)
+						}
+						if($scope.selected.delivery_status.id==2){
                             if ($scope.selected.warehouse.selected){
                                 sqlitem.push('INSERT INTO inv_warehouse_stock(warehouse_id,product_id,stock_qty,stock_qty_l,last_order_date,last_order_qty,last_order_supplier_id)'+
                                 'values('+$scope.selected.warehouse.selected.id+','+user.product_id+',stock_qty+'+user.qty+',stock_qty_l+'+(user.rcv_qty*user.lowest_unit_conversion)+','+
@@ -975,10 +995,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 }
             }
         }
-        sqlitem.push('insert into acc_ap_voucher(code,source,receive_id,supplier_id,currency_id,total_amount,home_total_amount,status,open_date,created_by,inv_no,faktur_no)'+
-        'values(\''+$scope.po.code+'\',\'RR\','+pr_id+','+$scope.selected.supplier.selected.id+','+$scope.po.currency_id+','+amt+
-        ','+($scope.po.home_currency_exchange*amt)+',0,\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+',"'+$scope.po.inv_no+'","'+$scope.po.faktur_no+'")'
-        )
+		if($scope.selected.delivery_status.id==2){
+	        sqlitem.push('insert into acc_ap_voucher(code,source,receive_id,supplier_id,currency_id,total_amount,home_total_amount,status,open_date,created_by,inv_no,faktur_no)'+
+	        'values(\''+$scope.po.code+'\',\'RR\','+pr_id+','+$scope.selected.supplier.selected.id+','+$scope.po.currency_id+','+amt+
+	        ','+($scope.po.home_currency_exchange*amt)+',0,\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+',"'+$scope.po.inv_no+'","'+$scope.po.faktur_no+'")'
+	        )
+		}
         return sqlitem
     };
     $scope.trustAsHtml = function(value) {

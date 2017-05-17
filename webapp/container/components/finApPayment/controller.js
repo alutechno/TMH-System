@@ -1,4 +1,3 @@
-
 var userController = angular.module('app', []);
 userController
 .controller('FinApPaymentCtrl',

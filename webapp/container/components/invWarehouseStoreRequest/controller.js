@@ -106,7 +106,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             $scope.issued_status.push(data.data[2])
             $scope.issued_status.push(data.data[3])
         }
-        //$scope.issued_status = data.data
         $scope.selected.issued_status['selected'] = $scope.issued_status[0]
     })
 
@@ -234,7 +233,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             queryService.post('insert into inv_store_request set ?',param)
             .then(function (result){
 				var qstr = $scope.child.saveTable(result.data.insertId)
-				console.log(qstr)
 				if(qstr.length>0){
 					queryService.post(qstr.join(';'),undefined)
 	                .then(function (result2){
