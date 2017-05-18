@@ -344,6 +344,12 @@
                           <input type="text" class="form-control" name="name" ng-model="ap.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-readonly="true">
                       </div>
                   </div>
+				  <div class="col-sm-4">
+					  <div pg-form-group class="form-group form-group-default " >
+                          <label>Faktur no</label>
+                          <input type="text" class="form-control" name="notes" ng-model="ap.faktur_no" >
+                      </div>
+                  </div>
 
                   <div class="col-sm-4" >
                       <div pg-form-group ng-show="!isReceiving" class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.source_no.$invalid && !ap.source_no.$pristine }">

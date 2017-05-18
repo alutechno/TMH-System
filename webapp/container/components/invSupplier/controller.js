@@ -16,7 +16,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
     var qstring = 'select a.id,a.code,a.name,a.short_name,a.description,a.address,a.contact_person,a.phone_number,a.fax_number,a.def_payment_type,a.def_due_days,a.status, '+
     	'a.country_id,b.name as country_name,a.prov_id,c.name as prov_name,a.kab_id,d.name as kab_name, '+
         'a.kec_id,e.name as kec_name, a.kel_id,f.name as kel_name, a.used_currency, g.code as used_currency_code, '+
-        'a.supplier_type_id,h.name as supplier_type_name,i.name as status_name '+
+        'a.supplier_type_id,h.name as supplier_type_name,i.name as status_name,a.bank1_name,a.bank1_currency_id,a.bank1_account_no,a.bank1_account_owner,a.bank1_address,a.bank2_name,a.bank2_currency_id,a.bank2_account_no,a.bank2_account_owner,a.bank2_address '+
     'from mst_supplier a '+
     'left join ref_country b on a.country_id=b.id '+
     'left join ref_province c on a.prov_id=c.id '+
@@ -73,7 +73,9 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
         kel_id: {selected:{}},
         supplier_type: {selected:{}},
         status: {selected:$scope.arr.status[1]},
-        used_currency: {selected:{}}
+        used_currency: {selected:{}},
+		bank_used_currency:{selected:{}},
+		bank_used_currency2:{selected:{}}
     }
 
     $scope.arr.status = []
@@ -93,7 +95,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
         $scope.selected.used_currency['selected'] = data.data[0]
     })
 
-    queryService.get('select id,name from ref_supplier_type order by name',undefined)
+    queryService.get('select id,name,code from ref_supplier_type order by name',undefined)
     .then(function(data){
         $scope.arr.supplier_type = data.data
     })
@@ -208,57 +210,65 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
         if (state == 'add'){
             $scope.clear()
         }
-        $('#form-input').modal('show')
+		$('#form-input').modal('show')
     }
 
     $scope.submit = function(){
         if ($scope.supplier.id.length==0){
-            //exec creation
             $scope.supplier.status = $scope.selected.status.selected.id;
             $scope.supplier.country_id = $scope.selected.country_id.selected?$scope.selected.country_id.selected.id:null;
-            $scope.supplier.prov_id = $scope.selected.prov_id.selected?$scope.selected.prov_id.selected.id:null;
-            $scope.supplier.kab_id = $scope.selected.kab_id.selected?$scope.selected.kab_id.selected.id:null;
-            $scope.supplier.kec_id = $scope.selected.kec_id.selected?$scope.selected.kec_id.selected.id:null;
-            $scope.supplier.kel_id = $scope.selected.kel_id.selected?$scope.selected.kel_id.selected.id:null;
+            //$scope.supplier.prov_id = $scope.selected.prov_id.selected?$scope.selected.prov_id.selected.id:null;
+            //$scope.supplier.kab_id = $scope.selected.kab_id.selected?$scope.selected.kab_id.selected.id:null;
+            //$scope.supplier.kec_id = $scope.selected.kec_id.selected?$scope.selected.kec_id.selected.id:null;
+            //$scope.supplier.kel_id = $scope.selected.kel_id.selected?$scope.selected.kel_id.selected.id:null;
+			$scope.supplier.prov_id = $scope.selected.prov_id.selected?$scope.selected.prov_id.selected.id:null;
             $scope.supplier.used_currency = $scope.selected.used_currency.selected?$scope.selected.used_currency.selected.code:null;
             $scope.supplier.supplier_type_id = $scope.selected.supplier_type.selected?$scope.selected.supplier_type.selected.id:null;
-            $scope.supplier['created_by'] = $localStorage.currentUser.name.id;
+			$scope.supplier.bank1_currency_id = $scope.selected.bank_used_currency.selected?$scope.selected.bank_used_currency.selected.id:null;
+			$scope.supplier.bank2_currency_id = $scope.selected.bank_used_currency2.selected?$scope.selected.bank_used_currency2.selected.id:null;
+			$scope.supplier['created_by'] = $localStorage.currentUser.name.id;
             $scope.supplier['created_date'] = globalFunction.currentDate();
-            queryService.post('insert into mst_supplier SET ?',$scope.supplier)
-            .then(function (result){
-                    $('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){
-                        // console.log(obj)
-                    }, false)
-                    $scope.clear()
-                    $('body').pgNotification({
-                        style: 'flip',
-                        message: 'Success Insert '+$scope.supplier.short_name,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'success'
-                    }).show();
-            },
-            function (err){
-                $('#form-input').pgNotification({
-                    style: 'flip',
-                    message: 'Error Insert: '+err.code,
-                    position: 'top-right',
-                    timeout: 2000,
-                    type: 'danger'
-                }).show();
-            })
+			queryService.post('select next_product_code(\''+$scope.selected.supplier_type.selected.code+'\') as code',undefined)
+			.then(function(data){
+	            $scope.supplier.code = data.data[0].code
+		        queryService.post('insert into mst_supplier SET ?',$scope.supplier)
+	            .then(function (result){
+	                    $('#form-input').modal('hide')
+	                    $scope.dtInstance.reloadData(function(obj){
+	                        // console.log(obj)
+	                    }, false)
+	                    $scope.clear()
+	                    $('body').pgNotification({
+	                        style: 'flip',
+	                        message: 'Success Insert '+$scope.supplier.short_name,
+	                        position: 'top-right',
+	                        timeout: 2000,
+	                        type: 'success'
+	                    }).show();
+	            },
+	            function (err){
+	                $('#form-input').pgNotification({
+	                    style: 'flip',
+	                    message: 'Error Insert: '+err.code,
+	                    position: 'top-right',
+	                    timeout: 2000,
+	                    type: 'danger'
+	                }).show();
+	            })
+			})
         }
         else {
             //exec update
-            $scope.supplier.status = $scope.selected.status.selected.id;
+			$scope.supplier.status = $scope.selected.status.selected.id;
             $scope.supplier.country_id = $scope.selected.country_id.selected?$scope.selected.country_id.selected.id:null;
             $scope.supplier.prov_id = $scope.selected.prov_id.selected?$scope.selected.prov_id.selected.id:null;
-            $scope.supplier.kab_id = $scope.selected.kab_id.selected?$scope.selected.kab_id.selected.id:null;
-            $scope.supplier.kec_id = $scope.selected.kec_id.selected?$scope.selected.kec_id.selected.id:null;
-            $scope.supplier.kel_id = $scope.selected.kel_id.selected?$scope.selected.kel_id.selected.id:null;
+            //$scope.supplier.kab_id = $scope.selected.kab_id.selected?$scope.selected.kab_id.selected.id:null;
+            //$scope.supplier.kec_id = $scope.selected.kec_id.selected?$scope.selected.kec_id.selected.id:null;
+            //$scope.supplier.kel_id = $scope.selected.kel_id.selected?$scope.selected.kel_id.selected.id:null;
             $scope.supplier.used_currency = $scope.selected.used_currency.selected?$scope.selected.used_currency.selected.code:null;
             $scope.supplier.supplier_type_id = $scope.selected.supplier_type.selected?$scope.selected.supplier_type.selected.id:null;
+			$scope.supplier.bank1_currency_id = $scope.selected.bank_used_currency.selected?$scope.selected.bank_used_currency.selected.id:null;
+			$scope.supplier.bank2_currency_id = $scope.selected.bank_used_currency2.selected?$scope.selected.bank_used_currency2.selected.id:null;
             $scope.supplier['modified_by'] = $localStorage.currentUser.name.id;
             $scope.supplier['modified_date'] = globalFunction.currentDate();
             var param = $scope.supplier
@@ -311,9 +321,28 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
             $scope.supplier.kab_id = result.data[0].kab_id
             $scope.supplier.kec_id = result.data[0].kec_id
             $scope.supplier.kel_id = result.data[0].kel_id
+			$scope.supplier.bank1_name=result.data[0].bank1_name
+			$scope.supplier.bank1_account_no=result.data[0].bank1_account_no
+			$scope.supplier.bank1_account_owner=result.data[0].bank1_account_owner
+			$scope.supplier.bank1_address=result.data[0].bank2_address
+			$scope.supplier.bank2_name=result.data[0].bank2_name
+			$scope.supplier.bank2_account_no=result.data[0].bank2_account_no
+			$scope.supplier.bank2_account_owner=result.data[0].bank2_account_owner
+			$scope.supplier.bank2_address=result.data[0].bank2_address
             for (var i=0;i<$scope.arr.status.length;i++){
-                if (result.data[0].status == $scope.arr.status[i].code){
+                if (result.data[0].status == $scope.arr.status[i].id){
                     $scope.selected.status.selected = $scope.arr.status[i]
+                }
+            }
+			for (var i=0;i<$scope.arr.used_currency.length;i++){
+                if (result.data[0].bank1_currency_id == $scope.arr.used_currency[i].id){
+                    $scope.selected.bank_used_currency.selected = $scope.arr.used_currency[i]
+                }
+				if (result.data[0].bank2_currency_id == $scope.arr.used_currency[i].id){
+                    $scope.selected.bank_used_currency2.selected = $scope.arr.used_currency[i]
+                }
+				if (result.data[0].used_currency == $scope.arr.used_currency[i].id){
+                    $scope.selected.used_currency.selected = $scope.arr.used_currency[i]
                 }
             }
             for (var i=0;i<$scope.arr.supplier_type.length;i++){
@@ -321,12 +350,12 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
                     $scope.selected.supplier_type.selected = $scope.arr.supplier_type[i]
                 }
             }
-            for (var i = $scope.arr.country_id.length - 1; i >= 0; i--) {
+			for (var i = $scope.arr.country_id.length - 1; i >= 0; i--) {
                 if ($scope.arr.country_id[i].id == result.data[0].country_id){
                     $scope.selected.country_id.selected = {name: $scope.arr.country_id[i].name, id: $scope.arr.country_id[i].id}
                 }
             };
-            for (var i = $scope.arr.prov_id.length - 1; i >= 0; i--) {
+            /*for (var i = $scope.arr.prov_id.length - 1; i >= 0; i--) {
                 if ($scope.arr.prov_id[i].id == result.data[0].prov_id){
                     $scope.selected.prov_id.selected = {name: $scope.arr.prov_id[i].name, id: $scope.arr.prov_id[i].id}
                 }
@@ -345,7 +374,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
                 if ($scope.arr.kel_id[i].id == result.data[0].kel_id){
                     $scope.selected.kel_id.selected = {name: $scope.arr.kel_id[i].name, id: $scope.arr.kel_id[i].id}
                 }
-            };
+            };*/
         },function(err){
             $('body').pgNotification({
                 style: 'flip',
@@ -375,7 +404,6 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
         ' where id='+$scope.supplier.id,undefined)
         .then(function (result){
             if (result.status = "200"){
-                console.log('Success Delete')
                 $('#form-input').modal('hide')
                 $scope.clear()
                 $scope.dtInstance.reloadData(function(obj){
@@ -413,7 +441,9 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
             kel_id: {},
             supplier_type: {},
             status: {selected:$scope.arr.status[1]},
-            used_currency: {selected:$scope.arr.used_currency[0]}
+            used_currency: {selected:$scope.arr.used_currency[0]},
+			bank_used_currency:{selected:{}},
+			bank_used_currency2:{selected:{}}
         }
     }
 
@@ -444,4 +474,10 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
         })
     }
 
+	$scope.changeCode=function (){
+		queryService.post('select curr_product_code(\''+$scope.selected.supplier_type.selected.code+'\') as code',undefined)
+		.then(function(data){
+			$scope.supplier.code = data.data[0].code
+		})
+	}
 })

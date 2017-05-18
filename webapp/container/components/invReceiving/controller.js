@@ -356,7 +356,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.updateState = false
         if (state == 'add'){
             $scope.clear()
-			$scope.apply()
         }
         $scope.finalState = false;
         $('#form-input').modal('show')

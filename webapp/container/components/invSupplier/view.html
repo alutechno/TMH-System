@@ -34,7 +34,7 @@
 </div>
 
 <!--START FORM INPUT-->
-<div class="modal fade slide-right form-input-medium" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade slide-right form-input-full" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
@@ -54,77 +54,103 @@
                   <div class="col-sm-12">
                   </div>
                   <div class="col-sm-12">
-                      <div class="col-md-6">
-                          <div class="col-md-8">
+                            <div class="col-md-4">
                               <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : supplier.code.$invalid && !supplier.code.$pristine }">
                                   <label>Code</label>
-                                  <input type="text" class="form-control" name="code" id="supplier_code" ng-model="supplier.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                                  <input type="text" class="form-control" name="code" id="supplier_code" ng-model="supplier.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-readonly="true">
                               </div>
-                          </div>
                       </div>
-                      <div class="col-md-6">
-                          <div class="col-md-8">
+                          <div class="col-md-4">
                               <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : supplier.short_name.$invalid && !supplier.short_name.$pristine }">
                                   <label>Short Name</label>
                                   <input type="text" class="form-control" name="short_name" ng-model="supplier.short_name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                               </div>
+                      </div>
+					  <div class="col-md-4">
+                          <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                              <label>Country</label>
+                              <ui-select ng-model="selected.country_id.selected" theme="bootstrap" >
+                                  <ui-select-match placeholder="select country">{{$select.selected.name}}</ui-select-match>
+                                  <ui-select-choices repeat="item in arr.country_id | filter: $select.search">
+                                      <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                  </ui-select-choices>
+                              </ui-select>
                           </div>
                       </div>
                   </div>
                   <div class="col-sm-12">
-                      <div class="col-md-6">
+                      <div class="col-md-4">
                           <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : supplier.name.$invalid && !supplier.name.$pristine }">
                               <label>Name</label>
                               <input type="text" class="form-control" name="name" ng-model="supplier.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                           </div>
                       </div>
-                      <div class="col-md-6">
+                      <div class="col-md-4">
                           <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : supplier.contact_person.$invalid && !supplier.contact_person.$pristine }">
                               <label>Contact Person</label>
                               <input type="text" class="form-control" name="contact_person" ng-model="supplier.contact_person" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                           </div>
                       </div>
+				        <div class="col-md-4">
+                          <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : supplier.used_currency.$invalid && !supplier.used_currency.$pristine }">
+                              <label>Currency</label>
+                              <ui-select ng-model="selected.used_currency.selected" theme="bootstrap" >
+                                  <ui-select-match placeholder="set currency">{{$select.selected.code}}</ui-select-match>
+                                  <ui-select-choices repeat="item in arr.used_currency | filter: $select.search">
+                                      <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
+                                  </ui-select-choices>
+                              </ui-select>
+                          </div>
+                      </div>
                   </div>
                   <div class="col-sm-12">
-                      <div class="col-md-6">
+                      <div class="col-md-4">
                           <div pg-form-group class="form-group form-group-default" >
                               <label>Phone Number</label>
                               <input type="text" class="form-control" name="phone_number" ng-model="supplier.phone_number">
                           </div>
                       </div>
-                      <div class="col-md-6">
+                      <div class="col-md-4">
                           <div pg-form-group class="form-group form-group-default" >
                               <label>Fax Number</label>
                               <input type="text" class="form-control" name="fax_number" ng-model="supplier.fax_number">
                           </div>
                       </div>
-                  </div>
-                  <div class="col-sm-12">
-                      <div class="col-md-6">
-                          <div class="col-md-8">
-                              <div pg-form-group class="form-group form-group-default form-group-default-select " >
-                                  <label>Supplier Type</label>
-                                  <ui-select ng-model="selected.supplier_type.selected" theme="bootstrap" >
-                                      <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
-                                      <ui-select-choices repeat="item in arr.supplier_type | filter: $select.search">
-                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                      </ui-select-choices>
-                                  </ui-select>
-                              </div>
+					  <div class="col-md-4">
+                          <div pg-form-group class="form-group form-group-default" >
+                              <label>Def Payment</label>
+                              <input type="text" class="form-control" name="def_payment_type" ng-model="supplier.def_payment_type">
                           </div>
                       </div>
-                      <div class="col-md-6">
-                          <div class="col-md-8">
-                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : supplier.status.$invalid && !supplier.status.$pristine }">
-                                  <label>Status</label>
-                                  <ui-select ng-model="selected.status.selected" theme="bootstrap" >
-                                      <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                                      <ui-select-choices repeat="item in arr.status | filter: $select.search">
-                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                      </ui-select-choices>
-                                  </ui-select>
-                              </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div class="col-md-4">
+                            <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                              <label>Supplier Type</label>
+                              <ui-select ng-model="selected.supplier_type.selected" theme="bootstrap" ng-change="changeCode()">
+                                  <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
+                                  <ui-select-choices repeat="item in arr.supplier_type | filter: $select.search">
+                                      <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                  </ui-select-choices>
+                              </ui-select>
                           </div>
+                      </div>
+                      <div class="col-md-4">
+                            <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : supplier.status.$invalid && !supplier.status.$pristine }">
+                              <label>Status</label>
+                              <ui-select ng-model="selected.status.selected" theme="bootstrap" >
+                                  <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                                  <ui-select-choices repeat="item in arr.status | filter: $select.search">
+                                      <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                  </ui-select-choices>
+                              </ui-select>
+                          </div>
+                      </div>
+					  <div class="col-md-4">
+                              <div pg-form-group class="form-group form-group-default" >
+                                  <label>Due Days</label>
+                                  <input type="number" class="form-control" name="def_due_days" ng-model="supplier.def_due_days">
+                              </div>
                       </div>
                   </div>
 
@@ -142,49 +168,37 @@
                   </div>
                   <div class="col-sm-12">
                       <div class="col-md-6">
-                          <div pg-form-group class="form-group form-group-default form-group-default-select " >
-                              <label>Country</label>
-                              <ui-select ng-model="selected.country.selected" theme="bootstrap" on-select="getProvince($item)">
-                                  <ui-select-match placeholder="select country">{{$select.selected.name}}</ui-select-match>
-                                  <ui-select-choices repeat="item in arr.country_id | filter: $select.search">
-                                      <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                  </ui-select-choices>
-                              </ui-select>
-                          </div>
+						  <div pg-form-group class="form-group form-group-default" >
+	                          <label>Bank Name</label>
+	                          <input type="text" class="form-control" name="description" ng-model="supplier.bank1_name" >
+	                      </div>
                       </div>
                       <div class="col-md-6">
-                          <div class="col-md-6">
-                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : supplier.used_currency.$invalid && !supplier.used_currency.$pristine }">
-                                  <label>Currency</label>
-                                  <ui-select ng-model="selected.used_currency.selected" theme="bootstrap" >
-                                      <ui-select-match placeholder="set currency">{{$select.selected.code}}</ui-select-match>
-                                      <ui-select-choices repeat="item in arr.used_currency | filter: $select.search">
-                                          <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
-                                      </ui-select-choices>
-                                  </ui-select>
-                              </div>
-                          </div>
+						  <div pg-form-group class="form-group form-group-default" >
+							<label>Bank Name 2</label>
+							<input type="text" class="form-control" name="description" ng-model="supplier.bank2_name" >
+						</div>
                       </div>
                   </div>
                   <div class="col-sm-12">
                       <div class="col-md-6">
-                          <div pg-form-group class="form-group form-group-default form-group-default-select  " >
-                              <label>Province</label>
-                              <ui-select ng-model="selected.prov_id.selected" theme="bootstrap" on-select="getKabupaten($item)">
-                                  <ui-select-match placeholder="select province">{{$select.selected.name}}</ui-select-match>
-                                  <ui-select-choices repeat="item in arr.prov_id | filter: $select.search">
-                                      <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+						  <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                              <label>Currency</label>
+                              <ui-select ng-model="selected.bank_used_currency.selected" theme="bootstrap" >
+                                  <ui-select-match placeholder="set currency">{{$select.selected.code}}</ui-select-match>
+                                  <ui-select-choices repeat="item in arr.used_currency | filter: $select.search">
+                                      <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
                                   </ui-select-choices>
                               </ui-select>
                           </div>
                       </div>
                       <div class="col-md-6">
-                          <div pg-form-group class="form-group form-group-default form-group-default-select  " >
-                              <label>Kabupaten</label>
-                              <ui-select ng-model="selected.kab_id.selected" theme="bootstrap"  on-select="getKecamatan($item)">
-                                  <ui-select-match placeholder="select kabupaten">{{$select.selected.name}}</ui-select-match>
-                                  <ui-select-choices repeat="item in arr.kab_id | filter: $select.search">
-                                      <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+						  <div pg-form-group class="form-group form-group-default form-group-default-select ">
+                              <label>Currency Bank 2</label>
+                              <ui-select ng-model="selected.bank_used_currency2.selected" theme="bootstrap" >
+                                  <ui-select-match placeholder="set currency">{{$select.selected.code}}</ui-select-match>
+                                  <ui-select-choices repeat="item in arr.used_currency | filter: $select.search">
+                                      <span ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
                                   </ui-select-choices>
                               </ui-select>
                           </div>
@@ -193,45 +207,46 @@
 
                   <div class="col-sm-12">
                       <div class="col-md-6">
-                          <div pg-form-group class="form-group form-group-default form-group-default-select  " >
-                              <label>Kecamatan</label>
-                              <ui-select ng-model="selected.kec_id.selected" theme="bootstrap"  on-select="getKelurahan($item)">
-                                  <ui-select-match placeholder="select kecamatan">{{$select.selected.name}}</ui-select-match>
-                                  <ui-select-choices repeat="item in arr.kec_id | filter: $select.search">
-                                      <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                  </ui-select-choices>
-                              </ui-select>
-                          </div>
+						  <div pg-form-group class="form-group form-group-default" >
+	                          <label>Rek no</label>
+	                          <input type="text" class="form-control" name="description" ng-model="supplier.bank1_account_no" >
+	                      </div>
                       </div>
                       <div class="col-md-6">
-                          <div pg-form-group class="form-group form-group-default form-group-default-select  " >
-                              <label>Kelurahan</label>
-                              <ui-select ng-model="selected.kel_id.selected" theme="bootstrap" >
-                                  <ui-select-match placeholder="select kelurahan">{{$select.selected.name}}</ui-select-match>
-                                  <ui-select-choices repeat="item in arr.kel_id | filter: $select.search">
-                                      <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                  </ui-select-choices>
-                              </ui-select>
-                          </div>
+						  <div pg-form-group class="form-group form-group-default" >
+	                          <label>Rek no Bank 2</label>
+	                          <input type="text" class="form-control" name="description" ng-model="supplier.bank2_account_no" >
+	                      </div>
                       </div>
                   </div>
                   <div class="col-sm-12">
                       <div class="col-md-6">
-                          <div pg-form-group class="form-group form-group-default" >
-                              <label>Def Payment</label>
-                              <input type="text" class="form-control" name="def_payment_type" ng-model="supplier.def_payment_type">
-                          </div>
+						  <div pg-form-group class="form-group form-group-default" >
+	                          <label>Rek a/n</label>
+	                          <input type="text" class="form-control" name="description" ng-model="supplier.bank1_account_owner" >
+	                      </div>
                       </div>
                       <div class="col-md-6">
-                          <div class="col-md-4">
-                              <div pg-form-group class="form-group form-group-default" >
-                                  <label>Due Days</label>
-                                  <input type="number" class="form-control" name="def_due_days" ng-model="supplier.def_due_days">
-                              </div>
-                          </div>
+						  <div pg-form-group class="form-group form-group-default" >
+	                          <label>Rek a/n bank 2</label>
+	                          <input type="text" class="form-control" name="description" ng-model="supplier.bank2_account_owner" >
+	                      </div>
                       </div>
                   </div>
-
+				  <div class="col-sm-12">
+                      <div class="col-md-6">
+						  <div pg-form-group class="form-group form-group-default" >
+	                          <label>Bank address</label>
+	                          <input type="text" class="form-control" name="description" ng-model="supplier.bank1_address" >
+	                      </div>
+                      </div>
+                      <div class="col-md-6">
+						  <div pg-form-group class="form-group form-group-default" >
+	                          <label>Bank address 2</label>
+	                          <input type="text" class="form-control" name="description" ng-model="supplier.bank2_address" >
+	                      </div>
+                      </div>
+                  </div>
                   <!--<div class="col-sm-12">
                       <div class="col-md-6">
                       </div>
