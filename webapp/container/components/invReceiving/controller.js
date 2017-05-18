@@ -39,7 +39,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     ") z "
 
     var qwhere = '';
-    var qstringdetail = 'select b.id rcv_id,a.id,a.code,a.po_id,c.name,a.created_date,a.currency_id,e.name supplier_name,f.code,a.total_amount, b.item_id,g.order_qty,g.price,g.amount,g.product_id,h.name product_name,b.received_qty,b.received_price, '+
+    var qstringdetail = 'select (select g.order_qty-sum(received_qty) from inv_receive_line_item where item_id=b.item_id)remaining_qty,b.item_id,b.id rcv_id,a.id,a.code,a.po_id,c.name,a.created_date,a.currency_id,e.name supplier_name,f.code,a.total_amount, b.item_id,b.received_qty,g.order_qty,g.price,g.amount,g.product_id,h.name product_name,b.received_price, '+
         'h.unit_type_id,h.lowest_unit_conversion,h.recipe_unit_conversion,h.lowest_unit_type_id ,b.order_notes '+
         'from inv_po_receive a,inv_receive_line_item b,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f, inv_po_line_item g ,mst_product h '+
         'where a.id=b.receive_id  '+
@@ -231,7 +231,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     item_id: result2.data[i].item_id,
 					order_notes: result2.data[i].order_notes,
                     qty: result2.data[i].order_qty,
-                    remaining_qty: (result2.data[i].order_qty-result2.data[i].received_qty),
+                    remaining_qty: result2.data[i].remaining_qty,
                     rcv_qty: result2.data[i].received_qty,
                     price: result2.data[i].price,
                     rcv_price: result2.data[i].received_price,
@@ -718,7 +718,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         item_id: result2.data[i].item_id,
                         qty: result2.data[i].order_qty,
 						order_notes: result2.data[i].order_notes,
-                        remaining_qty: (result2.data[i].order_qty - result2.data[i].received_qty),
+                        remaining_qty: result2.data[i].remaining_qty,
                         rcv_qty: flag==undefined?result2.data[i].received_qty:0,
                         price: result2.data[i].price,
                         rcv_price: result2.data[i].received_price,
