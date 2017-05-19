@@ -6,3 +6,4 @@ node_modules/
 sql/
 .idea/
 video/
+npm-debug.log
