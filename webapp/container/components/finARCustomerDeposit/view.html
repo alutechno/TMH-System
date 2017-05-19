@@ -1,0 +1,495 @@
+<div class="full-height m-t-40">
+    <div class="container-fluid container-fixed-lg">
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">Account Receivable Customer Deposit
+                </div>
+                <div class="pull-right" style="width: 60%;">
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right"
+                            ng-click="openQuickView('add')" ng-show="buttonCreate"><i
+                        class="fa fa-plus"></i> Add Customer Deposit
+                    </button>
+                    <span ng-click="exportExcel()">
+                        <div excel-export export-data="exportData" file-name="{{fileName}}"
+                             class="pull-right m-r-5" control="focusinControl"></div>
+                    </span>
+
+                    <div class="input-group date col-sm-4 pull-right m-r-10">
+                        <input type="text" id="search-table" class="form-control pull-right"
+                               placeholder="Search anything" ng-keyup="filter('search',$event)"
+                               ng-model="filterVal.search">
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="tools">
+                    <a class="collapse" href="javascript:;"></a>
+                    <a class="config" data-toggle="modal" href="#grid-config"></a>
+                    <a class="reload" href="javascript:;"></a>
+                    <a class="remove" href="javascript:;"></a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed " datatable=""
+                           dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance"
+                           width="2000px">
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog"
+         aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content-wrapper">
+                <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
+                    <div class="panel-heading">
+                        <div class="panel-title">Customer Deposit Information</div>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            <i class="pg-close fs-14"></i>
+                        </button>
+                    </div>
+                    <div class="container-xs-height full-height">
+                        <div class="row-xs-height">
+                            <div class="modal-body col-xs-height col-top">
+                                <div class="panel panel-transparent m-t-20">
+                                    <form id="form-user"
+                                          role="form" autocomplete="off" name="myForm"
+                                          validate>
+                                        <div class="row clearfix">
+                                            <div class="col-sm-6">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default required"
+                                                     ng-class="{ 'has-error' : !data.code }">
+                                                    <label>Code</label>
+                                                    <input type="text"
+                                                           class="form-control" name="code"
+                                                           id="data_code"
+                                                           ng-model="data.code" ui-jq="popover"
+                                                           disabled
+                                                           data-container="body"
+                                                           data-placement="top"
+                                                           data-content="This field is required"
+                                                           data-trigger="manual"
+                                                           validate-attached-form-element
+                                                           required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row clearfix">
+                                            <div class="col-sm-3">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default form-group-default-select  required"
+                                                     ng-class="{ 'has-error' : !data.status.selected }">
+                                                    <label>Status</label>
+                                                    <ui-select
+                                                        ng-model="data.status.selected"
+                                                        theme="bootstrap"
+                                                        validate-attached-form-element
+                                                        required>
+                                                        <ui-select-match placeholder="Choose one">
+                                                            {{$select.selected.name}}
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="item in ls.statuses | filter: $select.search">
+                                                            <div>
+                                                                <div
+                                                                    ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                                                            </div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default required"
+                                                     ng-class="{ 'has-error' : !data.open_date }">
+                                                    <label for="data_open_date">
+                                                        Open Date
+                                                    </label>
+                                                    <input type="text" name="open_date"
+                                                           id="data_open_date"
+                                                           placeholder="Pick a date"
+                                                           class="form-control"
+                                                           data-date-format="yyyy-mm-dd"
+                                                           ng-model="data.open_date"
+                                                           style="width: 100%"/>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default form-group-default-select  required"
+                                                     ng-class="{ 'has-error' : !data.outlet_type_id.selected }">
+                                                    <label>Outlet Type</label>
+                                                    <ui-select
+                                                        ng-model="data.outlet_type_id.selected"
+                                                        theme="bootstrap">
+                                                        <ui-select-match placeholder="Choose one">
+                                                            {{$select.selected.name}}
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="item in ls.outlet_types | filter: $select.search">
+                                                            <span
+                                                                ng-bind-html="trustAsHtml((item.code + ' : ' + item.name | highlight: $select.search))"></span>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row clearfix">
+                                            <div class="col-sm-6">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default form-group-default-select  required"
+                                                     ng-class="{ 'has-error' : !data.customer_id.selected }">
+                                                    <label>Customer</label>
+                                                    <ui-select
+                                                        ng-model="data.customer_id.selected"
+                                                        theme="bootstrap"
+                                                        validate-attached-form-element
+                                                        required>
+                                                        <ui-select-match placeholder="Choose one">
+                                                            {{[$select.selected.title,$select.selected.fisrt_name,$select.selected.last_name].join(' ')}}
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="item in ls.customers | filter: $select.search">
+                                                            <div>
+                                                                <div
+                                                                    ng-bind-html="trustAsHtml((
+                                                                     [item.title,item.fisrt_name,item.last_name].join(' ')
+                                                                     | highlight: $select.search))"></div>
+                                                                <small style="font-style: italic">{{
+                                                                    item.code ? 'Customer code: ' +
+                                                                    item.code : ''
+                                                                }}</small>
+                                                            </div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default form-group-default-select  required"
+                                                     ng-class="{ 'has-error' : !data.bank_account_id.selected }">
+                                                    <label>Bank</label>
+                                                    <ui-select
+                                                        ng-model="data.bank_account_id.selected"
+                                                        theme="bootstrap"
+                                                        validate-attached-form-element
+                                                        required>
+                                                        <ui-select-match placeholder="Choose one">
+                                                            {{$select.selected.short_name}}
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="item in ls.banks | filter: $select.search">
+                                                            <div>
+                                                                <div
+                                                                    ng-bind-html="trustAsHtml((
+                                                                 [item.code, '-', item.short_name].join(' ')
+                                                                 | highlight: $select.search))"></div>
+                                                                <small style="font-style: italic">
+                                                                    {{item.name}}
+                                                                </small>
+                                                            </div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row clearfix">
+                                            <div class="col-sm-6">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default form-group-default-select  required"
+                                                     ng-class="{ 'has-error' : !data.credit_card_id.selected }">
+                                                    <label>Credit Card</label>
+                                                    <ui-select
+                                                        ng-model="data.credit_card_id.selected"
+                                                        theme="bootstrap"
+                                                        validate-attached-form-element
+                                                        required>
+                                                        <ui-select-match placeholder="Choose one">
+                                                            {{$select.selected.name}}
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="item in ls.credit_cards | filter: $select.search">
+                                                            <div>
+                                                                <div
+                                                                    ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                                                                <small style="font-style: italic">
+                                                                    {{item.code ? 'Credit card code: ' + item.code : item.code}}
+                                                                </small>
+                                                            </div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default"
+                                                     ng-class="{ 'has-error' : !data.credit_card_no }">
+                                                    <label>Credit Card No.</label>
+                                                    <input type="number" class="form-control"
+                                                           name="credit_card_no"
+                                                           id="data_credit_card_no"
+                                                           ng-model="data.credit_card_no"
+                                                           ui-jq="popover" data-container="body"
+                                                           data-placement="top"
+                                                           data-content="This field is required"
+                                                           data-trigger="manual"
+                                                           validate-attached-form-element
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row clearfix">
+                                            <div class="col-sm-6">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default form-group-default-select  required"
+                                                     ng-class="{ 'has-error' : !data.used_currency_id.selected }">
+                                                    <label>Currency</label>
+                                                    <ui-select
+                                                        ng-model="data.used_currency_id.selected"
+                                                        theme="bootstrap"
+                                                        on-select="selectCurrency()"
+                                                        on-change="selectCurrency()"
+                                                        validate-attached-form-element
+                                                        required>
+                                                        <ui-select-match placeholder="Choose one">
+                                                            {{$select.selected.name}}
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="item in ls.currencies | filter: $select.search">
+                                                            <div>
+                                                                <div
+                                                                    ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                                                                <small style="font-style: italic">
+                                                                    {{item.code ? 'Currency code: ' + item.code : item.code}}
+                                                                </small>
+                                                            </div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default"
+                                                     ng-class="{ 'has-error' : !data.currency_exchange }">
+                                                    <label>Exchange</label>
+                                                    <input type="number" class="form-control"
+                                                           name="currency_exchange"
+                                                           id="data_currency_exchange"
+                                                           ng-model="data.currency_exchange"
+                                                           ui-jq="popover" data-container="body"
+                                                           data-placement="top"
+                                                           data-content="This field is required"
+                                                           data-trigger="manual"
+                                                           validate-attached-form-element
+                                                           disabled
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr/>
+                                        <div class="row clearfix">
+                                            <div class="col-sm-6">
+                                                <div style="text-align: center;">Home currency</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div style="text-align: center;">Your currency</div>
+                                            </div>
+                                        </div>
+                                        <br/>
+                                        <div class="row clearfix">
+                                            <div class="col-sm-6">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default">
+                                                    <label>deposit amount</label>
+                                                    <input type="number" class="form-control"
+                                                           myCat="left"
+                                                           name="home_deposit_amount"
+                                                           id="data_home_deposit_amount"
+                                                           ng-model="data.home_deposit_amount"
+                                                           ui-jq="popover" data-container="body"
+                                                           data-placement="top"
+                                                           data-content="This field is required"
+                                                           data-trigger="manual"
+                                                           validate-attached-form-element
+                                                           disabled
+                                                    >
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default">
+                                                    <label>deposit amount</label>
+                                                    <input type="number" class="form-control"
+                                                           myCat="right"
+                                                           name="deposit_amount"
+                                                           id="data_deposit_amount"
+                                                           ng-model="data.deposit_amount"
+                                                           ui-jq="popover" data-container="body"
+                                                           data-placement="top"
+                                                           data-content="This field is required"
+                                                           data-trigger="manual"
+                                                           validate-attached-form-element
+                                                           disabled
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row clearfix">
+                                            <div class="col-sm-6">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default">
+                                                    <label>applied amount</label>
+                                                    <input type="number" class="form-control"
+                                                           myCat="left"
+                                                           name="home_applied_amount"
+                                                           id="data_home_applied_amount"
+                                                           ng-model="data.home_applied_amount"
+                                                           ui-jq="popover" data-container="body"
+                                                           data-placement="top"
+                                                           data-content="This field is required"
+                                                           data-trigger="manual"
+                                                           validate-attached-form-element
+                                                           disabled
+                                                    >
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default">
+                                                    <label>applied amount</label>
+                                                    <input type="number" class="form-control"
+                                                           myCat="right"
+                                                           name="applied_amount"
+                                                           id="data_applied_amount"
+                                                           ng-model="data.applied_amount"
+                                                           ui-jq="popover" data-container="body"
+                                                           data-placement="top"
+                                                           data-content="This field is required"
+                                                           data-trigger="manual"
+                                                           validate-attached-form-element
+                                                           disabled
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!--<div class="row clearfix">-->
+                                            <!--<div class="col-sm-8">-->
+                                                <!--<div pg-form-group-->
+                                                     <!--class="form-group form-group-default"-->
+                                                     <!--ng-class="{ 'has-error' : !data.gain_loss }">-->
+                                                    <!--<label>Gain / Loss</label>-->
+                                                    <!--<input type="number" class="form-control"-->
+                                                           <!--name="gain_loss"-->
+                                                           <!--id="data_gain_loss"-->
+                                                           <!--ng-model="data.gain_loss"-->
+                                                           <!--ui-jq="popover" data-container="body"-->
+                                                           <!--data-placement="top"-->
+                                                           <!--data-content="This field is required"-->
+                                                           <!--data-trigger="manual"-->
+                                                           <!--validate-attached-form-element-->
+                                                           <!--disabled-->
+                                                    <!--&gt;-->
+                                                <!--</div>-->
+                                            <!--</div>-->
+                                        <!--</div>-->
+                                        <div class="row clearfix">
+                                            <div class="col-sm-6">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default">
+                                                    <label>Total Balance</label>
+                                                    <input type="number" class="form-control"
+                                                           myCat="left"
+                                                           name="home_total_balance"
+                                                           id="data_home_total_balance"
+                                                           ng-model="data.home_total_balance"
+                                                           ui-jq="popover" data-container="body"
+                                                           data-placement="top"
+                                                           data-content="This field is required"
+                                                           data-trigger="manual"
+                                                           validate-attached-form-element
+                                                           disabled
+                                                    >
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default">
+                                                    <label>Total Balance</label>
+                                                    <input type="number" class="form-control"
+                                                           myCat="right"
+                                                           name="total_balance"
+                                                           id="data_total_balance"
+                                                           ng-model="data.total_balance"
+                                                           ui-jq="popover" data-container="body"
+                                                           data-placement="top"
+                                                           data-content="This field is required"
+                                                           data-trigger="manual"
+                                                           validate-attached-form-element
+                                                           disabled
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row clearfix">
+                                            <div class="col-sm-12">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default">
+                                                    <label>notes</label>
+                                                    <input type="text" class="form-control"
+                                                           name="notes"
+                                                           id="data_notes"
+                                                           ng-model="data.notes"
+                                                           ui-jq="popover" data-container="body"
+                                                           data-placement="top"
+                                                           data-content="This field is required"
+                                                           data-trigger="manual"
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <br>
+                                    <div class="clearfix"></div>
+                                    <button class="btn btn-primary"
+                                            type="submit"
+                                            ng-disabled="myForm.$invalid"
+                                            ng-click="submit()">
+                                        Save
+                                    </button>
+                                    <button class="btn btn-default"
+                                            ng-click="clear()">
+                                        <i class="pg-close"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog"
+     aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Are you sure want to delete "{{removing.code}}"
+                        ?</h4>
+                    <div>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                ng-click="execDelete()">Yes
+                        </button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

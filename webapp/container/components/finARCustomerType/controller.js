@@ -1,7 +1,7 @@
 
 var userController = angular.module('app', []);
 userController
-.controller('FoCustomerTypeCtrl',
+.controller('FinCustomerTypeCtrl',
 function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
     $scope.el = [];
     $scope.el = $state.current.data;
@@ -12,12 +12,13 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope[$scope.el[i]] = true;
     }
 
-    var qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_customer_type a, "+
-        "(select id as status_id, value as status_value,name as status_name  "+
-            "from table_ref  "+
-            "where table_name = 'ref_product_category' and column_name='status')b "+
-        "where a.status = b.status_value and a.status!=2 "
-    var qwhere = ''
+    var qstring = `select a.id,a.code,a.name,a.description,a.status,b.status_name,receavable_account_id,d.name receavable_account_name,deposit_account_id,c.name deposit_account_name,c.code deposit_account_code,d.code receavable_account_code
+		from (select id as status_id, value as status_value,name as status_name from table_ref
+		where table_name = 'ref_product_category' and column_name='status')b,ref_customer_type a
+		left join mst_ledger_account c on a.deposit_account_id=c.id
+		left join mst_ledger_account d on a.receavable_account_id=d.id
+		where a.status = b.status_value and a.status!=2 `
+	var qwhere = ''
 
     $scope.users = []
 
@@ -32,36 +33,28 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         code: '',
         name: '',
         description: '',
-        status: ''
+        status: '',
+		receavable_account_id:null,
+		deposit_account_id:null
     }
 
     $scope.selected = {
         status: {},
         filter_department: {},
-        filter_account_type: {}
+        filter_account_type: {},
+		receiveable_account_id:{},
+		deposit_account_id:{}
     }
-
     queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1) order by name asc',undefined)
     .then(function(data){
         $scope.arrActive = data.data
         $scope.selected.status['selected'] = $scope.arrActive[0]
     })
 	$scope.ar_accounts = []
-    queryService.get(`select id,name from mst_ledger_account
-		where status=1
-		and limit=20`,undefined)
+	queryService.get('select id, code, name from mst_ledger_account where status = \'1\' and parent_id is not null order by code',undefined)
     .then(function(data){
         $scope.ar_accounts = data.data
     })
-	$scope.costCenterUp = function(text){
-        queryService.post(`select id,name from mst_ledger_account
-			where status=1
-			and lower(a.name) like '%'`+text+`'%'
-			and limit=20`,undefined)
-        .then(function(data){
-            $scope.ar_accounts = data.data
-        })
-    }
 
     $scope.focusinControl = {};
     $scope.fileName = "Customer Type Reference";
@@ -148,6 +141,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
     $scope.dtColumns.push(
         //DTColumnBuilder.newColumn('code').withTitle('Code Ori').notVisible(),
+		DTColumnBuilder.newColumn('id').withTitle('ID'),
         DTColumnBuilder.newColumn('code').withTitle('Code'),
         DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
@@ -236,7 +230,9 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 description: $scope.coa.description,
                 status: $scope.selected.status.selected.id,
                 created_date: globalFunction.currentDate(),
-                created_by: $localStorage.currentUser.name.id
+                created_by: $localStorage.currentUser.name.id,
+				receavable_account_id:$scope.selected.receiveable_account_id.selected.id,
+				deposit_account_id:$scope.selected.deposit_account_id.selected.id
             }
 
             queryService.post('insert into ref_customer_type SET ?',param)
@@ -276,7 +272,9 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 description: $scope.coa.description,
                 status: $scope.selected.status.selected.id,
                 modified_date: globalFunction.currentDate(),
-                modified_by: $localStorage.currentUser.name.id
+                modified_by: $localStorage.currentUser.name.id,
+				receavable_account_id:$scope.selected.receiveable_account_id.selected.id,
+				deposit_account_id:$scope.selected.deposit_account_id.selected.id
             }
             console.log(param)
             queryService.post('update ref_customer_type SET ? WHERE id='+$scope.coa.id ,param)
@@ -308,10 +306,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         //$('#coa_code').prop('disabled', true);
 
         // console.log(obj)
-        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
+        queryService.post(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-            console.log(result)
-
             $scope.coa.id = result.data[0].id
             $scope.coa.code = result.data[0].code
             $scope.coa.name = result.data[0].name
@@ -319,7 +315,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             $scope.coa.status = result.data[0].status
             $scope.coa.status = result.data[0].status
             $scope.selected.status.selected = {id: result.data[0].status,name:result.data[0].status_name}
-
+			$scope.selected.receiveable_account_id.selected= {id: result.data[0].receavable_account_id,name:result.data[0].receavable_account_name,code:result.data[0].receavable_account_code}
+			$scope.selected.deposit_account_id.selected= {id: result.data[0].deposit_account_id,name:result.data[0].deposit_account_name,code:result.data[0].deposit_account_code}
         })
     }
 

@@ -24,7 +24,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         'c.name supplier_name, a.source, b.code as receive_no, d.name status_name,a.currency_exchange exchange, '+
         'a.receive_id, a.currency_id, a.total_amount, format(a.total_amount,0)ta, a.home_total_amount,format(a.home_total_amount,0)hta,a.voucher_notes, '+
         'e.name currency_name,e.code currency_code,f.name created_by_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\')created_date, '+
-        'g.previous_amount adjustment_prev_amount,g.adjusted_amount adjustment_idr, 0 adjustment_home,a.is_adjusted '+
+        'g.previous_amount adjustment_prev_amount,g.adjusted_amount adjustment_idr, 0 adjustment_home,a.is_adjusted,a.faktur_no '+
         'from acc_ap_voucher a  '+
         'left join inv_po_receive b on a.receive_id = b.id  '+
         'left join mst_supplier c on a.supplier_id = c.id  '+
@@ -132,7 +132,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     })*/
 
     $scope.source = []
-    queryService.get('select value id, value, name from table_ref where table_name = \'acc_ap_voucher\' and column_name = \'source\' and value in(\'MT\',\'RR\') order by id ',undefined)
+    queryService.get('select value id, value, name from table_ref where table_name = \'acc_ap_voucher\' and column_name = \'source\' and value in(\'MT\') order by id ',undefined)
     .then(function(data){
         console.log('source',data.data)
         $scope.source = data.data
@@ -587,7 +587,8 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             	currency_id: $scope.selected.currency.selected.currency_id,
             	currency_exchange: $scope.ap.exchange,
             	total_amount: $scope.ap.total_idr,
-            	home_total_amount: $scope.ap.total_home
+            	home_total_amount: $scope.ap.total_home,
+				faktur_no: $scope.ap.faktur_no
             }
             queryService.post('insert into acc_ap_voucher SET ?',param)
             .then(function (result){
@@ -664,7 +665,8 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             	currency_id: $scope.selected.currency.selected.id,
             	currency_exchange: $scope.ap.exchange,
             	total_amount: $scope.ap.total_idr,
-            	home_total_amount: $scope.ap.total_home
+            	home_total_amount: $scope.ap.total_home,
+				faktur_no: $scope.ap.faktur_no
             }
             //queryService.post('insert into acc_ap_voucher SET ?',param)
             queryService.post('update acc_ap_voucher SET ? WHERE id='+$scope.ap.id ,param)
@@ -852,15 +854,14 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     }
 
     $scope.update = function(obj){
-        console.log('update')
         queryService.post(qstring+ ' where a.id='+obj.id,undefined)
         .then(function(result){
-            console.log(result)
             $('#form-input').modal('show');
             $scope.updateState = true;
             $scope.adjustState = false;
             $scope.ap = result.data[0]
             $scope.ap.notes = result.data[0].voucher_notes
+			$scope.ap.faktur_no = result.data[0].faktur_no
             $scope.ap.due_date = (result.data[0].due==null?'':result.data[0].due)
             $scope.ap.total_home = result.data[0].home_total_amount
             $scope.ap.total_idr = result.data[0].total_amount

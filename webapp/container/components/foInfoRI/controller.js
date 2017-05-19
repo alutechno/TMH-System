@@ -238,7 +238,7 @@ angular.module('app', []).controller('FoInfoRICtrl', function ($scope, $state, $
                 oo._meta_.push(o);
             });
 
-            oo.occupancy = oo.onhand / oo.total * 100;
+            oo.occupancy = isNaN(oo.onhand / oo.total * 100) ? 0 : oo.onhand / oo.total * 100;
             oo.netto = oo.bruto - (oo.package + oo.discount);
             oo.avg_netto = isNaN(oo.netto / oo.onhand) ? 0 : (oo.netto / oo.onhand);
             oo.avg_bruto = isNaN(oo.bruto / oo.onhand) ? 0 : (oo.bruto / oo.onhand);

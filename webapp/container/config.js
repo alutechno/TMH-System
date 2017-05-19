@@ -1298,28 +1298,6 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
-        .state("app.fo.revenueGroup", {
-            url: "/foRevenueGroup",
-            templateUrl: "container/components/foRevenueGroup/view.html",
-            controller: "FoRevenueGroupCtrl",
-            resolve: {
-                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
-                    return $ocLazyLoad.load([
-                        "dataTables",
-                        "select",
-                        "datepicker",
-                        "daterangepicker",
-                        "tagsInput",
-                        "autonumeric"
-                    ], {
-                        insertBefore: "#lazyload_placeholder"
-                    })
-                    .then(function () {
-                        return $ocLazyLoad.load("container/components/foRevenueGroup/controller.js");
-                    });
-                }]
-            }
-        })
         .state("app.fo.oTax", {
             url: "/foTax",
             templateUrl: "container/components/foTax/view.html",
@@ -2097,6 +2075,28 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
             url: '/fin',
             template: '<div ui-view></div>'
         })
+        .state("app.fin.revenueGroup", {
+            url: "/finRevenueGroup",
+            templateUrl: "container/components/finRevenueGroup/view.html",
+            controller: "FinRevenueGroupCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/finRevenueGroup/controller.js");
+                    });
+                }]
+            }
+        })
         .state('app.fin.accType', {
             url: "/acctype",
             templateUrl: "container/components/finAccType/view.html",
@@ -2818,6 +2818,257 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
+		.state("app.fin.ARCC", {
+            url: "/finARCC",
+            templateUrl: "container/components/finARCreditCard/view.html",
+            params: {'currentPeriod': null},
+            controller: "FinARCreditCardCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/finARCreditCard/controller.js");
+                    });
+                }]
+            }
+        })
+		.state("app.fin.ARCustomerType", {
+            url: "/finARCustType",
+            templateUrl: "container/components/finARCustomerType/view.html",
+            params: {'currentPeriod': null},
+            controller: "FinCustomerTypeCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/finARCustomerType/controller.js");
+                    });
+                }]
+            }
+        })
+		.state("app.fin.ARConfig", {
+            url: "/finARConfig",
+            templateUrl: "container/components/finARConfig/view.html",
+            params: {'currentPeriod': null},
+            controller: "FinARConfigCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/finARConfig/controller.js");
+                    });
+                }]
+            }
+        })
+        .state("app.fin.ARIvoinceEntry", {
+            url: "/finARIvoinceEntry",
+            templateUrl: "container/components/finARIvoinceEntry/view.html",
+            params: {'currentPeriod': null},
+            controller: "FinARIvoinceEntryCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/finARIvoinceEntry/controller.js");
+                    });
+                }]
+            }
+        })
+		.state("app.fin.ARCashReceipt", {
+            url: "/finARCashReceipt",
+            templateUrl: "container/components/finARCashReceipt/view.html",
+            params: {'currentPeriod': null},
+            controller: "FinArCashReceiptCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/finARCashReceipt/controller.js");
+                    });
+                }]
+            }
+        })
+        .state("app.fin.ARCustomerDeposit", {
+            url: "/finARCustomerDeposit",
+            templateUrl: "container/components/finARCustomerDeposit/view.html",
+            params: {'currentPeriod': null},
+            controller: "FinARCustomerDepositCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/finARCustomerDeposit/controller.js");
+                    });
+                }]
+            }
+        })
+        .state("app.fin.ARCCJournal", {
+            url: "/finARCCJournal",
+            templateUrl: "container/components/finARCCJournal/view.html",
+            params: {'currentPeriod': null},
+            controller: "FinARCCJournalCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/finARCCJournal/controller.js");
+                    });
+                }]
+            }
+        })
+        .state("app.fin.ARCCBatch", {
+            url: "/finARCCBatch",
+            templateUrl: "container/components/finARCCBatch/view.html",
+            params: {'currentPeriod': null},
+            controller: "FinARCCBatchCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/finARCCBatch/controller.js");
+                    });
+                }]
+            }
+        })
+        .state("app.fin.ARBrowseActivities", {
+            url: "/finARBrowseActivities",
+            templateUrl: "container/components/finARBrowseActivities/view.html",
+            params: {'currentPeriod': null},
+            controller: "FinARBrowseActivitiesCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/finARBrowseActivities/controller.js");
+                    });
+                }]
+            }
+        })
+		.state("app.inv.stockOnHand", {
+            url: "/invStockOnHand",
+            templateUrl: "container/components/invRptStockOnHand/view.html",
+            controller: "InvRptStockOnHand",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/invRptStockOnHand/controller.js");
+                    });
+                }]
+            }
+        })
+        .state("app.inv.sumStockOnHand", {
+                url: "/invSumStockOnHand",
+                templateUrl: "container/components/invSumRptStockOnHand/view.html",
+                controller: "InvSumRptStockOnHand",
+                resolve: {
+                    deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                        return $ocLazyLoad.load([
+                            "dataTables",
+                            "select",
+                            "datepicker",
+                            "daterangepicker",
+                            "tagsInput",
+                            "autonumeric"
+                        ], {
+                            insertBefore: "#lazyload_placeholder"
+                        })
+                        .then(function () {
+                            return $ocLazyLoad.load("container/components/invSumRptStockOnHand/controller.js");
+                        });
+                    }]
+                }
+            })
 
         // Extra - Others
         .state('access', {

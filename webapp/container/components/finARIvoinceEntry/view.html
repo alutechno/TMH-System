@@ -6,21 +6,12 @@
                     <div class="brand inline text-center center">
                         <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="200" height="40">
                     </div>
-                    <!--<br><br><br>
-                    <span class="text-center" style="align:center;">JL. GUNUNG SAHARI RAYA NO.3 JAKARTA 10720</span>
-                    <br>
-                    <span class="text-center">PHONE : (62-21) 626 3001</span>&nbsp;&nbsp;
-                    <span class="text-center">FAX : (62-21) 626 3024</span>
-                    <br><br>
-                    <span class="text-center">OWNED BY PT.GRAHASAHARI SURYAJAYA</span>
-                    <br>
-                    <span class="text-center">NPWP. 01.573.522.8-026.000</span>-->
                 </td>
             </tr>
             <br>
             <tr>
                 <td>&nbsp;</td>
-                <td align="center"> <b>A/P Voucher</b> </td>
+                <td align="center"> <b>A/R Invoice</b> </td>
             </tr>
             <tr>
                 <td>
@@ -114,47 +105,16 @@
         <!-- START PANEL -->
         <div class="panel panel-transparent">
             <div class="panel-heading">
-                <div class="panel-title">A/P Voucher
+                <div class="panel-title">A/R Invoice Entry
                 </div>
                 <div class="pull-right" style="width: 100%;">
 
                     <button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>
-                    <span ng-click="exportExcel()">
+                    <!--<span ng-click="exportExcel()">
                         <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
                     </span>
-					 <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Voucher</button>
-
-
-
-                    <!--<div class="input-group date col-sm-6 pull-right m-r-10">
-                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
-
-
-                    </div>-->
-
-
-
-                     <!--<div class="btn-group pull-right lDate2 m-r-5" style="width: 100px;" >
-                         <ui-select ng-model="selected.endperiod.selected" theme="bootstrap" >
-                             <ui-select-match placeholder="end">{{$select.selected.name}}</ui-select-match>
-                             <ui-select-choices repeat="item in period | filter: $select.search">
-                                 <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                             </ui-select-choices>
-                         </ui-select>
-
-                     </div>
-                     <div class="btn-group  pull-right lDate2 m-r-5"style="width: 100px;" >
-                         <ui-select ng-model="selected.startperiod.selected" theme="bootstrap" >
-                             <ui-select-match placeholder="start">{{$select.selected.name}}</ui-select-match>
-                             <ui-select-choices repeat="item in period | filter: $select.search">
-                                 <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                             </ui-select-choices>
-                         </ui-select>
-
-                     </div>-->
-
-
+					 <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>-->
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Invoice</button>
                 </div>
                 <div class="clearfix"></div>
                 <div class="tools">
@@ -227,57 +187,6 @@
                           </div>
                     </div>
                 </div>
-
-                <!--<div class="panel panel-default m-t-5" pg-portlet ng-show="showAdvance">
-                    <div class="panel-heading">
-                        <div class="panel-title">Advanced Search
-                        </div>
-                        <div class="panel-controls">
-                            <ul>
-                                <li><a href="" ng-click="openAdvancedFilter(false)"><i class="portlet-icon portlet-icon-close"></i></a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="panel-body" >
-                        <div class="btn-group dropdown-default pull-left lDate m-r-5">
-                            <label>Status:</label><br />
-                            <ui-select multiple ng-model="selected.status" theme="select2" ng-disabled="disabled" style="width: 300px;" >
-                                <ui-select-match placeholder="Filter Status...">{{$item.name}}</ui-select-match>
-                                <ui-select-choices repeat="item in status | filter:$select.search">
-                                    {{item.name}}
-                                </ui-select-choices>
-                            </ui-select>
-                         </div>
-                         <div class="input-prepend input-group pull-left m-r-5" style="width: 220px;" >
-                             <label>Due Date:</label><br />
-                            <input date-range-picker placeholder="Filter due date" class="form-control date-picker lDate" type="text" ng-model="date" />-->
-                            <!--<span class="add-on input-group-addon bDate"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i></span>-->
-                        <!--</div>
-                        <div class="btn-group dropdown-default pull-left m-r-5" >
-                            <label>Period:</label><br />
-                          <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">{{selected.period.name}}<span class="caret"></span></button>
-                            <ul class="dropdown-menu" role="menu">
-                              <li><a href="javascript:;" ng-click="setPeriod(0)">Current Month</a></li>
-                              <li><a href="javascript:;" ng-click="setPeriod(1)">Last Month</a></li>
-                            </ul>
-                         </div>
-                         <div class="btn-group dropdown-default pull-left m-r-5" >
-                             <label>&nbsp;</label><br />
-                           <button id="show-modal" class="btn btn-primary pull-right" ng-click="applyFilter()" ng-show="buttonCreate"><i class="fa fa-search"></i> Apply</button>
-                       </div>-->
-
-
-
-                        <!--<div class="input-prepend input-group date col-sm-4 pull-right m-r-5" style="width: 250px;" >
-                          <input date-range-picker type="text" placeholder="filter due date" class="form-control date-picker lDate">
-                          <span class="add-on input-group-addon bDate"><i class="fa fa-calendar"></i></span>
-                      </div>-->
-
-
-
-                    <!--</div>
-                </div>-->
             </div>
             <div class="panel-body">
                 <div class="table-responsive" id="printThisElement">
@@ -717,5 +626,4 @@
         <!-- /.modal-content -->
     </div>
 </div>
-
 <!-- END MODAL CONTENT-->

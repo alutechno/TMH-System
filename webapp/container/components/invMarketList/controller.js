@@ -1,10 +1,8 @@
-
 var userController = angular.module('app', []);
 userController
 .controller('InvMarketListCtrl',
 function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,prService, DTOptionsBuilder, DTColumnBuilder,DTColumnDefBuilder, $localStorage, $compile, $rootScope, API_URL,
     warehouseService) {
-
     $scope.el = [];
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
@@ -28,11 +26,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         else if ($scope.el[i]=='approvalPoManager'){
             $scope.approveState = true;
             $scope.rejectState = true;
-            $scope.seqState = 3;
+            $scope.seqState = 4;
         }
         else if ($scope.el[i]=='approvalCostControl'){
             $scope.approveState = true;
             $scope.rejectState = true;
+			$scope.seqState = 3;
         }
         else if ($scope.el[i]=='approvalFinance'){
             $scope.approveState = true;
@@ -45,7 +44,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         else if ($scope.el[i]=='orderReleased'){
             $scope.approveState = true;
             $scope.rejectState = true;
-            $scope.seqState = 4;
+            $scope.seqState = 5;
         }
         else $scope[$scope.el[i]] = true;
 
@@ -405,6 +404,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         paramDetail['approval_status'] = $scope.selected.approval
                         paramDetail['denial_notes'] = $scope.pr.approval_notes
                     }
+					else if($scope.selected.approval==3){
+                        paramDetail['approval_status'] = $scope.selected.approval
+                        paramDetail['denial_notes'] = $scope.pr.approval_notes
+                    }
                     else {
                         paramDetail['approval_status'] = 0
                     }
@@ -534,14 +537,18 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                             po_msg.push($scope.items[i].product_name)
                         }
                     }
-                    if (po_stat == false && ($scope.selected.doc_status.selected.id==3 && $scope.selected.approval==1)){
-                        $('#form-input').pgNotification({
-                            style: 'flip',
-                            message: 'Empty Supplier on Item '+po_msg.join(', '),
-                            position: 'top-right',
-                            timeout: 10000,
-                            type: 'danger'
-                        }).show();
+                    if (po_stat == false && ($scope.selected.doc_status.selected.id==4 && $scope.selected.approval==1)){
+						$('#form-input').pgNotification({
+							style: 'flip',
+							message: 'Empty Supplier on Item '+po_msg.join(', '),
+							position: 'top-right',
+							timeout: 10000,
+							type: 'danger'
+						}).show();
+						queryService.post('update inv_market_list set ? where id=?',{approval_status:0})
+						.then(function (result){
+
+						})
                     }
                     else {
                         $scope.addItemDetail($scope.pr.id)
@@ -550,10 +557,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         },
                         function (err3){
                             console.log(err3)
-
                         })
 
-                        if ($scope.selected.approval==1 || $scope.selected.approval==2){
+                        if ($scope.selected.approval==1 || $scope.selected.approval==2 || $scope.selected.approval==3){
                             queryState = 'insert into inv_ml_doc_state set ?'
                             paramState = {
                                 ml_id:$scope.pr.id,
@@ -598,8 +604,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                                     timeout: 2000,
                                     type: 'success'
                                 }).show();
-                                //Generate PO
-                                //console.log('generatePO:'+$scope.selected.doc_status.selected.id+';'+$scope.selected.approval)
                                 if ($scope.selected.doc_status.selected.id == 4 && $scope.selected.approval == 1){
                                     console.log('generatePO process:'+ 'CALL `ml-po`('+$scope.pr.id+','+$localStorage.currentUser.name.id+')')
                                     queryService.post('CALL `ml-po`('+$scope.pr.id+','+$localStorage.currentUser.name.id+')', undefined)
@@ -655,15 +659,15 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         var defer = $q.defer();
         var paramItem = []
         var sqlCtr = []
-		console.log('sqli')
-		console.log(sqli)
-        queryService.post(sqli.join(';'),undefined)
-        .then(function (result2){
-            defer.resolve(result2)
-        },
-        function (err2){
-            defer.reject(err2)
-        })
+		if(sqli.length>0){
+			queryService.post(sqli.join(';'),undefined)
+	        .then(function (result2){
+	            defer.resolve(result2)
+	        },
+	        function (err2){
+	            defer.reject(err2)
+	        })
+		}
         /*var defer = $q.defer();
         var paramItem = []
         var sqlCtr = []
@@ -979,25 +983,29 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 //$scope.doc_status.push($scope.doc_status_def[0])
                 $scope.doc_status.push($scope.doc_status_def[1])
             }
-            if ($scope.el.indexOf('approvalPoManager')>-1 && (result.data[0].doc_status_id == 2 && result.data[0].approval_status == 1)){
+			if ($scope.el.indexOf('approvalCostControl')>-1 && (result.data[0].doc_status_id == 2 && result.data[0].approval_status == 1)){
                 //$scope.doc_status.push($scope.doc_status_def[1])
                 $scope.doc_status.push($scope.doc_status_def[2])
             }
-            if ($scope.el.indexOf('orderReleased')>-1 && (result.data[0].doc_status_id == 3 && result.data[0].approval_status == 1)){
-                //$scope.doc_status.push($scope.doc_status_def[2])
+            if ($scope.el.indexOf('approvalPoManager')>-1 && (result.data[0].doc_status_id == 3 && result.data[0].approval_status == 1)){
+                //$scope.doc_status.push($scope.doc_status_def[1])
                 $scope.doc_status.push($scope.doc_status_def[3])
             }
-            if ($scope.el.indexOf('approvalFinance')>-1 && (result.data[0].doc_status_id == 4 && result.data[0].approval_status == 1)){
-                //$scope.doc_status.push($scope.doc_status_def[3])
+            if ($scope.el.indexOf('orderReleased')>-1 && (result.data[0].doc_status_id == 4 && result.data[0].approval_status == 1)){
+                //$scope.doc_status.push($scope.doc_status_def[2])
                 $scope.doc_status.push($scope.doc_status_def[4])
             }
-            if ($scope.el.indexOf('approvalGm')>-1 && (result.data[0].doc_status_id == 5 && result.data[0].approval_status == 1)){
-                //$scope.doc_status.push($scope.doc_status_def[4])
+            if ($scope.el.indexOf('approvalFinance')>-1 && (result.data[0].doc_status_id == 5 && result.data[0].approval_status == 1)){
+                //$scope.doc_status.push($scope.doc_status_def[3])
                 $scope.doc_status.push($scope.doc_status_def[5])
             }
-            if ($scope.el.indexOf('orderReleased')>-1 && (result.data[0].doc_status_id == 6 && result.data[0].approval_status == 1)){
+            if ($scope.el.indexOf('approvalGm')>-1 && (result.data[0].doc_status_id == 6 && result.data[0].approval_status == 1)){
                 //$scope.doc_status.push($scope.doc_status_def[4])
                 $scope.doc_status.push($scope.doc_status_def[6])
+            }
+            if ($scope.el.indexOf('orderReleased')>-1 && (result.data[0].doc_status_id == 7 && result.data[0].approval_status == 1)){
+                //$scope.doc_status.push($scope.doc_status_def[4])
+                $scope.doc_status.push($scope.doc_status_def[7])
             }
             if ($scope.el.indexOf('buttonCreate')>-1 && (result.data[0].doc_status_id == 0 && result.data[0].approval_status == 1)){
                 //$scope.doc_status.push($scope.doc_status_def[4])
@@ -1025,11 +1033,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
             if ((result.data[0].doc_status_id==1) && $scope.el.indexOf('buttonCreate')>-1) $scope.viewMode = false
             else if (((result.data[0].doc_status_id==2&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==1 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalDeptHead')>-1) $scope.viewMode = false
-            else if (((result.data[0].doc_status_id==3&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==2 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalPoManager')>-1) $scope.viewMode = false
-            else if (((result.data[0].doc_status_id==4&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==3 && result.data[0].approval_status==1)) && $scope.el.indexOf('orderReleased')>-1) $scope.viewMode = false
-            else if (((result.data[0].doc_status_id==5&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==4 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalFinance')>-1) $scope.viewMode = false
-            else if (((result.data[0].doc_status_id==6&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==5 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalGm')>-1) $scope.viewMode = false
-            else if (((result.data[0].doc_status_id==7&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==6 && result.data[0].approval_status==1)) && $scope.el.indexOf('orderReleased')>-1) $scope.viewMode = false
+			else if (((result.data[0].doc_status_id==3&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==2 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalCostControl')>-1) $scope.viewMode = false
+            else if (((result.data[0].doc_status_id==4&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==3 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalPoManager')>-1) $scope.viewMode = false
+            else if (((result.data[0].doc_status_id==5&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==4 && result.data[0].approval_status==1)) && $scope.el.indexOf('orderReleased')>-1) $scope.viewMode = false
+            else if (((result.data[0].doc_status_id==6&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==5 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalFinance')>-1) $scope.viewMode = false
+            else if (((result.data[0].doc_status_id==7&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==6 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalGm')>-1) $scope.viewMode = false
+            else if (((result.data[0].doc_status_id==8&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==7 && result.data[0].approval_status==1)) && $scope.el.indexOf('orderReleased')>-1) $scope.viewMode = false
             else $scope.viewMode = true
 
             $scope.addDetail(ids)

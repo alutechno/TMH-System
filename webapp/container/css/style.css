@@ -200,6 +200,7 @@ table.dataTable th {
 
 table.dataTable td {
 	font-size: 14px !important;
+	color: #000000 !important;
 }
 
 input[ng-readonly="true"]{
