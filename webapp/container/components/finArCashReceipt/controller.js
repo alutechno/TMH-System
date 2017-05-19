@@ -19,28 +19,46 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.child = {}
 	$scope.cr = {
 		id: '',
-		invoice_id:'',
-		receipt_date:'',
-		receipt_notes:'',
-		receipt_amount:'',
-		receipt_status:''
+		code:'',
+		cash_receipt_type:'',
+		bank_account_id:'',
+		credit_card_id:'',
+		card_no:'',
+		outlet_type_id:'',
+		ref_document:'',
+		open_date:'',
+		due_date:'',
+		customer_id:'',
+		used_currency_id:'',
+		currency_exchange:'',
+		notes:'',
+		status:''
 	}
 	$scope.selected = {
         receipt_status: {}
 	}
-	var qstring = 'select a.*,b.name receipt_status_name from acc_ar_cash_receipt a,(select value as id,name from table_ref where table_name='acc_ar_cash_receipt') b
-where a.receipt_status=b.id '
+	var qstring = `select a.*,b.name receipt_status_name,c.first_name cust_name,d.name bank_name,e.name used_currency_name
+		from acc_ar_cash_receipt a,(select value as id,name from table_ref where table_name='acc_ar_cash_receipt') b,
+		mst_customer c,mst_bank d,ref_currency e
+		where a.status=b.id
+		and a.customer_id=c.id
+		and a.bank_account_id=d.id
+		and a.used_currency_id=e.id `
 	var qwhere = ''
 	var qstringt='select * from acc_ar_receipt_line_item '
 
 	$scope.receipt_status = []
 	queryService.get(`select value id, value,name from table_ref where table_name='acc_ar_cash_receipt' order by value`,undefined)
 	.then(function(data){
+		$scope.receipt_status = data.data
 	})
-
+	queryService.get('select id,code,name from mst_cash_bank_account where status = \'1\' order by name ',undefined)
+	.then(function(data){
+		$scope.bank = data.data
+	})
 	$scope.dtInstance = {}
     $scope.actionsHtml = function(data, type, full, meta) {
-		$scope.cats[data] = {id:data,code:full.code};
+		//$scope.cats[data] = {id:data,code:full.code};
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
@@ -50,7 +68,7 @@ where a.receipt_status=b.id '
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
-			if ($scope.el.indexOf('buttonDelete')>-1 && full.issued_status==0 && full.request_status==0){
+			if ($scope.el.indexOf('buttonDelete')>-1){
                 html+='<button class="btn btn-default" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
@@ -61,7 +79,6 @@ where a.receipt_status=b.id '
     }
 
     $scope.createdRow = function(row, data, dataIndex) {
-        // Recompiling so we can bind Angular directive to the DT
         $compile(angular.element(row).contents())($scope);
     }
 
@@ -92,7 +109,7 @@ where a.receipt_status=b.id '
     }
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('id').withTitle('id').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('invoice_id').withTitle('Invoice ID').withOption('width', '15%'),
+        DTColumnBuilder.newColumn('code').withTitle('Invoice ID').withOption('width', '15%'),
         DTColumnBuilder.newColumn('receipt_status_name').withTitle('Status').withOption('width', '10%'),
 		DTColumnBuilder.newColumn('created_by').withTitle('Created By').withOption('width', '10%'),
 		DTColumnBuilder.newColumn('created_date').withTitle('Created Date').withOption('width', '10%')
@@ -101,7 +118,7 @@ where a.receipt_status=b.id '
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere = ' and invoice_id like "%'+$scope.filterVal.search+'%"'
+                if ($scope.filterVal.search.length>0) qwhere = ' and code like "%'+$scope.filterVal.search+'%"'
                 else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
                     console.log(obj)
@@ -124,7 +141,7 @@ where a.receipt_status=b.id '
 		$scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
         queryService.post('select curr_document_no(\'AR\',\''+$scope.ym+'\') as code',undefined)
         .then(function(data){
-            $scope.cr.invoice_id = data.data[0].code
+            $scope.cr.code = data.data[0].code
         })
         //$scope.viewMode = false
         //$scope.addDetail(0)
@@ -133,16 +150,37 @@ where a.receipt_status=b.id '
 		if ($scope.cr.id.length==0){
 			queryService.post('select next_document_no(\'AR\',\''+$scope.ym+'\') as code',undefined)
 			.then(function(data){
-				$scope.cr.invoice_id = data.data[0].code
+				$scope.cr.code = data.data[0].code
 			})
-            var param = {
-				invoice_id:$scope.cr.invoice_id,
+			$scope.cr.cash_receipt_type=$scope.selected.cash_receipt_type.selected?$scope.selected.cash_receipt_type.selected.id:null;
+			$scope.cr.bank_account_id=$scope.selected.bank_account_id.selected?$scope.selected.bank_account_id.selected.id:null;
+			$scope.cr.credit_card_id=$scope.selected.credit_card_id.selected?$scope.selected.credit_card_id.selected.id:null;
+			$scope.cr.outlet_type_id=$scope.selected.outlet_type_id.selected?$scope.selected.outlet_type_id.selected.id:null;
+			$scope.cr.customer_id=$scope.selected.customer_id.selected?$scope.selected.customer_id.selected.id:null;
+			$scope.cr.used_currency_id=$scope.selected.used_currency_id.selected?$scope.selected.used_currency_id.selected.id:null;
+            /*var param = {
+				code:$scope.cr.code,
 				receipt_date:$scope.cr.receipt_date,
 				receipt_notes:$scope.cr.receipt_notes,
 				receipt_amount:$scope.cr.receipt_amount,
 				receipt_status:$scope.selected.receipt_status.selected.id
-			}
-            queryService.post('insert into acc_ar_cash_receipt set ?',param)
+
+				code:'',
+				cash_receipt_type:'',
+				bank_account_id:'',
+				credit_card_id:'',
+				card_no:'',
+				outlet_type_id:'',
+				ref_document:'',
+				open_date:'',
+				due_date:'',
+				customer_id:'',
+				used_currency_id:'',
+				currency_exchange:'',
+				notes:'',
+				status:''
+			}*/
+            queryService.post('insert into acc_ar_cash_receipt set ?',$scope.cr)
             .then(function (result){
 				var qstr = $scope.child.saveTable(result.data.insertId)
 				if(qstr.length>0){
@@ -152,7 +190,7 @@ where a.receipt_status=b.id '
 	                    $scope.dtInstance.reloadData(function(obj){}, false)
 	                    $('body').pgNotification({
 	                        style: 'flip',
-	                        message: 'Success Insert '+$scope.cr.invoice_id,
+	                        message: 'Success Insert '+$scope.cr.code,
 	                        position: 'top-right',
 	                        timeout: 2000,
 	                        type: 'success'
@@ -166,7 +204,7 @@ where a.receipt_status=b.id '
 					$scope.dtInstance.reloadData(function(obj){}, false)
 					$('body').pgNotification({
 						style: 'flip',
-						message: 'Success Insert '+$scope.cr.invoice_id,
+						message: 'Success Insert '+$scope.cr.code,
 						position: 'top-right',
 						timeout: 2000,
 						type: 'success'
@@ -184,7 +222,7 @@ where a.receipt_status=b.id '
             })
 		}else{
 			var param = {
-				invoice_id:$scope.cr.invoice_id,
+				code:$scope.cr.code,
 				receipt_date:$scope.cr.receipt_date,
 				receipt_notes:$scope.cr.receipt_notes,
 				receipt_amount:$scope.cr.receipt_amount,
@@ -199,7 +237,7 @@ where a.receipt_status=b.id '
 					$scope.dtInstance.reloadData(function(obj){}, false)
 					$('body').pgNotification({
 						style: 'flip',
-						message: 'Success Insert '+$scope.cr.invoice_id,
+						message: 'Success Insert '+$scope.cr.code,
 						position: 'top-right',
 						timeout: 2000,
 						type: 'success'
@@ -221,23 +259,35 @@ where a.receipt_status=b.id '
 	}
 	$scope.delete = function(obj){
 		$scope.cr.id = obj.id;
-		$scope.cr.invoice_id = obj.invoice_id;
+		$scope.cr.code = obj.code;
         $('#modalDelete').modal('show')
     }
 	$scope.execDelete = function(){
 	}
 	$scope.clear = function(){
-        $scope.cr = {
-            id: '',
-            invoice_id: '',
-            status: ''
-        }
+		$scope.cr = {
+			id: '',
+			code:'',
+			cash_receipt_type:'',
+			bank_account_id:'',
+			credit_card_id:'',
+			card_no:'',
+			outlet_type_id:'',
+			ref_document:'',
+			open_date:'',
+			due_date:'',
+			customer_id:'',
+			used_currency_id:'',
+			currency_exchange:'',
+			notes:'',
+			status:''
+		}
     }
 })
 .controller('EditableTableSrCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {
 	$scope.item = {
         id: '',
-		invoice_id:0,
+		code:0,
 		status:''
 	}
 	$scope.deleteUser = function(id) {
@@ -249,7 +299,7 @@ where a.receipt_status=b.id '
 	$scope.addUser = function() {
         $scope.item = {
 			id: '',
-			invoice_id:0,
+			code:0,
 			status:''
 		}
 		$scope.items.push($scope.item)
@@ -285,11 +335,11 @@ where a.receipt_status=b.id '
 		for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
 			if (user.isNew && !user.isDeleted){
-                sqlitem.push('insert into inv_store_req_line_item(sr_id,product_id,request_qty,issued_qty,created_by,request_notes) values '+
-                    '( '+cr_id+', '+user.product_id+','+parseInt(user.request_qty)+', '+parseInt(user.issued_qty_n)+', '+$localStorage.currentUser.name.id+' ,"'+user.item_notes+'")')
+                sqlitem.push('insert into acc_ar_receipt_line_item(receipt_id,invoice_id,home_receipt_amount,receipt_amount,created_by,receipt_notes) values '+
+                    '( '+cr_id+', '+user.product_id+','+parseFloat(user.request_qty)+', '+parseFloat(user.issued_qty_n)+', '+$localStorage.currentUser.name.id+' ,"'+user.receipt_notes+'")')
             }
             else if(!user.isNew && user.isDeleted){
-                sqlitem.push('delete from inv_store_req_line_item where id='+user.p_id)
+                sqlitem.push('delete from acc_ar_receipt_line_item where id='+user.p_id)
             }
             else if(!user.isNew){
                 for (var j=0;j<$scope.itemsOri.length;j++){
@@ -297,7 +347,7 @@ where a.receipt_status=b.id '
                         var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].request_qty+$scope.itemsOri[j].issued_qty_n+$scope.itemsOri[j].item_notes
                         var d2 = user.p_id+user.product_id+user.request_qty+user.issued_qty_n+user.item_notes
                         if(d1 != d2){
-							var sql1 = 'update inv_store_req_line_item set '
+							var sql1 = 'update acc_ar_receipt_line_item set '
 							sqlitem.push(sql1)
 						}
 					}
