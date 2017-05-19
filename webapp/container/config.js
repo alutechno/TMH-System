@@ -2934,7 +2934,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
             }
         })
         .state("app.fin.ARCustomerDeposit", {
-            url: "/finARCCJournal",
+            url: "/finARCustomerDeposit",
             templateUrl: "container/components/finARCustomerDeposit/view.html",
             params: {'currentPeriod': null},
             controller: "FinARCustomerDepositCtrl",
