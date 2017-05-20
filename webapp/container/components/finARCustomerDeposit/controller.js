@@ -42,7 +42,7 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
         `id`, `code`, `open_date`, `status`, `notes`, `customer_id`, `bank_account_id`,
         `credit_card_id`, `card_no`, `outlet_type_id`, `used_currency_id`,
         `currency_exchange`, `home_deposit_amount`, `deposit_amount`, `home_applied_amount`,
-        `applied_amount`, `created_date`, `modified_date`, `created_by`, `modified_by`
+        `applied_amount` //`created_date`, `modified_date`, `created_by`, `modified_by`
 
     ];
     $scope.titles = $scope.fields.map(function (str) {
@@ -94,7 +94,7 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
     });
 
     $scope.focusinControl = {};
-    $scope.fileName = "Account Receivable Credit Card Batch";
+    $scope.fileName = "Account Receivable Customer Deposit";
     $scope.exportExcel = function () {
         queryService.post(trim(`
             select ${$scope.fields.toString()} from (${qstring} ${qwhere}) myAlias
