@@ -226,12 +226,12 @@
                                             <div class="col-sm-6">
                                                 <div pg-form-group
                                                      class="form-group form-group-default"
-                                                     ng-class="{ 'has-error' : !data.credit_card_no }">
+                                                     ng-class="{ 'has-error' : !data.card_no }">
                                                     <label>Credit Card No.</label>
-                                                    <input type="number" class="form-control"
-                                                           name="credit_card_no"
-                                                           id="data_credit_card_no"
-                                                           ng-model="data.credit_card_no"
+                                                    <input type="text" class="form-control"
+                                                           name="card_no"
+                                                           id="data_card_no"
+                                                           ng-model="data.card_no"
                                                            ui-jq="popover" data-container="body"
                                                            data-placement="top"
                                                            data-content="This field is required"
@@ -251,7 +251,6 @@
                                                         ng-model="data.used_currency_id.selected"
                                                         theme="bootstrap"
                                                         on-select="selectCurrency()"
-                                                        on-change="selectCurrency()"
                                                         validate-attached-form-element
                                                         required>
                                                         <ui-select-match placeholder="Choose one">

@@ -17,12 +17,16 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
             a.*, DATEDIFF(now(),a.open_date) age, (a.deposit_amount - a.applied_amount) balance,
             b.code customer_code, b.title customer_title, b.first_name customer_fisrt_name, b.last_name customer_last_name,
             c.code bank_account_code, c.name bank_account_name, c.short_name bank_account_short_name,
-            d.code used_currency_code, d.name used_currency_name, d.home_currency_exchange used_currency_home_exchange, d.selling_rate used_currency_selling_rate
+            d.code used_currency_code, d.name used_currency_name, d.home_currency_exchange used_currency_home_exchange, d.selling_rate used_currency_selling_rate,
+            e.code credit_card_code, e.name credit_card_name,
+            f.code outlet_type_code, f.name outlet_type_name
         from
             acc_ar_deposit a
             left join mst_customer b on a.customer_id = b.id
             left join mst_cash_bank_account c on a.bank_account_id = c.id
             left join ref_currency d on a.used_currency_id = d.id
+            left join mst_credit_card e on a.credit_card_id = e.id
+            left join ref_ar_outlet_type f on a.outlet_type_id = f.id
         where c.status = 1 and d.status = 'Y'
     `);
     var qwhere = '';
@@ -35,7 +39,8 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
     for (var i = 0; i < $scope.el.length; i++) $scope[$scope.el[i]] = true;
 
     $scope.fields = [ //mysql table columns
-        `id`, `code`, `open_date`, `status`, `notes`, `customer_id`, `bank_account_id`, `used_currency_id`,
+        `id`, `code`, `open_date`, `status`, `notes`, `customer_id`, `bank_account_id`,
+        `credit_card_id`, `card_no`, `outlet_type_id`, `used_currency_id`,
         `currency_exchange`, `home_deposit_amount`, `deposit_amount`, `home_applied_amount`,
         `applied_amount`, `created_date`, `modified_date`, `created_by`, `modified_by`
 
@@ -346,6 +351,20 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
                     })[0].name
                 }
             };
+            $scope.data.credit_card_id = {
+                selected: {
+                    id : d.credit_card_id,
+                    code : d.credit_card_code,
+                    name : d.credit_card_name
+                }
+            };
+            $scope.data.outlet_type_id = {
+                selected: {
+                    id : d.outlet_type_id,
+                    code : d.outlet_type_code,
+                    name : d.outlet_type_name
+                }
+            };
             $scope.data.used_currency_id = {
                 selected: {
                     id : d.used_currency_id,
@@ -409,11 +428,12 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
         var myCat = $('[myCat]');
 
         $scope.data.currency_exchange = val;
-        console.log('selek selek yaa', val)
         myCat.attr('disabled', 1);
         if (val === 1) {
+            $scope.data.home_deposit_amount = 0;
             $($('[myCat="right"]')[0]).removeAttr('disabled');
         } else {
+            $scope.data.deposit_amount = 0;
             $($('[myCat="left"]')[0]).removeAttr('disabled');
         }
     };
