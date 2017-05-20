@@ -364,7 +364,7 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
             //delete $scope.product.id
             //console.log($scope.product)
 
-            queryService.post('select next_product_code(\''+$scope.selected.category_id.selected.short_name+'\') as code',undefined)
+            queryService.post('select next_item_code(\'product\',\''+$scope.selected.category_id.selected.short_name+'\') as code',undefined)
             .then(function(data){
                 $scope.product.code = data.data[0].code
                 var query = "insert into mst_product set ?";
@@ -583,7 +583,7 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
         })
         if (stat!='new'){
             //queryService.post('select cast(concat(\''+selectItem.short_name+'\',\'-\', lpad(seq(\''+selectItem.short_name+'\',\'\'),4,\'0\')) as char) as code ',undefined)
-            queryService.post('select curr_product_code(\''+$scope.selected.category_id.selected.short_name+'\') as code',undefined)
+            queryService.post('select curr_item_code(\'product\',\''+$scope.selected.category_id.selected.short_name+'\') as code',undefined)
             .then(function(data){
                 console.log(data)
                 $scope.product.code = data.data[0].code
