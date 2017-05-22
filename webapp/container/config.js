@@ -1594,6 +1594,56 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
+        .state("app.fo.shiftAudit", {
+            url: "/foShiftAudit",
+            templateUrl: "container/components/foShiftAudit/view.html",
+            controller: "FoShiftAuditCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        'timepicker',
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load([
+                            "container/components/foShiftAudit/controller.js"
+                        ]);
+                    });
+                }]
+            }
+        })
+        .state("app.fo.nightAudit", {
+            url: "/foNightAudit",
+            templateUrl: "container/components/foNightAudit/view.html",
+            controller: "FoNightAuditCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        'timepicker',
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load([
+                            "container/components/foNightAudit/controller.js"
+                        ]);
+                    });
+                }]
+            }
+        })
 
         //Inventory Module
         .state('app.inv', {
