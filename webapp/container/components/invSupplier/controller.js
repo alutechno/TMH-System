@@ -228,7 +228,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
 			$scope.supplier.bank2_currency_id = $scope.selected.bank_used_currency2.selected?$scope.selected.bank_used_currency2.selected.id:null;
 			$scope.supplier['created_by'] = $localStorage.currentUser.name.id;
             $scope.supplier['created_date'] = globalFunction.currentDate();
-			queryService.post('select next_product_code(\''+$scope.selected.supplier_type.selected.code+'\') as code',undefined)
+			queryService.post('select next_item_code(\'supplier\',\''+$scope.selected.supplier_type.selected.code+'\') as code',undefined)
 			.then(function(data){
 	            $scope.supplier.code = data.data[0].code
 		        queryService.post('insert into mst_supplier SET ?',$scope.supplier)
@@ -475,7 +475,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
     }
 
 	$scope.changeCode=function (){
-		queryService.post('select curr_product_code(\''+$scope.selected.supplier_type.selected.code+'\') as code',undefined)
+		queryService.post('select curr_item_code(\'supplier\',\''+$scope.selected.supplier_type.selected.code+'\') as code',undefined)
 		.then(function(data){
 			$scope.supplier.code = data.data[0].code
 		})
