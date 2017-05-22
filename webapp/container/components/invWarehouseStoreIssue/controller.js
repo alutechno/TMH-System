@@ -509,6 +509,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.child.saveTable = function(sr_id) {
         var results = [];
         var sqlitem = []
+		sqlitem.push('START TRANSACTION')
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
 			// actually delete user
@@ -532,9 +533,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 sqlitem.push('delete from inv_store_req_line_item where id='+user.p_id)
             }
             else if(!user.isNew){
-				console.log("a")
 				var amount_tot=0
-				sqlitem.push('START TRANSACTION')
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
                         var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].request_qty+$scope.itemsOri[j].issued_qty_n+$scope.itemsOri[j].item_notes
@@ -585,11 +584,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 						values(@id,`+$scope.selected.warehouse.selected.account_id+`,'C',`+amount_tot+`,"`+$scope.sr.request_notes+`")`
 					sqlitem.push(sql5,sql6,sql7,sql8)
 				}
-				console.log(sqlitem)
-				sqlitem.push('COMMIT')
             }
-
         }
+		sqlitem.push('COMMIT')
         return sqlitem
         //return $q.all(results);
     };
