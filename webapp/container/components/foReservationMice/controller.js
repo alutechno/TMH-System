@@ -1236,7 +1236,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     }
 
 })
-.controller('FoReservationAdditionalCtrl',
+.controller('FoReservationBlockingCtrl',
 function($scope, $state, $sce, queryService, $q,departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
     $scope.additional.form.gf = {
         folio_id: '',
@@ -1412,7 +1412,7 @@ function($scope, $state, $sce, $q,queryService, departmentService, accountTypeSe
     }
 
 })
-.controller('FoReservationDirectionsCtrl',
+.controller('FoReservationMemberCtrl',
 function($scope, $state, $sce, queryService, $q,departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
     $scope.direction.form.gf = {
         folio_id: '',

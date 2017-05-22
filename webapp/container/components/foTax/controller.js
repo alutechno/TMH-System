@@ -35,6 +35,10 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         status: ''
     }
 
+    $scope.items = []
+    $scope.itemsOri = []
+    $scope.child = {}
+
     $scope.selected = {
         status: {},
         filter_department: {},
@@ -207,6 +211,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         if (state == 'add'){
             $scope.clear()
         }
+        $scope.items = []
+        $scope.itemsOri = []
         $('#form-input').modal('show')
     }
 
@@ -226,18 +232,48 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
             queryService.post('insert into mst_guest_transaction_tax SET ?',param)
             .then(function (result){
+                var q = $scope.child.saveTable(result.data.insertId)
+                if (q.length>0){
+                    queryService.post(q.join(';'),undefined)
+                    .then(function (result3){
+                        console.log(result.data.insertId)
+                        $('#form-input').modal('hide')
+                        $scope.dtInstance.reloadData(function(obj){
+                            // console.log(obj)
+                        }, false)
+                        $('body').pgNotification({
+                            style: 'flip',
+                            message: 'Success Insert '+$scope.coa.code,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'success'
+                        }).show();
+                    },
+                    function (err3){
+                        console.log(err3)
+                        $('#form-input').pgNotification({
+                            style: 'flip',
+                            message: 'Error Insert Line Item: '+err3.code,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'danger'
+                        }).show();
+                    })
+                }
+                else {
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
+                        // console.log(obj)
                     }, false)
                     $('body').pgNotification({
                         style: 'flip',
-                        message: 'Success Insert '+$scope.coa.code,
+                        message: 'Success Insert  '+$scope.coa.code,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'success'
                     }).show();
-                    $scope.clear()
+                }
+
 
             },
             function (err){
@@ -269,17 +305,47 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 if (result.status = "200"){
                     console.log('Success Update')
                     $('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
-                    }, false)
-                    $('body').pgNotification({
-                        style: 'flip',
-                        message: 'Success Update '+$scope.coa.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'success'
-                    }).show();
-                    $scope.clear()
+                    var q = $scope.child.saveTable($scope.coa.id)
+                    if (q.length>0){
+                        queryService.post(q.join(';'),undefined)
+                        .then(function (result3){
+                            console.log(result.data.insertId)
+                            $('#form-input').modal('hide')
+                            $scope.dtInstance.reloadData(function(obj){
+                                // console.log(obj)
+                            }, false)
+                            $('body').pgNotification({
+                                style: 'flip',
+                                message: 'Success Insert '+$scope.coa.code,
+                                position: 'top-right',
+                                timeout: 2000,
+                                type: 'success'
+                            }).show();
+                        },
+                        function (err3){
+                            console.log(err3)
+                            $('#form-input').pgNotification({
+                                style: 'flip',
+                                message: 'Error Insert Line Item: '+err3.code,
+                                position: 'top-right',
+                                timeout: 2000,
+                                type: 'danger'
+                            }).show();
+                        })
+                    }
+                    else {
+                        $('#form-input').modal('hide')
+                        $scope.dtInstance.reloadData(function(obj){
+                            // console.log(obj)
+                        }, false)
+                        $('body').pgNotification({
+                            style: 'flip',
+                            message: 'Success Insert '+$scope.coa.code,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'success'
+                        }).show();
+                    }
                 }
                 else {
                     console.log('Failed Update')
@@ -305,6 +371,27 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             $scope.coa.status = result.data[0].status
             $scope.coa.status = result.data[0].status
             $scope.selected.status.selected = {id: result.data[0].status,name:result.data[0].status_name}
+            queryService.post("select a.id,a.tax_id,a.transc_type_id,b.short_name,b.code,b.folio_text,a.percentage,a.sequence_no "+
+                "from mst_transaction_tax_detail a, mst_guest_transaction_type b "+
+                "where a.transc_type_id = b.id " + " and a.tax_id="+result.data[0].id +" order by a.sequence_no asc ",undefined)
+            .then(function(data2){
+
+                $scope.items = []
+                for (var i=0;i<data2.data.length;i++){
+					var p=''
+                    $scope.items.push({
+                        id: i+1,
+                        p_id: data2.data[i].id,
+                        transc_type_id: data2.data[i].transc_type_id,
+                        code:data2.data[i].code,
+                        short_name:data2.data[i].short_name,
+                        folio_text:data2.data[i].folio_text,
+                        percentage: data2.data[i].percentage,
+                        sequence_no: data2.data[i].sequence_no
+                    })
+                }
+				$scope.itemsOri = angular.copy($scope.items)
+            })
 
         })
     }
@@ -350,10 +437,149 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             id: '',
             code: '',
             name: '',
-            
+
             description: '',
             status: ''
         }
     }
 
 })
+.controller('EditableTableTaxCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {
+    $scope.item = {
+        id:0,
+        transc_type_id:'',
+        short_name:'',
+        code:'',
+        folio_text: '',
+        percentage: 0,
+        sequence_no: 0
+    };
+
+    $scope.checkName = function(data, id) {
+        if (id === 2 && data !== 'awesome') {
+            return "Username 2 should be `awesome`";
+        }
+    };
+
+    // filter users to show
+    $scope.filterUser = function(user) {
+        return user.isDeleted !== true;
+    };
+
+    // mark user as deleted
+    $scope.deleteUser = function(id) {
+        var filtered = $filter('filter')($scope.items, {id: id});
+        if (filtered.length) {
+            filtered[0].isDeleted = true;
+        }
+    };
+
+    // add user
+    $scope.addUser = function() {
+        $scope.item = {
+            id:($scope.items.length+1),
+            transc_type_id:'',
+            short_name:'',
+            code:'',
+            folio_text: '',
+            percentage: 0,
+            sequence_no: ($scope.items.length+1),
+            isNew: true
+        };
+        $scope.items.push($scope.item)
+    };
+
+    // cancel all changes
+    $scope.cancel = function() {
+        for (var i = $scope.items.length; i--;) {
+            var user = $scope.items[i];
+            // undelete
+            if (user.isDeleted) {
+                delete user.isDeleted;
+            }
+            // remove new
+            if (user.isNew) {
+                $scope.items.splice(i, 1);
+            }
+        };
+    };
+
+    // save edits
+    $scope.child.saveTable = function(pr_id) {
+        var results = [];
+        var sqlitem = []
+		console.log("items")
+
+        for (var i = $scope.items.length; i--;) {
+            var user = $scope.items[i];
+			console.log(user)
+            // actually delete user
+            /*if (user.isDeleted) {
+                $scope.items.splice(i, 1);
+            }*/
+            // mark as not new
+            /*if (user.isNew) {
+                user.isNew = false;
+            }*/
+
+            // send on server
+            //results.push($http.post('/saveUser', user));
+            if (user.isNew && !user.isDeleted){
+			    sqlitem.push('insert into mst_transaction_tax_detail (tax_id,transc_type_id,percentage,sequence_no,created_by,created_date) values('+
+                pr_id+','+user.transc_type_id+','+user.percentage+','+user.sequence_no+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+
+            }
+            else if(!user.isNew && user.isDeleted){
+                sqlitem.push('delete from mst_transaction_tax_detail where id='+user.p_id)
+            }
+            else if(!user.isNew){
+                for (var j=0;j<$scope.itemsOri.length;j++){
+                    if ($scope.itemsOri[j].p_id==user.p_id){
+                        var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].tax_id+$scope.itemsOri[j].transc_type_id+$scope.itemsOri[j].percentage+$scope.itemsOri[j].sequence_no
+                        var d2 = user.p_id+user.tax_id+user.transc_type_id+user.percentage+user.sequence_no
+                        if(d1 != d2){
+                            sqlitem.push('update mst_transaction_tax_detail set '+
+                            ' transc_type_id = '+user.transc_type_id+',' +
+                            ' percentage = '+user.percentage+',' +
+                            ' sequence_no = '+user.sequence_no+',' +
+                            ' modified_by = '+$localStorage.currentUser.name.id+',' +
+                            ' modified_date = \''+globalFunction.currentDate()+'\'' +
+                            ' where id='+user.p_id)
+                        }
+                    }
+                }
+            }
+
+        }
+        console.log(sqlitem)
+        return sqlitem
+        //return $q.all(results);
+    };
+    $scope.trustAsHtml = function(value) {
+        return $sce.trustAsHtml(value);
+    };
+
+    $scope.transcs = []
+
+    queryService.get('select a.id,a.short_name,a.code,a.folio_text '+
+        'from mst_guest_transaction_type a order by id ',undefined)
+    .then(function(data){
+        $scope.transcs = data.data
+    })
+
+    $scope.setPercentage = function(e,d,p){
+		$scope.items[d-1].percentage = p
+	}
+    $scope.setIndex = function(e,d,p){
+		$scope.items[d-1].sequence_no = p
+	}
+
+
+    $scope.getTransac = function(e,d){
+        $scope.items[d-1].transc_type_id = e.id
+        $scope.items[d-1].code = e.code
+        $scope.items[d-1].short_name = e.short_name
+        $scope.items[d-1].folio_text = e.folio_text
+    }
+
+});

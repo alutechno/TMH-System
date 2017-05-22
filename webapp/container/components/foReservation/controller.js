@@ -24,6 +24,10 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         form: {},
         action: {}
     }
+    $scope.deposit = {
+        form: {},
+        action: {}
+    }
     $scope.direction = {
         form: {},
         action: {}
@@ -36,7 +40,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         form: {},
         action: {}
     }
-    var qstringOri = "select a.id folio_id, a.code folio_code,concat(b.first_name, b.last_name, ',') guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
+    var qstringOri = "select a.id folio_id, a.code folio_code,concat(b.first_name, ' ',b.last_name) guest_name,b.first_name,b.last_name, a.room_type_id,d.name room_type, "+
       "a.room_id, e.name room_no, concat(e.fo_status,e.hk_status) room_status, a.check_in_time, a.check_out_time, date_format(date_add(a.arrival_date,interval a.num_of_nights day),'%Y-%m-%d')out_date, "+
       "date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date,a.check_in_limit_time,a.actual_check_in_time,a.actual_check_out_time, "+
       "if(reservation_type='I','Individual','House Guest') reservation_type_name,a.commission_amount,a.agent_id,a.payment_type_id, "+
@@ -54,13 +58,15 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
       "y.name check_in_type_name,z.name check_out_type_name,a.prev_room_type_id,p.name prev_room_type_name,b.title,i.name payment_type_name,aa.name currency_name, "+
       "u.remarks remarks_cashier,u.id remarks_cashier_id,ae.remarks remarks_check_in,ae.id remarks_check_in_id, "+
       "af.remarks remarks_drop,af.id remarks_drop_id,ag.remarks remarks_locator,ag.id remarks_locator_id,ah.remarks remarks_prefered,ah.id remarks_prefered_id, "+
-      "ai.remarks remarks_pickup,ai.id remarks_pickup_id,aj.remarks remarks_room_message,aj.id remarks_room_message_id "+
+      "ai.remarks remarks_pickup,ai.id remarks_pickup_id,aj.remarks remarks_room_message,aj.id remarks_room_message_id, "+
+      "date_format(a.check_out_date,'%Y-%m-%d')check_out_date "+
       "from fd_guest_folio a "+
       "left join mst_customer b on a.customer_id = b.id "+
       "left join mst_cust_company c on a.cust_company_id = c.id "+
-      "left join ref_room_type d on a.room_type_id = d.id "+
-      "left join ref_room_type p on a.prev_room_type_id = p.id "+
       "left join mst_room e on a.room_id = e.id "+
+      "left join mst_room ee on a.prev_room_id = ee.id "+
+      "left join ref_room_type d on e.room_type_id = d.id "+
+      "left join ref_room_type p on ee.room_type_id = p.id "+
       "left join ref_vip_type f on a.vip_type_id = f.id "+
       "left join mst_room_rate g on a.room_rate_id = g.id "+
       "left join mst_room_rate_line_item h on a.room_type_id = h.room_type_id and a.room_rate_id = h.room_rate_id "+
@@ -155,11 +161,12 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
               qstring = qstringOri + " where a.reservation_status = 5 "
         }
         else if (a=='house'){
-            qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_check_in a, "+
+            qstring = qstringOri + " where a.reservation_type = 'H' and a.reservation_status is null "
+            /*qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_check_in a, "+
                 "(select id as status_id, value as status_value,name as status_name  "+
                     "from table_ref  "+
                     "where table_name = 'ref_product_category' and column_name='status')b "+
-                "where a.status = b.status_value and a.status!=2 "
+                "where a.status = b.status_value and a.status!=2 "*/
         }
         else if (a=='canceled'){
 
@@ -221,15 +228,32 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
-                html +=
-                '<button class="btn btn-default" ng-click="update(coas[\'' + data + '\'])">' +
-                '   <i class="fa fa-edit"></i>' +
-                '</button>&nbsp;' ;
+                if (full.reservation_type=='H'){
+                    html +=
+                    '<button class="btn btn-default" ng-click="updateHouse(coas[\'' + data + '\'])">' +
+                    '   <i class="fa fa-edit"></i>' +
+                    '</button>&nbsp;' ;
+                }
+                else {
+                    html +=
+                    '<button class="btn btn-default" ng-click="update(coas[\'' + data + '\'])">' +
+                    '   <i class="fa fa-edit"></i>' +
+                    '</button>&nbsp;' ;
+                }
+
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(coas[\'' + data + '\'])" )"="">' +
-                '   <i class="fa fa-trash-o"></i>' +
-                '</button>';
+                if (full.reservation_type=='H'){
+                    html +=
+                    '<button class="btn btn-default" ng-click="deleteHouse(coas[\'' + data + '\'])">' +
+                    '   <i class="fa fa-trash-o"></i>' +
+                    '</button>&nbsp;' ;
+                }
+                else {
+                    html+='<button class="btn btn-default" ng-click="delete(coas[\'' + data + '\'])" )"="">' +
+                    '   <i class="fa fa-trash-o"></i>' +
+                    '</button>';
+                }
             }
             html += '</div>'
         }
@@ -327,7 +351,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhereobj.text = ' lower(a.name) like \'%'+$scope.filterVal.search+'%\' '
+                if ($scope.filterVal.search.length>0) qwhereobj.text = " (lower(a.code) like '%"+$scope.filterVal.search+"%' or lower(concat(b.first_name, ' ',b.last_name)) like '%"+$scope.filterVal.search+"%' or lower(if(isnull(c.name),'Individual',c.name)) like '%"+$scope.filterVal.search+"%') ";
                 else qwhereobj.text = ''
                 qwhere = setWhere()
 
@@ -473,7 +497,33 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
             function(err){
                 $('#form-input').pgNotification({
                     style: 'flip',
-                    message: 'Error Insert: '+err.code,
+                    message: 'Error Add Additional Folio: '+err.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
+        }
+        else if(type=='deposit'){
+            $scope.deposit.action.submit()
+            .then(function(message){
+                //$('#form-input').modal('hide')
+                $scope.dtInstance.reloadData(function(obj){
+                    console.log(obj)
+                }, false)
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: message,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+
+            },
+            function(err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Add Deposit: '+err.code,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'danger'
@@ -482,6 +532,242 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         }
 
     }
+    $scope.house = {
+        id: '',
+        code: '',
+        name: '',
+        check_out: '',
+        selected: {
+            company: {},
+            currency: {},
+            payment_type: {}
+        },
+        remarks_cashier: '',
+        remarks_reception: ''
+    }
+    $scope.submitHouse = function(){
+        console.log('submitHouse',$scope.house.id)
+        if ($scope.house.id.length==0){
+            //exec creation
+            var date1 = new Date(globalFunction.currentDate());
+            var date2 = new Date($scope.house.check_out);
+            var timeDiff = Math.abs(date2.getTime() - date1.getTime());
+            var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            $scope.profile.form.gf.night = diffDays
+
+            var param = {
+                //code: $scope.house.code,
+                folio_type: '1',
+                arrival_date: globalFunction.currentDate(),
+                //departure_date: globalFunction.currentDate(),
+                num_of_nights: diffDays,
+                num_of_stays: diffDays,
+                check_out_date: $scope.house.check_out,
+                //check_in_time: $scope.profile.form.gf.check_in_time,
+                //check_in_limit_time: $scope.profile.form.gf.check_in_limit_time,
+                //check_out_time: $scope.profile.form.gf.check_out_time,
+                //actual_check_in_time: $scope.profile.form.gf.actual_check_in_time,
+                //actual_check_out_time: $scope.profile.form.gf.actual_check_out_time,
+                //reservation_status: ($scope.profile.form.selected.reservation_status.selected?$scope.profile.form.selected.reservation_status.selected.id:null),
+                reservation_type: 'H',
+                cust_company_id: ($scope.house.selected.company.selected?$scope.house.selected.company.selected.id:null),
+                payment_type_id: ($scope.house.selected.payment_type.selected?$scope.house.selected.payment_type.selected.id:null),
+                currency_id: ($scope.house.selected.currency.selected?$scope.house.selected.currency.selected.id:null),
+                created_date: globalFunction.currentDate(),
+                created_by: $localStorage.currentUser.name.id
+            }
+
+            console.log(param)
+            var param_cust = {
+                first_name: '',
+                last_name: $scope.house.name,
+                status: '1',
+                created_date: globalFunction.currentDate(),
+                created_by: $localStorage.currentUser.name.id
+            }
+            console.log(param_cust)
+            queryService.post('insert into mst_customer SET ?',param_cust)
+            .then(function (resultx){
+                param['customer_id'] = resultx.data.insertId;
+                queryService.post('insert into fd_guest_folio SET ?',param)
+                .then(function (result){
+                    var param_remark = [[result.data.insertId,2,$scope.house.remarks_cashier,globalFunction.currentDate(),$localStorage.currentUser.name.id],
+                        [result.data.insertId,1,$scope.house.remarks_reception,globalFunction.currentDate(),$localStorage.currentUser.name.id]]
+                    console.log(param_remark)
+
+                    queryService.post('insert into fd_folio_remarks(folio_id,remark_type_id,remarks,created_date,created_by) VALUES ?',[param_remark])
+                    .then(function (result2){
+                        $('#form-input-house').modal('hide')
+                        $scope.dtInstance.reloadData(function(obj){
+                            console.log(obj)
+                        }, false)
+                        $('body').pgNotification({
+                            style: 'flip',
+                            message: 'House Guest Inserted',
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'success'
+                        }).show();
+                        $scope.house = {
+                            id: '',
+                            code: '',
+                            name: '',
+                            check_out: '',
+                            selected: {
+                                company: {},
+                                currency: {},
+                                payment_type: {}
+                            },
+                            remarks_cashier: '',
+                            remarks_reception: ''
+                        }
+                    },
+                    function (err2){
+                        $('#form-input').pgNotification({
+                            style: 'flip',
+                            message: 'Error Insert: '+err2.code,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'danger'
+                        }).show();
+                    })
+                },
+                function (err){
+                    console.log(err)
+                    $('#form-input').pgNotification({
+                        style: 'flip',
+                        message: 'Error Insert: '+err.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'danger'
+                    }).show();
+                })
+            },function(errx){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert Customer: '+errx.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
+
+
+        }
+        else {
+            //exec update
+            var date1 = new Date(globalFunction.currentDate());
+            var date2 = new Date($scope.house.check_out);
+            var timeDiff = Math.abs(date2.getTime() - date1.getTime());
+            var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            $scope.profile.form.gf.night = diffDays
+
+            var param = {
+                //code: $scope.house.code,
+                folio_type: '1',
+                arrival_date: globalFunction.currentDate(),
+                //departure_date: globalFunction.currentDate(),
+                num_of_nights: diffDays,
+                num_of_stays: diffDays,
+                check_out_date: $scope.house.check_out,
+                //check_in_time: $scope.profile.form.gf.check_in_time,
+                //check_in_limit_time: $scope.profile.form.gf.check_in_limit_time,
+                //check_out_time: $scope.profile.form.gf.check_out_time,
+                //actual_check_in_time: $scope.profile.form.gf.actual_check_in_time,
+                //actual_check_out_time: $scope.profile.form.gf.actual_check_out_time,
+                //reservation_status: ($scope.profile.form.selected.reservation_status.selected?$scope.profile.form.selected.reservation_status.selected.id:null),
+                reservation_type: 'H',
+                cust_company_id: ($scope.house.selected.company.selected?$scope.house.selected.company.selected.id:null),
+                payment_type_id: ($scope.house.selected.payment_type.selected?$scope.house.selected.payment_type.selected.id:null),
+                currency_id: ($scope.house.selected.currency.selected?$scope.house.selected.currency.selected.id:null),
+                modified_date: globalFunction.currentDate(),
+                modified_by: $localStorage.currentUser.name.id
+            }
+
+            console.log(param)
+            var param_cust = {
+                //first_name: '',
+                last_name: $scope.house.name,
+                status: '1',
+                modified_date: globalFunction.currentDate(),
+                modified_by: $localStorage.currentUser.name.id
+            }
+            console.log(param_cust)
+            queryService.post('update mst_customer SET ? where id='+$scope.house.customer_id,param_cust)
+            .then(function (resultx){
+                queryService.post('update fd_guest_folio SET ? where id='+$scope.house.id,param)
+                .then(function (result){
+                    sqlrmk = []
+                    sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
+                        ' values('+$scope.house.remarks_cashier_id+','+$scope.house.id+',1,\''+$scope.house.remarks_cashier+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
+                        ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.house.remarks_cashier+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
+                    )
+                    sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
+                        ' values('+$scope.house.remarks_reception_id+','+$scope.house.id+',2,\''+$scope.house.remarks_reception+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
+                        ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.house.remarks_reception+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
+                    )
+                    console.log(sqlrmk)
+
+                    queryService.post(sqlrmk.join(';'),undefined)
+                    .then(function (result2){
+                        $('#form-input-house').modal('hide')
+                        $scope.dtInstance.reloadData(function(obj){
+                            console.log(obj)
+                        }, false)
+                        $('body').pgNotification({
+                            style: 'flip',
+                            message: 'House Guest Updated',
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'success'
+                        }).show();
+                        $scope.house = {
+                            id: '',
+                            code: '',
+                            name: '',
+                            check_out: '',
+                            selected: {
+                                company: {},
+                                currency: {},
+                                payment_type: {}
+                            },
+                            remarks_cashier: '',
+                            remarks_reception: ''
+                        }
+                    },
+                    function (err2){
+                        $('#form-input').pgNotification({
+                            style: 'flip',
+                            message: 'Error Update: '+err2.code,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'danger'
+                        }).show();
+                    })
+                },
+                function (err){
+                    console.log(err)
+                    $('#form-input').pgNotification({
+                        style: 'flip',
+                        message: 'Error Update: '+err.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'danger'
+                    }).show();
+                })
+            },function(errx){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Update Customer: '+errx.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
+        //return defer.promise;
+    }
+}
+
     $scope.update = function(obj){
         $scope.updateState = true;
         $('#form-input').modal('show');
@@ -617,6 +903,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
             $scope.profile.form.gf.remarks_check_in = result.data[0].remarks_check_in;
             $scope.profile.form.gf.remarks_check_in_id = result.data[0].remarks_check_in_id;
 
+
             $scope.remark.form.gf.remarks_cashier = result.data[0].remarks_cashier;
             $scope.remark.form.gf.remarks_cashier_id = result.data[0].remarks_cashier_id;
             $scope.remark.form.gf.remarks_check_in = result.data[0].remarks_check_in;
@@ -649,6 +936,42 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
                 }
             })
             $scope.message.action.requeryMessage();
+            $scope.account.form.listAccount(result.data[0].folio_id);
+
+            queryService.post("select id,code,cust_id,term,date_format(due_date,'%Y-%m-%d')due_date,status,deposit_amount,payment_amount,closing_amount,paid_date,created_date,created_by "+
+                " from fd_guest_deposit where cust_id= "+result.data[0].customer_id,undefined)
+            .then(function(data){
+                $scope.deposit.form.gf = {
+                    due_date: data.data[0].due_date,
+                    term: data.data[0].term,
+                    deposit_amount: data.data[0].deposit_amount
+                }
+            })
+
+        })
+    }
+    $scope.updateHouse = function(obj){
+        //$scope.updateState = true;
+        $('#form-input-house').modal('show');
+        //$('#coa_code').prop('disabled', true);
+
+        // console.log(obj)
+        queryService.post(qstring+ ' and a.id='+obj.id,undefined)
+        .then(function(result){
+            console.log(result)
+            $scope.house.id = result.data[0].folio_id;
+            $scope.house.name = result.data[0].guest_name;
+            $scope.house.check_out = result.data[0].check_out_date;
+            $scope.house.selected.company['selected'] = {id:result.data[0].company_id,name:result.data[0].company_name};
+
+            $scope.house.remarks_cashier = result.data[0].remarks_cashier;
+            $scope.house.remarks_cashier_id = result.data[0].remarks_cashier_id;
+            $scope.house.remarks_reception = result.data[0].remarks_check_in;
+            $scope.house.remarks_reception_id = result.data[0].remarks_check_in_id;
+            $scope.house.selected.currency['selected'] = {id:result.data[0].currency_id,name:result.data[0].currency_name};
+            $scope.house.selected.payment_type['selected'] = {id:result.data[0].payment_type_id,name:result.data[0].payment_type_name};
+
+            $scope.house.customer_id= result.data[0].customer_id ;
 
         })
     }
@@ -661,6 +984,126 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
             $('#modalDelete').modal('show')
         })
     }
+    $scope.deleteHouse = function(obj){
+        $scope.house.id = obj.id;
+        queryService.post(qstring+ ' and a.id='+obj.id,undefined)
+        .then(function(result){
+            console.log('deleteHouse',result)
+            $scope.house.name = result.data[0].guest_name;
+            $('#modalDeleteHouse').modal('show')
+        })
+    }
+    $scope.buildTrans = function(ids){
+        var insTrans = "select (a.num_of_stays *a.room_rate_amount*(c.percentage/100)) amount, "+
+        "	a.id folio_id,concat(c.folio_text,'(',c.percentage,'%)') folio_text, "+
+        "	if(c.transc_type='D',(a.num_of_stays *a.room_rate_amount*(c.percentage/100)),0)debit, "+
+        "    if(c.transc_type='C',(a.num_of_stays *a.room_rate_amount*(c.percentage/100)),0)credit, "+
+        "    a.customer_id,c.id_detail transc_type_id, "+
+        "	c.code transc_code "+
+        "from fd_guest_folio a,mst_room_rate b, "+
+        "	(select a.id,a.short_name, d.id id_detail,d.short_name short_name_detail,d.code,d.folio_text,c.percentage,c.sequence_no,d.transc_type "+
+        "	from mst_guest_transaction_type a "+
+        "	left join mst_guest_transaction_tax b on a.tax_id = b.id "+
+        "	left join mst_transaction_tax_detail c on b.id = c.tax_id "+
+        "	left join mst_guest_transaction_type d on c.transc_type_id = d.id) c "+
+        "where a.room_rate_id = b.id  "+
+        "and b.room_transc_type_id = c.id "+
+        "and a.id= "+ids+
+        "union "+
+        "select sum(amount*-1),folio_id,'Deduct Room for Tax ' folio_text,sum(debit*-1),sum(credit*-1),customer_id,fid,fcode "+
+        "from (select (a.num_of_stays *a.room_rate_amount*(c.percentage/100)) amount, "+
+        "	a.id folio_id,c.short_name,c.id fid,c.code fcode, "+
+        "	if(c.transc_type='D',(a.num_of_stays *a.room_rate_amount*(c.percentage/100)),0)debit, "+
+        "    if(c.transc_type='C',(a.num_of_stays *a.room_rate_amount*(c.percentage/100)),0)credit, "+
+        "    a.customer_id,c.id_detail transc_type_id, "+
+        "	c.code transc_code "+
+        "from fd_guest_folio a,mst_room_rate b, "+
+        "	(select a.id,a.short_name, d.id id_detail,d.short_name short_name_detail,a.code,d.folio_text,c.percentage,c.sequence_no,d.transc_type "+
+        "	from mst_guest_transaction_type a "+
+        "	left join mst_guest_transaction_tax b on a.tax_id = b.id "+
+        "	left join mst_transaction_tax_detail c on b.id = c.tax_id "+
+        "	left join mst_guest_transaction_type d on c.transc_type_id = d.id) c "+
+        "where a.room_rate_id = b.id  "+
+        "and a.id= "+ids+
+        "and b.room_transc_type_id = c.id)a "+
+        "group by folio_id,short_name,customer_id,fid,fcode "+
+        "union "+
+        "select (a.num_of_extra_bed * a.extra_bed_charge_amount) amount,a.id folio_id,c.folio_text , "+
+        "	if(c.transc_type='D',(a.num_of_extra_bed * a.extra_bed_charge_amount),0)debit, "+
+        "    if(c.transc_type='C',(a.num_of_extra_bed * a.extra_bed_charge_amount),0)credit, "+
+        "    a.customer_id,c.id transc_type_id, "+
+        "	c.code transc_code "+
+        "from fd_guest_folio a,mst_room_rate b,mst_guest_transaction_type c "+
+        "where a.room_rate_id = b.id  "+
+        "and b.ext_bed_transc_type_id = c.id "+
+        "and a.id="+ids+
+        "union "+
+        "select (a.num_of_stays* if(a.discount_percent>0,(a.discount_percent/100*a.room_rate_amount),(a.room_rate_amount-a.discount_amount))) amount,a.id folio_id,c.folio_text , "+
+        "	if(c.transc_type='D',-1*(a.num_of_stays* if(a.discount_percent>0,(a.discount_percent/100*a.room_rate_amount),(a.room_rate_amount-a.discount_amount))),0)debit, "+
+        "    if(c.transc_type='C',(a.num_of_stays* if(a.discount_percent>0,(a.discount_percent/100*a.room_rate_amount),(a.room_rate_amount-a.discount_amount))),0)credit, "+
+        "    a.customer_id,c.id transc_type_id, "+
+        "	c.code transc_code "+
+        "from fd_guest_folio a,mst_room_rate b,mst_guest_transaction_type c "+
+        "where a.room_rate_id = b.id  "+
+        "and b.disc_transc_type_id = c.id "+
+        "and a.id="+ids+
+        "union  "+
+        "select (a.num_of_stays * e.flat_rate) amount,a.id folio_id,c.folio_text, "+
+        "	if(c.transc_type='D',(a.num_of_stays * e.flat_rate),0)debit, "+
+        "    if(c.transc_type='C',(a.num_of_stays * e.flat_rate),0)credit, "+
+        "    a.customer_id,c.id transc_type_id, "+
+        "	c.code transc_code "+
+        "from fd_guest_folio a,mst_room_rate b,mst_guest_transaction_type c, mst_room_rate_package d,mst_package e "+
+        "where a.room_rate_id = b.id  "+
+        "and e.transc_type_id = c.id "+
+        "and d.package_id = e.id "+
+        "and b.id = d.room_rate_id "+
+        "and a.id="+ids+
+        "union "+
+        "select (a.num_of_stays * e.flat_rate*(c.percentage/100)) amount, "+
+        "	a.id folio_id,concat(c.folio_text,'(',c.percentage,'%)') folio_text, "+
+        "	if(c.transc_type='D',(a.num_of_stays *e.flat_rate*(c.percentage/100)),0)debit, "+
+        "    if(c.transc_type='C',(a.num_of_stays *e.flat_rate*(c.percentage/100)),0)credit, "+
+        "    a.customer_id,c.id_detail transc_type_id, "+
+        "	c.code transc_code "+
+        "from fd_guest_folio a,mst_room_rate b, "+
+        "	(select a.id,a.short_name, d.id id_detail,d.short_name short_name_detail,d.code,d.folio_text,c.percentage,c.sequence_no,d.transc_type "+
+        "	from mst_guest_transaction_type a "+
+        "	left join mst_guest_transaction_tax b on a.tax_id = b.id "+
+        "	left join mst_transaction_tax_detail c on b.id = c.tax_id "+
+        "	left join mst_guest_transaction_type d on c.transc_type_id = d.id) c, mst_room_rate_package d,mst_package e "+
+        "where a.room_rate_id = b.id  "+
+        "and e.transc_type_id = c.id "+
+        "and d.package_id = e.id "+
+        "and b.id = d.room_rate_id "+
+        "and a.id="+ids+
+        "union "+
+        "select sum(a.num_of_stays * e.flat_rate*(c.percentage/100)) amount,a.id folio_id,c.short_name folio_text, "+
+        "	sum(if(c.transc_type='D',(a.num_of_stays *e.flat_rate*(c.percentage/100)),0))debit, "+
+        "    sum(if(c.transc_type='C',(a.num_of_stays *e.flat_rate*(c.percentage/100)),0))credit, "+
+        "    a.customer_id,c.id transc_type_id, "+
+        "	c.code transc_code "+
+        "from fd_guest_folio a,mst_room_rate b, "+
+        "	(select a.id,a.short_name, d.id id_detail,d.short_name short_name_detail,a.code,d.folio_text,c.percentage,c.sequence_no,d.transc_type "+
+        "	from mst_guest_transaction_type a "+
+        "	left join mst_guest_transaction_tax b on a.tax_id = b.id "+
+        "	left join mst_transaction_tax_detail c on b.id = c.tax_id "+
+        "	left join mst_guest_transaction_type d on c.transc_type_id = d.id) c, mst_room_rate_package d,mst_package e "+
+        "where a.room_rate_id = b.id  "+
+        "and e.transc_type_id = c.id "+
+        "and d.package_id = e.id "+
+        "and b.id = d.room_rate_id "+
+        "and a.id="+ids+
+        "group by a.id,c.short_name,c.id,a.customer_id" ;
+
+        queryService.post(insTrans,undefined)
+        .then(function(data){
+            console.log('success insert')
+        }, function(err){
+            console.log('error insert:'+err)
+        })
+
+    }
     $scope.execCheckIn = function(){
         queryService.post('update fd_guest_folio SET reservation_status=\'4\', '+
         ' check_in_by='+$localStorage.currentUser.name.id+', ' +
@@ -671,7 +1114,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         .then(function (result){
             console.log(result)
             if (result.status = "200"){
-                console.log('Success Delete')
+                $scope.buildTrans($scope.profile.form.gf.id);
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
@@ -781,6 +1224,44 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
                     type: 'success'
                 }).show();
                 $scope.clear()
+            }
+            else {
+                console.log('Delete Failed')
+            }
+        })
+    }
+    $scope.execDeleteHouse = function(){
+        queryService.post('update fd_guest_folio SET reservation_status=\'99\', '+
+        ' modified_by='+$localStorage.currentUser.name.id+', ' +
+        ' modified_date=\''+globalFunction.currentDate()+'\' ' +
+        ' WHERE id='+$scope.house.id ,undefined)
+        .then(function (result){
+            if (result.status = "200"){
+                console.log('Success Delete')
+                $('#form-input-house').modal('hide')
+                $scope.dtInstance.reloadData(function(obj){
+                    // console.log(obj)
+                }, false)
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Success Delete '+$scope.house.name,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+                $scope.house = {
+                    id: '',
+                    code: '',
+                    name: '',
+                    check_out: '',
+                    selected: {
+                        company: {},
+                        currency: {},
+                        payment_type: {}
+                    },
+                    remarks_cashier: '',
+                    remarks_reception: ''
+                }
             }
             else {
                 console.log('Delete Failed')
@@ -1002,7 +1483,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     }
 
     $scope.profile.form.room_type = []
-    queryService.get('select id,name from ref_room_type order by name asc',undefined)
+    queryService.get('select id,name from ref_room_type where status=1 order by name asc',undefined)
     .then(function(data){
         $scope.profile.form.room_type = data.data
     })
@@ -1025,13 +1506,13 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     })
 
     $scope.profile.form.room_feature = []
-    queryService.get('select id,name from ref_building_feature order by name asc',undefined)
+    queryService.get('select id,name from ref_building_feature where status=1 order by name asc',undefined)
     .then(function(data){
         $scope.profile.form.room_feature = data.data
     })
 
     $scope.profile.form.customer = []
-    queryService.get('select id,concat(first_name,\' \',last_name)as name from mst_customer order by name asc',undefined)
+    queryService.get('select id,concat(first_name,\' \',last_name)as name from mst_customer where status!=2 order by name asc',undefined)
     .then(function(data){
         $scope.profile.form.customer = data.data
     })
@@ -1042,19 +1523,19 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     ]
 
     $scope.profile.form.vip_type = []
-    queryService.get('select id,name from ref_vip_type order by name asc',undefined)
+    queryService.get('select id,name from ref_vip_type where status=1 order by name asc',undefined)
     .then(function(data){
         $scope.profile.form.vip_type = data.data
     })
 
     $scope.profile.form.company = []
-    queryService.get('select id,name from mst_cust_company order by name asc',undefined)
+    queryService.get('select id,name from mst_cust_company where status=1 order by name asc',undefined)
     .then(function(data){
         $scope.profile.form.company = data.data
     })
 
     $scope.profile.form.room_rate = []
-    queryService.get('select id,code as name from mst_room_rate order by name asc',undefined)
+    queryService.get("select id,code as name from mst_room_rate where status=1 and '"+globalFunction.currentDate()+"' between valid_date_from and valid_date_until order by name asc",undefined)
     .then(function(data){
         $scope.profile.form.room_rate = data.data
     })
@@ -1066,13 +1547,13 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     $scope.profile.form.selected.is_honeymoon['selected'] = $scope.profile.form.yesno[1]
 
     $scope.profile.form.agent = []
-    queryService.get('select id,name from mst_sales_agent order by name asc',undefined)
+    queryService.get('select id,name from mst_sales_agent where status=1 order by name asc',undefined)
     .then(function(data){
         $scope.profile.form.agent = data.data
     })
 
     $scope.profile.form.payment_type = []
-    queryService.get('select id,name from ref_payment_method order by name asc',undefined)
+    queryService.get('select id,name from ref_payment_method where status=1 order by name asc',undefined)
     .then(function(data){
         $scope.profile.form.payment_type = data.data
     })
@@ -1116,13 +1597,13 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     ]
 
     $scope.profile.form.segment_type = []
-    queryService.get('select id,name from ref_segment_type order by name asc',undefined)
+    queryService.get('select id,name from ref_segment_type where status=1 order by name asc',undefined)
     .then(function(data){
         $scope.profile.form.segment_type = data.data
     })
 
     $scope.profile.form.source_type = []
-    queryService.get('select id,name from ref_source_type order by name asc',undefined)
+    queryService.get('select id,name from ref_source_type where status=1 order by name asc',undefined)
     .then(function(data){
         $scope.profile.form.source_type = data.data
     })
@@ -1140,13 +1621,13 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     })
 
     $scope.profile.form.check_in_type = []
-    queryService.get('select id,name from ref_check_in order by name asc',undefined)
+    queryService.get('select id,name from ref_check_in where status=1 order by name asc',undefined)
     .then(function(data){
         $scope.profile.form.check_in_type = data.data
     })
 
     $scope.profile.form.check_out_type = []
-    queryService.get('select id,name from ref_check_out order by name asc',undefined)
+    queryService.get('select id,name from ref_check_out where status=1 order by name asc',undefined)
     .then(function(data){
         $scope.profile.form.check_out_type = data.data
     })
@@ -1278,7 +1759,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
             //exec creation
 
             var param = {
-                code: $scope.profile.form.code,
+                code: $scope.profile.form.gf.code,
                 folio_type: '1',
                 arrival_date: $scope.profile.form.gf.arrival_date,
                 departure_date: $scope.profile.form.gf.departure_date,
@@ -1679,6 +2160,61 @@ function($scope, $state, $sce, queryService, $q,departmentService, accountTypeSe
          return defer.promise;
     }
 })
+.controller('FoReservationDepositCtrl',
+function($scope, $state, $sce, queryService, $q,departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+    $scope.deposit.form.gf = {
+        folio_id: '',
+        selected: {
+            payment_type:{},
+            currency: {}
+        },
+        due_date: '',
+        remark: '',
+        deposit_amount: ''
+    }
+    $scope.deposit.action.submit = function(){
+        var defer = $q.defer();
+        //exec update
+        var qcommand = ''
+        var param = {}
+        queryService.get('select count(1) cnt from fd_guest_deposit where cust_id=  '+$scope.profile.form.gf.customer_id,undefined)
+        .then(function(data){
+            if (data.data[0].cnt>0){
+                //update
+                qcommand = 'update fd_guest_deposit set ? where cust_id='+$scope.profile.form.gf.customer_id
+                param = {
+                    term: $scope.deposit.form.gf.term,
+                    due_date: $scope.deposit.form.gf.due_date,
+                    deposit_amount: $scope.deposit.form.gf.deposit_amount,
+                    modified_date: globalFunction.currentDate(),
+                    modified_by: $localStorage.currentUser.name.id
+
+                }
+            }
+            else {
+                //insert
+                qcommand = 'insert into fd_guest_deposit set ?'
+                param = {
+                    cust_id:$scope.profile.form.gf.customer_id,
+                    term: $scope.deposit.form.gf.term,
+                    due_date: $scope.deposit.form.gf.due_date,
+                    deposit_amount: $scope.deposit.form.gf.deposit_amount,
+                    created_date: globalFunction.currentDate(),
+                    created_by: $localStorage.currentUser.name.id
+                }
+            }
+            console.log('deposit',data)
+            queryService.post(qcommand,param)
+            .then(function (result2){
+                defer.resolve('Success Update Deposit Data');
+            },
+            function (err2){
+                defer.reject('Error Insert: '+err2.code);
+            })
+        })
+        return defer.promise;
+    }
+})
 .controller('FoReservationRemarksCtrl',
 function($scope, $state, $sce, $q,queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
     $scope.el = [];
@@ -1883,6 +2419,31 @@ function($scope, $state, $sce, queryService, $q,departmentService, accountTypeSe
 })
 .controller('FoReservationAccountCtrl',
 function($scope, $window, $state, $sce, queryService, $q,departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+    /*NOTE:
+    KODE transc_source_id:
+        - 1-9 folio
+        - 10 charge posting
+        - 11 credit posting
+        - 12 City Ledger
+    */
+
+    $scope.account.form.account = []
+    $scope.account.form.listAccount = function(vid){
+        queryService.post("select a.id,a.customer_id,a.folio_id,date_format(a.transc_date,'%Y-%m-%d')transc_date,a.transc_type_id,a.transc_remarks,a.transc_charge,a.transc_code,a.package_id, "+
+            "a.debit,a.credit,c.first_name,c.last_name,concat(c.first_name,' ',c.last_name) guest_name,d.short_name transc_type_name, "+
+            "a.transc_source_id,a.transc_remarks,a.transc_ref,e.name package_name "+
+        "from fd_folio_transc_account a "+
+        "left join fd_guest_folio b on a.folio_id = b.id "+
+        "left join mst_customer c on a.customer_id = c.id "+
+        "left join mst_guest_transaction_type d on a.transc_type_id = d.id "+
+        "left join mst_package e on a.package_id = e.id where a.folio_id="+vid,undefined)
+        .then(function(data){
+            $scope.account.form.account = data.data
+        })
+    }
+
+
+
     $scope.account.form.gf = {
         folio_id: '',
         transfer_folio_id: '',
@@ -1906,7 +2467,33 @@ function($scope, $window, $state, $sce, queryService, $q,departmentService, acco
         is_handicap_guest: '0',
         is_reject_for_cleaning: '0',
         is_door_double_lock: '0'
-
+    }
+    $scope.account.charge = {
+        id:'',
+        selected: {
+            category: {}
+        },
+        charge: '',
+        remark: '',
+        reference: ''
+    }
+    $scope.account.credit = {
+        id:'',
+        selected: {
+            category: {}
+        },
+        charge: '',
+        remark: '',
+        reference: ''
+    }
+    $scope.account.cl = {
+        id:'',
+        selected: {
+            category: {}
+        },
+        charge: '',
+        remark: '',
+        reference: ''
     }
     $scope.account.form.selected = {
         newspaper: {},
@@ -1924,13 +2511,318 @@ function($scope, $window, $state, $sce, queryService, $q,departmentService, acco
     .then(function(data){
         $scope.additional.form.newspaper = data.data
     })
-    $scope.account.action.showDetail = function(a){
-        console.log(a)
-        $scope.account.stat = 'detail'
+    $scope.account.form.payment_method = []
+    queryService.get('select id,name from ref_payment_method where status=1 order by id  ',undefined)
+    .then(function(data){
+        $scope.account.form.payment_method = data.data
+    })
+    $scope.account.form.trans_type = []
+    queryService.get('select id,short_name name,code from mst_guest_transaction_type where status=1 order by id  ',undefined)
+    .then(function(data){
+        $scope.account.form.trans_type = data.data
+    })
+    $scope.account.form.trans_type_payment = []
+    queryService.get('select a.id,a.short_name name,a.code from mst_guest_transaction_type a,ref_payment_method b where a.id=b.transc_type_id and a.status=1 order by a.id  ',undefined)
+    .then(function(data){
+        $scope.account.form.trans_type_payment = data.data
+    })
+    $scope.account.action.showDetail = function(data){
+        console.log(data)
+        console.log($scope.profile.form.gf)
+        //$scope.account.stat = 'detail'
+        if (data.transc_source_id=='10'){
+            console.log('chargeposting')
+            $scope.account.stat='chargeposting';
+            $scope.account.statInsert = false;
+            $scope.account.charge = {
+                id:data.id,
+                selected: {
+                    category: {id:data.transc_type_id,name:data.transc_type_name,code:data.transc_code}
+                },
+                charge: data.transc_charge,
+                remark: data.transc_remarks,
+                reference: data.transc_ref
+            }
+        }
+        else if (data.transc_source_id=='11'){
+            console.log('creditposting')
+            $scope.account.stat='creditposting';
+            $scope.account.statInsert = false;
+            $scope.account.credit = {
+                id:data.id,
+                selected: {
+                    category: {id:data.transc_type_id,name:data.transc_type_name,code:data.transc_code}
+                },
+                charge: data.transc_charge,
+                remark: data.transc_remarks,
+                reference: data.transc_ref
+            }
+        }
+        else {
+            $scope.account.stat = 'detail'
+        }
         var element = $window.document.getElementById('test');
         if(element)
           element.focus();
     }
+
+    $scope.account.statInsert = true;
+
+    $scope.account.action.submitCharge = function(){
+        var param = {
+            customer_id:$scope.profile.form.gf.customer_id,
+            folio_id:$scope.profile.form.gf.id,
+            transc_date: globalFunction.currentDate(),
+            transc_type_id:$scope.account.charge.selected.category?$scope.account.charge.selected.category.id:null,
+            transc_remarks:$scope.account.charge.remark,
+            transc_charge:$scope.account.charge.charge,
+            transc_ref:$scope.account.charge.reference,
+            transc_source_id:11,
+            debit:$scope.account.charge.charge,
+            transc_code:$scope.account.charge.selected.category?$scope.account.charge.selected.category.code:null,
+            credit:0
+        }
+        var sql = '';
+        if ($scope.account.statInsert == true){
+            param['created_date'] = globalFunction.currentDate();
+            param['created_by'] = $localStorage.currentUser.name.id;
+            sql = 'insert into fd_folio_transc_account SET ?'
+        }
+        else {
+            param['modified_date'] = globalFunction.currentDate();
+            param['modified_by'] = $localStorage.currentUser.name.id;
+            sql = 'update fd_folio_transc_account SET ? where id='+$scope.account.charge.id
+        }
+        queryService.post(sql,param)
+        .then(function (result){
+            $scope.account.form.listAccount($scope.profile.form.gf.id)
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Success add Charge ',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.account.action.cancelCharge();
+        },
+        function (err){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Add Charge: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
+
+    }
+    $scope.account.action.cancelCharge = function(){
+        $scope.account.statInsert = true
+        $scope.account.charge = {
+            id:'',
+            selected: {
+                category: {}
+            },
+            charge: '',
+            remark: '',
+            reference: ''
+        }
+    }
+    $scope.account.action.removeCharge = function(){
+        queryService.post('delete from fd_folio_transc_account where id='+$scope.account.charge.id,undefined)
+        .then(function (result){
+            $scope.account.form.listAccount($scope.profile.form.gf.id)
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Success Remove Charge ',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.account.action.cancelCharge();
+        },
+        function (err){
+            console.log(err)
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Remove Charge: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
+    }
+    $scope.account.action.submitCredit = function(){
+        var param = {
+            customer_id:$scope.profile.form.gf.customer_id,
+            folio_id:$scope.profile.form.gf.id,
+            transc_date: globalFunction.currentDate(),
+            transc_type_id:$scope.account.credit.selected.category?$scope.account.credit.selected.category.id:null,
+            transc_remarks:$scope.account.credit.remark,
+            transc_charge:$scope.account.credit.charge,
+            transc_ref:$scope.account.credit.reference,
+            transc_source_id:10,
+            credit:$scope.account.credit.charge,
+            transc_code:$scope.account.credit.selected.category?$scope.account.credit.selected.category.code:null,
+            debit:0
+        }
+        var sql = '';
+        if ($scope.account.statInsert == true){
+            param['created_date'] = globalFunction.currentDate();
+            param['created_by'] = $localStorage.currentUser.name.id;
+            sql = 'insert into fd_folio_transc_account SET ?'
+        }
+        else {
+            param['modified_date'] = globalFunction.currentDate();
+            param['modified_by'] = $localStorage.currentUser.name.id;
+            sql = 'update fd_folio_transc_account SET ? where id='+$scope.account.charge.id
+        }
+        queryService.post(sql,param)
+        .then(function (result){
+            $scope.account.form.listAccount($scope.profile.form.gf.id)
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Success add Credit ',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.account.action.cancelCredit();
+        },
+        function (err){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Add Credit: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
+
+    }
+    $scope.account.action.cancelCredit = function(){
+        $scope.account.statInsert = true
+        $scope.account.credit = {
+            id:'',
+            selected: {
+                category: {}
+            },
+            charge: '',
+            remark: '',
+            reference: ''
+        }
+    }
+    $scope.account.action.removeCredit = function(){
+        queryService.post('delete from fd_folio_transc_account where id='+$scope.account.credit.id,undefined)
+        .then(function (result){
+            $scope.account.form.listAccount($scope.profile.form.gf.id)
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Success Remove Charge ',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.account.action.cancelCharge();
+        },
+        function (err){
+            console.log(err)
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Remove Charge: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
+
+    }
+    $scope.account.action.submitCl = function(){
+        var param = {
+            customer_id:$scope.profile.form.gf.customer_id,
+            folio_id:$scope.profile.form.gf.id,
+            transc_date: globalFunction.currentDate(),
+            transc_type_id:$scope.account.cl.selected.category?$scope.account.cl.selected.category.id:null,
+            transc_remarks:$scope.account.cl.remark,
+            transc_charge:$scope.account.cl.charge,
+            transc_ref:$scope.account.cl.reference,
+            transc_source_id:10,
+            credit:$scope.account.cl.charge,
+            transc_code:$scope.account.cl.selected.category?$scope.account.cl.selected.category.code:null,
+            debit:0
+        }
+        var sql = '';
+        if ($scope.account.statInsert == true){
+            param['created_date'] = globalFunction.currentDate();
+            param['created_by'] = $localStorage.currentUser.name.id;
+            sql = 'insert into fd_folio_transc_account SET ?'
+        }
+        else {
+            param['modified_date'] = globalFunction.currentDate();
+            param['modified_by'] = $localStorage.currentUser.name.id;
+            sql = 'update fd_folio_transc_account SET ? where id='+$scope.account.charge.id
+        }
+        queryService.post(sql,param)
+        .then(function (result){
+            $scope.account.form.listAccount($scope.profile.form.gf.id)
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Success add City Ledger ',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.account.action.cancelCl();
+        },
+        function (err){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Add Credit: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
+
+    }
+    $scope.account.action.cancelCl = function(){
+        $scope.account.statInsert = true
+        $scope.account.cl = {
+            id:'',
+            selected: {
+                category: {}
+            },
+            charge: '',
+            remark: '',
+            reference: ''
+        }
+    }
+    $scope.account.action.removeCl = function(){
+        queryService.post('delete from fd_folio_transc_account where id='+$scope.account.credit.id,undefined)
+        .then(function (result){
+            $scope.account.form.listAccount($scope.profile.form.gf.id)
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Success Remove City Ledger ',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.account.action.cancelCl();
+        },
+        function (err){
+            console.log(err)
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Remove City Ledger: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
+
+    }
+
     $scope.account.action.submit = function(){
         var defer = $q.defer();
         //exec update
