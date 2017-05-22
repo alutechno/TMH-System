@@ -1601,6 +1601,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
             resolve: {
                 deps: ["$ocLazyLoad", function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
+                        "wizard",
                         "dataTables",
                         "select",
                         "datepicker",
@@ -1626,6 +1627,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
             resolve: {
                 deps: ["$ocLazyLoad", function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
+                        "wizard",
                         "dataTables",
                         "select",
                         "datepicker",
