@@ -295,12 +295,16 @@
                         <th></th>
                         <th></th>
                         <th></th>
-                        <th></th>
+						<th></th>
                         <th></th>
                         <th>Total:</th>
                         <th class="text-right">{{ sums1| number : fractionSize }}</th>
-                        <th class="text-right">{{ sums2| number : fractionSize }}</th>
-
+                        <th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
                     </script>
                 </div>
 
@@ -564,14 +568,14 @@
               <div class="row clearfix">
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label ng-class="{'gray-text':selected.currency.selected.currency_id==1}">Payment Amount</label>
-                          <input type="text" class="form-control" name="payment_home" ng-model="ap.payment_home" ng-disabled="selected.currency.selected.currency_id==1">
+                          <label ng-class="{'gray-text':selected.currency.selected.currency_id==1}">Paid Amount</label>
+                          <input type="text" class="form-control" name="payment_home" ng-model="ap.payment_home" ng-disabled="true">
                       </div>
                   </div>
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
-                          <label ng-class="{'gray-text':selected.currency.selected.currency_id==2}">Payment Amount (IDR)</label>
-                          <input type="text" class="form-control" name="payment_idr" ng-model="ap.payment_idr" ng-disabled="selected.currency.selected.currency_id==2">
+                          <label ng-class="{'gray-text':selected.currency.selected.currency_id==2}">Paid Amount (IDR)</label>
+                          <input type="text" class="form-control" name="payment_idr" ng-model="ap.hpa" ng-disabled="true">
                       </div>
                   </div>
               </div>

@@ -20,9 +20,9 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     $scope.updateState = false;
     $scope.totaldebit = 0
     $scope.totalkredit = 0
-    var qstring = 'select a.id, a.code, DATE_FORMAT(a.open_date,\'%Y-%m-%d\')open_date, DATE_FORMAT(a.due_date,\'%Y-%m-%d\')due_date,DATE_FORMAT(a.due_date,\'%Y-%m-%d\') as due, a.status, a.supplier_id, '+
+    var qstring = 'select a.id, a.inv_no,a.code, DATE_FORMAT(a.open_date,\'%Y-%m-%d\')open_date, DATE_FORMAT(a.due_date,\'%Y-%m-%d\')due_date,DATE_FORMAT(a.due_date,\'%Y-%m-%d\') as due, a.status, a.supplier_id, '+
         'c.name supplier_name, a.source, b.code as receive_no, d.name status_name,a.currency_exchange exchange, '+
-        'a.receive_id, a.currency_id, a.total_amount, format(a.total_amount,0)ta, a.home_total_amount,format(a.home_total_amount,0)hta,a.voucher_notes, '+
+        'a.receive_id, a.currency_id, a.total_amount, format(a.total_amount,0)ta, a.home_total_amount,format(a.deposit_amount,0)deposit_amount,a.deposit_amount tda,format(a.total_due_amount,0)tde,format(a.paid_amount,0)hpa,a.paid_amount,format(a.home_current_due_amount,0)hcda,format(a.home_total_amount,0)hta,a.voucher_notes, '+
         'e.name currency_name,e.code currency_code,f.name created_by_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\')created_date, '+
         'g.previous_amount adjustment_prev_amount,g.adjusted_amount adjustment_idr, 0 adjustment_home,a.is_adjusted,a.faktur_no '+
         'from acc_ap_voucher a  '+
@@ -37,7 +37,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         //'and a.open_date beetween :date1 and :date2  '+
         //'and a.due_date between :date1and :date2'
     var qwhere = ''
-
+console.log(qstring)
     var year = ['2015','2016','2017','2018','2019']
     var month = ['01','02','03','04','05','06','07','08','09','10','11','12']
     $scope.period = [
@@ -347,7 +347,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         $scope.ap.total_due_idr =
             parseInt($scope.ap.total_idr) - parseInt($scope.ap.deposit_idr)
         $scope.ap.current_due_home =
-            parseInt($scope.ap.total_home) - parseInt($scope.ap.deposit_home) - parseInt($scope.ap.payment_home)
+            parseInt($scope.ap.total_amount) - parseInt($scope.ap.tda) - parseInt($scope.ap.paid_amount)
         $scope.ap.current_due_idr =
             parseInt($scope.ap.total_idr) - parseInt($scope.ap.deposit_idr) - parseInt($scope.ap.payment_idr)
     }
@@ -475,21 +475,27 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '5%'))
+        .renderWith($scope.actionsHtml).withOption('width', '10%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('Vcr No').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('code').withTitle('Doc No').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('code').withTitle('Vcr No'),
+		DTColumnBuilder.newColumn('source').withTitle('Source'),
+        DTColumnBuilder.newColumn('receive_no').withTitle('Doc No'),
         DTColumnBuilder.newColumn('open_date').withTitle('Open Date'),
         DTColumnBuilder.newColumn('due_date').withTitle('Due Date'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status'),
         DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier'),
-        DTColumnBuilder.newColumn('source').withTitle('Source'),
-        DTColumnBuilder.newColumn('created_date').withTitle('Created at'),
-        DTColumnBuilder.newColumn('created_by_name').withTitle('Created by'),
+		DTColumnBuilder.newColumn('inv_no').withTitle('invoice'),
+		DTColumnBuilder.newColumn('faktur_no').withTitle('faktur'),
         DTColumnBuilder.newColumn('currency_code').withTitle('Currency'),
         DTColumnBuilder.newColumn('ta').withTitle('Total(IDR)').withOption('width', '8%').withClass('text-right'),
-        DTColumnBuilder.newColumn('hta').withTitle('Total(Foreign Currency)').withOption('width', '8%').withClass('text-right')
+		DTColumnBuilder.newColumn('deposit_amount').withTitle('Deposit Amount').withOption('width', '8%').withClass('text-right'),
+		DTColumnBuilder.newColumn('tde').withTitle('Due Amount').withOption('width', '8%').withClass('text-right'),
+		DTColumnBuilder.newColumn('hpa').withTitle('Paid Amount').withOption('width', '8%').withClass('text-right'),
+		DTColumnBuilder.newColumn('hcda').withTitle('Current Due Amount').withOption('width', '15%').withClass('text-right'),
+		DTColumnBuilder.newColumn('created_date').withTitle('Created at'),
+        DTColumnBuilder.newColumn('created_by_name').withTitle('Created by'),
+        //DTColumnBuilder.newColumn('hta').withTitle('Total(Foreign Currency)').withOption('width', '8%').withClass('text-right')
     );
 
     var qwhereobj = {

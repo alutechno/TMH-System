@@ -159,16 +159,16 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml).withOption('width', '5%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('code').withTitle('Code'),
-        DTColumnBuilder.newColumn('name').withTitle('Name'),
-        DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
-        DTColumnBuilder.newColumn('status_name').withTitle('Status'),
-        DTColumnBuilder.newColumn('contact_person').withTitle('Contact Person'),
-        DTColumnBuilder.newColumn('phone_number').withTitle('Phone'),
-        DTColumnBuilder.newColumn('address').withTitle('Address')
+        DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '15%'),
+        DTColumnBuilder.newColumn('short_name').withTitle('Short Name').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('contact_person').withTitle('Contact Person').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('phone_number').withTitle('Phone').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('address').withTitle('Address').withOption('width', '20%')
     );
 
     $scope.filter = function(type,event) {

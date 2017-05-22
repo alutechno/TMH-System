@@ -1,9 +1,6 @@
-var trim = function (str) {
-    return str.replace(/\t\t+|\n\n+|\s\s+/g, ' ').trim()
-};
-var userController = angular.module('FinARIvoinceEntryCtrl', []);
+var userController = angular.module('app', []);
 userController
-.controller('FinArCashReceiptCtrl',
+.controller('FinARIvoinceEntryCtrl',
 function($scope, $state, $stateParams,$sce,$templateCache, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
 	$scope.el = [];
     $scope.el = $state.current.data;
@@ -20,7 +17,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.trans = []
     $scope.transOri = []
     $scope.child = {}
-	$scope.cr = {
+	$scope.ie = {
 		id: '',
 		code:'',
 		source_type:'',
@@ -56,13 +53,15 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 	$scope.selected = {
         receipt_status: {}
 	}
-	var qstring = `select a.*,b.name receipt_status_name,c.first_name cust_name,d.name bank_name,e.name used_currency_name
-		from acc_ar_cash_receipt a,(select value as id,name from table_ref where table_name='acc_ar_cash_receipt') b,
-		mst_customer c,mst_bank d,ref_currency e
-		where a.status=b.id
-		and a.customer_id=c.id
-		and a.bank_account_id=d.id
-		and a.used_currency_id=e.id `
+	var qstring = `select a.*,concat(b.first_name,' ',b.last_name,', ',b.title)guest_name,c.name company_name,d.name,e.arrival_date,e.departure_date,
+		e.room_rate_amount,e.discount_amount,e.voucher,f.name room_no,g.code room_rate_code
+		from acc_ar_invoice a,mst_customer b left join mst_cust_company c on b.company_id=c.id,ref_currency d,fd_guest_folio e,
+		mst_room f,mst_room_rate g
+		where a.customer_id=b.id
+		and a.used_currency_id=d.id
+		and a.folio_id=e.id
+		and e.room_id=f.id
+		and e.room_rate_id=g.id `
 	var qwhere = ''
 	var qstringt='select * from acc_ar_receipt_line_item '
 
@@ -96,7 +95,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         }
         return html
     }
-
+	$scope.showAdvance = false
     $scope.createdRow = function(row, data, dataIndex) {
         $compile(angular.element(row).contents())($scope);
     }
@@ -119,6 +118,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
+	.withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
@@ -127,11 +127,13 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         .renderWith($scope.actionsHtml).withOption('width', '5%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('id').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('code').withTitle('Invoice ID').withOption('width', '15%'),
-        DTColumnBuilder.newColumn('receipt_status_name').withTitle('Status').withOption('width', '10%'),
-		DTColumnBuilder.newColumn('created_by').withTitle('Created By').withOption('width', '10%'),
-		DTColumnBuilder.newColumn('created_date').withTitle('Created Date').withOption('width', '10%')
+        DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('open_date').withTitle('Open').withOption('width', '5%'),
+		DTColumnBuilder.newColumn('due_date').withTitle('Due').withOption('width', '5%'),
+		DTColumnBuilder.newColumn('status').withTitle('Status').withOption('width', '5%'),
+		DTColumnBuilder.newColumn('company_name').withTitle('Customer').withOption('width', '10%'),
+		DTColumnBuilder.newColumn('guest_name').withTitle('Guest').withOption('width', '10%'),
+		DTColumnBuilder.newColumn('total_amount').withTitle('Total').withOption('width', '10%')
     );
 
     $scope.filter = function(type,event) {
@@ -177,28 +179,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 			$scope.cr.outlet_type_id=$scope.selected.outlet_type_id.selected?$scope.selected.outlet_type_id.selected.id:null;
 			$scope.cr.customer_id=$scope.selected.customer_id.selected?$scope.selected.customer_id.selected.id:null;
 			$scope.cr.used_currency_id=$scope.selected.used_currency_id.selected?$scope.selected.used_currency_id.selected.id:null;
-            /*var param = {
-				code:$scope.cr.code,
-				receipt_date:$scope.cr.receipt_date,
-				receipt_notes:$scope.cr.receipt_notes,
-				receipt_amount:$scope.cr.receipt_amount,
-				receipt_status:$scope.selected.receipt_status.selected.id
 
-				code:'',
-				cash_receipt_type:'',
-				bank_account_id:'',
-				credit_card_id:'',
-				card_no:'',
-				outlet_type_id:'',
-				ref_document:'',
-				open_date:'',
-				due_date:'',
-				customer_id:'',
-				used_currency_id:'',
-				currency_exchange:'',
-				notes:'',
-				status:''
-			}*/
             queryService.post('insert into acc_ar_cash_receipt set ?',$scope.cr)
             .then(function (result){
 				var qstr = $scope.child.saveTable(result.data.insertId)

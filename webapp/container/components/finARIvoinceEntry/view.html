@@ -108,9 +108,8 @@
                 <div class="panel-title">A/R Invoice Entry
                 </div>
                 <div class="pull-right" style="width: 100%;">
-
-                    <button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>
-                    <!--<span ng-click="exportExcel()">
+                	<!--<button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>
+                    <span ng-click="exportExcel()">
                         <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
                     </span>
 					 <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>-->
@@ -124,7 +123,7 @@
                     <a class="remove" href="javascript:;"></a>
                 </div>
 
-                <div class="panel panel-default m-t-5" pg-portlet ng-show="showAdvance">
+                <!--<div class="panel panel-default m-t-5" pg-portlet ng-show="showAdvance">
                     <div class="panel-heading">
                         <div class="panel-title">Advanced Search
                         </div>
@@ -149,7 +148,7 @@
                           <div class="btn-group form-group-default-select pull-left  m-r-5" style="width:200px;">
                               <label>Due Date:</label><br />
                               <input type="text" class="form-control" ng-model="selected.filter_due_date" name="filter_date" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" >
-                              <!--<input date-range-picker placeholder="Filter due date" class="form-control date-picker" type="text" ng-model="filter_due_date" ng-change="changeDate()" on-apply="changeDate()" />-->
+                              <input date-range-picker placeholder="Filter due date" class="form-control date-picker" type="text" ng-model="filter_due_date" ng-change="changeDate()" on-apply="changeDate()" />
                            </div>
                            <div class="btn-group pull-left m-r-5">
                                <label>Period:</label><br />
@@ -185,17 +184,17 @@
                              <label>&nbsp;</label><br />
                              <button id="show-modal" class="btn btn-primary pull-right m-r-5" ng-click="applyFilter()" ><i class="fa fa-search"></i>Search</button>
                           </div>
-                    </div>
+                    </div>-->
                 </div>
             </div>
             <div class="panel-body">
                 <div class="table-responsive" id="printThisElement">
-                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" width="3000px">
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" width="1300px">
                         <tfoot>
                         <tr></tr>
                         </tfoot>
                     </table>
-                    <script type="text/ng-template" id="tableFooter">
+                    <!--<script type="text/ng-template" id="tableFooter">
                         <th></th>
                         <th></th>
                         <th></th>
@@ -210,7 +209,7 @@
                         <th class="text-right">{{ sums1| number : fractionSize }}</th>
                         <th class="text-right">{{ sums2| number : fractionSize }}</th>
 
-                    </script>
+                    </script>-->
                 </div>
 
             </div>
@@ -266,7 +265,6 @@
                           <ui-select ng-model="selected.source_no.selected" theme="bootstrap" on-select="setReceiving($item)" ng-disabled="isReceiving" ng-keyup="findReceiving($select.search)">
                               <ui-select-match placeholder="select source no">{{$select.selected.code}}</ui-select-match>
                               <ui-select-choices repeat="item in source_no | filter: $select.search">
-
                                   <div ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></div>
                                   <small ng-bind-html="trustAsHtml((item.total_amount | highlight: $select.search))"></small><br>
                                   <small ng-bind-html="trustAsHtml((item.sname | highlight: $select.search))"></small>
@@ -501,7 +499,7 @@
 
 
 
-              <div ng-controller="EditableTableApvCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()" ng-show="selected.status.selected.id==1">
+              <div ng-controller="EditableTableSrCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()" ng-show="selected.status.selected.id==1">
                                     <!-- table -->
                                     <table class="table  table-hover itemtable">
                                         <thead>
