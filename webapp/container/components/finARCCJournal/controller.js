@@ -58,11 +58,11 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
     $scope.DATA = {};
     $scope.data = {};
     $scope.ls = {
-        credit_cards : [],
-        outlet_types : [],
-        folios : [],
-        pos_orders : [],
-        ccard_batches : []
+        credit_cards: [],
+        outlet_types: [],
+        folios: [],
+        pos_orders: [],
+        ccard_batches: []
     };
 
     for (var f in $scope.fields) $scope.data[$scope.fields[f]] = '';
@@ -340,12 +340,12 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
     $scope.onChangeTotalAmount = function () {
         var v, p = $scope.data.credit_card_id || {};
         if (p.selected) {
-            v = (p.selected.percent_fee/100) || 0;
+            v = (p.selected.percent_fee / 100) || 0;
         }
         $scope.data.credit_fee_amount = v ? $scope.data.total_amount * v : 0
     };
     $scope.onSelectCC = function () {
-        var v = ($scope.data.credit_card_id.selected.percent_fee/100) || 0;
+        var v = ($scope.data.credit_card_id.selected.percent_fee / 100) || 0;
         if ($scope.data.total_amount && v) {
             $scope.data.credit_fee_amount = $scope.data.total_amount * v;
         }
@@ -375,5 +375,3 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
 
     date1.datepicker('setDate', moment(new Date()).format('YYYY-MM-DD'));
 });
-
-

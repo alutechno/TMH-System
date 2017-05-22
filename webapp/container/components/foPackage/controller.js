@@ -19,12 +19,12 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     var qstring = "select a.id, a.code, a.name, a.text_on_folio, a.status, a.is_meal_coupon, a.rate_operator_id, a.package_type_id, a.package_category_id, "+
     	"a.currency_id, a.is_hidden_for_user_selection, a.is_commission, a.is_tax_included, a.flat_rate, a.adult_rate, a.child_rate,  "+
         "date_format(a.valid_date_from,'%Y-%m-%d') valid_date_from, date_format(a.valid_date_until,'%Y-%m-%d') valid_date_until, a.is_monday_active, a.is_tuesday_active, a.is_wednesday_active, a.is_thursday_active,  "+
-        "a.is_friday_active, a.is_saturday_active, a.is_sunday_active, "+
+        "a.is_friday_active, a.is_saturday_active, a.is_sunday_active, g.short_name transc_type_name, "+
         "b.name package_category_name,c.name package_type_name,d.name rate_operator_name,e.name currency_name,f.status_name, "+
-        "if(is_meal_coupon='Y','Yes','No') is_meal_coupon_name,"+
-        "if(is_hidden_for_user_selection='Y','Yes','No') is_hidden_for_user_selection_name,"+
-        "if(is_commission='Y','Yes','No') is_commission_name,"+
-        "if(is_tax_included='Y','Yes','No') is_tax_included_name "+
+        "if(a.is_meal_coupon='Y','Yes','No') is_meal_coupon_name,"+
+        "if(a.is_hidden_for_user_selection='Y','Yes','No') is_hidden_for_user_selection_name,"+
+        "if(a.is_commission='Y','Yes','No') is_commission_name,"+
+        "if(a.is_tax_included='Y','Yes','No') is_tax_included_name "+
     "from mst_package a "+
     "left join ref_package_category b on a.package_category_id=b.id "+
     "left join ref_package_type c on a.package_type_id=c.id "+
@@ -33,6 +33,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     "left join (select id as status_id, value as status_value,name as status_name   "+
                 "from table_ref   "+
             "where table_name = 'ref_product_category' and column_name='status') f on a.status =f.status_value "+
+    "left join mst_guest_transaction_type g on a.transc_type_id=g.id "+
     " where a.status!=2 "
     var qwhere = ''
     var qstringdetail = 'select a.id p_id,a.room_rate_id,c.name room_rate,a.package_id,date_format(a.valid_date_from,\'%Y-%m-%d\') valid_date_from,date_format(a.valid_date_until,\'%Y-%m-%d\') valid_date_until '+
@@ -72,6 +73,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         is_commission: {},
         is_tax_included: {},
         day: {},
+        type: {},
         is_monday_active: '0',
         is_tuesday_active: '0',
         is_wednesday_active: '0',
@@ -85,6 +87,10 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     .then(function(data){
         $scope.status = data.data
         $scope.selected.status['selected'] = $scope.status[0]
+    })
+    queryService.get('select id, short_name name from mst_guest_transaction_type where status!=2 order by short_name asc',undefined)
+    .then(function(data){
+        $scope.type = data.data
     })
     $scope.yesno = [
         {id: 'Y', name: 'Yes'},
@@ -205,7 +211,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         DTColumnBuilder.newColumn('name').withTitle('Name'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status'),
         DTColumnBuilder.newColumn('package_category_name').withTitle('Category'),
-        DTColumnBuilder.newColumn('package_type_name').withTitle('Type'),
+        DTColumnBuilder.newColumn('package_type_name').withTitle('Package Type'),
+        DTColumnBuilder.newColumn('transc_type_name').withTitle('Trans Type'),
         DTColumnBuilder.newColumn('rate_operator_name').withTitle('Operator'),
         DTColumnBuilder.newColumn('currency_name').withTitle('currency'),
         DTColumnBuilder.newColumn('flat_rate').withTitle('Flat Rate'),
@@ -320,6 +327,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 name: $scope.coa.name,
                 text_on_folio: $scope.coa.text_on_folio,
                 status: $scope.selected.status.selected.id,
+                transc_type_id: ($scope.selected.type.selected?$scope.selected.type.selected.id:null),
                 is_meal_coupon: ($scope.selected.is_meal_coupon.selected?$scope.selected.is_meal_coupon.selected.id:null),
                 currency_id: $scope.selected.currency.selected.id,
                 package_type_id: ($scope.selected.package_type.selected?$scope.selected.package_type.selected.id:null),
@@ -400,6 +408,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 code: $scope.coa.code,
                 name: $scope.coa.name,
                 text_on_folio: $scope.coa.text_on_folio,
+                transc_type_id: ($scope.selected.type.selected?$scope.selected.type.selected.id:null),
                 status: $scope.selected.status.selected.id,
                 is_meal_coupon: ($scope.selected.is_meal_coupon.selected?$scope.selected.is_meal_coupon.selected.id:null),
                 currency_id: $scope.selected.currency.selected.id,
@@ -484,6 +493,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             $scope.selected.is_hidden_for_user_selection.selected = {id: result.data[0].is_hidden_for_user_selection,name:result.data[0].is_hidden_for_user_selection_name}
             $scope.selected.is_commission.selected = {id: result.data[0].is_commission,name:result.data[0].is_commission_name}
             $scope.selected.is_tax_included.selected = {id: result.data[0].is_tax_included,name:result.data[0].is_tax_included_name}
+            $scope.selected.type.selected = {id: result.data[0].transc_type_id,name:result.data[0].transc_type_name}
             $scope.selected.is_monday_active = result.data[0].is_monday_active
             $scope.selected.is_tuesday_active = result.data[0].is_tuesday_active
             $scope.selected.is_wednesday_active = result.data[0].is_wednesday_active

@@ -103,7 +103,7 @@
                   </div>
                   <div class="col-sm-3">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  " >
-                          <label>Type</label>
+                          <label>Transaction Type</label>
                           <ui-select ng-model="selected.type.selected" theme="bootstrap">
                               <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in type | filter: $select.search">
@@ -178,7 +178,7 @@
                           </ui-select>
                       </div>
                   </div>
-                  <div class="col-sm-3">
+                  <!--<div class="col-sm-3">
                       <div pg-form-group class="form-group form-group-default form-group-default-select " >
                           <label>Package Category</label>
                           <ui-select ng-model="selected.package_category.selected" theme="bootstrap" >
@@ -188,7 +188,7 @@
                               </ui-select-choices>
                           </ui-select>
                       </div>
-                  </div>
+                  </div>-->
                 <div class="col-sm-3">
                     <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.currency.selected.$invalid && !selected.currency.selected.$pristine }">
                         <label>Currency</label>
