@@ -15,11 +15,19 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
     var qstring = trim(`
         select
             a.*, DATEDIFF(now(),a.open_date) age, (a.deposit_amount - a.applied_amount) balance,
-            b.code customer_code, b.title customer_title, b.first_name customer_fisrt_name, b.last_name customer_last_name,
+            b.code customer_code, b.title customer_title, b.first_name customer_first_name, b.last_name customer_last_name,
             c.code bank_account_code, c.name bank_account_name, c.short_name bank_account_short_name,
             d.code used_currency_code, d.name used_currency_name, d.home_currency_exchange used_currency_home_exchange, d.selling_rate used_currency_selling_rate,
             e.code credit_card_code, e.name credit_card_name,
-            f.code outlet_type_code, f.name outlet_type_name
+            f.code outlet_type_code, f.name outlet_type_name,
+            g.name status_name,
+            format(a.currency_exchange,0) currency_exchange_, 
+            format(a.home_deposit_amount,0) home_deposit_amount_, 
+            format(a.deposit_amount,0) deposit_amount_, 
+            format(a.home_applied_amount,0) home_applied_amount_, 
+            format(a.applied_amount,0) applied_amount_, 
+            format(d.home_currency_exchange,0) used_currency_home_exchange_, 
+            format((a.deposit_amount - a.applied_amount),0) balance_
         from
             acc_ar_deposit a
             left join mst_customer b on a.customer_id = b.id
@@ -27,7 +35,10 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
             left join ref_currency d on a.used_currency_id = d.id
             left join mst_credit_card e on a.credit_card_id = e.id
             left join ref_ar_outlet_type f on a.outlet_type_id = f.id
-        where c.status = 1 and d.status = 'Y'
+            left join (
+                select id, value code, name from table_ref where table_name='acc_ar_deposit' and column_name='status'
+            ) g on a.status = g.code 
+        where c.status = 1 and d.status = 'Y' and a.status != 2 
     `);
     var qwhere = '';
 
@@ -45,28 +56,34 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
         `applied_amount` //`created_date`, `modified_date`, `created_by`, `modified_by`
 
     ];
+    $scope.temp = {};
     $scope.titles = $scope.fields.map(function (str) {
         return toProperCase(str.replace(/\_/g, " "))
     });
     $scope.DATA = {};
-    $scope.data = {};
+    $scope.data = {
+        home_total_balance: 0,
+        total_balance: 0
+    };
+    $scope.dataChild = {};
     $scope.ls = {
-        statuses: [
-            {name: 'Prepare', id: 'p'},
-            {name: 'Opened', id: 'o'},
-            {name: 'Closed', id: 'c'}
-        ],
+        statuses: [],
         outlet_types: [],
         customers: [],
         banks: [],
         credit_cards: [],
-        currencies: []
+        currencies: [],
+        invoices: []
     };
     $scope.now = new Date();
     $scope.df_now = moment($scope.now).format('YYYY-MM-DD');
 
     for (var f in $scope.fields) $scope.data[$scope.fields[f]] = '';
-
+    queryService.get(
+        `select value id, name from table_ref where table_name='acc_ar_deposit' and column_name='status'`
+    ).then(function (res) {
+        $scope.ls.statuses = res.data
+    });
     queryService.get(
         `select id, code, name from ref_ar_outlet_type where status = '1' order by code`
     ).then(function (res) {
@@ -174,22 +191,12 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
         .renderWith($scope.actionsHtml).withOption('width', '80px'))
     }
     $scope.dtColumns.push(
-        /*
-        `id`,`code`,`open_date`,`status`,`notes`,`customer_id`,`bank_account_id`,`used_currency_id`,
-        `currency_exchange`,`home_deposit_amount`,`deposit_amount`,`home_applied_amount`,
-        `applied_amount`,`created_date`,`modified_date`,`created_by`,`modified_by`
-        */
         DTColumnBuilder.newColumn('open_date').withTitle('Date').withOption('width', '100px')
         .renderWith(function (i, type, data, prop) {
             return moment(new Date(data.open_date)).format('YYYY-MM-DD')
         }),
         DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '130px'),
-        DTColumnBuilder.newColumn('status').withTitle('Status')
-        .renderWith(function (i, type, data, prop) {
-            return $scope.ls.statuses.filter(function (e) {
-                return e.id == data.status
-            })[0].name
-        }).withOption('width', '100px'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '100px'),
         DTColumnBuilder.newColumn('customer_id').withTitle('Customer')
         .renderWith(function (i, type, data, prop) {
             return [data.customer_title, data.customer_first_name, data.customer_last_name].join(' ');
@@ -203,12 +210,9 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
         .renderWith(function (i, type, data, prop) {
             return data.used_currency_code;
         }).withOption('width', '80px'),
-        DTColumnBuilder.newColumn('deposit_amount').withTitle('Total'),
-        DTColumnBuilder.newColumn('applied_amount').withTitle('Applied'),
-        DTColumnBuilder.newColumn('balance').withTitle('Balance')
-        .renderWith(function (i, type, data, prop) {
-            return data.deposit_amount - data.applied_amount;
-        })
+        DTColumnBuilder.newColumn('deposit_amount_').withTitle('Total'),
+        DTColumnBuilder.newColumn('applied_amount_').withTitle('Applied'),
+        DTColumnBuilder.newColumn('balance_').withTitle('Balance')
     );
 
     var qwhereobj = {
@@ -220,7 +224,7 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
                 if ($scope.filterVal.search.length > 0) {
                     var fields = $scope.fields.map(function (x) {
                         return `${x} LIKE '%${$scope.filterVal.search}%'`
-                    }).join(' OR ');
+                        }).join(' OR ');
                     qwhereobj.text = ` ${fields} `
                 } else qwhereobj.text = '';
                 qwhere = setWhere();
@@ -263,45 +267,134 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
             }
         }
         if (!$scope.data.id) {
-            queryService.post(`select next_document_no('CDE','${moment().format('YYYY/MM')}') code`)
-            .then(function (res) {
-                Object.assign(param, res.data[0]);
-                param.created_date = globalFunction.currentDate();
-                param.created_by = $localStorage.currentUser.name.id;
-                queryService.post('insert into acc_ar_deposit SET ?', param)
-                .then(
-                    function (result) {
-                        $('#form-input').modal('hide');
-                        $scope.dtInstance.reloadData();
-                        $('body').pgNotification({
-                            style: 'flip',
-                            message: 'Success Insert',
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'success'
-                        }).show();
-                        $scope.clear()
-
-                    },
-                    function (err) {
-                        $('#form-input').pgNotification({
-                            style: 'flip',
-                            message: 'Error Insert: ' + err.code,
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'danger'
-                        }).show();
-                    }
-                )
+            delete param.id;
+            var date = globalFunction.currentDate(),
+                user = $localStorage.currentUser.name.id;
+            //
+            param.created_date = date;
+            param.created_by = user;
+            //
+            var sql = `
+                START TRANSACTION;
+                
+                SET @code=(select next_document_no('CDE','${moment().format('YYYY/MM')}'));
+                
+                INSERT INTO acc_ar_deposit (${
+                    Object.keys(param)
+                }) VALUES (${
+                    Object.keys(param).map(function(a){
+                        var v = param[a] || '';
+                        if (a == 'code') {
+                            return '@code'
+                        }
+                        return v.constructor == Number ? param[a] : `'${param[a]}'`
+                    })
+                });
+                
+                SET @id=(SELECT last_insert_id());
+            `;
+            $scope.dataChildren = $scope.dataChildren || [];
+            $scope.dataChildren.forEach(function (child) {
+                var {id, code, total_amount} = child;
+                sql += `
+                    UPDATE acc_ar_invoice
+                    SET 
+                        deposit_amount = ${child.isDeleted ? 0 : total_amount},
+                        modified_date = '${date}',
+                        modified_by = ${user}
+                    WHERE id = ${id};
+                `;
+                if (child.isDeleted) {
+                    sql += `
+                        DELETE FROM acc_ar_deposit_line_item
+                        WHERE deposit_id = @id AND invoice_id = ${id};
+                    `
+                } else {
+                    sql += `
+                        INSERT INTO acc_ar_deposit_line_item (
+                            deposit_id,invoice_id,status,created_date,created_by
+                        ) VALUES (
+                            @id, ${id}, 1, '${date}', ${user}
+                        ) ON DUPLICATE KEY UPDATE
+                        modified_date = '${date}',
+                        modified_by = ${user};
+                    `
+                }
             });
+            sql += `COMMIT;`;
+            //
+            queryService.post(trim(sql)).then(
+                function (result) {
+                    $('#form-input').modal('hide');
+                    $scope.dtInstance.reloadData();
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Insert',
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
+                    $scope.clear()
 
+                },
+                function (err) {
+                    $('#form-input').pgNotification({
+                        style: 'flip',
+                        message: 'Error Insert: ' + err.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'danger'
+                    }).show();
+                }
+            )
         } else { //exec update
-            param.modified_date = globalFunction.currentDate();
-            param.modified_by = $localStorage.currentUser.name.id;
-
-            queryService.post(
-                'update acc_ar_deposit SET ? WHERE id=' + $scope.editing.id, param
-            ).then(function (result) {
+            delete param.id;
+            var date = globalFunction.currentDate(),
+                user = $localStorage.currentUser.name.id;
+            //
+            param.modified_date = date;
+            param.modified_by = user;
+            //
+            var sql = `
+                START TRANSACTION;
+                UPDATE acc_ar_deposit SET ${
+                    Object.keys(param).map(function (key) {
+                        var val = param[key] || '';
+                        return `${key} = ${val.constructor == String ? `'${val}'` : val}`
+                    }).join(',')
+                } WHERE id = ${$scope.editing.id};
+            `;
+            $scope.dataChildren = $scope.dataChildren || [];
+            $scope.dataChildren.forEach(function (child) {
+                var {id, code, total_amount} = child;
+                sql += `
+                    UPDATE acc_ar_invoice
+                    SET 
+                        deposit_amount = ${child.isDeleted ? 0 : total_amount},
+                        modified_date = '${date}',
+                        modified_by = ${user}
+                    WHERE id = ${id};
+                `;
+                if (child.isDeleted) {
+                    sql += `
+                        DELETE FROM acc_ar_deposit_line_item
+                        WHERE deposit_id = ${$scope.editing.id} AND invoice_id = ${id};
+                    `
+                } else {
+                    sql += `
+                        INSERT INTO acc_ar_deposit_line_item (
+                            deposit_id,invoice_id,status,created_date,created_by
+                        ) VALUES (
+                            ${$scope.editing.id}, ${id}, 1, '${date}', ${user}
+                        ) ON DUPLICATE KEY UPDATE
+                        modified_date = '${date}',
+                        modified_by = ${user};
+                    `
+                }
+            });
+            sql += `COMMIT;`;
+            //
+            queryService.post(trim(sql)).then(function (result) {
                 if (result.status = "200") {
                     $('#form-input').modal('hide');
                     $scope.dtInstance.reloadData();
@@ -323,8 +416,10 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
     $scope.update = function (key) {
         $('#form-input').modal('show');
         $scope.editing = $scope.DATA[key];
-        queryService.post(qstring + 'AND a.id=' + $scope.editing.id, undefined).then(function (result) {
+        queryService.post(qstring + ' AND a.id=' + $scope.editing.id, undefined).then(function (result) {
             var d = result.data[0];
+            $scope.temp.applied = d.applied_amount;
+            $scope.temp.home_applied = d.home_applied_amount;
             $scope.data = Object.assign($scope.data, d);
             //
             $scope.data.open_date = moment(new Date(d.open_date)).format('YYYY-MM-DD');
@@ -346,9 +441,7 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
             $scope.data.status = {
                 selected: {
                     id : d.status,
-                    name : $scope.ls.statuses.filter(function (e) {
-                        return e.id === d.status
-                    })[0].name
+                    name : d.status_name
                 }
             };
             $scope.data.credit_card_id = {
@@ -377,26 +470,51 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
                 selected: {
                     id : d.customer_id,
                     code : d.customer_code,
+                    title : d.customer_title,
                     first_name : d.customer_first_name,
                     last_name : d.customer_last_name
                 }
             };
             $scope.selectCurrency();
+            $scope.selectCustomer();
+            $scope.changeDeposit();
         })
     };
     $scope.delete = function (key) {
         $scope.removing = $scope.DATA[key];
-        queryService.get(trim(qstring + 'AND a.id=' + $scope.removing.id), undefined)
+        queryService.get(trim(qstring + ' AND a.id=' + $scope.removing.id), undefined)
         .then(function (result) {
             $('#modalDelete').modal('show')
         })
     };
     $scope.execDelete = function () {
-        queryService.post('update acc_ar_deposit SET status=\'c\', ' +
-            ' modified_by=' + $localStorage.currentUser.name.id + ', ' +
-            ' modified_date=\'' + globalFunction.currentDate() + '\' ' +
-            ' WHERE id=' + $scope.removing.id, undefined)
-        .then(function (result) {
+        var user = $localStorage.currentUser.name.id;
+        var date = globalFunction.currentDate();
+        var deposit_id = $scope.removing.id;
+        var sql = `
+            START TRANSACTION;
+            UPDATE acc_ar_deposit SET
+                status = 2, modified_by = ${user}, modified_date = '${date}'
+            WHERE id = ${deposit_id};
+        `;
+        $scope.dataChildren = $scope.dataChildren || [];
+        $scope.dataChildren.forEach(function (child) {
+            var {id, code, total_amount} = child;
+            sql += `
+                UPDATE acc_ar_invoice
+                SET 
+                    deposit_amount = 0,
+                    modified_date = '${date}',
+                    modified_by = ${user}
+                WHERE id = ${id};
+                
+                DELETE FROM acc_ar_deposit_line_item
+                WHERE deposit_id = ${deposit_id} AND invoice_id = ${id};
+            `;
+        });
+        sql += `COMMIT;`;
+
+        queryService.post(trim(sql)).then(function (result) {
             if (result.status = "200") {
                 $('#form-input').modal('hide');
                 $scope.dtInstance.reloadData();
@@ -422,6 +540,9 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
         });
     };
     //
+    $scope.filterItems = function(item){
+        return item.isDeleted !== true;
+    };
     $scope.selectCurrency = function () {
         var {selected} = $scope.data.used_currency_id;
         var val = selected.home_currency_exchange;
@@ -436,6 +557,65 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
             $scope.data.deposit_amount = 0;
             $($('[myCat="left"]')[0]).removeAttr('disabled');
         }
+    };
+    $scope.changeDeposit = function () {
+        var ex = $scope.data.currency_exchange;
+        var val = $scope.data.home_deposit_amount;
+        if (ex && val) {
+            $scope.data.deposit_amount = ex * val
+        }
+        $scope.changeAppliedDeposit();
+    };
+    $scope.changeAppliedDeposit = function () {
+        var deposit = $scope.data.deposit_amount;
+        if (($scope.dataChildren || []).length) {
+            $scope.temp.applied = $scope.temp.applied || 0;
+            $scope.temp.home_applied = $scope.temp.home_applied || 0;
+
+            var sum = $scope.dataChildren.map(function (a) {
+                return a.deposit_amount
+            }).reduce(function(a, b){
+                return a + b
+            });
+            if (($scope.temp.applied + sum) <= deposit) {
+
+            }
+            $scope.data.applied_amount = $scope.temp.applied + sum;
+            $scope.data.total_balance = deposit - ($scope.temp.applied + sum);
+        }
+    };
+    $scope.selectCustomer = function () {
+        var {selected} = $scope.data.customer_id;
+        var {id} = selected;
+        //
+        queryService.get(trim(
+            `select
+                id, code, open_date, status, due_date, notes, 
+                is_marked, total_amount, deposit_amount, 
+                total_due_amount, current_due_amount
+            from
+                acc_ar_invoice
+            where
+                status = 2 and customer_id = ${id} and (id in (
+                    select id from acc_ar_deposit_line_item where deposit_id = ${($scope.editing||{}).id||'\'\''}
+                ) or deposit_amount is null or deposit_amount = 0)`
+        )).then(function (res) {
+            $scope.dataChild = {};
+            res.data.forEach(function (item) {
+                $scope.dataChild[item.id] = false;
+            });
+            $scope.applyItem = function(item){
+                $scope.dataChild[item.id] = false;
+            };
+            $scope.editItem = function(item){
+                $scope.dataChild[item.id] = true;
+            };
+            $scope.removeItem = function(item){
+                //delete $scope.dataChild[item.id];
+                item.isDeleted = true;
+            };
+            $scope.dataChildren = res.data;
+        });
     };
     //
     var date1 = $('#data_open_date');

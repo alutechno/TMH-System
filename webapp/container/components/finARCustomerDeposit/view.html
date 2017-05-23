@@ -146,17 +146,18 @@
                                                     <ui-select
                                                         ng-model="data.customer_id.selected"
                                                         theme="bootstrap"
+                                                        on-select="selectCustomer()"
                                                         validate-attached-form-element
                                                         required>
                                                         <ui-select-match placeholder="Choose one">
-                                                            {{[$select.selected.title,$select.selected.fisrt_name,$select.selected.last_name].join(' ')}}
+                                                            {{[$select.selected.title,$select.selected.first_name,$select.selected.last_name].join(' ')}}
                                                         </ui-select-match>
                                                         <ui-select-choices
                                                             repeat="item in ls.customers | filter: $select.search">
                                                             <div>
                                                                 <div
                                                                     ng-bind-html="trustAsHtml((
-                                                                     [item.title,item.fisrt_name,item.last_name].join(' ')
+                                                                     [item.title,item.first_name,item.last_name].join(' ')
                                                                      | highlight: $select.search))"></div>
                                                                 <small style="font-style: italic">{{
                                                                     item.code ? 'Customer code: ' +
@@ -274,7 +275,8 @@
                                                      class="form-group form-group-default"
                                                      ng-class="{ 'has-error' : !data.currency_exchange }">
                                                     <label>Exchange</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="text" class="form-control"
+                                                           format="number"
                                                            name="currency_exchange"
                                                            id="data_currency_exchange"
                                                            ng-model="data.currency_exchange"
@@ -303,11 +305,13 @@
                                                 <div pg-form-group
                                                      class="form-group form-group-default">
                                                     <label>deposit amount</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="text" class="form-control"
+                                                           format="number"
                                                            myCat="left"
                                                            name="home_deposit_amount"
                                                            id="data_home_deposit_amount"
                                                            ng-model="data.home_deposit_amount"
+                                                           ng-change="changeDeposit()"
                                                            ui-jq="popover" data-container="body"
                                                            data-placement="top"
                                                            data-content="This field is required"
@@ -321,7 +325,8 @@
                                                 <div pg-form-group
                                                      class="form-group form-group-default">
                                                     <label>deposit amount</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="text" class="form-control"
+                                                           format="number"
                                                            myCat="right"
                                                            name="deposit_amount"
                                                            id="data_deposit_amount"
@@ -341,7 +346,8 @@
                                                 <div pg-form-group
                                                      class="form-group form-group-default">
                                                     <label>applied amount</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="text" class="form-control"
+                                                           format="number"
                                                            myCat="left"
                                                            name="home_applied_amount"
                                                            id="data_home_applied_amount"
@@ -359,7 +365,8 @@
                                                 <div pg-form-group
                                                      class="form-group form-group-default">
                                                     <label>applied amount</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="text" class="form-control"
+                                                           format="number"
                                                            myCat="right"
                                                            name="applied_amount"
                                                            id="data_applied_amount"
@@ -399,7 +406,8 @@
                                                 <div pg-form-group
                                                      class="form-group form-group-default">
                                                     <label>Total Balance</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="text" class="form-control"
+                                                           format="number"
                                                            myCat="left"
                                                            name="home_total_balance"
                                                            id="data_home_total_balance"
@@ -417,7 +425,8 @@
                                                 <div pg-form-group
                                                      class="form-group form-group-default">
                                                     <label>Total Balance</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="text" class="form-control"
+                                                           format="number"
                                                            myCat="right"
                                                            name="total_balance"
                                                            id="data_total_balance"
@@ -451,6 +460,71 @@
                                         </div>
                                     </form>
                                     <br>
+                                    <div class="row clearfix" ng-show="data.customer_id.selected.id">
+                                        <div class="col-lg-12">
+                                            <table
+                                                class="table table-hover table-condensed table-responsive">
+                                                <thead>
+                                                <tr>
+                                                    <th width="100"></th>
+                                                    <th>Invoice</th>
+                                                    <th width="130">Total</th>
+                                                    <th>Deposit</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr ng-repeat="item in dataChildren | filter:filterItems"
+                                                    id="{{item.id}}" ng-hide="item._hidden">
+                                                    <td>
+                                                        <div class="btn-group btn-group-xs"
+                                                             ng-hide="dataChild[item.id]">
+                                                            <button class="btn btn-default"
+                                                                    ng-click="removeItem(item)">
+                                                                <i class="fa fa-trash-o"></i>
+                                                            </button>
+                                                            <button class="btn btn-default"
+                                                                    ng-click="editItem(item)">
+                                                                <i class="fa fa-edit"></i>
+                                                            </button>
+                                                        </div>
+                                                        <div class="btn-group btn-group-xs"
+                                                             ng-show="dataChild[item.id]">
+                                                            <button class="btn btn-default"
+                                                                    ng-click="removeItem(item)">
+                                                                <i class="fa fa-trash-o"></i>
+                                                            </button>
+                                                            <button class="btn btn-default"
+                                                                    ng-click="applyItem(item)">
+                                                                <i class="fa fa-check"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                    <td ng-click="editItem(item)">
+                                                        {{item.code | uppercase}}
+                                                    </td>
+                                                    <td ng-click="editItem(item)">
+                                                        {{(item.total_amount || 0 | number:fractionSize)}}
+                                                    </td>
+                                                    <td ng-click="editItem(item)">
+                                                        <div ng-hide="dataChild[item.id]">{{
+                                                            (item.deposit_amount || 0) |
+                                                            number:fractionSize
+                                                        }}</div>
+                                                        <div ng-show="dataChild[item.id]">
+                                                            <input id="input-deposit-{{item.id}}"
+                                                                   type="text"
+                                                                   format="number"
+                                                                   min="0"
+                                                                   ng-max="{{item.total_amount}}"
+                                                                   ng-model="item.deposit_amount"
+                                                                   ng-change="changeAppliedDeposit()"/>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                     <div class="clearfix"></div>
                                     <button class="btn btn-primary"
                                             type="submit"
