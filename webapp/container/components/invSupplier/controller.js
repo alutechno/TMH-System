@@ -165,6 +165,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
         DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '5%'),
         DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '15%'),
         DTColumnBuilder.newColumn('short_name').withTitle('Short Name').withOption('width', '7%'),
+		DTColumnBuilder.newColumn('supplier_type_name').withTitle('Type').withOption('width', '7%'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '5%'),
         DTColumnBuilder.newColumn('contact_person').withTitle('Contact Person').withOption('width', '7%'),
         DTColumnBuilder.newColumn('phone_number').withTitle('Phone').withOption('width', '7%'),
