@@ -48,13 +48,18 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 		home_current_due_amount:'',
 		current_due_amount:'',
 		prev_total_amount:'',
-		adjustment_amount:''
+		adjustment_amount:'',
+		guest_name:'',
+		exchange:1
 	}
 	$scope.selected = {
-        receipt_status: {}
+        status: {},
+		source: {},
+		customer:{},
+		currency:{}
 	}
 	var qstring = `select a.*,concat(b.first_name,' ',b.last_name,', ',b.title)guest_name,c.name company_name,d.name,e.arrival_date,e.departure_date,
-		e.room_rate_amount,e.discount_amount,e.voucher,f.name room_no,g.code room_rate_code
+		e.num_of_pax,e.num_of_child,e.room_rate_amount,e.discount_amount,e.voucher,f.name room_no,g.code room_rate_code
 		from acc_ar_invoice a,mst_customer b left join mst_cust_company c on b.company_id=c.id,ref_currency d,fd_guest_folio e,
 		mst_room f,mst_room_rate g
 		where a.customer_id=b.id
@@ -65,15 +70,27 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 	var qwhere = ''
 	var qstringt='select * from acc_ar_receipt_line_item '
 
-	$scope.receipt_status = []
-	queryService.get(`select value id, value,name from table_ref where table_name='acc_ar_cash_receipt' order by value`,undefined)
+	$scope.status = []
+	queryService.get(`select value id, value,name from table_ref where table_name='acc_ar_invoice' and column_name='status' order by value`,undefined)
 	.then(function(data){
-		$scope.receipt_status = data.data
+		$scope.status = data.data
 	})
-	queryService.get('select id,code,name from mst_cash_bank_account where status = \'1\' order by name ',undefined)
+	$scope.source = []
+	queryService.get(`select value id, value,name from table_ref where table_name='acc_ar_invoice' and column_name='source_type' order by value`,undefined)
 	.then(function(data){
-		$scope.bank = data.data
+		$scope.source = data.data
 	})
+	$scope.customer = []
+	queryService.get('select id,code,name from mst_cust_company order by name ',undefined)
+	.then(function(data){
+		console.log(data.data)
+		$scope.customer = data.data
+	})
+	$scope.currency = []
+    queryService.get('select  id currency_id,code currency_code,name currency_name,home_currency_exchange exchange from ref_currency order by id asc',undefined)
+    .then(function(data){
+        $scope.currency = data.data
+    })
 	$scope.dtInstance = {}
     $scope.actionsHtml = function(data, type, full, meta) {
 		//$scope.cats[data] = {id:data,code:full.code};
@@ -162,7 +179,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 		$scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
         queryService.post('select curr_document_no(\'AR\',\''+$scope.ym+'\') as code',undefined)
         .then(function(data){
-            $scope.cr.code = data.data[0].code
+            $scope.ie.code = data.data[0].code
         })
         //$scope.viewMode = false
         //$scope.addDetail(0)
@@ -282,6 +299,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 			notes:'',
 			status:''
 		}
+    }
+	$scope.trustAsHtml = function(value) {
+        return $sce.trustAsHtml(value);
     }
 })
 .controller('EditableTableSrCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {

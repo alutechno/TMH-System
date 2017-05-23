@@ -144,6 +144,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 		DTColumnBuilder.newColumn('id').withTitle('ID'),
         DTColumnBuilder.newColumn('code').withTitle('Code'),
         DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
+		DTColumnBuilder.newColumn('receavable_account_name').withTitle('receavable account name'),
+		DTColumnBuilder.newColumn('deposit_account_name').withTitle('deposit account name'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
