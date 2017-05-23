@@ -276,7 +276,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
             //delete param.id
 			if($scope.change==true){
 				queryService.post('select next_item_code(\'supplier\',\''+$scope.selected.supplier_type.selected.code+'\') as code',undefined)
-				.then(function (result){
+				.then(function (data){
 					$scope.supplier.code = data.data[0].code
 					queryService.post('update mst_supplier SET ? WHERE id='+$scope.supplier.id ,param)
 		            .then(function (result){
