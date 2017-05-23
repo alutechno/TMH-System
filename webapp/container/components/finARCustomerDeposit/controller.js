@@ -14,7 +14,7 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
     //
     var qstring = trim(`
         select
-            a.*, DATEDIFF(now(),a.open_date) age, (a.deposit_amount - a.applied_amount) balance,
+            a.*, DATEDIFF(now(),a.open_date) age, (a.deposit_amount - a.applied_amount) total_balance,
             b.code customer_code, b.title customer_title, b.first_name customer_first_name, b.last_name customer_last_name,
             c.code bank_account_code, c.name bank_account_name, c.short_name bank_account_short_name,
             d.code used_currency_code, d.name used_currency_name, d.home_currency_exchange used_currency_home_exchange, d.selling_rate used_currency_selling_rate,
@@ -27,7 +27,7 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
             format(a.home_applied_amount,0) home_applied_amount_, 
             format(a.applied_amount,0) applied_amount_, 
             format(d.home_currency_exchange,0) used_currency_home_exchange_, 
-            format((a.deposit_amount - a.applied_amount),0) balance_
+            format((a.deposit_amount - a.applied_amount),0) total_balance_
         from
             acc_ar_deposit a
             left join mst_customer b on a.customer_id = b.id
@@ -56,7 +56,6 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
         `applied_amount` //`created_date`, `modified_date`, `created_by`, `modified_by`
 
     ];
-    $scope.temp = {};
     $scope.titles = $scope.fields.map(function (str) {
         return toProperCase(str.replace(/\_/g, " "))
     });
@@ -212,7 +211,7 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
         }).withOption('width', '80px'),
         DTColumnBuilder.newColumn('deposit_amount_').withTitle('Total'),
         DTColumnBuilder.newColumn('applied_amount_').withTitle('Applied'),
-        DTColumnBuilder.newColumn('balance_').withTitle('Balance')
+        DTColumnBuilder.newColumn('total_balance_').withTitle('Balance')
     );
 
     var qwhereobj = {
@@ -418,10 +417,9 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
         $scope.editing = $scope.DATA[key];
         queryService.post(qstring + ' AND a.id=' + $scope.editing.id, undefined).then(function (result) {
             var d = result.data[0];
-            $scope.temp.applied = d.applied_amount;
-            $scope.temp.home_applied = d.home_applied_amount;
             $scope.data = Object.assign($scope.data, d);
             //
+            console.log($scope.data)
             $scope.data.open_date = moment(new Date(d.open_date)).format('YYYY-MM-DD');
             $scope.data.bank_account_id = {
                 selected: {
@@ -569,19 +567,12 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
     $scope.changeAppliedDeposit = function () {
         var deposit = $scope.data.deposit_amount;
         if (($scope.dataChildren || []).length) {
-            $scope.temp.applied = $scope.temp.applied || 0;
-            $scope.temp.home_applied = $scope.temp.home_applied || 0;
-
-            var sum = $scope.dataChildren.map(function (a) {
-                return a.deposit_amount
-            }).reduce(function(a, b){
-                return parseFloat(a) + parseFloat(b)
+            var sum = 0;
+            $scope.dataChildren.forEach(function (a) {
+                if (!a.isDeleted) sum += parseFloat(a.deposit_amount || 0)
             });
-            if (($scope.temp.applied + sum) <= deposit) {
-
-            }
-            $scope.data.applied_amount = $scope.temp.applied + sum;
-            $scope.data.total_balance = deposit - ($scope.temp.applied + sum);
+            $scope.data.applied_amount = sum;
+            $scope.data.total_balance = deposit - sum;
         }
     };
     $scope.selectCustomer = function () {
@@ -614,6 +605,7 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
             $scope.removeItem = function(item){
                 //delete $scope.dataChild[item.id];
                 item.isDeleted = true;
+                $scope.changeDeposit();
             };
             $scope.dataChildren = res.data;
         });
