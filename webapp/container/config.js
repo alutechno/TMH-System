@@ -1646,6 +1646,56 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
+        .state("app.fo.ccd", {
+            url: "/foCashierOpen",
+            templateUrl: "container/components/foCashierCashDeposit/view.html",
+            controller: "FoCashierCashDepositCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        'timepicker',
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load([
+                            "container/components/foCashierCashDeposit/controller.js"
+                        ]);
+                    });
+                }]
+            }
+        })
+        .state("app.fo.cct", {
+            url: "/foCashierClose",
+            templateUrl: "container/components/foCloseCashierTransaction/view.html",
+            controller: "FoCloseCashierTransactionCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        'timepicker',
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load([
+                            "container/components/foCloseCashierTransaction/controller.js"
+                        ]);
+                    });
+                }]
+            }
+        })
 
         //Inventory Module
         .state('app.inv', {
