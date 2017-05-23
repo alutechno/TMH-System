@@ -575,7 +575,7 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
             var sum = $scope.dataChildren.map(function (a) {
                 return a.deposit_amount
             }).reduce(function(a, b){
-                return a + b
+                return parseFloat(a) + parseFloat(b)
             });
             if (($scope.temp.applied + sum) <= deposit) {
 
@@ -588,18 +588,19 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
         var {selected} = $scope.data.customer_id;
         var {id} = selected;
         //
-        queryService.get(trim(
-            `select
-                id, code, open_date, status, due_date, notes, 
-                is_marked, total_amount, deposit_amount, 
-                total_due_amount, current_due_amount
-            from
-                acc_ar_invoice
+        queryService.get(trim(`
+            select a.* 
+            from 
+                acc_ar_invoice a, acc_ar_deposit_line_item b
             where
-                status = 2 and customer_id = ${id} and (id in (
-                    select id from acc_ar_deposit_line_item where deposit_id = ${($scope.editing||{}).id||'\'\''}
-                ) or deposit_amount is null or deposit_amount = 0)`
-        )).then(function (res) {
+                a.id = b.invoice_id and 
+                a.status = 2 and 
+                a.customer_id = 1 and 
+                (
+                    b.deposit_id=${($scope.editing||{}).id||'\'\''} or 
+                    (deposit_amount is null and deposit_amount = 0)
+                )
+        `)).then(function (res) {
             $scope.dataChild = {};
             res.data.forEach(function (item) {
                 $scope.dataChild[item.id] = false;
