@@ -273,30 +273,61 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
             $scope.supplier['modified_date'] = globalFunction.currentDate();
             var param = $scope.supplier
             //delete param.id
-            queryService.post('update mst_supplier SET ? WHERE id='+$scope.supplier.id ,param)
-            .then(function (result){
-                    $('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){
-                        // console.log(obj)
-                    }, false)
-                    $scope.clear()
-                    $('body').pgNotification({
-                        style: 'flip',
-                        message: 'Success Update '+$scope.supplier.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'success'
-                    }).show();
-            },
-            function (err){
-                $('#form-input').pgNotification({
-                    style: 'flip',
-                    message: 'Error Update: '+err.code,
-                    position: 'top-right',
-                    timeout: 2000,
-                    type: 'danger'
-                }).show();
-            })
+			if($scope.change==true){
+				queryService.post('select next_item_code(\'supplier\',\''+$scope.selected.supplier_type.selected.code+'\') as code',undefined)
+				.then(function (result){
+					$scope.supplier.code = data.data[0].code
+					queryService.post('update mst_supplier SET ? WHERE id='+$scope.supplier.id ,param)
+		            .then(function (result){
+		                    $('#form-input').modal('hide')
+		                    $scope.dtInstance.reloadData(function(obj){
+		                        // console.log(obj)
+		                    }, false)
+		                    $scope.clear()
+		                    $('body').pgNotification({
+		                        style: 'flip',
+		                        message: 'Success Update '+$scope.supplier.code,
+		                        position: 'top-right',
+		                        timeout: 2000,
+		                        type: 'success'
+		                    }).show();
+		            },
+		            function (err){
+		                $('#form-input').pgNotification({
+		                    style: 'flip',
+		                    message: 'Error Update: '+err.code,
+		                    position: 'top-right',
+		                    timeout: 2000,
+		                    type: 'danger'
+		                }).show();
+		            })
+				})
+			}else{
+	            queryService.post('update mst_supplier SET ? WHERE id='+$scope.supplier.id ,param)
+	            .then(function (result){
+	                    $('#form-input').modal('hide')
+	                    $scope.dtInstance.reloadData(function(obj){
+	                        // console.log(obj)
+	                    }, false)
+	                    $scope.clear()
+	                    $('body').pgNotification({
+	                        style: 'flip',
+	                        message: 'Success Update '+$scope.supplier.code,
+	                        position: 'top-right',
+	                        timeout: 2000,
+	                        type: 'success'
+	                    }).show();
+	            },
+	            function (err){
+	                $('#form-input').pgNotification({
+	                    style: 'flip',
+	                    message: 'Error Update: '+err.code,
+	                    position: 'top-right',
+	                    timeout: 2000,
+	                    type: 'danger'
+	                }).show();
+	            })
+			}
         }
     }
 
@@ -475,6 +506,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
     }
 
 	$scope.changeCode=function (){
+		$scope.change=true
 		queryService.post('select curr_item_code(\'supplier\',\''+$scope.selected.supplier_type.selected.code+'\') as code',undefined)
 		.then(function(data){
 			$scope.supplier.code = data.data[0].code
