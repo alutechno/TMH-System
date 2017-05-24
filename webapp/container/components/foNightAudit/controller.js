@@ -1,8 +1,8 @@
 
-var userController = angular.module('app', []);
+var userController = angular.module('app', ['mgo-angular-wizard']);
 userController
 .controller('FoNightAuditCtrl',
-function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL,WizardHandler) {
     $scope.el = [];
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
@@ -11,6 +11,25 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
+    $scope.finished = function() {
+       console.log("Wizard finished :)");
+   }
+
+   $scope.logStep = function() {
+       console.log("Step continued");
+   }
+
+   $scope.goBack = function() {
+       WizardHandler.wizard().goTo(0);
+   }
+
+   $scope.getCurrentStep = function(){
+       return WizardHandler.wizard().currentStepNumber();
+   }
+   $scope.goToStep = function(step){
+       console.log(step)
+       WizardHandler.wizard().goTo(step);
+   }
 
     var qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_day_type a, "+
         "(select id as status_id, value as status_value,name as status_name  "+

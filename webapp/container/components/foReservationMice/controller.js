@@ -32,6 +32,10 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         form: {},
         action: {}
     }
+    $scope.member = {
+        form: {},
+        action: {}
+    }
     var qstringOri = "select a.id, a.code, date_format(a.arrival_date,'%Y-%m-%d')arrival_date, date_format(a.departure_date,'%Y-%m-%d')departure_date, "+
         "a.num_of_nights_stay, a.reservation_status, date_format(a.drop_date,'%Y-%m-%d')drop_date, "+
     	"a.num_of_room_nights, a.num_of_picked_up, a.num_of_pax, a.num_of_child, a.revenue_amount, a.discount_amount,  "+
@@ -452,6 +456,32 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         }
         else if(type=='venue'){
             $scope.venue.action.submit()
+            .then(function(message){
+                //$('#form-input').modal('hide')
+                $scope.dtInstance.reloadData(function(obj){
+                    console.log(obj)
+                }, false)
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: message,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+                $scope.clear()
+            },
+            function(err){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert: '+err.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
+        }
+        else if(type=='member'){
+            $scope.member.action.submit()
             .then(function(message){
                 //$('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
@@ -1414,130 +1444,88 @@ function($scope, $state, $sce, $q,queryService, departmentService, accountTypeSe
 })
 .controller('FoReservationMemberCtrl',
 function($scope, $state, $sce, queryService, $q,departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
-    $scope.direction.form.gf = {
-        folio_id: '',
-        transfer_folio_id: '',
-        internet_code_status: '',
-        pay_tv_status: '',
-        deposit_box_id: '',
-        deposit_box_notes: '',
-        newspaper_id: '',
-        car_no: '',
-        total_car: '',
-        amenities_notes: '',
-        fruit_notes: '',
-        is_closed_transc: '0',
-        is_cash_transc_only: '0',
-        is_incognito: '0',
-        is_sleep_out: '0',
-        is_lock_minibar: '0',
-        is_block_phone: '0',
-        is_no_alcohol_in_pos: '0',
-        is_sick_guest: '0',
-        is_handicap_guest: '0',
-        is_reject_for_cleaning: '0',
-        is_door_double_lock: '0'
+    $scope.member.form.listMember = [];
+    $scope.member.form.getMember = function(ids){
+        queryService.post("select a.id, a.customer_id,a.num_of_pax,a.num_of_child, "+
+        	"date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date, "+
+        	"a.room_rate_id,a.room_rate_amount,concat(b.first_name, ' ',b.last_name) guest_name,a.room_id,c.name room_name, "+
+        	"d.name room_rate_name,e.name room_type_name,c.room_type_id "+
+        "from fd_guest_folio a "+
+        "left join mst_customer b on a.customer_id = b.id "+
+        "left join mst_room c on a.room_id = c.id "+
+        "left join mst_room_rate d on a.room_rate_id = d.id "+
+        "left join ref_room_type e on c.room_type_id = e.id "+
+        " where a.mice_id="+ids,undefined)
+        .then(function(data){
+            $scope.member.form.listMember = [];
+            $scope.member.form.listMember = data.data;
+        })
+    }
+
+    $scope.member.form.gf = {
+        arrival_date: '',
+        departure_date: '',
+        first_name: '',
+        last_name: '',
+        num_of_pax: '',
+        num_of_child: '',
+        num_of_room:'',
+        selected: {
+            room_type: {},
+            country: {},
+            city: {},
+            segment_type: {}
+        }
 
     }
-    $scope.additional.form.selected = {
-        newspaper: {},
-        pay_tv: {},
-        internet_code: {}
-    }
-    $scope.additional.form.internetCode = [
-        {id:'1',name: 'Blocked'},
-        {id:'2',name: 'Pre Paid'},
-        {id:'3',name: 'Post Paid'}
-    ]
-    $scope.additional.form.payTv = [
-        {id:'1',name:'Allow'},
-        {id:'2',name:'Blocked'}
-    ]
-    $scope.additional.form.newspaper = []
-    queryService.get('select id,code,name from mst_newspaper where status!=2 order by id  ',undefined)
+    $scope.member.room_type = [];
+    queryService.get('select id,code,name from ref_room_type where status=1 order by id  ',undefined)
     .then(function(data){
-        $scope.additional.form.newspaper = data.data
+        console.log('roomtype',data.data)
+        $scope.member.room_type = data.data
     })
-    $scope.additional.action.submit = function(){
+
+    $scope.member.country = [];
+    queryService.get('select id,name from ref_country order by id  ',undefined)
+    .then(function(data){
+        $scope.member.country = data.data
+    })
+    $scope.member.city = [];
+    $scope.getCity = function(){
+        console.log($scope.member.form.gf.selected.country)
+        queryService.get('select id,name from ref_kabupaten where country_id='+$scope.member.form.gf.selected.country.id+' order by id  ',undefined)
+        .then(function(data){
+            $scope.member.city = data.data
+        })
+    }
+
+    $scope.member.action.submit = function(){
         var defer = $q.defer();
         //exec update
         var qcommand = ''
-        var param = {}
-        queryService.get('select count(1) cnt from fd_folio_adds where folio_id=  '+$scope.additional.form.gf.id,undefined)
-        .then(function(data){
-            if (data.data[0].cnt>0){
-                //update
-                qcommand = 'update fd_folio_adds set ? where folio_id='+$scope.additional.form.gf.id
-                param = {
-                    //folio_id: '',
-                    //transfer_folio_id: '',
-                    internet_code_status: $scope.additional.form.gf.internet_code_status,
-                    pay_tv_status: $scope.additional.form.gf.pay_tv_status,
-                    deposit_box_id: ($scope.additional.form.gf.deposit_box_id.toString().length>0?$scope.additional.form.gf.deposit_box_id:null),
-                    deposit_box_notes: $scope.additional.form.gf.deposit_box_notes,
-                    newspaper_id: ($scope.additional.form.gf.newspaper_id.toString().length>0?$scope.additional.form.gf.newspaper_id:null),
-                    car_no: $scope.additional.form.gf.car_no,
-                    total_car: $scope.additional.form.gf.total_car,
-                    amenities_notes: $scope.additional.form.gf.amenities_notes,
-                    fruit_notes: $scope.additional.form.gf.fruit_notes,
-                    is_closed_transc: $scope.additional.form.gf.is_closed_transc,
-                    is_cash_transc_only: $scope.additional.form.gf.is_cash_transc_only,
-                    is_incognito: $scope.additional.form.gf.is_incognito,
-                    is_sleep_out: $scope.additional.form.gf.is_sleep_out,
-                    is_lock_minibar: $scope.additional.form.gf.is_lock_minibar,
-                    is_block_phone: $scope.additional.form.gf.is_block_phone,
-                    is_no_alcohol_in_pos: $scope.additional.form.gf.is_no_alcohol_in_pos,
-                    is_sick_guest: $scope.additional.form.gf.is_sick_guest,
-                    is_handicap_guest: $scope.additional.form.gf.is_handicap_guest,
-                    is_reject_for_cleaning: $scope.additional.form.gf.is_reject_for_cleaning,
-                    is_door_double_lock: $scope.additional.form.gf.is_door_double_lock,
-                    modified_date: globalFunction.currentDate(),
-                    modified_by: $localStorage.currentUser.name.id
+        var param = []
+        for (var i=0;i<$scope.member.form.gf.num_of_room;i++){
+            /*param.push({
+                first_name: $scope.member.form.gf.first_name,
+                last_name: $scope.member.form.gf.last_name,
+                country_id: $scope.member.form.gf.selected.country.id,
+                city_id: $scope.member.form.gf.selected.city.id
+            })*/
+            param.push([
+                $scope.member.form.gf.first_name,$scope.member.form.gf.last_name,
+                $scope.member.form.gf.selected.country.id,$scope.member.form.gf.selected.city.id
+            ])
+        }
+        queryService.post('insert into mst_customer(first_name,last_name,country_id,city_id) VALUES ?',[param])
+        .then(function (result2){
+            console.log(result2)
+            defer.resolve('Success Update Additional Data');
 
-                }
-            }
-            else {
-                //insert
-                qcommand = 'insert into fd_folio_adds set ?'
-                param = {
-                    folio_id: $scope.additional.form.gf.id,
-                    //transfer_folio_id: '',
-                    internet_code_status: $scope.additional.form.gf.internet_code_status,
-                    pay_tv_status: $scope.additional.form.gf.pay_tv_status,
-                    deposit_box_id: ($scope.additional.form.gf.deposit_box_id.toString().length>0?$scope.additional.form.gf.deposit_box_id:null),
-                    deposit_box_notes: $scope.additional.form.gf.deposit_box_notes,
-                    newspaper_id: ($scope.additional.form.gf.newspaper_id.toString().length>0?$scope.additional.form.gf.newspaper_id:null),
-                    car_no: $scope.additional.form.gf.car_no,
-                    total_car: $scope.additional.form.gf.total_car,
-                    amenities_notes: $scope.additional.form.gf.amenities_notes,
-                    fruit_notes: $scope.additional.form.gf.fruit_notes,
-                    is_closed_transc: $scope.additional.form.gf.is_closed_transc,
-                    is_cash_transc_only: $scope.additional.form.gf.is_cash_transc_only,
-                    is_incognito: $scope.additional.form.gf.is_incognito,
-                    is_sleep_out: $scope.additional.form.gf.is_sleep_out,
-                    is_lock_minibar: $scope.additional.form.gf.is_lock_minibar,
-                    is_block_phone: $scope.additional.form.gf.is_block_phone,
-                    is_no_alcohol_in_pos: $scope.additional.form.gf.is_no_alcohol_in_pos,
-                    is_sick_guest: $scope.additional.form.gf.is_sick_guest,
-                    is_handicap_guest: $scope.additional.form.gf.is_handicap_guest,
-                    is_reject_for_cleaning: $scope.additional.form.gf.is_reject_for_cleaning,
-                    is_door_double_lock: $scope.additional.form.gf.is_door_double_lock,
-                    created_date: globalFunction.currentDate(),
-                    created_by: $localStorage.currentUser.name.id
-
-                }
-            }
-            console.log('additional',data)
-            queryService.post(qcommand,param)
-            .then(function (result2){
-                defer.resolve('Success Update Additional Data');
-
-            },
-            function (err2){
-                defer.reject('Error Insert: '+err2.code);
+        },
+        function (err2){
+            defer.reject('Error Insert: '+err2.code);
 
 
-            })
         })
 
 

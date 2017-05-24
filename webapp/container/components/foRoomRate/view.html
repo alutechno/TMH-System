@@ -97,7 +97,7 @@
               <div class="row clearfix">
                   <div class="col-sm-3">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.code.$invalid && !coa.code.$pristine }">
-                          <label>Code</label>
+                          <label>Rate Code</label>
                           <input type="text" class="form-control" name="code" id="coa_code" ng-model="coa.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
@@ -124,7 +124,7 @@
               <div class="row clearfix">
                   <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.name.$invalid && !coa.name.$pristine }">
-                          <label>Name</label>
+                          <label>Description</label>
                           <input type="text" class="form-control" name="name" ng-model="coa.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
@@ -239,7 +239,7 @@
           <div class="row clearfix">
               <div class="col-sm-3">
                   <div pg-form-group class="form-group form-group-default form-group-default-select " >
-                      <label>Pension</label>
+                      <label>Benefit</label>
                       <ui-select ng-model="selected.pension.selected" theme="bootstrap" >
                           <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
                           <ui-select-choices repeat="item in pension | filter: $select.search">

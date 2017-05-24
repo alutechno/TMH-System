@@ -1,8 +1,8 @@
 
-var userController = angular.module('app', ['mgo-angular-wizard']);
+var userController = angular.module('app', []);
 userController
-.controller('FoShiftAuditCtrl',
-function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL,WizardHandler) {
+.controller('FoCashierCashDepositCtrl',
+function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
     $scope.el = [];
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
@@ -12,32 +12,15 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope[$scope.el[i]] = true;
     }
 
-    $scope.finished = function() {
-       console.log("Wizard finished :)");
-   }
+    console.log($state)
+    console.log($rootScope)
 
-   $scope.logStep = function() {
-       console.log("Step continued");
-   }
-
-   $scope.goBack = function() {
-       WizardHandler.wizard().goTo(0);
-   }
-
-   $scope.getCurrentStep = function(){
-       return WizardHandler.wizard().currentStepNumber();
-   }
-   $scope.goToStep = function(step){
-       console.log(step)
-       WizardHandler.wizard().goTo(step);
-   }
-
-
-    var qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_day_type a, "+
-        "(select id as status_id, value as status_value,name as status_name  "+
-            "from table_ref  "+
-            "where table_name = 'ref_product_category' and column_name='status')b "+
-        "where a.status = b.status_value and a.status!=2 "
+    var qstring = "select a.id, a.user_id,a.working_shift_id,format(open_deposit_amount,0)open_deposit_amount,"+
+        "date_format(a.start_transc_time,'%Y-%m-%d %H:%i:%s')start_transc_time,date_format(a.end_transc_time,'%Y-%m-%d %H:%i:%s')end_transc_time, "+
+        	"b.name user_name, c.name working_shift_name "+
+        "from fo_cashier_transaction a "+
+        "left join user b on a.user_id = b.id "+
+        "left join ref_hk_working_shift c on a.working_shift_id = c.id ";
     var qwhere = ''
 
     $scope.users = []
@@ -50,11 +33,10 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.id = '';
     $scope.coa = {
         id: '',
-        code: '',
-        name: '',
-        description: '',
-        status: ''
+        open_deposit_amount: '',
+        user_name: $localStorage.currentUser.name.name
     }
+
 
     $scope.selected = {
         status: {},
@@ -147,16 +129,17 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
-    if ($scope.el.length>0){
+    /*if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
         .renderWith($scope.actionsHtml).withOption('width', '10%'))
-    }
+    }*/
     $scope.dtColumns.push(
         //DTColumnBuilder.newColumn('code').withTitle('Code Ori').notVisible(),
-        DTColumnBuilder.newColumn('code').withTitle('Code'),
-        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
-        DTColumnBuilder.newColumn('description').withTitle('Description'),
-        DTColumnBuilder.newColumn('status_name').withTitle('Status')
+        DTColumnBuilder.newColumn('user_name').withTitle('User'),
+        DTColumnBuilder.newColumn('working_shift_name').withTitle('Shift'), //.withOption('width', '20%'),
+        DTColumnBuilder.newColumn('open_deposit_amount').withTitle('Deposit').withClass('text-right'), //.withOption('width', '20%'),
+        DTColumnBuilder.newColumn('start_transc_time').withTitle('Start'),
+        DTColumnBuilder.newColumn('end_transc_time').withTitle('End')
     );
 
     var qwhereobj = {
@@ -167,7 +150,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhereobj.text = ' lower(a.name) like \'%'+$scope.filterVal.search+'%\' '
+                if ($scope.filterVal.search.length>0) qwhereobj.text = ' lower(b.name) like \'%'+$scope.filterVal.search+'%\' '
                 else qwhereobj.text = ''
                 qwhere = setWhere()
 
@@ -209,7 +192,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             if (qwhereobj[key].length>0) arrWhere.push(qwhereobj[key])
         }
         if (arrWhere.length>0){
-            strWhere = ' and ' + arrWhere.join(' and ')
+            strWhere = ' where ' + arrWhere.join(' and ')
         }
         //console.log(strWhere)
         return strWhere
@@ -226,9 +209,55 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
     $scope.openQuickView = function(state){
         if (state == 'add'){
-            $scope.clear()
+            //$scope.clear()
         }
-        $('#form-input').modal('show')
+        //$('#form-input').modal('show')
+        $('#modalOpen').modal('show')
+    }
+
+    $scope.openDeposit = function(){
+
+
+
+        queryService.post('select id from ref_hk_working_shift where is_current_shift=\'Y\' ',undefined)
+        .then(function(data){
+            var param = {
+                user_id: $localStorage.currentUser.name.id,
+                open_deposit_amount: $scope.coa.open_deposit_amount,
+                working_shift_id: data.data[0].id,
+                start_transc_time: globalFunction.currentDate(),
+                created_date: globalFunction.currentDate(),
+                created_by: $localStorage.currentUser.name.id
+            }
+            queryService.post('insert into fo_cashier_transaction SET ?',param)
+            .then(function (result){
+                    $('#modalOpen').modal('hide')
+                    $scope.dtInstance.reloadData(function(obj){
+                        console.log(obj)
+                    }, false)
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Insert Deposit',
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
+                    $scope.clear()
+
+            },
+            function (err){
+                console.log(err)
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert Deposit: '+err.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
+        })
+
+
     }
 
     $scope.submit = function(){
@@ -368,10 +397,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.clear = function(){
         $scope.coa = {
             id: '',
-            code: '',
-            name: '',
-            description: '',
-            status: ''
+            open_deposit_amount: '',
+            user_name: $localStorage.currentUser.name.name
         }
     }
 
