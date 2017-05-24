@@ -249,10 +249,10 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
     /* END AD ServerSide */
     $scope.openQuickView = function (state) {
         if (state == 'add') {
+            $scope.editing = {};
             $scope.clear();
-        } else {
-            $('#form-input').modal('show')
         }
+        $('#form-input').modal('show')
     };
     $scope.submit = function () {
         var param = {};
@@ -419,7 +419,6 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
             var d = result.data[0];
             $scope.data = Object.assign($scope.data, d);
             //
-            console.log($scope.data)
             $scope.data.open_date = moment(new Date(d.open_date)).format('YYYY-MM-DD');
             $scope.data.bank_account_id = {
                 selected: {
@@ -534,7 +533,6 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
         queryService.post(`select curr_document_no('CDE','${moment().format('YYYY/MM')}') code`)
         .then(function (res) {
             Object.assign($scope.data, res.data[0]);
-            $('#form-input').modal('show')
         });
     };
     //
