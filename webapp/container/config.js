@@ -726,10 +726,10 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
-        .state("app.fo.rCt", {
-            url: "/foCustomerType",
-            templateUrl: "container/components/foCustomerType/view.html",
-            controller: "FoCustomerTypeCtrl",
+        .state("app.fo.rCustCompany", {
+            url: "/foCustomerCompany",
+            templateUrl: "container/components/foCustCompany/view.html",
+            controller: "FoCustCompanyCtrl",
             resolve: {
                 deps: ["$ocLazyLoad", function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
@@ -743,7 +743,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                         insertBefore: "#lazyload_placeholder"
                     })
                     .then(function () {
-                        return $ocLazyLoad.load("container/components/foCustomerType/controller.js");
+                        return $ocLazyLoad.load("container/components/foCustCompany/controller.js");
                     });
                 }]
             }
