@@ -56,6 +56,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         status: {},
 		source: {},
 		customer:{},
+		folio:{},
 		currency:{}
 	}
 	var qstring = `select a.*,concat(b.first_name,' ',b.last_name,', ',b.title)guest_name,c.name company_name,d.name,e.arrival_date,e.departure_date,
@@ -75,6 +76,15 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 	.then(function(data){
 		$scope.status = data.data
 	})
+	$scope.folio = []
+	queryService.post(`select a.*,a.id name,concat(b.first_name,' ',b.last_name,', ',b.title)guest_name ,c.name room_no,d.code rate_code
+		from fd_guest_folio a,mst_customer b,mst_room c,mst_room_rate d
+		where a.customer_id=b.id
+		and a.room_id=c.id
+		and a.room_rate_id=d.id `,undefined)
+	.then(function(data){
+		$scope.folio = data.data
+	})
 	$scope.source = []
 	queryService.get(`select value id, value,name from table_ref where table_name='acc_ar_invoice' and column_name='source_type' order by value`,undefined)
 	.then(function(data){
@@ -83,7 +93,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 	$scope.customer = []
 	queryService.get('select id,code,name from mst_cust_company order by name ',undefined)
 	.then(function(data){
-		console.log(data.data)
 		$scope.customer = data.data
 	})
 	$scope.currency = []
@@ -97,6 +106,11 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
+			if ($scope.el.indexOf('buttonAdjust')>-1){
+                html+='<button class="btn btn-default" ng-click="adjust(cats[\'' + data + '\'])" >' +
+                '   <i class="fa fa-undo"></i>' +
+                '</button>';
+            }
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
                 '<button class="btn btn-default" ng-click="update(' + data + ')">' +
@@ -181,8 +195,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         .then(function(data){
             $scope.ie.code = data.data[0].code
         })
-        //$scope.viewMode = false
-        //$scope.addDetail(0)
     }
 	$scope.submit = function(){
 		if ($scope.cr.id.length==0){
@@ -272,7 +284,48 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 			}
 		}
 	}
-	$scope.update = function(ids){
+	$scope.update = function(obj){
+		queryService.post(qstring+ ' where a.id='+obj.id,undefined)
+        .then(function(result){
+            $('#form-input').modal('show');
+            $scope.updateState = true;
+			var qd=`select b.*,c.code account_code,c.name account_name
+				from acc_gl_transaction a,acc_gl_journal b,mst_ledger_account c
+				where a.id=b.gl_id
+				and b.account_Id=c.id
+				and a.ar_invoice_id=`+obj.id
+			queryService.post(qd,undefined)
+            .then(function(result2){
+                var d = result2.data
+                $scope.items = []
+                $scope.itemsOri = []
+                for (var i=0;i<d.length;i++){
+                    $scope.items.push(
+                        {
+                            id:(i+1),
+                            p_id: d[i].id,
+                            account_id:d[i].account_id,
+                            account_code:d[i].account_code,
+                            account_name: d[i].account_name,
+                            debit: d[i].transc_type=='D'?d[i].amount:'',
+                            credit: d[i].transc_type=='C'?d[i].amount:''
+                        }
+                    )
+                }
+                $scope.itemsOri = angular.copy($scope.items)
+            },
+            function(err2){
+                console.log(err2)
+            })
+		},function(err){
+            $('body').pgNotification({
+                style: 'flip',
+                message: 'Failed Fetch Data: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
 	}
 	$scope.delete = function(obj){
 		$scope.cr.id = obj.id;
@@ -282,33 +335,62 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 	$scope.execDelete = function(){
 	}
 	$scope.clear = function(){
-		$scope.cr = {
+		$scope.ie = {
 			id: '',
 			code:'',
-			cash_receipt_type:'',
-			bank_account_id:'',
-			credit_card_id:'',
-			card_no:'',
-			outlet_type_id:'',
-			ref_document:'',
+			source_type:'',
+			status:'',
 			open_date:'',
 			due_date:'',
 			customer_id:'',
+			folio_id:'',
+			notes:'',
 			used_currency_id:'',
 			currency_exchange:'',
-			notes:'',
-			status:''
+			home_total_amount:'',
+			total_amount:'',
+			home_deposit_amount:'',
+			deposit_amount:'',
+			home_adjust_amount:'',
+			adjust_amount:'',
+			home_paid_amount:'',
+			paid_amount:'',
+			home_gain_loss_amount:'',
+			gain_loss_amount:'',
+			home_total_due_amount:'',
+			total_due_amount:'',
+			home_received_amount:'',
+			received_amount:'',
+			home_fo_prepared_amount:'',
+			fo_prepared_amount:'',
+			home_current_due_amount:'',
+			current_due_amount:'',
+			prev_total_amount:'',
+			adjustment_amount:'',
+			guest_name:'',
+			exchange:1
+		}
+		$scope.selected = {
+	        status: {},
+			source: {},
+			customer:{},
+			folio:{},
+			currency:{}
 		}
     }
 	$scope.trustAsHtml = function(value) {
-        return $sce.trustAsHtml(value);
+		return $sce.trustAsHtml(value.toString());
     }
 })
 .controller('EditableTableSrCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {
 	$scope.item = {
         id: '',
-		code:0,
-		status:''
+		p_id: '',
+		account_id:'',
+		account_code:'',
+		account_name: '',
+		debit: '',
+		credit: ''
 	}
 	$scope.deleteUser = function(id) {
         var filtered = $filter('filter')($scope.items, {id: id});
@@ -319,21 +401,14 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 	$scope.addUser = function() {
         $scope.item = {
 			id: '',
-			code:0,
-			status:''
+			p_id: '',
+			account_id:'',
+			account_code:'',
+			account_name: '',
+			debit: '',
+			credit: ''
 		}
 		$scope.items.push($scope.item)
-        var ss = 'select a.id,a.product_id,b.name product_name,a.stock_qty_l,b.lowest_unit_type_id unit_id,c.name unit_name '+
-            'from inv_warehouse_stock a,mst_product b,ref_product_unit c '+
-            'where a.product_id=b.id '+
-            'and b.lowest_unit_type_id=c.id '+
-            'and warehouse_id='+$scope.selected.warehouse.selected.id +
-            //' and lower(b.name) like \''+text.toLowerCase()+'%\' '+
-            ' order by id limit 50 '
-        queryService.post(ss,undefined)
-        .then(function(data){
-            $scope.products = data.data
-        })
 	}
 	$scope.cancel = function() {
 		for (var i = $scope.items.length; i--;) {

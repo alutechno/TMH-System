@@ -39,9 +39,7 @@
                         </tr>
                     </table>
                     <br>
-
                 </td>
-
             </tr>
         </table>
         <br>
@@ -62,7 +60,6 @@
 				<td align="center">Total Amount (Foreign Exch)</th>
             </tr>
             </thead>
-
             <tbody>
             <tr ng-repeat="item in data | filter:filterUser">
                 <td>{{item.id}}</td>
@@ -93,7 +90,6 @@
                     <td width="10%" style="text-align: center;">Total</th>
                     <td width="10%" style="text-align: right;"><span >{{sums1}}</span></th>
                     <td width="10%" style="text-align: right;"><span >{{sums2}}</span></th>
-
                 </tr>
             </tfooter>
         </table>
@@ -145,7 +141,6 @@
                         <th>Total:</th>
                         <th class="text-right">{{ sums1| number : fractionSize }}</th>
                         <th class="text-right">{{ sums2| number : fractionSize }}</th>
-
                     </script>-->
                 </div>
 
@@ -192,7 +187,7 @@
 				  <div class="col-sm-3">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ie.used_currency_id.$invalid && !ie.used_currency_id.$pristine }">
                           <label>Currency</label>
-                          <ui-select ng-model="selected.currency.selected" theme="bootstrap" on-select="ie.used_currency_id=selected.currency.selected.currency_id;ie.exchange=$item.home_currency_exchange" >
+                          <ui-select ng-model="selected.currency.selected" theme="bootstrap" on-select="ie.used_currency_id=selected.currency.selected.currency_id;ie.exchange=$item.exchange" >
                               <ui-select-match placeholder="select currency">{{$select.selected.currency_name}}</ui-select-match>
                               <ui-select-choices repeat="item in currency | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.currency_name | highlight: $select.search))"></span>
@@ -209,13 +204,18 @@
               </div>
               <div class="row clearfix">
 				  <div class="col-sm-3" >
-					  <div pg-form-group class="form-group form-group-default required">
+					  <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : ie.folio_idfolio_id.$invalid && !ie.folio_id.$pristine }">
                           <label>Folio no</label>
-                          <input type="text" class="form-control" name="name" ng-model="ie.folio_id" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" ng-readonly="true">
+						  <ui-select ng-model="selected.folio.selected" theme="bootstrap" on-select="ie.folio_id=selected.folio.selected.id">
+							  <ui-select-match placeholder="select folio">{{$select.selected.id}}</ui-select-match>
+							  <ui-select-choices repeat="item in folio | filter: $select.search">
+								  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+							  </ui-select-choices>
+						  </ui-select>
                       </div>
                   </div>
 	                <div class="col-sm-3">
-	                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ie.status.$invalid && !ie.status.$pristine }">
+	                    <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : ie.status.$invalid && !ie.status.$pristine }">
 	                        <label>Status</label>
 	                        <ui-select ng-model="selected.status.selected" theme="bootstrap" on-select="ie.status=selected.status.selected.id">
 	                            <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
@@ -248,13 +248,13 @@
 				<div class="col-sm-3">
 					<div pg-form-group class="form-group form-group-default">
 						<label>Total</label>
-						<input type="text" class="form-control" name="name" ng-model="ie.home_total_amount" ui-jq="popover" data-container="body" data-placement="top" >
+						<input type="text" class="form-control" name="name" format="number" ng-model="ie.home_total_amount" ui-jq="popover" ng-disabled="selected.currency.selected.currency_id==1" data-container="body" data-placement="top" >
 					</div>
 				</div>
 				<div class="col-sm-3">
 					<div pg-form-group class="form-group form-group-default">
 						<label>Total</label>
-						<input type="text" class="form-control" name="name" ng-model="ie.total_amount" ui-jq="popover" data-container="body" data-placement="top" >
+						<input type="text" class="form-control" name="name" format="number" ng-model="ie.total_amount" ui-jq="popover" ng-disabled="selected.currency.selected.currency_id!=1" data-container="body" data-placement="top" >
 					</div>
 				</div>
               </div>
@@ -414,10 +414,8 @@
                                             <th width="15%">Credit</th>
                                         </tr>
                                         </thead>
-
                                         <tbody>
                                         <tr ng-repeat="item in items | filter:filterUser">
-
                                             <td style="vertical-align: middle;">
                                                 <div class="btn-group btn-group-xs" ng-show="tableform.$visible">
                                                     <button type="button" class="btn btn-default" ng-click="deleteUser(item.id)" ><i class="fa fa-trash-o"></i></button>
@@ -451,7 +449,6 @@
                                                     {{ item.credit }}
                                                 </span>
                                             </td>
-
                                         </tr>
                                         <tr>
                                             <td>&nbsp;</td>
@@ -473,7 +470,6 @@
                                         </tr>
                                         </tbody>
                                     </table>
-
                                     <!-- buttons -->
                                     <div class="btn-edit">
                                       <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()">
@@ -481,14 +477,11 @@
                                       </button>
                                     </div>
                                     <div class="btn-form" ng-show="tableform.$visible">
-
                                       <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
                                       <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" ng-show="selected.source.selected.id=='MT'" class="btn btn-primary "> Add New Item</button>
                                       <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
                                     </div>
-
               </div>
-
               <br>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
