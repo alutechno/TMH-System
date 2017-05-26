@@ -30,7 +30,7 @@
             </div>
             <div class="panel-body">
                 <div class="table-responsive">
-                    <table class="table table-hover table-condensed " datatable=""
+                    <table class="table table-hover table-condensed " datatable="" width="1800px"
                            dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
                     </table>
                 </div>
@@ -77,18 +77,22 @@
                                             </div>
                                             <div class="col-sm-6">
                                                 <div pg-form-group
-                                                     class="form-group form-group-default required"
-                                                     ng-class="{ 'has-error' : !data.transc_date }">
-                                                    <label for="data_transc_date">
-                                                        Transaction Date
-                                                    </label>
-                                                    <input type="text" name="transc_date"
-                                                           id="data_transc_date"
-                                                           placeholder="Pick a date"
-                                                           class="form-control"
-                                                           data-date-format="yyyy-mm-dd"
-                                                           ng-model="data.transc_date"
-                                                           style="width: 100%"/>
+                                                     class="form-group form-group-default form-group-default-select  required"
+                                                     ng-class="{ 'has-error' : !data.status.selected }">
+                                                    <label>Status</label>
+                                                    <ui-select
+                                                        ng-model="data.status.selected"
+                                                        theme="bootstrap"
+                                                        validate-attached-form-element
+                                                        required>
+                                                        <ui-select-match placeholder="Choose one">{{$select.selected.name}}</ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="item in ls.statuses | filter: $select.search">
+                                                            <div
+                                                                ng-bind-html="trustAsHtml((item.name | highlight: $select.search))">
+                                                            </div>
+                                                        </ui-select-choices>
+                                                    </ui-select>
                                                 </div>
                                             </div>
                                         </div>
@@ -104,15 +108,19 @@
                                                         on-select="onSelectCC()"
                                                         validate-attached-form-element
                                                         required>
-                                                        <ui-select-match placeholder="Choose one">
-                                                            {{$select.selected.percent_fee}}%
-                                                        </ui-select-match>
+                                                        <ui-select-match placeholder="Choose one">{{
+                                                            $select.selected.code + ' - ' +
+                                                            $select.selected.name + ' : ' +
+                                                            $select.selected.percent_fee
+                                                        }}%</ui-select-match>
                                                         <ui-select-choices
                                                             repeat="item in ls.credit_cards | filter: $select.search">
                                                             <div>
                                                                 <div
-                                                                    ng-bind-html="trustAsHtml((item.code + ' : ' + item.name | highlight: $select.search))"></div>
-                                                                    <small>Percent fee: {{item.percent_fee}}%</small>
+                                                                    ng-bind-html="trustAsHtml((item.code + ' - ' + item.name | highlight: $select.search))"></div>
+                                                                <small>Percent fee:
+                                                                    {{item.percent_fee}}%
+                                                                </small>
                                                             </div>
                                                         </ui-select-choices>
                                                     </ui-select>
@@ -123,7 +131,7 @@
                                                      class="form-group form-group-default"
                                                      ng-class="{ 'has-error' : !data.card_no }">
                                                     <label>Card Numb</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="text" class="form-control"
                                                            name="card_no" id="data_card_no"
                                                            ng-model="data.card_no" ui-jq="popover"
                                                            data-container="body"
@@ -140,7 +148,8 @@
                                                      class="form-group form-group-default"
                                                      ng-class="{ 'has-error' : !data.total_amount }">
                                                     <label>Total Amount</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="text" format="number"
+                                                           class="form-control"
                                                            name="total_amount"
                                                            id="data_total_amount"
                                                            ng-model="data.total_amount"
@@ -149,7 +158,8 @@
                                                            data-content="This field is required"
                                                            data-trigger="manual"
                                                            ng-change="onChangeTotalAmount()"
-                                                           validate-attached-form-element required>
+                                                           validate-attached-form-element required
+                                                    >
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
@@ -157,7 +167,8 @@
                                                      class="form-group form-group-default"
                                                      ng-class="{ 'has-error' : !data.credit_fee_amount }">
                                                     <label>Credit Fee Amount</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="text" format="number"
+                                                           class="form-control"
                                                            name="credit_fee_amount"
                                                            id="data_credit_fee_amount"
                                                            ng-model="data.credit_fee_amount"
@@ -170,6 +181,25 @@
                                                     >
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div class="row clearfix">
+                                            <div class="col-sm-6">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default required"
+                                                     ng-class="{ 'has-error' : !data.transc_date }">
+                                                    <label for="data_transc_date">
+                                                        Transaction Date
+                                                    </label>
+                                                    <input type="text" name="transc_date"
+                                                           id="data_transc_date"
+                                                           placeholder="Pick a date"
+                                                           class="form-control"
+                                                           data-date-format="yyyy-mm-dd"
+                                                           ng-model="data.transc_date"
+                                                           style="width: 100%"/>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6"></div>
                                         </div>
                                         <div class="row clearfix">
                                             <div class="col-sm-6">
@@ -200,7 +230,8 @@
                                                     <ui-select
                                                         ng-model="data.pos_order_id.selected"
                                                         theme="bootstrap">
-                                                        <ui-select-match placeholder="Choose one">
+                                                        <ui-select-match
+                                                            placeholder="Choose one">
                                                             {{$select.selected.code}}
                                                         </ui-select-match>
                                                         <ui-select-choices
@@ -219,13 +250,14 @@
                                                     <ui-select
                                                         ng-model="data.folio_id.selected"
                                                         theme="bootstrap">
-                                                        <ui-select-match placeholder="Choose one">
+                                                        <ui-select-match
+                                                            placeholder="Choose one">
                                                             {{$select.selected.code}}
                                                         </ui-select-match>
                                                         <ui-select-choices
                                                             repeat="item in ls.folios | filter: $select.search">
-                                                            <span
-                                                                ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
+                                                        <span
+                                                            ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
                                                         </ui-select-choices>
                                                     </ui-select>
                                                 </div>
@@ -234,16 +266,23 @@
                                         <div class="row clearfix">
                                             <div class="col-sm-6">
                                                 <div pg-form-group
-                                                     class="form-group form-group-default form-group-default-select">
-                                                    <label>Transaction (FO)</label>
-                                                    <input type="number" class="form-control"
-                                                           name="fo_transc_id"
-                                                           id="data_fo_transc_id"
-                                                           ng-model="data.fo_transc_id"
-                                                           ui-jq="popover" data-container="body"
-                                                           data-trigger="manual"
-                                                           disabled
-                                                    >
+                                                     class="form-group form-group-default form-group-default-select  required"
+                                                     ng-class="{ 'has-error' : !data.ccard_batch_id.selected }">
+                                                    <label>CC Batch</label>
+                                                    <ui-select
+                                                        ng-model="data.ccard_batch_id.selected"
+                                                        theme="bootstrap"
+                                                        validate-attached-form-element
+                                                        required>
+                                                        <ui-select-match placeholder="Choose one">
+                                                            {{$select.selected.code}}
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="item in ls.ccard_batches | filter: $select.search">
+                                                            <span
+                                                                ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
+                                                        </ui-select-choices>
+                                                    </ui-select>
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
@@ -263,21 +302,19 @@
                                             </div>
                                         </div>
                                         <div class="row clearfix">
-                                            <div class="col-sm-8">
+                                            <div class="col-sm-8" id="col-fo-trans">
                                                 <div pg-form-group
                                                      class="form-group form-group-default form-group-default-select  required"
-                                                     ng-class="{ 'has-error' : !data.ccard_batch_id.selected }">
-                                                    <label>CC Batch</label>
+                                                     ng-class="{ 'has-error' : !data.fo_transc_id.selected }">
+                                                    <label>FO Transaction</label>
                                                     <ui-select
-                                                        ng-model="data.ccard_batch_id.selected"
-                                                        theme="bootstrap"
-                                                        validate-attached-form-element
-                                                        required>
+                                                        ng-model="data.fo_transc_id.selected"
+                                                        theme="bootstrap">
                                                         <ui-select-match placeholder="Choose one">
                                                             {{$select.selected.code}}
                                                         </ui-select-match>
                                                         <ui-select-choices
-                                                            repeat="item in ls.ccard_batches | filter: $select.search">
+                                                            repeat="item in ls.fo_transactions | filter: $select.search">
                                                             <span
                                                                 ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
                                                         </ui-select-choices>

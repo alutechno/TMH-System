@@ -13,14 +13,16 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
     $('#col-folio').hide();
     //
     var qstring = trim(`
-        SELECT
+		SELECT
             a.*,
             b.code credit_card_code, b.name credit_card_name,
             c.code outlet_type_code, c.name outlet_type_name, d.code folio_code,
             e.transc_type_id, e.transc_remarks, e.transc_charge, e.transc_ref,
             e.debit, e.credit, e.customer_id, e.customer_code, e.customer_title,
             e.customer_first_name, e.customer_last_name,
-            f.code pos_order_code, g.code ccard_batch_code
+            f.code pos_order_code, g.code ccard_batch_code,
+            format(a.credit_fee_amount,0) credit_fee_amount_,
+            format(a.total_amount,0) total_amount_, h.name status_name
         FROM
             acc_ar_ccard_journal a
             LEFT JOIN mst_credit_card b on a.credit_card_id = b.id
@@ -36,6 +38,9 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
             ) e on e.folio_id = e.id
             LEFT JOIN pos_orders f on a.pos_order_id = f.id
             LEFT JOIN acc_ar_ccard_batch g on a.ccard_batch_id = g.id
+            LEFT JOIN (
+            	SELECT value id, name FROM table_ref WHERE table_name='acc_ar_ccard_journal' AND column_name='status'
+            ) h on h.id = a.status
         WHERE a.status = 1
     `);
     var qwhere = '';
@@ -48,9 +53,9 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
     for (var i = 0; i < $scope.el.length; i++) $scope[$scope.el[i]] = true;
 
     $scope.fields = [
-        "code", "transc_date", "credit_card_id", "card_no", "credit_fee_amount", "total_amount",
-        "outlet_type_id", "folio_id", "fo_transc_id", "pos_order_id", "ccard_batch_id", "trace_no",
-        "remarks"
+        "code", "status", "transc_date", "credit_card_id", "card_no",
+        "credit_fee_amount", "total_amount", "outlet_type_id", "folio_id",
+        "fo_transc_id", "pos_order_id", "ccard_batch_id", "trace_no", "remark"
     ];
     $scope.titles = $scope.fields.map(function (str) {
         return toProperCase(str.replace(/\_/g, " "))
@@ -58,14 +63,21 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
     $scope.DATA = {};
     $scope.data = {};
     $scope.ls = {
+        statuses: [],
         credit_cards: [],
         outlet_types: [],
         folios: [],
+        fo_transactions: [],
         pos_orders: [],
         ccard_batches: []
     };
 
     for (var f in $scope.fields) $scope.data[$scope.fields[f]] = '';
+    queryService.get(
+        `select value id, name from table_ref where table_name='acc_ar_ccard_journal' and column_name='status'`
+    ).then(function (res) {
+        $scope.ls.statuses = res.data
+    });
     queryService.get(
         `select id, code, name, percent_fee from mst_credit_card where status = '1' order by code`
     ).then(function (res) {
@@ -81,6 +93,20 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
     ).then(function (res) {
         $scope.ls.folios = res.data
     });
+    queryService.get(`
+        select
+            c.id, c.code, c.customer_id, d.code customer_code, 
+            d.title customer_title, d.title customer_first_name,
+            d.title customer_last_name, payment_amount
+        from
+            fd_guest_payment a
+            left join ref_payment_method b on a.payment_type_id = b.id
+            left join fd_guest_folio c on c.id = a.folio_id
+            left join mst_customer d on d.id = c.customer_id
+        where b.category in ('MST', 'VSA') and payment_status = 0
+    `).then(function (res) {
+        $scope.ls.fo_transactions = res.data
+    });
     queryService.get(
         `select id, code from pos_orders where status = '1' order by code`
     ).then(function (res) {
@@ -93,7 +119,7 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
     });
 
     $scope.focusinControl = {};
-    $scope.fileName = "Account Receivable Credit Card Batch";
+    $scope.fileName = "Account Receivable Credit Card Journal";
     $scope.exportExcel = function () {
         queryService.post(trim(`
             select ${$scope.fields.toString()} from (${qstring} ${qwhere}) myAlias
@@ -120,7 +146,7 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
 
         $scope.DATA[i] = data;
         if ($scope.el.length > 0) {
-            html = '<div class="btn-group btn-group-xs">'
+            html = '<div class="btn-group btn-group-xs">';
             if ($scope.el.indexOf('buttonUpdate') > -1) {
                 html += `
                     <button class="btn btn-default" ng-click="update(${i})">
@@ -169,25 +195,31 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
     $scope.dtColumns = [];
     if ($scope.el.length > 0) {
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml).withOption('width', '80px'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '130px'),
-        DTColumnBuilder.newColumn('transc_date').withTitle('Transaction Date')
+        DTColumnBuilder.newColumn('code').withTitle('CC Journal#').withOption('width', '150px'),
+        DTColumnBuilder.newColumn('transc_date').withTitle('Date')
         .renderWith(function (i, type, data, prop) {
             return moment(new Date(data.transc_date)).format('YYYY-MM-DD')
-        }),
-        DTColumnBuilder.newColumn('credit_card_id').withTitle('credit_card_id'),
-        DTColumnBuilder.newColumn('card_no').withTitle('card_no'),
-        DTColumnBuilder.newColumn('credit_fee_amount').withTitle('credit_fee_amount'),
-        DTColumnBuilder.newColumn('total_amount').withTitle('total_amount'),
-        DTColumnBuilder.newColumn('outlet_type_id').withTitle('outlet_type_id'),
-        DTColumnBuilder.newColumn('folio_id').withTitle('folio_id'),
-        DTColumnBuilder.newColumn('fo_transc_id').withTitle('fo_transc_id'),
-        DTColumnBuilder.newColumn('pos_order_id').withTitle('pos_order_id'),
-        DTColumnBuilder.newColumn('ccard_batch_id').withTitle('ccard_batch_id'),
-        DTColumnBuilder.newColumn('trace_no').withTitle('trace_no'),
-        DTColumnBuilder.newColumn('remarks').withTitle('Remarks')
+        }).withOption('width', '130px'),
+        DTColumnBuilder.newColumn('status').withTitle('Status').withOption('width', '80px'),
+        DTColumnBuilder.newColumn('outlet_type_name').withTitle('Outlet').withOption('width', '150px'),
+        DTColumnBuilder.newColumn('ccard_batch_code').withTitle('CC Batch#').withOption('width', '150px'),
+        DTColumnBuilder.newColumn('credit_card_name').withTitle('CC').withOption('width', '150px'),
+        DTColumnBuilder.newColumn('card_no').withTitle('Card No.').withOption('width', '150px'),
+        DTColumnBuilder.newColumn('customer_id').withTitle('Guest Name')
+        .renderWith(function (i, type, data, prop) {
+            var {customer_title, customer_first_name, customer_last_name} = data;
+            return [customer_title, customer_first_name, customer_last_name].join(' ')
+        }).withOption('width', '150px'),
+        DTColumnBuilder.newColumn('trace_no').withTitle('Trace#').withOption('width', '150px'),
+        DTColumnBuilder.newColumn('credit_fee_amount_').withTitle('Fee').withOption('width', '150px'),
+        DTColumnBuilder.newColumn('total_amount_').withTitle('Total').withOption('width', '150px'),
+        //DTColumnBuilder.newColumn('folio_code').withTitle('Folio#').withOption('width', '150px'),
+        //DTColumnBuilder.newColumn('fo_transc_code').withTitle('FO Transaction#').withOption('width', '150px'),
+        //DTColumnBuilder.newColumn('pos_order_code').withTitle('Order#').withOption('width', '150px'),
+        DTColumnBuilder.newColumn('remarks').withTitle('Remarks').withOption('width', '100px')
     );
 
     var qwhereobj = {
@@ -353,16 +385,14 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
     $scope.onSelectOutlet = function () {
         var {code} = $scope.data.outlet_type_id.selected;
         code = (trim(code) || '').toLowerCase();
-        console.log(code)
         if (code === 'fo') {
             $('#col-order').hide();
             $('#col-folio').show();
+            $('#col-fo-trans').show();
         } else if (code === 'fb') {
             $('#col-folio').hide();
+            $('#col-fo-trans').hide();
             $('#col-order').show();
-        } else {
-            $('#col-order').hide();
-            $('#col-folio').hide();
         }
     };
     //
@@ -372,6 +402,5 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
         showDropdowns: true,
         opens: 'left'
     });
-
     date1.datepicker('setDate', moment(new Date()).format('YYYY-MM-DD'));
 });
