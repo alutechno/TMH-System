@@ -140,9 +140,9 @@ angular.module('app', []).controller('FinARCCBatchCtrl', function ($scope, $stat
         .renderWith(function (i, type, data, prop) {
             return moment(new Date(data.transc_date)).format('YYYY-MM-DD')
         }).withOption('width', '120px'),
-        DTColumnBuilder.newColumn('total_amount').withTitle('Total').withOption('width', '110px'),
-        DTColumnBuilder.newColumn('fee_amount').withTitle('Fee').withOption('width', '110px'),
-        DTColumnBuilder.newColumn('net_due_amount').withTitle('Net Due').withOption('width', '110px'),
+        DTColumnBuilder.newColumn('total_amount_').withTitle('Total').withOption('width', '110px'),
+        DTColumnBuilder.newColumn('fee_amount_').withTitle('Fee').withOption('width', '110px'),
+        DTColumnBuilder.newColumn('net_due_amount_').withTitle('Net Due').withOption('width', '110px'),
         DTColumnBuilder.newColumn('settle_date').withTitle('Settle Date')
         .renderWith(function (i, type, data, prop) {
             return moment(new Date(data.settle_date)).format('YYYY-MM-DD')
