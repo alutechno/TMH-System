@@ -95,7 +95,8 @@
                                                      class="form-group form-group-default"
                                                      ng-class="{ 'has-error' : !data.total_amount }">
                                                     <label>Total Amount</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="text" format="number"
+                                                           class="form-control"
                                                            name="total_amount" id="data_total_amount"
                                                            ng-model="data.total_amount" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                                                 </div>
@@ -107,7 +108,8 @@
                                                      class="form-group form-group-default"
                                                      ng-class="{ 'has-error' : !data.fee_amount }">
                                                     <label>Fee Amount</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="text" format="number"
+                                                           class="form-control"
                                                            name="fee_amount" id="data_fee_amount"
                                                            ng-model="data.fee_amount" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                                                 </div>
@@ -119,7 +121,8 @@
                                                      class="form-group form-group-default"
                                                      ng-class="{ 'has-error' : !data.net_due_amount }">
                                                     <label>Net Due Amount</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="text" format="number"
+                                                           class="form-control"
                                                            name="net_due_amount" id="data_net_due_amount"
                                                            ng-model="data.net_due_amount" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                                                 </div>
