@@ -435,7 +435,7 @@ hkMRS.statusCtrl = function (args) {
                 a.id, a.room_id, b.name room, 
                 date_format(ifnull(a.modified_date,a.created_date),'%Y-%m-%d') system_date,
                 date_format(status_change_date,'%Y-%m-%d') status_date, a.remarks, 
-                cast(concat(a.hk_status, a.fo_status) as char) room_status,
+                cast(concat(a.fo_status, a.hk_status) as char) room_status,
                 a.folio_id, c.name user
             from 
                 hk_room_status_change_log a,mst_room b, user c
@@ -458,14 +458,15 @@ hkMRS.statusCtrl = function (args) {
         ) as x
     `;
     //
-    $scope.statusFitler = {startDate: '', endDate: '', user: '', type: ''};
+    $scope.statusFitler = {startDate: '', endDate: '', user: '', type: '', room: ''};
     $scope.filterStatus = function (type, event) {
         var condirion = [];
-        var {endDate, startDate, user, type} = $scope.statusFitler;
+        var {endDate, startDate, user, type, room} = $scope.statusFitler;
         if (startDate) condirion.push(`status_date >= '${startDate}'`);
         if (endDate) condirion.push(`status_date <= '${endDate}'`);
         if (user) condirion.push(`user LIKE '%${user}%'`);
         if (type = type || {} && type.name) condirion.push(`room_status = '${type.name}'`);
+        if (room = room || {} && room.name) condirion.push(`room_id = '${room.id}'`);
         if (condirion.length) {
             q.condition = `WHERE ${condirion.join(' AND ')}`;
             $scope.nested.dtInsStatus.reloadData();
@@ -482,6 +483,7 @@ hkMRS.statusCtrl = function (args) {
     $scope.nested.dtInsStatus = {};
     $scope.nested.dtColStatus = [
         DTColumnBuilder.newColumn('status_date').withTitle('Date'),
+        DTColumnBuilder.newColumn('room').withTitle('Room'),
         DTColumnBuilder.newColumn('remarks').withTitle('Description'),
         DTColumnBuilder.newColumn('room_status').withTitle('Status'),
         DTColumnBuilder.newColumn('user').withTitle('User'),
@@ -515,11 +517,19 @@ hkMRS.statusCtrl = function (args) {
     .withDisplayLength(10);
 
     queryService.get(
-        'select distinct cast(concat(a.hk_status, a.fo_status) as char) as name ' +
+        'select distinct cast(concat(a.fo_status, a.hk_status) as char) as name ' +
         'from hk_room_status_change_log a, user c',
         undefined
     ).then(function (data) {
         $scope.statusTypes = data.data
+    });
+    queryService.get(`
+        select distinct(room_id) id, room name from (
+            select a.id, a.room_id, b.name room from hk_room_status_change_log a, mst_room b
+            where a.room_id = b.id
+        ) rooms
+    `).then(function (data) {
+        $scope.rooms = data.data
     });
 
     daterangeEl.daterangepicker({

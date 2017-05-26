@@ -67,7 +67,26 @@
                         <div class="form-group pull-right m-l-5">
                             <label class="sr-only" for="filter-user">Related user</label>
                             <input type="text" placeholder="Filter by user" class="form-control"
-                                   ng-model="statusFitler.user" style="width: 200px;"/>
+                                   ng-model="statusFitler.user" style="width: 120px;"/>
+                        </div>
+                        <div class="form-group pull-right m-l-5">
+                            <label class="sr-only" for="filter-type">Related room</label>
+                            <style>
+                                a.ui-select-match span[ng-hide],
+                                a.ui-select-match span[ng-show] {
+                                    margin-top: -5px;
+                                }
+                            </style>
+                            <ui-select id="filter-room" ng-model="statusFitler.room"
+                                       theme="select2" ng-disabled="disabled" style="width: 100px;">
+                                <ui-select-match
+                                    placeholder="Room">{{statusFitler.room.name}}
+                                </ui-select-match>
+                                <ui-select-choices
+                                    repeat="t in rooms | filter:$select.search">
+                                    {{t.name}}
+                                </ui-select-choices>
+                            </ui-select>
                         </div>
                         <div class="form-group pull-right m-l-5">
                             <label class="sr-only" for="filter-type">Related type</label>
@@ -78,9 +97,9 @@
                                 }
                             </style>
                             <ui-select id="filter-type" ng-model="statusFitler.type"
-                                       theme="select2" ng-disabled="disabled" style="width: 150px;">
+                                       theme="select2" ng-disabled="disabled" style="width: 100px;">
                                 <ui-select-match
-                                    placeholder="Filter by type">{{statusFitler.type.name}}
+                                    placeholder="Status">{{statusFitler.type.name}}
                                 </ui-select-match>
                                 <ui-select-choices
                                     repeat="t in statusTypes | filter:$select.search">
