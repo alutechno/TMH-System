@@ -10,7 +10,15 @@ angular.module('app', []).controller('FinARCCBatchCtrl', function ($scope, $stat
     queryService, departmentService, accountTypeService, DTOptionsBuilder,
     DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction, API_URL
 ) {
-    var qstring = `SELECT a.* FROM acc_ar_ccard_batch a WHERE a.status = 1 `;
+    var qstring = trim(`
+        SELECT
+            *,
+            format(total_amount,0) total_amount_,
+            format(fee_amount,0) fee_amount_,
+            format(net_due_amount,0) net_due_amount_
+        FROM acc_ar_ccard_batch
+        WHERE status = 1  
+    `);
     var qwhere = '';
 
     $scope.el = $state.current.data || [];
@@ -122,25 +130,25 @@ angular.module('app', []).controller('FinARCCBatchCtrl', function ($scope, $stat
     $scope.dtColumns = [];
     if ($scope.el.length > 0) {
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml).withOption('width', '80px'))
     }
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '130px'),
         //DTColumnBuilder.newColumn('bank_account_id').withTitle('Account Bank ID'),
         //DTColumnBuilder.newColumn('outlet_type_id').withTitle('Outlet Type ID'),
-        DTColumnBuilder.newColumn('transc_date').withTitle('Transaction Date')
+        DTColumnBuilder.newColumn('transc_date').withTitle('Date')
         .renderWith(function (i, type, data, prop) {
             return moment(new Date(data.transc_date)).format('YYYY-MM-DD')
-        }),
-        DTColumnBuilder.newColumn('remarks').withTitle('Remarks'),
-        DTColumnBuilder.newColumn('total_amount').withTitle('Total Amount'),
-        DTColumnBuilder.newColumn('fee_amount').withTitle('Fee Amount'),
-        DTColumnBuilder.newColumn('net_due_amount').withTitle('Net Due Amount'),
+        }).withOption('width', '120px'),
+        DTColumnBuilder.newColumn('total_amount').withTitle('Total').withOption('width', '110px'),
+        DTColumnBuilder.newColumn('fee_amount').withTitle('Fee').withOption('width', '110px'),
+        DTColumnBuilder.newColumn('net_due_amount').withTitle('Net Due').withOption('width', '110px'),
         DTColumnBuilder.newColumn('settle_date').withTitle('Settle Date')
         .renderWith(function (i, type, data, prop) {
             return moment(new Date(data.settle_date)).format('YYYY-MM-DD')
-        }),
-        DTColumnBuilder.newColumn('settle_ref_no').withTitle('Settle Ref Numb')
+        }).withOption('width', '120px'),
+        DTColumnBuilder.newColumn('settle_ref_no').withTitle('Settle Ref No.').withOption('width', '110px'),
+        DTColumnBuilder.newColumn('remarks').withTitle('Remarks').withOption('width', '120px')
     );
 
     var qwhereobj = {
