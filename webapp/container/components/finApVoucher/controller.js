@@ -679,34 +679,51 @@ console.log(qstring)
             .then(function (result){
                 if ($scope.selected.status.selected.id=="1"){
                     var qq = 'insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes)'+
-                        ' values (\''+$scope.ap.code+'\', null, '+$scope.ap.id+', \'0\', \''+$scope.ap.notes+'\')'
+                        ' values (\''+$scope.ap.code+'\', 1, '+$scope.ap.id+', \'0\', \''+$scope.ap.notes+'\') on duplicate KEY UPDATE '+
+						'notes=\''+$scope.ap.notes+'\''
                     queryService.post(qq ,undefined)
                     .then(function (result2){
-                        var qd = $scope.child.saveTable(result2.data.insertId);
+						console.log(result2)
+						if(result2.data==undefined)
+							var qd = $scope.child.saveTable();
+						else
+                        	var qd = $scope.child.saveTable(result2.data.insertId);
+						if(qd.length>0){
+						    queryService.post(qd.join(';') ,undefined)
+	                        .then(function (result3){
+	                                $('#form-input').modal('hide')
+	                                $scope.dtInstance.reloadData(function(obj){
 
-                        queryService.post(qd.join(';') ,undefined)
-                        .then(function (result3){
-                                $('#form-input').modal('hide')
-                                $scope.dtInstance.reloadData(function(obj){
-
-                                }, false)
-                                $('body').pgNotification({
-                                    style: 'flip',
-                                    message: 'Success Update '+$scope.ap.code,
-                                    position: 'top-right',
-                                    timeout: 2000,
-                                    type: 'success'
-                                }).show();
-                        },
-                        function (err3){
-                            $('#form-input').pgNotification({
-                                style: 'flip',
-                                message: 'Error Update: '+err3.code,
-                                position: 'top-right',
-                                timeout: 2000,
-                                type: 'danger'
-                            }).show();
-                        })
+	                                }, false)
+	                                $('body').pgNotification({
+	                                    style: 'flip',
+	                                    message: 'Success Update '+$scope.ap.code,
+	                                    position: 'top-right',
+	                                    timeout: 2000,
+	                                    type: 'success'
+	                                }).show();
+	                        },
+	                        function (err3){
+	                            $('#form-input').pgNotification({
+	                                style: 'flip',
+	                                message: 'Error Update: '+err3.code,
+	                                position: 'top-right',
+	                                timeout: 2000,
+	                                type: 'danger'
+	                            }).show();
+	                        })
+						}else{
+							$('#form-input').modal('hide')
+							$scope.dtInstance.reloadData(function(obj){
+							}, false)
+							$('body').pgNotification({
+								style: 'flip',
+								message: 'Success Update '+$scope.ap.code,
+								position: 'top-right',
+								timeout: 2000,
+								type: 'success'
+							}).show();
+						}
                     },
                     function (err2){
                         $('#form-input').pgNotification({
@@ -905,9 +922,8 @@ console.log(qstring)
             }
             $scope.items = []
             $scope.itemsOri = []
-
             //ERR: REPEAT DUPES
-            var qd = 'select b.id,a.voucher_id, b.account_id, c.name account_name,c.code account_code, b.transc_type, b.amount '+
+            var qd = 'select b.id,b.gl_id,a.voucher_id, b.account_id, c.name account_name,c.code account_code, b.transc_type, b.amount '+
                   'from acc_gl_transaction a '+
                   'left join acc_gl_journal b on a.id = b.gl_id '+
                   'left join mst_ledger_account c on b.account_id = c.id '+
@@ -922,6 +938,7 @@ console.log(qstring)
                         {
                             id:(i+1),
                             p_id: d[i].id,
+							gl_id: d[i].gl_id,
                             account_id:d[i].account_id,
                             account_code:d[i].account_code,
                             account_name: d[i].account_name,
@@ -1200,8 +1217,12 @@ console.log(qstring)
     $scope.child.saveTable = function(pr_id) {
         var results = [];
         var sqlitem = []
+		console.log('aaaa')
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
+			console.log(user)
+			if(pr_id==undefined)
+				pr_id=user.gl_id
             // actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);
