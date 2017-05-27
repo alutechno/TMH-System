@@ -211,7 +211,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         })
     }
     $scope.source_no = []
-    $scope.setSource = function(e){
+    $scope.setSource = function(e,stat){
         $scope.ap.source=$scope.selected.source.selected.id
         if (e.value == 'RR') {
             $scope.isReceiving = false
@@ -269,14 +269,14 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         }
 
         //$scope.statusShow.push($scope.status[0])
-
-        var dt = new Date()
-
-        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-        queryService.post('select cast(concat(\'AP/'+$scope.selected.source.selected.value+'/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'AP'+$scope.selected.source.selected.value+'\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
-        .then(function(data){
-            $scope.ap.code = data.data[0].code
-        })
+        if (stat!='update'){
+            var dt = new Date()
+            var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+            queryService.post('select cast(concat(\'AP/'+$scope.selected.source.selected.value+'/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'AP'+$scope.selected.source.selected.value+'\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+            .then(function(data){
+                $scope.ap.code = data.data[0].code
+            })
+        }
     }
 
     $scope.showAdvance = false
@@ -900,7 +900,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 supplier_id: result.data[0].supplier_id,
                 supplier_name: result.data[0].supplier_name
             }
-            $scope.setSource({value:result.data[0].source})
+            $scope.setSource({value:result.data[0].source},'update')
             $scope.selected.source_no['selected'] = {
                 id: result.data[0].receive_id,
                 code: result.data[0].receive_no
@@ -999,7 +999,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 supplier_id: result.data[0].supplier_id,
                 supplier_name: result.data[0].supplier_name
             }
-            $scope.setSource({value:result.data[0].source})
+            $scope.setSource({value:result.data[0].source},'update')
             $scope.selected.source_no['selected'] = {
                 id: result.data[0].receive_id,
                 code: result.data[0].receive_no
