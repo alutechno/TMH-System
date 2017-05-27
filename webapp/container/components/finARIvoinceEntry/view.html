@@ -187,7 +187,7 @@
 				  <div class="col-sm-3">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ie.used_currency_id.$invalid && !ie.used_currency_id.$pristine }">
                           <label>Currency</label>
-                          <ui-select ng-model="selected.currency.selected" theme="bootstrap" on-select="ie.used_currency_id=selected.currency.selected.currency_id;ie.exchange=$item.exchange" >
+                          <ui-select ng-model="selected.currency.selected" theme="bootstrap" on-select="ie.used_currency_id=selected.currency.selected.currency_id;ie.currency_exchange=$item.exchange" >
                               <ui-select-match placeholder="select currency">{{$select.selected.currency_name}}</ui-select-match>
                               <ui-select-choices repeat="item in currency | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.currency_name | highlight: $select.search))"></span>
@@ -198,7 +198,7 @@
                   <div class="col-sm-3">
                       <div pg-form-group class="form-group form-group-default" >
                           <label>Exchange (in IDR)</label>
-                          <input type="text" class="form-control" name="exchange" ng-model="ie.exchange" >
+                          <input type="text" class="form-control" name="exchange" ng-model="ie.currency_exchange" >
                       </div>
                   </div>
               </div>
@@ -206,7 +206,9 @@
 				  <div class="col-sm-3" >
 					  <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : ie.folio_idfolio_id.$invalid && !ie.folio_id.$pristine }">
                           <label>Folio no</label>
-						  <ui-select ng-model="selected.folio.selected" theme="bootstrap" on-select="ie.folio_id=selected.folio.selected.id">
+						  <ui-select ng-model="selected.folio.selected" theme="bootstrap" on-select="ie.folio_id=selected.folio.selected.id;guest.guest_name=selected.folio.selected.guest_name;guest.room_no=selected.folio.selected.room_no;
+						  guest.arrival_date=selected.folio.selected.arrival_date;guest.departure_date=selected.folio.selected.departure_date;guest.room_rate_code=selected.folio.selected.room_rate_code;guest.num_of_pax=selected.folio.selected.num_of_pax;
+						  guest.num_of_child=selected.folio.selected.num_of_child;guest.room_rate_amount=selected.folio.selected.room_rate_amount;guest.discount_amount=selected.folio.selected.discount_amount" >
 							  <ui-select-match placeholder="select folio">{{$select.selected.id}}</ui-select-match>
 							  <ui-select-choices repeat="item in folio | filter: $select.search">
 								  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -248,13 +250,15 @@
 				<div class="col-sm-3">
 					<div pg-form-group class="form-group form-group-default">
 						<label>Total</label>
-						<input type="text" class="form-control" name="name" format="number" ng-model="ie.home_total_amount" ui-jq="popover" ng-disabled="selected.currency.selected.currency_id==1" data-container="body" data-placement="top" >
+						<input type="text" class="form-control" name="name" format="number" ng-model="ie.home_total_amount" ui-jq="popover" ng-disabled="selected.currency.selected.currency_id==1" data-container="body" data-placement="top"
+						ng-change="ie.home_current_due_amount=ie.home_total_amount;ie.home_total_due_amount=ie.home_total_amount;ie.total_amount=ie.home_total_amount*ie.currency_exchange;ie.current_due_amount=ie.total_amount;ie.total_due_amount=ie.total_amount">
 					</div>
 				</div>
 				<div class="col-sm-3">
 					<div pg-form-group class="form-group form-group-default">
 						<label>Total</label>
-						<input type="text" class="form-control" name="name" format="number" ng-model="ie.total_amount" ui-jq="popover" ng-disabled="selected.currency.selected.currency_id!=1" data-container="body" data-placement="top" >
+						<input type="text" class="form-control" name="name" format="number" ng-model="ie.total_amount" ui-jq="popover" ng-disabled="selected.currency.selected.currency_id!=1" data-container="body" data-placement="top"
+						ng-change="ie.current_due_amount=ie.total_amount;ie.total_due_amount=ie.total_amount">
 					</div>
 				</div>
               </div>
@@ -273,13 +277,13 @@
 				<div class="col-sm-3">
 					<div pg-form-group class="form-group form-group-default">
 						<label>Deposit</label>
-						<input type="text" class="form-control" name="name" ng-model="ie.home_deposit_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+						<input type="text" class="form-control" format="number" name="name" ng-model="ie.home_deposit_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
 					</div>
 				</div>
 				<div class="col-sm-3">
 					<div pg-form-group class="form-group form-group-default">
 						<label>Deposit</label>
-						<input type="text" class="form-control" name="name" ng-model="ie.deposit_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+						<input type="text" class="form-control" format="number" name="name" ng-model="ie.deposit_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
 					</div>
 				</div>
 			 </div>
@@ -287,25 +291,25 @@
 				 <div class="col-sm-3">
 					 <div pg-form-group class="form-group form-group-default">
 						 <label>Guest</label>
-						 <input type="text" class="form-control" name="name" ng-model="ie.guest_name" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+						 <input type="text" class="form-control" name="name" ng-model="guest.guest_name" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
 					 </div>
 				 </div>
 				 <div class="col-sm-3">
 					 <div pg-form-group class="form-group form-group-default">
 						 <label>Room</label>
-						 <input type="text" class="form-control" name="name" ng-model="ie.room_no" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+						 <input type="text" class="form-control" name="name" ng-model="guest.room_no" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
 					 </div>
 				 </div>
 				 <div class="col-sm-3">
  					<div pg-form-group class="form-group form-group-default">
  						<label>Adjustment</label>
- 						<input type="text" class="form-control" name="name" ng-model="ie.home_adjust_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+ 						<input type="text" class="form-control" format="number" name="name" ng-model="ie.home_adjust_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
  					</div>
  				</div>
  				<div class="col-sm-3">
  					<div pg-form-group class="form-group form-group-default">
  						<label>Adjustment</label>
- 						<input type="text" class="form-control" name="name" ng-model="ie.adjust_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+ 						<input type="text" class="form-control" format="number" name="name" ng-model="ie.adjust_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
  					</div>
  				</div>
 			 </div>
@@ -313,13 +317,13 @@
 				 <div class="col-sm-3">
 					 <div pg-form-group class="form-group form-group-default">
 						 <label>Arrival</label>
-						 <input type="text" class="form-control" name="name" ng-model="ie.arrival_date" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+						 <input type="text" class="form-control" name="name" ng-model="guest.arrival_date" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
 					 </div>
 				 </div>
 				 <div class="col-sm-3">
 					 <div pg-form-group class="form-group form-group-default">
 						 <label>Departure</label>
-						 <input type="text" class="form-control" name="name" ng-model="ie.departure_date" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+						 <input type="text" class="form-control" name="name" ng-model="guest.departure_date" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
 					 </div>
 				 </div>
 				 <div class="col-sm-3">
@@ -339,31 +343,31 @@
 				 <div class="col-sm-2">
 					 <div pg-form-group class="form-group form-group-default">
 						 <label>Rate</label>
-						 <input type="text" class="form-control" name="name" ng-model="ie.room_rate_code" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+						 <input type="text" class="form-control" name="name" ng-model="guest.room_rate_code" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
 					 </div>
 				 </div>
 				 <div class="col-sm-2">
 					 <div pg-form-group class="form-group form-group-default">
 						 <label>Pax</label>
-						 <input type="text" class="form-control" name="name" ng-model="ie.num_of_pax" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+						 <input type="text" class="form-control" name="name" ng-model="guest.num_of_pax" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
 					 </div>
 				 </div>
 				 <div class="col-sm-2">
 					 <div pg-form-group class="form-group form-group-default">
 						 <label>Child</label>
-						 <input type="text" class="form-control" name="name" ng-model="ie.num_of_child" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+						 <input type="text" class="form-control" name="name" ng-model="guest.num_of_child" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
 					 </div>
 				 </div>
 				 <div class="col-sm-3">
  					<div pg-form-group class="form-group form-group-default">
  						<label>Total due</label>
- 						<input type="text" class="form-control" name="name" ng-model="ie.home_total_due_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+ 						<input type="text" class="form-control" format="number" name="name" ng-model="ie.home_total_due_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
  					</div>
  				</div>
  				<div class="col-sm-3">
  					<div pg-form-group class="form-group form-group-default">
  						<label>Total due</label>
- 						<input type="text" class="form-control" name="name" ng-model="ie.total_due_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+ 						<input type="text" class="form-control" format="number" name="name" ng-model="ie.total_due_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
  					</div>
  				</div>
 			 </div>
@@ -371,25 +375,25 @@
 				 <div class="col-sm-3">
 					 <div pg-form-group class="form-group form-group-default">
 						 <label>Room rate</label>
-						 <input type="text" class="form-control" name="name" ng-model="ie.room_rate_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+						 <input type="text" class="form-control" name="name" ng-model="guest.room_rate_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
 					 </div>
 				 </div>
 				 <div class="col-sm-3">
 					 <div pg-form-group class="form-group form-group-default">
 						 <label>Discount</label>
-						 <input type="text" class="form-control" name="name" ng-model="ie.discount_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+						 <input type="text" class="form-control" name="name" ng-model="guest.discount_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
 					 </div>
 				 </div>
 				 <div class="col-sm-3">
  					<div pg-form-group class="form-group form-group-default">
  						<label>Current due</label>
- 						<input type="text" class="form-control" name="name" ng-model="ie.home_current_due_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+ 						<input type="text" class="form-control" format="number" name="name" ng-model="ie.home_current_due_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
  					</div>
  				</div>
  				<div class="col-sm-3">
  					<div pg-form-group class="form-group form-group-default">
  						<label>Current due</label>
- 						<input type="text" class="form-control" name="name" ng-model="ie.current_due_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+ 						<input type="text" class="form-control" format="number" name="name" ng-model="ie.current_due_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
  					</div>
  				</div>
 			 </div>
@@ -440,24 +444,13 @@
                                             </td>
                                             <td><span>{{item.account_name}}</span></td>
                                             <td >
-                                                <span editable-text="item.debit" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')">
+                                                <span editable-text="item.debit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')">
                                                     {{ item.debit }}
                                                 </span>
                                             </td>
                                             <td >
-                                                <span editable-text="item.credit" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')">
+                                                <span editable-text="item.credit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')">
                                                     {{ item.credit }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                            <td>&nbsp;</td>
-                                            <td>Tax</td>
-                                            <td>&nbsp;</td>
-                                            <td>
-                                                <span editable-text="item.tax_credit" e-form="tableform" onbeforesave="checkName($data, user.id)">
-                                                    {{ tax_credit }}
                                                 </span>
                                             </td>
                                         </tr>
@@ -478,7 +471,7 @@
                                     </div>
                                     <div class="btn-form" ng-show="tableform.$visible">
                                       <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
-                                      <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" ng-show="selected.source.selected.id=='MT'" class="btn btn-primary "> Add New Item</button>
+                                      <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
                                       <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
                                     </div>
               </div>
@@ -509,7 +502,7 @@
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h4 class="no-margin p-b-10">Are you sure want to delete {{cat.name}} ?</h4>
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{ie.code}} ?</h4>
                     <div >
                         <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
