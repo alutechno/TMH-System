@@ -38,7 +38,7 @@ hkMRS.main = function (args) {
     };
 
     for (var i = 0; i < $scope.el.length; i++) $scope[$scope.el[i]] = true;
-    
+
     var qwhere = '';
     var qwhereobj = {
         text: '',
@@ -94,7 +94,7 @@ hkMRS.main = function (args) {
                     left join (select a.folio_id,a.newspaper_id,b.name newspaper_name from fd_folio_adds a
                     left join mst_newspaper b on a.newspaper_id = b.id) d on a.id = d.folio_id
                 where reservation_status in(0,1,2,3,4)
-            ) g on a.id=g.room_id where a.status!=2 
+            ) g on a.id=g.room_id where a.status!=2
     `;
     //
     $scope.users = [];
@@ -168,12 +168,12 @@ hkMRS.main = function (args) {
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate') > -1) {
                 html +=
-                    '<button class="btn btn-default" ng-click="update(coas[\'' + data + '\'])">' +
+                    '<button class="btn btn-default" title="Update" ng-click="update(coas[\'' + data + '\'])">' +
                     '   <i class="fa fa-edit"></i>' +
                     '</button>&nbsp;';
             }
             if ($scope.el.indexOf('buttonDelete') > -1) {
-                html += '<button class="btn btn-default" ng-click="delete(coas[\'' + data + '\'])" )"="">' +
+                html += '<button class="btn btn-default" title="Delete" ng-click="delete(coas[\'' + data + '\'])" )"="">' +
                     '   <i class="fa fa-trash-o"></i>' +
                     '</button>';
             }
@@ -431,22 +431,22 @@ hkMRS.statusCtrl = function (args) {
     q.condition = '';
     q.query = `
         select * from (
-            select 
-                a.id, a.room_id, b.name room, 
+            select
+                a.id, a.room_id, b.name room,
                 date_format(ifnull(a.modified_date,a.created_date),'%Y-%m-%d') system_date,
-                date_format(status_change_date,'%Y-%m-%d') status_date, a.remarks, 
+                date_format(status_change_date,'%Y-%m-%d') status_date, a.remarks,
                 cast(concat(a.fo_status, a.hk_status) as char) room_status,
                 a.folio_id, c.name user
-            from 
+            from
                 hk_room_status_change_log a,mst_room b, user c
-            where 
+            where
                 a.room_id= b.id
                 /*and a.created_by = c.id*/
-            
+
             union
-            
-            select 
-                a.id, a.room_id, b.name room, 
+
+            select
+                a.id, a.room_id, b.name room,
                 date_format(ifnull(a.modified_date,a.created_date),'%Y-%m-%d') system_date,
                 date_format(maintenance_date,'%Y-%m-%d') status_date, a.notes remarks,
                 '' room_status,'' folio_id, c.name user

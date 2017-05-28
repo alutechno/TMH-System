@@ -21,12 +21,12 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
             e.code credit_card_code, e.name credit_card_name,
             f.code outlet_type_code, f.name outlet_type_name,
             g.name status_name,
-            format(a.currency_exchange,0) currency_exchange_, 
-            format(a.home_deposit_amount,0) home_deposit_amount_, 
-            format(a.deposit_amount,0) deposit_amount_, 
-            format(a.home_applied_amount,0) home_applied_amount_, 
-            format(a.applied_amount,0) applied_amount_, 
-            format(d.home_currency_exchange,0) used_currency_home_exchange_, 
+            format(a.currency_exchange,0) currency_exchange_,
+            format(a.home_deposit_amount,0) home_deposit_amount_,
+            format(a.deposit_amount,0) deposit_amount_,
+            format(a.home_applied_amount,0) home_applied_amount_,
+            format(a.applied_amount,0) applied_amount_,
+            format(d.home_currency_exchange,0) used_currency_home_exchange_,
             format((a.deposit_amount - a.applied_amount),0) total_balance_
         from
             acc_ar_deposit a
@@ -37,8 +37,8 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
             left join ref_ar_outlet_type f on a.outlet_type_id = f.id
             left join (
                 select id, value code, name from table_ref where table_name='acc_ar_deposit' and column_name='status'
-            ) g on a.status = g.code 
-        where c.status = 1 and d.status = 'Y' and a.status != 2 
+            ) g on a.status = g.code
+        where c.status = 1 and d.status = 'Y' and a.status != 2
     `);
     var qwhere = '';
 
@@ -140,14 +140,14 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate') > -1) {
                 html += `
-                    <button class="btn btn-default" ng-click="update(${i})">
+                    <button class="btn btn-default" title="Update" ng-click="update(${i})">
                         <i class="fa fa-edit"></i>
                     </button>
                 `;
             }
             if ($scope.el.indexOf('buttonDelete') > -1) {
                 html += `
-                    <button class="btn btn-default" ng-click="delete(${i})">
+                    <button class="btn btn-default" title="Delete" ng-click="delete(${i})">
                         <i class="fa fa-trash-o"></i>
                     </button>
                 `;
@@ -275,9 +275,9 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
             //
             var sql = `
                 START TRANSACTION;
-                
+
                 SET @code=(select next_document_no('CDE','${moment().format('YYYY/MM')}'));
-                
+
                 INSERT INTO acc_ar_deposit (${
                     Object.keys(param)
                 }) VALUES (${
@@ -289,7 +289,7 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
                         return v.constructor == Number ? param[a] : `'${param[a]}'`
                     })
                 });
-                
+
                 SET @id=(SELECT last_insert_id());
             `;
             $scope.dataChildren = $scope.dataChildren || [];
@@ -297,7 +297,7 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
                 var {id, code, total_amount} = child;
                 sql += `
                     UPDATE acc_ar_invoice
-                    SET 
+                    SET
                         deposit_amount = ${child.isDeleted ? 0 : total_amount},
                         modified_date = '${date}',
                         modified_by = ${user}
@@ -368,7 +368,7 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
                 var {id, code, total_amount} = child;
                 sql += `
                     UPDATE acc_ar_invoice
-                    SET 
+                    SET
                         deposit_amount = ${child.isDeleted ? 0 : total_amount},
                         modified_date = '${date}',
                         modified_by = ${user}
@@ -499,12 +499,12 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
             var {id, code, total_amount} = child;
             sql += `
                 UPDATE acc_ar_invoice
-                SET 
+                SET
                     deposit_amount = 0,
                     modified_date = '${date}',
                     modified_by = ${user}
                 WHERE id = ${id};
-                
+
                 DELETE FROM acc_ar_deposit_line_item
                 WHERE deposit_id = ${deposit_id} AND invoice_id = ${id};
             `;
@@ -578,15 +578,15 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
         var {id} = selected;
         //
         queryService.get(trim(`
-            select a.* 
-            from 
+            select a.*
+            from
                 acc_ar_invoice a, acc_ar_deposit_line_item b
             where
-                a.id = b.invoice_id and 
-                a.status = 2 and 
-                a.customer_id = 1 and 
+                a.id = b.invoice_id and
+                a.status = 2 and
+                a.customer_id = 1 and
                 (
-                    b.deposit_id=${($scope.editing||{}).id||'\'\''} or 
+                    b.deposit_id=${($scope.editing||{}).id||'\'\''} or
                     (deposit_amount is null and deposit_amount = 0)
                 )
         `)).then(function (res) {

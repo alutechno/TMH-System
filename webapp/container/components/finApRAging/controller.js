@@ -88,7 +88,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
                 html +=
-                '<button class="btn btn-default" ng-click="detail(' + data + ')">' +
+                '<button class="btn btn-default" title="Detail" ng-click="detail(' + data + ')">' +
                 '   <i class="fa fa-list"></i>' +
                 '</button>&nbsp;' ;
             html += '</div>'

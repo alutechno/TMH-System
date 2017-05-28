@@ -78,12 +78,12 @@ function($scope, $state, $sce, roomService, roomTypeService, DTOptionsBuilder, D
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(rooms[\'' + data + '\'])">' +
+                '<button class="btn btn-default" title="Update" ng-click="update(rooms[\'' + data + '\'])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(rooms[\'' + data + '\'])" )"="">' +
+                html+='<button class="btn btn-default" title="Delete" ng-click="delete(rooms[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }

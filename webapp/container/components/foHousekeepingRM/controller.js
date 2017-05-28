@@ -71,14 +71,14 @@ angular.module('app', []).controller('FoHousekeepingRMCtrl', function ($scope, $
         $scope.data.table[i] = {i, data, prop};
         if (data.hk_status !== 'R' && $scope.elAuthorize.buttonUpdate) {
             group.append(`
-                <button class="btn btn-default" ng-click="update(data.table['${i}'])">
+                <button class="btn btn-default" title="Update" ng-click="update(data.table['${i}'])">
                     <i class="fa fa-edit"></i>
                 </button>
             `);
         }
         if ($scope.elAuthorize.buttonDelete) {
             group.append(`
-                <button class="btn btn-default" ng-click="delete(data.table['${i}'])">
+                <button class="btn btn-default" title="Delete" ng-click="delete(data.table['${i}'])">
                     <i class="fa fa-trash-o"></i>
                 </button>
             `);

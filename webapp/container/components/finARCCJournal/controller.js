@@ -32,7 +32,7 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
                 SELECT
                     a.*, b.code customer_code, b.title customer_title,
                     b.first_name customer_first_name, b.last_name customer_last_name
-                FROM 
+                FROM
                     fd_folio_transc_account a
                     LEFT JOIN mst_customer b on a.customer_id = b.id
             ) e on e.folio_id = e.id
@@ -95,7 +95,7 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
     });
     queryService.get(`
         select
-            c.id, c.code, c.customer_id, d.code customer_code, 
+            c.id, c.code, c.customer_id, d.code customer_code,
             d.title customer_title, d.title customer_first_name,
             d.title customer_last_name, payment_amount
         from
@@ -149,14 +149,14 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
             html = '<div class="btn-group btn-group-xs">';
             if ($scope.el.indexOf('buttonUpdate') > -1) {
                 html += `
-                    <button class="btn btn-default" ng-click="update(${i})">
+                    <button class="btn btn-default" title="Update" ng-click="update(${i})">
                         <i class="fa fa-edit"></i>
                     </button>
                 `;
             }
             if ($scope.el.indexOf('buttonDelete') > -1) {
                 html += `
-                    <button class="btn btn-default" ng-click="delete(${i})">
+                    <button class="btn btn-default" title="Delete" ng-click="delete(${i})">
                         <i class="fa fa-trash-o"></i>
                     </button>
                 `;

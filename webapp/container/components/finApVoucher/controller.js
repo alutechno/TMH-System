@@ -383,18 +383,18 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonAdjust')>-1){
-                html+='<button class="btn btn-default" ng-click="adjust(cats[\'' + data + '\'])" >' +
+                html+='<button class="btn btn-default" title="Adjustment" ng-click="adjust(cats[\'' + data + '\'])" >' +
                 '   <i class="fa fa-undo"></i>' +
                 '</button>';
             }
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(cats[\'' + data + '\'])">' +
+                '<button class="btn btn-default" title="Update" ng-click="update(cats[\'' + data + '\'])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(cats[\'' + data + '\'])" >' +
+                html+='<button class="btn btn-default" title="Delete" ng-click="delete(cats[\'' + data + '\'])" >' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }

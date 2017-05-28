@@ -65,12 +65,12 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(accountTypes[\'' + data + '\'])">' +
+                '<button class="btn btn-default" title="Update" ng-click="update(accountTypes[\'' + data + '\'])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(accountTypes[\'' + data + '\'])" )"="">' +
+                html+='<button class="btn btn-default" title="Delete" ng-click="delete(accountTypes[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }

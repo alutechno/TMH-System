@@ -17,7 +17,7 @@ angular.module('app', []).controller('FinARCCBatchCtrl', function ($scope, $stat
             format(fee_amount,0) fee_amount_,
             format(net_due_amount,0) net_due_amount_
         FROM acc_ar_ccard_batch
-        WHERE status = 1  
+        WHERE status = 1
     `);
     var qwhere = '';
 
@@ -84,14 +84,14 @@ angular.module('app', []).controller('FinARCCBatchCtrl', function ($scope, $stat
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate') > -1) {
                 html += `
-                    <button class="btn btn-default" ng-click="update(${i})">
+                    <button class="btn btn-default" title="Update" ng-click="update(${i})">
                         <i class="fa fa-edit"></i>
                     </button>
                 `;
             }
             if ($scope.el.indexOf('buttonDelete') > -1) {
                 html += `
-                    <button class="btn btn-default" ng-click="delete(${i})">
+                    <button class="btn btn-default" title="Delete" ng-click="delete(${i})">
                         <i class="fa fa-trash-o"></i>
                     </button>
                 `;

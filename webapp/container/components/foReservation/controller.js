@@ -230,13 +230,13 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 if (full.reservation_type=='H'){
                     html +=
-                    '<button class="btn btn-default" ng-click="updateHouse(coas[\'' + data + '\'])">' +
+                    '<button class="btn btn-default" title="Update House" ng-click="updateHouse(coas[\'' + data + '\'])">' +
                     '   <i class="fa fa-edit"></i>' +
                     '</button>&nbsp;' ;
                 }
                 else {
                     html +=
-                    '<button class="btn btn-default" ng-click="update(coas[\'' + data + '\'])">' +
+                    '<button class="btn btn-default" title="Update" ng-click="update(coas[\'' + data + '\'])">' +
                     '   <i class="fa fa-edit"></i>' +
                     '</button>&nbsp;' ;
                 }
@@ -245,12 +245,12 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
             if ($scope.el.indexOf('buttonDelete')>-1){
                 if (full.reservation_type=='H'){
                     html +=
-                    '<button class="btn btn-default" ng-click="deleteHouse(coas[\'' + data + '\'])">' +
+                    '<button class="btn btn-default" title="Delete House" ng-click="deleteHouse(coas[\'' + data + '\'])">' +
                     '   <i class="fa fa-trash-o"></i>' +
                     '</button>&nbsp;' ;
                 }
                 else {
-                    html+='<button class="btn btn-default" ng-click="delete(coas[\'' + data + '\'])" )"="">' +
+                    html+='<button class="btn btn-default" title="Delete" ng-click="delete(coas[\'' + data + '\'])" )"="">' +
                     '   <i class="fa fa-trash-o"></i>' +
                     '</button>';
                 }

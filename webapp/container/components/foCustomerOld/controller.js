@@ -86,12 +86,12 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(customers[\'' + data + '\'])">' +
+                '<button class="btn btn-default" title="Update" ng-click="update(customers[\'' + data + '\'])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(customers[\'' + data + '\'])" )"="">' +
+                html+='<button class="btn btn-default" title="Delete" ng-click="delete(customers[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }

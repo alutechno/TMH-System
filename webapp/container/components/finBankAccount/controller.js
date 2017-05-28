@@ -109,7 +109,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.focusinControl = {};
     $scope.fileName = "Master Bank Account";
     $scope.exportExcel = function(){
-        
+
         queryService.post('select code,name,short_name,bank_account,bank_name,currency_name,gl_account_code,ap_account_code,ar_account_code from('+qstring + qwhere+')aa order by id desc',undefined)
         .then(function(data){
             $scope.exportData = [];
@@ -137,12 +137,12 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(deps[\'' + data + '\'])">' +
+                '<button class="btn btn-default" title="Update" ng-click="update(deps[\'' + data + '\'])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(deps[\'' + data + '\'])" )"="">' +
+                html+='<button class="btn btn-default" title="Delete" ng-click="delete(deps[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }

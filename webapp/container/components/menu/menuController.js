@@ -77,12 +77,12 @@ roleController
                 html = '<div class="btn-group btn-group-xs">'
                 if ($scope.el.indexOf('buttonUpdate')>-1){
                     html +=
-                        '<button class="btn btn-default" ng-click="update(menuDatas[' + data.id + '])">' +
+                        '<button class="btn btn-default" title="Update" ng-click="update(menuDatas[' + data.id + '])">' +
                         '   <i class="fa fa-edit"></i>' +
                         '</button>&nbsp;' ;
                 }
                 if ($scope.el.indexOf('buttonDelete')>-1){
-                    html+='<button class="btn btn-default" ng-click="delete(menuDatas[' + data.id + '])" )"="">' +
+                    html+='<button class="btn btn-default" title="Delete" ng-click="delete(menuDatas[' + data.id + '])" )"="">' +
                     '   <i class="fa fa-trash-o"></i>' +
                     '</button>';
                 }

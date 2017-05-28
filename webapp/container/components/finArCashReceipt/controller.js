@@ -64,12 +64,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(' + data + ')">' +
+                '<button class="btn btn-default" title="Update" ng-click="update(' + data + ')">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
 			if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
+                html+='<button class="btn btn-default" title="Delete" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
@@ -284,7 +284,84 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 		}
     }
 })
-.controller('EditableTableSrCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {
+.controller('EditableTableApptCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {
+	$scope.item = {
+        id: '',
+		code:0,
+		status:''
+	}
+	$scope.deleteUser = function(id) {
+        var filtered = $filter('filter')($scope.items, {id: id});
+        if (filtered.length) {
+            filtered[0].isDeleted = true;
+        }
+    }
+	$scope.addUser = function() {
+        $scope.item = {
+			id: '',
+			code:0,
+			status:''
+		}
+		$scope.items.push($scope.item)
+        var ss = 'select a.id,a.product_id,b.name product_name,a.stock_qty_l,b.lowest_unit_type_id unit_id,c.name unit_name '+
+            'from inv_warehouse_stock a,mst_product b,ref_product_unit c '+
+            'where a.product_id=b.id '+
+            'and b.lowest_unit_type_id=c.id '+
+            'and warehouse_id='+$scope.selected.warehouse.selected.id +
+            //' and lower(b.name) like \''+text.toLowerCase()+'%\' '+
+            ' order by id limit 50 '
+        queryService.post(ss,undefined)
+        .then(function(data){
+            $scope.products = data.data
+        })
+	}
+	$scope.cancel = function() {
+		for (var i = $scope.items.length; i--;) {
+            var user = $scope.items[i];
+            // undelete
+            if (user.isDeleted) {
+                delete user.isDeleted;
+            }
+            // remove new
+            if (user.isNew) {
+                $scope.items.splice(i, 1);
+            }
+        };
+	}
+	$scope.child.saveTable = function(cr_id) {
+        var results = [];
+        var sqlitem = []
+		sqlitem.push('START TRANSACTION')
+		for (var i = $scope.items.length; i--;) {
+            var user = $scope.items[i];
+			if (user.isNew && !user.isDeleted){
+                sqlitem.push('insert into acc_ar_receipt_line_item(receipt_id,invoice_id,home_receipt_amount,receipt_amount,created_by,receipt_notes) values '+
+                    '( '+cr_id+', '+user.product_id+','+parseFloat(user.request_qty)+', '+parseFloat(user.issued_qty_n)+', '+$localStorage.currentUser.name.id+' ,"'+user.receipt_notes+'")')
+            }
+            else if(!user.isNew && user.isDeleted){
+                sqlitem.push('delete from acc_ar_receipt_line_item where id='+user.p_id)
+            }
+            else if(!user.isNew){
+                for (var j=0;j<$scope.itemsOri.length;j++){
+                    if ($scope.itemsOri[j].p_id==user.p_id){
+                        var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].request_qty+$scope.itemsOri[j].issued_qty_n+$scope.itemsOri[j].item_notes
+                        var d2 = user.p_id+user.product_id+user.request_qty+user.issued_qty_n+user.item_notes
+                        if(d1 != d2){
+							var sql1 = 'update acc_ar_receipt_line_item set '
+							sqlitem.push(sql1)
+						}
+					}
+				}
+			}
+		}
+		sqlitem.push('COMMIT')
+		return sqlitem
+	}
+	$scope.trustAsHtml = function(value) {
+        return $sce.trustAsHtml(value);
+    }
+})
+.controller('EditableTableApptCtrl2', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {
 	$scope.item = {
         id: '',
 		code:0,

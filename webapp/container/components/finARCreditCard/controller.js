@@ -19,11 +19,11 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
         /* id, code, name, short_name, description, status, percent_fee, doc_type_id */
         a.*, b.name bank_account_name, b.code bank_account_code, b.short_name bank_account_codename,
         c.name ar_account_name, c.code ar_account_code, c.name fee_account_name, c.code fee_account_code
-    FROM 
+    FROM
         mst_credit_card a
         LEFT JOIN mst_cash_bank_account b on b.id = a.bank_account_id
         LEFT JOIN mst_ledger_account c on c.id = a.ar_account_id
-        LEFT JOIN mst_ledger_account d on d.id = a.fee_account_id 
+        LEFT JOIN mst_ledger_account d on d.id = a.fee_account_id
     WHERE a.status = 1 AND b.status = 1 AND c.status = 1 AND d.status = 1 `;
     var qwhere = '';
 
@@ -113,12 +113,12 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate') > -1) {
                 html +=
-                    '<button class="btn btn-default" ng-click="update(datas[\'' + data + '\'])">' +
+                    '<button class="btn btn-default" title="Update" ng-click="update(datas[\'' + data + '\'])">' +
                     '   <i class="fa fa-edit"></i>' +
                     '</button>&nbsp;';
             }
             if ($scope.el.indexOf('buttonDelete') > -1) {
-                html += '<button class="btn btn-default" ng-click="delete(datas[\'' + data + '\'])" )"="">' +
+                html += '<button class="btn btn-default" title="Delete" ng-click="delete(datas[\'' + data + '\'])" )"="">' +
                     '   <i class="fa fa-trash-o"></i>' +
                     '</button>';
             }

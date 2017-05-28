@@ -15,13 +15,13 @@ angular.module('app', []).controller('FinARConfigCtrl', function ($scope, $state
     }
 
     var qstring = `
-    SELECT 
+    SELECT
 	    b.code transient_account_code, b.name transient_account_name, c.code gain_loss_curr_account_code,
 	    c.name gain_loss_curr_account_name, a.*
 	FROM
 		ref_ar_config a
 		LEFT JOIN mst_ledger_account b on b.id = a.transient_account_id
-		LEFT JOIN mst_ledger_account c on c.id = a.gain_loss_curr_account_id 
+		LEFT JOIN mst_ledger_account c on c.id = a.gain_loss_curr_account_id
     WHERE a.status = 1 `;
     var qwhere = '';
 
@@ -96,12 +96,12 @@ angular.module('app', []).controller('FinARConfigCtrl', function ($scope, $state
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate') > -1) {
                 html +=
-                    '<button class="btn btn-default" ng-click="update(datas[\'' + data + '\'])">' +
+                    '<button class="btn btn-default" title="Update" ng-click="update(datas[\'' + data + '\'])">' +
                     '   <i class="fa fa-edit"></i>' +
                     '</button>&nbsp;';
             }
             if ($scope.el.indexOf('buttonDelete') > -1) {
-                html += '<button class="btn btn-default" ng-click="delete(datas[\'' + data + '\'])" )"="">' +
+                html += '<button class="btn btn-default" title="Delete" ng-click="delete(datas[\'' + data + '\'])" )"="">' +
                     '   <i class="fa fa-trash-o"></i>' +
                     '</button>';
             }

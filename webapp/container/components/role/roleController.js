@@ -30,12 +30,12 @@ function($scope, $state, $sce, roleService,
                 html = '<div class="btn-group btn-group-xs">'
                 if ($scope.el.indexOf('buttonUpdate')>-1){
                     html +=
-                    '<button class="btn btn-default" ng-click="update(roles[' + data.id + '])">' +
+                    '<button class="btn btn-default" title="Update" ng-click="update(roles[' + data.id + '])">' +
                     '   <i class="fa fa-edit"></i>' +
                     '</button>&nbsp;' ;
                 }
                 if ($scope.el.indexOf('buttonDelete')>-1){
-                    html+='<button class="btn btn-default" ng-click="delete(roles[' + data.id + '])" )"="">' +
+                    html+='<button class="btn btn-default" title="Delete" ng-click="delete(roles[' + data.id + '])" )"="">' +
                     '   <i class="fa fa-trash-o"></i>' +
                     '</button>';
                 }

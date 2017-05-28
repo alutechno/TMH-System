@@ -1,4 +1,4 @@
-var userController = angular.module('app', []);
+xvar userController = angular.module('app', []);
 userController
 .controller('InvMarketListCtrl',
 function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,prService, DTOptionsBuilder, DTColumnBuilder,DTColumnDefBuilder, $localStorage, $compile, $rootScope, API_URL,
@@ -184,12 +184,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(\'' + data + '\')">' +
+                '<button class="btn btn-default" title="Update" ng-click="update(\'' + data + '\')">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" ng-click="delete(\'' + data + '\')" )"="">' +
+                html+='<button class="btn btn-default" title="Delete" ng-click="delete(\'' + data + '\')" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }

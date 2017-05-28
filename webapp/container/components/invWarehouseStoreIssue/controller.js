@@ -128,7 +128,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonUpdate')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="update(' + data + ')">' +
+                '<button class="btn btn-default" title="Update" ng-click="update(' + data + ')">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }

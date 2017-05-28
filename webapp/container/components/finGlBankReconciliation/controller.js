@@ -396,15 +396,15 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         var html = ''
             html = '<div class="btn-group btn-group-xs">'
             html +=
-            '<button class="btn btn-default" ng-click="detail(' + data + ',\'payable\')">' +
+            '<button class="btn btn-default" title="Detail" ng-click="detail(' + data + ',\'payable\')">' +
             '   <i class="fa fa-list"></i>' +
             '</button>&nbsp;' ;
             html +=
-            '<button class="btn btn-default" ng-click="bankbook(bbExec[' + full.id + '],\''+full.type+'\')">' +
+            '<button class="btn btn-default" title="Bank Book" ng-click="bankbook(bbExec[' + full.id + '],\''+full.type+'\')">' +
             '   <i class="fa fa-flash"></i>' +
             '</button>&nbsp;' ;
         if (full.reconciled_date==null){
-            html+='<button class="btn btn-default" ng-click="reconcile(' + full.id + ',\''+full.type+'\')">' +
+            html+='<button class="btn btn-default" title="Reconcile" ng-click="reconcile(' + full.id + ',\''+full.type+'\')">' +
             '   <i class="fa fa-check"></i>' +
             '</button>&nbsp;' ;
         }

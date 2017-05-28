@@ -67,7 +67,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('buttonOpname')>-1){
                 html +=
-                '<button class="btn btn-default" ng-click="opname(\'' + data + '\')">' +
+                '<button class="btn btn-default" title="Opname" ng-click="opname(\'' + data + '\')">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
