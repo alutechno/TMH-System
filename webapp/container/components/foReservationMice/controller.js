@@ -578,6 +578,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
             $scope.remark.form.gf.remarks_drop = result.data[0].drop_remarks;
             $scope.remark.form.gf.remarks_pickup = result.data[0].pickup_remarks;
 
+            $scope.member.form.getMember(result.data[0].id);
 
 
 
@@ -1498,12 +1499,18 @@ function($scope, $state, $sce, queryService, $q,departmentService, accountTypeSe
             $scope.member.city = data.data
         })
     }
+    $scope.member.action.roomAssign = function(){
+        console.log('mice_id',$scope.profile.form.gf.id);
+        console.log('is_allowed_dirty',$scope.member.form.gf.is_allowed_dirty)
+        console.log('room_start',$scope.member.form.gf.room_start_no)
+    }
 
     $scope.member.action.submit = function(){
         var defer = $q.defer();
         //exec update
         var qcommand = ''
         var param = []
+        var code = Math.floor(Math.random()*90000) + 10000;
         for (var i=0;i<$scope.member.form.gf.num_of_room;i++){
             /*param.push({
                 first_name: $scope.member.form.gf.first_name,
@@ -1512,14 +1519,33 @@ function($scope, $state, $sce, queryService, $q,departmentService, accountTypeSe
                 city_id: $scope.member.form.gf.selected.city.id
             })*/
             param.push([
+                'AT-'+code.toString(),
                 $scope.member.form.gf.first_name,$scope.member.form.gf.last_name,
                 $scope.member.form.gf.selected.country.id,$scope.member.form.gf.selected.city.id
             ])
         }
-        queryService.post('insert into mst_customer(first_name,last_name,country_id,city_id) VALUES ?',[param])
+        queryService.post('insert into mst_customer(code,first_name,last_name,country_id,city_id) VALUES ?',[param])
         .then(function (result2){
             console.log(result2)
-            defer.resolve('Success Update Additional Data');
+
+            var param2 = "insert into fd_guest_folio(customer_id,arrival_date,departure_date,num_of_pax,num_of_child,origin_country_id,origin_city_id,segment_type_id,mice_id,room_type_id)"+
+            "select id,'"+$scope.member.form.gf.arrival_date+"','"+$scope.member.form.gf.departure_date+"',"+$scope.member.form.gf.num_of_pax+","+$scope.member.form.gf.num_of_child+", "+
+            " "+$scope.member.form.gf.selected.country.id+","+$scope.member.form.gf.selected.city.id+","+$scope.member.form.gf.selected.segment_type.id+
+            " ,"+$scope.profile.form.gf.id+","+$scope.member.form.gf.selected.room_type.id+" "+
+            "from mst_customer where code='AT-"+code+"' "
+            queryService.post(param2,undefined)
+            .then(function (result3){
+                console.log(result3)
+                $scope.member.form.getMember($scope.profile.form.gf.id);
+
+                defer.resolve('Success Quick Fill Member Data');
+
+            },
+            function (err3){
+                defer.reject('Error Insert: '+err3.code);
+
+
+            })
 
         },
         function (err2){
