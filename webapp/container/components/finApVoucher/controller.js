@@ -131,10 +131,13 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         $scope.status = data.data
     })*/
 
+    $scope.sourceOri = []
     $scope.source = []
-    queryService.get('select value id, value, name from table_ref where table_name = \'acc_ap_voucher\' and column_name = \'source\' and value in(\'MT\') order by id ',undefined)
+    queryService.get('select value id, value, name from table_ref where table_name = \'acc_ap_voucher\' and column_name = \'source\' and value in(\'MT\',\'RR\') order by id ',undefined)
     .then(function(data){
         $scope.source = data.data
+        $scope.sourceOri = data.data
+
     })
     $scope.deposit = []
 
@@ -570,6 +573,10 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         $scope.updateState = false;
         $scope.statusShow.push($scope.status[0])
         $scope.selected.status['selected']=$scope.status[0]
+        $scope.source = []
+        for (var i=0;i<$scope.sourceOri.length;i++){
+            if($scope.sourceOri[i].value=='MT') $scope.source.push($scope.sourceOri[i])
+        }
         $('#form-input').modal('show')
     }
 
@@ -870,6 +877,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     }
 
     $scope.update = function(obj){
+        $scope.source = $scope.sourceOri;
         queryService.post(qstring+ ' where a.id='+obj.id,undefined)
         .then(function(result){
             $('#form-input').modal('show');

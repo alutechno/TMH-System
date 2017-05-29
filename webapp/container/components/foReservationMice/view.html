@@ -1144,7 +1144,7 @@
                                         </tr>
                                       </tbody>
                                       <tfooter>
-                                          <tr>
+                                          <!--<tr>
                                               <th width="15%">&nbsp;</th>
                                               <th width="25%">&nbsp;</th>
                                               <th width="10%">&nbsp;</th>
@@ -1153,7 +1153,7 @@
                                               <th width="10%">&nbsp;</th>
                                               <th width="10%">&nbsp;</th>
                                               <th width="10%">&nbsp;</th>
-                                          </tr>
+                                          </tr>-->
                                       </tfooter>
                                   </table>
 
@@ -1286,15 +1286,20 @@
                                       <div class="col-md-7">
                                           <div class="row">
                                               <div class="col-sm-6">
-                                                  <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : profile.form.gf.arrival_date.$invalid && !profile.form.gf.arrival_date.$pristine }">
+                                                  <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : member.form.gf.arrival_date.$invalid && !member.form.gf.arrival_date.$pristine }">
                                                       <label>Arrival</label>
                                                       <input type="text" class="form-control" ng-model="member.form.gf.arrival_date" name="arrival_date"  placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker" validate-attached-form-element required>
                                                   </div>
                                               </div>
                                               <div class="col-sm-6">
-                                                  <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : profile.form.gf.arrival_date.$invalid && !profile.form.gf.arrival_date.$pristine }">
+                                                  <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                       <label>Status</label>
-                                                      <input type="text" class="form-control" ng-model="member.form.gf.arrival_date" name="arrival_date"  placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker" validate-attached-form-element required>
+                                                      <ui-select ng-model="member.form.gf.selected.reservation_status" theme="bootstrap" >
+                                                          <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
+                                                          <ui-select-choices repeat="item in profile.form.reservation_status | filter: $select.search">
+                                                              <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                          </ui-select-choices>
+                                                      </ui-select>
                                                   </div>
                                               </div>
                                           </div>
@@ -1308,7 +1313,7 @@
                                               <div class="col-sm-6">
                                                   <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                       <label>Room Type</label>
-                                                      <ui-select ng-model="member.form.gf.selected.room_type" theme="bootstrap" >
+                                                      <ui-select ng-model="member.form.gf.selected.room_type" theme="bootstrap" on-select="member.action.getRoom()">
                                                           <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
                                                           <ui-select-choices repeat="item in member.room_type | filter: $select.search">
                                                               <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -1319,30 +1324,30 @@
                                           </div>
                                           <div class="row">
                                               <div class="col-sm-6">
-                                                  <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : profile.form.gf.arrival_date.$invalid && !profile.form.gf.arrival_date.$pristine }">
+                                                  <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : member.form.gf.arrival_date.$invalid && !member.form.gf.arrival_date.$pristine }">
                                                       <label>Departure</label>
                                                       <input type="text" class="form-control" ng-model="member.form.gf.departure_date" name="departure_date" placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker" validate-attached-form-element required>
                                                   </div>
                                               </div>
-                                              <div class="col-sm-6">
+                                              <!--<div class="col-sm-6">
                                                   <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                       <label>Upgrade To</label>
-                                                      <ui-select ng-model="member.form.gf.selected.room_type" theme="bootstrap" >
+                                                      <ui-select ng-model="member.form.gf.selected.room_type_upg" theme="bootstrap" >
                                                           <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
                                                           <ui-select-choices repeat="item in member.room_type | filter: $select.search">
                                                               <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                                           </ui-select-choices>
                                                       </ui-select>
                                                   </div>
-                                              </div>
+                                              </div>-->
                                           </div>
                                           <div class="row">
                                               <div class="col-sm-6">
                                                   <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                       <label>Room</label>
-                                                      <ui-select ng-model="member.form.gf.selected.room_type" theme="bootstrap" >
-                                                          <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
-                                                          <ui-select-choices repeat="item in member.room_type | filter: $select.search">
+                                                      <ui-select ng-model="member.form.gf.selected.room" theme="bootstrap" >
+                                                          <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                                                          <ui-select-choices repeat="item in member.room | filter: $select.search">
                                                               <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                                           </ui-select-choices>
                                                       </ui-select>
@@ -1361,15 +1366,15 @@
                                               <div class="col-sm-8">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Last Name</label>
-                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.first_name" >
+                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.last_name" >
                                                   </div>
                                               </div>
-                                              <div class="col-sm-6">
+                                              <div class="col-sm-4">
                                                   <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                       <label>Title</label>
-                                                      <ui-select ng-model="member.form.gf.selected.room_type" theme="bootstrap" >
-                                                          <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
-                                                          <ui-select-choices repeat="item in member.room_type | filter: $select.search">
+                                                      <ui-select ng-model="member.form.gf.selected.title" theme="bootstrap" >
+                                                          <ui-select-match placeholder="title">{{$select.selected.name}}</ui-select-match>
+                                                          <ui-select-choices repeat="item in member.title | filter: $select.search">
                                                               <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                                           </ui-select-choices>
                                                       </ui-select>
@@ -1390,28 +1395,28 @@
                                                   </div>
                                               </div>
                                               <div class="col-sm-4">
-                                                  <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : profile.form.gf.arrival_date.$invalid && !profile.form.gf.arrival_date.$pristine }">
+                                                  <div pg-form-group class="form-group form-group-default" >
                                                       <label>Birth Date</label>
-                                                      <input type="text" class="form-control" ng-model="member.form.gf.departure_date" name="departure_date" placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker" validate-attached-form-element required>
+                                                      <input type="text" class="form-control" ng-model="member.form.gf.birth_date" name="birth_date" placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker">
                                                   </div>
                                               </div>
-                                              <div class="col-sm-4">
+                                              <!--<div class="col-sm-4">
                                                   <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                       <label>Sex</label>
-                                                      <ui-select ng-model="member.form.gf.selected.room_type" theme="bootstrap" >
+                                                      <ui-select ng-model="member.form.gf.selected.sex" theme="bootstrap" >
                                                           <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
-                                                          <ui-select-choices repeat="item in member.room_type | filter: $select.search">
+                                                          <ui-select-choices repeat="item in member.sex | filter: $select.search">
                                                               <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                                           </ui-select-choices>
                                                       </ui-select>
                                                   </div>
-                                              </div>
+                                              </div>-->
                                           </div>
                                           <div class="row">
                                               <div class="col-sm-12">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Address</label>
-                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.first_name" >
+                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.address" >
                                                   </div>
                                               </div>
                                           </div>
@@ -1419,7 +1424,7 @@
                                               <div class="col-sm-12">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>ID Number</label>
-                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.first_name" >
+                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.id_number" >
                                                   </div>
                                               </div>
                                           </div>
@@ -1427,19 +1432,19 @@
                                               <div class="col-sm-4">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Extra Bed</label>
-                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.first_name" >
+                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.extra_bed" >
                                                   </div>
                                               </div>
                                               <div class="col-sm-4">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Discount</label>
-                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.first_name" >
+                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.discount" >
                                                   </div>
                                               </div>
                                               <div class="col-sm-4">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Rate</label>
-                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.first_name" >
+                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.room_rate_amount" >
                                                   </div>
                                               </div>
                                           </div>
@@ -1449,7 +1454,7 @@
                                               <div class="col-sm-12">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Folio</label>
-                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.first_name" >
+                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.folio_id" >
                                                   </div>
                                               </div>
                                           </div>
@@ -1481,7 +1486,7 @@
                                               <div class="col-sm-6">
                                                   <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                       <label>Origin</label>
-                                                      <ui-select ng-model="member.form.gf.selected.city" theme="bootstrap" >
+                                                      <ui-select ng-model="member.form.gf.selected.city_origin" theme="bootstrap" >
                                                           <ui-select-match placeholder="select title">{{$select.selected.name}}</ui-select-match>
                                                           <ui-select-choices repeat="item in member.city | filter: $select.search">
                                                               <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -1492,7 +1497,7 @@
                                               <div class="col-sm-6">
                                                   <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                       <label>Destination</label>
-                                                      <ui-select ng-model="member.form.gf.selected.city" theme="bootstrap" >
+                                                      <ui-select ng-model="member.form.gf.selected.city_dest" theme="bootstrap" >
                                                           <ui-select-match placeholder="select title">{{$select.selected.name}}</ui-select-match>
                                                           <ui-select-choices repeat="item in member.city | filter: $select.search">
                                                               <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -1505,9 +1510,9 @@
                                               <div class="col-sm-6">
                                                   <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                       <label>Paid by</label>
-                                                      <ui-select ng-model="member.form.gf.selected.city" theme="bootstrap" >
+                                                      <ui-select ng-model="member.form.gf.selected.paid_by" theme="bootstrap" >
                                                           <ui-select-match placeholder="select title">{{$select.selected.name}}</ui-select-match>
-                                                          <ui-select-choices repeat="item in member.city | filter: $select.search">
+                                                          <ui-select-choices repeat="item in profile.form.pay_by | filter: $select.search">
                                                               <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                                           </ui-select-choices>
                                                       </ui-select>
@@ -1519,16 +1524,16 @@
                                               <div class="col-sm-12">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Card No</label>
-                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.first_name" >
+                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.card_no" >
                                                   </div>
                                               </div>
 
                                           </div>
-                                          <div class="row">
+                                          <!--<div class="row">
                                               <div class="col-sm-6">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Valid Until</label>
-                                                      <input type="text" class="form-control" ng-model="member.form.gf.departure_date" name="departure_date" placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker" validate-attached-form-element required>
+                                                      <input type="text" class="form-control" ng-model="member.form.gf.valid_until" name="valid_until" placeholder="Pick a date" data-date-format="yyyy-mm-dd" ui-jq="datepicker">
                                                   </div>
                                               </div>
 
@@ -1537,38 +1542,30 @@
                                               <div class="col-sm-12">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Credit Limit</label>
-                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.first_name" >
+                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.credit_limit" >
                                                   </div>
                                               </div>
-
-                                          </div>
+                                          </div>-->
                                           <div class="row">
                                               <div class="col-sm-12">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Cashier Remarks</label>
-                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.first_name" >
+                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.cashier_remarks" >
                                                   </div>
                                               </div>
-
                                           </div>
                                           <div class="row">
                                               <div class="col-sm-12">
                                                   <div pg-form-group class="form-group form-group-default" >
                                                       <label>Check In Remarks</label>
-                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.first_name" >
+                                                      <input type="text" class="form-control" name="code" id="coa_code" ng-model="member.form.gf.check_in_remarks" >
                                                   </div>
                                               </div>
-
                                           </div>
                                       </div>
-
                                   </div>
-                                  <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit('member')" >Save</button>
+                                  <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="member.action.submitUm()" >Save</button>
                               </div>
-
-
-
-
                           </div>
                       </div>
                   </div>

@@ -1449,18 +1449,80 @@ function($scope, $state, $sce, queryService, $q,departmentService, accountTypeSe
     $scope.member.form.getMember = function(ids){
         queryService.post("select a.id, a.customer_id,a.num_of_pax,a.num_of_child, "+
         	"date_format(a.arrival_date,'%Y-%m-%d')arrival_date,date_format(a.departure_date,'%Y-%m-%d')departure_date, "+
-        	"a.room_rate_id,a.room_rate_amount,concat(b.first_name, ' ',b.last_name) guest_name,a.room_id,c.name room_name, "+
-        	"d.name room_rate_name,e.name room_type_name,c.room_type_id "+
+        	"a.room_rate_id,a.room_rate_amount,concat(b.first_name, ' ',b.last_name) guest_name,b.first_name,b.last_name,a.room_id,c.name room_name, "+
+        	"d.name room_rate_name,e.name room_type_name,c.room_type_id,a.reservation_status,w.name reservation_status_name,a.num_of_nights, "+
+            "a.num_of_extra_bed extra_bed,a.discount_amount discount,a.room_rate_amount,a.segment_type_id,k.name segment_type_name, "+
+            "a.payment_type_id,i.name payment_type_name,b.id_card_number id_number,a.card_no,a.card_valid_until_year,a.card_valid_until_month, "+
+            "b.title,date_format(b.birth_date,'%Y-%m-%d')birth_date,a.address,a.origin_country_id,a.origin_city_id,a.dest_city_id, "+
+            "u.remarks remarks_cashier,u.id remarks_cashier_id,ae.remarks remarks_check_in,ae.id remarks_check_in_id, "+
+            "n.name origin_country_name,o.name origin_city_name,p.name dest_city_name "+
         "from fd_guest_folio a "+
         "left join mst_customer b on a.customer_id = b.id "+
         "left join mst_room c on a.room_id = c.id "+
         "left join mst_room_rate d on a.room_rate_id = d.id "+
         "left join ref_room_type e on c.room_type_id = e.id "+
+        "left join (select value, name from table_ref where table_name = 'fd_guest_folio' "+
+          "and column_name = 'reservation_status') w on a.reservation_status = w.value "+
+        "left join ref_segment_type k on a.segment_type_id = k.id "+
+        "left join ref_payment_method i on a.payment_type_id = i.id "+
+        "left join ref_country n on a.origin_country_id = n.id "+
+        "left join ref_kabupaten o on a.origin_city_id = o.id "+
+        "left join ref_country p on a.dest_city_id = p.id "+
+        "left join (select a.id, a.folio_id, remarks "+
+        " from fd_folio_remarks a "+
+        " where a.remark_type_id = 1) u on a.id = u.folio_id "+
+        "left join (select a.id, a.folio_id, remarks "+
+        "	from fd_folio_remarks a "+
+        "    where a.remark_type_id = 2) ae on a.id = ae.folio_id "+
         " where a.mice_id="+ids,undefined)
         .then(function(data){
             $scope.member.form.listMember = [];
             $scope.member.form.listMember = data.data;
         })
+    }
+    $scope.member.action.updateMember = function(ids){
+        console.log(ids)
+        for(var i=0;i<$scope.member.form.listMember.length;i++){
+            console.log(ids+'+'+$scope.member.form.listMember[i]['id'])
+            if(ids==$scope.member.form.listMember[i]['id']){
+                console.log('match',$scope.member.form.listMember[i])
+                $scope.member.form.gf.folio_id = $scope.member.form.listMember[i].id;
+
+                $scope.member.form.gf.arrival_date = $scope.member.form.listMember[i].arrival_date;
+                $scope.member.form.gf.selected.reservation_status = {id:$scope.member.form.listMember[i].reservation_status,name:$scope.member.form.listMember[i].reservation_status_name};
+                $scope.member.form.gf.num_of_nights = $scope.member.form.listMember[i].num_of_nights;
+                $scope.member.form.gf.selected.room_type = {id:$scope.member.form.listMember[i].room_type_id,name:$scope.member.form.listMember[i].room_type_name};
+                $scope.member.form.gf.departure_date = $scope.member.form.listMember[i].departure_date;
+                $scope.member.form.gf.selected.room = {id:$scope.member.form.listMember[i].room_id,name:$scope.member.form.listMember[i].room_name};
+                $scope.member.form.gf.num_of_pax= $scope.member.form.listMember[i].num_of_pax;
+                $scope.member.form.gf.num_of_child = $scope.member.form.listMember[i].num_of_child;
+                $scope.member.form.gf.extra_bed = $scope.member.form.listMember[i].extra_bed;
+                $scope.member.form.gf.discount = $scope.member.form.listMember[i].discount;
+                $scope.member.form.gf.room_rate_amount = $scope.member.form.listMember[i].room_rate_amount;
+                $scope.member.form.gf.selected.segment_type = {id:$scope.member.form.listMember[i].segment_type_id,name:$scope.member.form.listMember[i].segment_type_name};
+                $scope.member.form.gf.selected.paid_by= {id:$scope.member.form.listMember[i].payment_type_id,name:$scope.member.form.listMember[i].payment_type_name};
+                $scope.member.form.gf.card_no = $scope.member.form.listMember[i].card_no;
+                $scope.member.form.gf.valid_until = $scope.member.form.listMember[i].valid_until;
+                $scope.member.form.gf.credit_limit = $scope.member.form.listMember[i].credit_limit;
+
+                $scope.member.form.gf.customer_id = $scope.member.form.listMember[i].customer_id;
+                $scope.member.form.gf.first_name = $scope.member.form.listMember[i].first_name;
+                $scope.member.form.gf.last_name = $scope.member.form.listMember[i].last_name;
+                $scope.member.form.gf.selected.title = {id:$scope.member.form.listMember[i].title,name:$scope.member.form.listMember[i].title}
+                $scope.member.form.gf.birth_date = $scope.member.form.listMember[i].birth_date;
+                $scope.member.form.gf.address = $scope.member.form.listMember[i].address;
+                $scope.member.form.gf.id_number = $scope.member.form.listMember[i].id_number;
+                $scope.member.form.gf.selected.country = {id:$scope.member.form.listMember[i].origin_country_id,name:$scope.member.form.listMember[i].origin_country_name};
+                $scope.member.form.gf.selected.city_origin = {id:$scope.member.form.listMember[i].origin_city_id,name:$scope.member.form.listMember[i].origin_city_name};
+                $scope.member.form.gf.selected.city_dest = {id:$scope.member.form.listMember[i].dest_city_id,name:$scope.member.form.listMember[i].dest_city_name};
+
+                $scope.member.form.gf.cashier_remarks = $scope.member.form.listMember[i].remarks_cashier;
+                $scope.member.form.gf.cashier_remarks_id = $scope.member.form.listMember[i].remarks_cashier_id;
+                $scope.member.form.gf.check_in_remarks = $scope.member.form.listMember[i].remarks_check_in;
+                $scope.member.form.gf.check_in_remarks_id = $scope.member.form.listMember[i].remarks_check_in_id;
+                $scope.getCity();
+            }
+        }
     }
 
     $scope.member.form.gf = {
@@ -1479,6 +1541,19 @@ function($scope, $state, $sce, queryService, $q,departmentService, accountTypeSe
         }
 
     }
+    $scope.member.room = []
+    $scope.member.action.getRoom = function(){
+        queryService.post('select id,name from mst_room where room_type_id='+$scope.member.form.gf.selected.room_type.id+' and fo_status=\'V\' order by name asc',undefined)
+        .then(function(data){
+            console.log(data.data)
+            $scope.member.room = data.data
+        })
+    }
+    $scope.member.title = [
+        {id: 'Mr',name:'Mr'},
+        {id: 'Mrs',name:'Mrs'}
+    ]
+
     $scope.member.room_type = [];
     queryService.get('select id,code,name from ref_room_type where status=1 order by id  ',undefined)
     .then(function(data){
@@ -1503,6 +1578,96 @@ function($scope, $state, $sce, queryService, $q,departmentService, accountTypeSe
         console.log('mice_id',$scope.profile.form.gf.id);
         console.log('is_allowed_dirty',$scope.member.form.gf.is_allowed_dirty)
         console.log('room_start',$scope.member.form.gf.room_start_no)
+    }
+    $scope.member.action.submitUm = function(){
+        console.log('mice_id',$scope.profile.form.gf.id);
+        var param = {
+            arrival_date: $scope.member.form.gf.arrival_date,
+            reservation_status: $scope.member.form.gf.selected.reservation_status.id,
+            num_of_nights: $scope.member.form.gf.num_of_nights,
+            room_type_id: $scope.member.form.gf.selected.room_type.id,
+            departure_date: $scope.member.form.gf.departure_date,
+            room_id: $scope.member.form.gf.selected.room.id,
+            num_of_pax: $scope.member.form.gf.num_of_pax,
+            num_of_child: $scope.member.form.gf.num_of_child,
+            num_of_extra_bed: $scope.member.form.gf.extra_bed,
+            discount_amount: $scope.member.form.gf.discount,
+            room_rate_amount: $scope.member.form.gf.room_rate_amount,
+            segment_type_id: $scope.member.form.gf.selected.segment_type.id,
+            payment_type_id: $scope.member.form.gf.selected.paid_by.id,
+            card_no: $scope.member.form.gf.card_no,
+            //valid_until: $scope.member.form.gf.valid_until,
+            origin_country_id: $scope.member.form.gf.selected.country.id,
+            origin_city_id: $scope.member.form.gf.selected.city_origin.id,
+            dest_city_id: $scope.member.form.gf.selected.city_dest.id,
+            //credit_limit: $scope.member.form.gf.credit_limit,
+            modified_by:$localStorage.currentUser.name.id,
+            modified_date:globalFunction.currentDate()
+        }
+        var paramCust = {
+            first_name: $scope.member.form.gf.first_name,
+            last_name: $scope.member.form.gf.last_name,
+            title: $scope.member.form.gf.selected.title.id,
+            birth_date: $scope.member.form.gf.birth_date,
+            //sex: $scope.member.form.gf.selected.sex.id,
+            address: $scope.member.form.gf.address,
+            id_card_number: $scope.member.form.gf.id_number,
+            country_id: $scope.member.form.gf.selected.country.id,
+            city_id: $scope.member.form.gf.selected.city_origin.id,
+            modified_by:$localStorage.currentUser.name.id,
+            modified_date:globalFunction.currentDate()
+        }
+        var paramRemarks = {
+            cashier_remarks: $scope.member.form.gf.cashier_remarks,
+            check_in_remarks: $scope.member.form.gf.check_in_remarks
+        }
+        var sqlrmk = []
+
+        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
+            ' values('+$scope.member.form.gf.cashier_remarks_id+','+$scope.member.form.gf.folio_id+',1,\''+$scope.member.form.gf.cashier_remarks+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
+            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.member.form.gf.cashier_remarks+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
+        )
+        sqlrmk.push('insert into fd_folio_remarks(id,folio_id,remark_type_id,remarks,created_date,created_by) '+
+            ' values('+$scope.member.form.gf.check_in_remarks_id+','+$scope.member.form.gf.folio_id+',2,\''+$scope.member.form.gf.check_in_remarks+'\',\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
+            ' ON DUPLICATE KEY UPDATE remarks=\''+$scope.member.form.gf.check_in_remarks+'\',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
+        )
+        queryService.post(sqlrmk.join(';'),undefined)
+        .then(function (result2){
+            console.log('Success Update Remark');
+        },
+        function (err2){
+            console.log('Error Insert: '+err2.code);
+        });
+
+        queryService.post('update mst_customer SET ? where id='+$scope.member.form.gf.customer_id,paramCust)
+        .then(function (resultx){
+            console.log('success customer',resultx)
+        },
+        function (errx){
+            console.log('error customer',errx)
+        })
+        queryService.post('update fd_guest_folio SET ? where id='+$scope.member.form.gf.folio_id,param)
+        .then(function (result){
+            console.log('Success Update');
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Success Update Folio',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.member.form.getMember($scope.profile.form.gf.id)
+        },
+        function (err){
+            console.log('Error Insert: '+err.code);
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Update Folio:'+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'error'
+            }).show();
+        })
     }
 
     $scope.member.action.submit = function(){
@@ -1537,27 +1702,16 @@ function($scope, $state, $sce, queryService, $q,departmentService, accountTypeSe
             .then(function (result3){
                 console.log(result3)
                 $scope.member.form.getMember($scope.profile.form.gf.id);
-
                 defer.resolve('Success Quick Fill Member Data');
-
             },
             function (err3){
                 defer.reject('Error Insert: '+err3.code);
-
-
             })
-
         },
         function (err2){
             defer.reject('Error Insert: '+err2.code);
-
-
         })
-
-
-        //queryService.post('update fd_folio_remarks SET ? where folio_id='+$scope.gf.id+' and remark_type_id=1;update fd_folio_remarks SET ? where folio_id='+$scope.gf.id+' and remark_type_id=2',[param_remark1,param_remark2])
-
-         return defer.promise;
+        return defer.promise;
     }
 })
 .controller('FoReservationVenueCtrl',
