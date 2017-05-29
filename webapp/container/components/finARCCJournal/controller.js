@@ -10,38 +10,53 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
     queryService, departmentService, accountTypeService, DTOptionsBuilder,
     DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction, API_URL
 ) {
-    $('#col-folio').hide();
+    $('#col-order').hide();
     //
     var qstring = trim(`
 		SELECT
-            a.*,
-            b.code credit_card_code, b.name credit_card_name,
-            c.code outlet_type_code, c.name outlet_type_name, d.code folio_code,
+            a.*, i.code fo_transc_code, i.customer_id fo_transc_customer_id,
+            i.customer_code fo_transc_customer_code, i.customer_name fo_transc_customer_name,
+            i.payment_amount fo_transc_payment_amount,
+            b.code credit_card_code, b.name credit_card_name, b.percent_fee,
+            c.code outlet_type_code, c.name outlet_type_name,
+            /* d.code folio_code, */ e.folio_code,
             e.transc_type_id, e.transc_remarks, e.transc_charge, e.transc_ref,
-            e.debit, e.credit, e.customer_id, e.customer_code, e.customer_title,
-            e.customer_first_name, e.customer_last_name,
+            e.debit, e.credit, e.customer_id, e.customer_code, e.customer_name,
             f.code pos_order_code, g.code ccard_batch_code,
             format(a.credit_fee_amount,0) credit_fee_amount_,
             format(a.total_amount,0) total_amount_, h.name status_name
         FROM
-            acc_ar_ccard_journal a
-            LEFT JOIN mst_credit_card b on a.credit_card_id = b.id
-            LEFT JOIN ref_ar_outlet_type c on a.outlet_type_id = c.id
-            LEFT JOIN fd_guest_folio d on a.folio_id = d.id
-            LEFT JOIN (
-                SELECT
-                    a.*, b.code customer_code, b.title customer_title,
-                    b.first_name customer_first_name, b.last_name customer_last_name
-                FROM
-                    fd_folio_transc_account a
-                    LEFT JOIN mst_customer b on a.customer_id = b.id
-            ) e on e.folio_id = e.id
-            LEFT JOIN pos_orders f on a.pos_order_id = f.id
-            LEFT JOIN acc_ar_ccard_batch g on a.ccard_batch_id = g.id
-            LEFT JOIN (
-            	SELECT value id, name FROM table_ref WHERE table_name='acc_ar_ccard_journal' AND column_name='status'
-            ) h on h.id = a.status
-        WHERE a.status = 1
+        acc_ar_ccard_journal a
+        LEFT JOIN mst_credit_card b on a.credit_card_id = b.id
+        LEFT JOIN ref_ar_outlet_type c on a.outlet_type_id = c.id
+        /* LEFT JOIN fd_guest_folio d on a.folio_id = d.id */
+        LEFT JOIN (
+            SELECT
+                a.*, b.code customer_code,
+                c.code folio_code, 
+                TRIM(CONCAT_WS(' ' ,b.title, b.first_name, b.last_name)) customer_name
+            FROM
+                fd_folio_transc_account a
+                LEFT JOIN mst_customer b on a.customer_id = b.id
+                LEFT JOIN fd_guest_folio c on a.folio_id = c.id
+        ) e on a.folio_id = e.id
+        LEFT JOIN pos_orders f on a.pos_order_id = f.id
+        LEFT JOIN acc_ar_ccard_batch g on a.ccard_batch_id = g.id
+        LEFT JOIN (
+            SELECT value id, name FROM table_ref WHERE table_name='acc_ar_ccard_journal' AND column_name='status'
+        ) h on h.id = a.status
+        LEFT JOIN (
+            select
+                c.id, c.code, c.customer_id, d.code customer_code, payment_amount,
+                TRIM(CONCAT_WS(' ' ,d.title, d.first_name, d.last_name)) customer_name
+            from
+                fd_guest_payment a
+                left join ref_payment_method b on a.payment_type_id = b.id
+                left join fd_guest_folio c on c.id = a.folio_id
+                left join mst_customer d on d.id = c.customer_id
+            where b.category in ('MST', 'VSA') and payment_status = 0
+        ) i on i.id = a.fo_transc_id
+        /* WHERE a.status = 1 */
     `);
     var qwhere = '';
 
@@ -88,23 +103,38 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
     ).then(function (res) {
         $scope.ls.outlet_types = res.data
     });
-    queryService.get(
-        `select * from fd_folio_transc_account where payment_id in (select id from ref_payment_method where is_credit_card = 'Y')`
-    ).then(function (res) {
+    queryService.get(trim(`
+        select distinct(folio_id), folio_code, customer_name, customer_code
+        from (
+            select
+                a.folio_id,
+                b.code folio_code, c.code customer_code,
+                TRIM(CONCAT_WS(' ' ,c.title, c.first_name, c.last_name)) customer_name
+            from fd_folio_transc_account a
+            left join fd_guest_folio b on a.folio_id = b.id
+            left join mst_customer c on a.customer_id = c.id
+            where 
+                payment_id in (
+                    select id from fd_guest_payment where payment_type_id in (
+                        select id from ref_payment_method where is_credit_card = 'Y'
+                    )
+                )
+        ) d
+    `)).then(function (res) {
         $scope.ls.folios = res.data
     });
-    queryService.get(`
+    queryService.get(trim(`
         select
             c.id, c.code, c.customer_id, d.code customer_code,
-            d.title customer_title, d.title customer_first_name,
-            d.title customer_last_name, payment_amount
+            payment_amount,
+            TRIM(CONCAT_WS(' ' ,d.title, d.first_name, d.last_name)) customer_name
         from
-            fd_guest_payment a
-            left join ref_payment_method b on a.payment_type_id = b.id
-            left join fd_guest_folio c on c.id = a.folio_id
-            left join mst_customer d on d.id = c.customer_id
+        fd_guest_payment a
+        left join ref_payment_method b on a.payment_type_id = b.id
+        left join fd_guest_folio c on c.id = a.folio_id
+        left join mst_customer d on d.id = c.customer_id
         where b.category in ('MST', 'VSA') and payment_status = 0
-    `).then(function (res) {
+    `)).then(function (res) {
         $scope.ls.fo_transactions = res.data
     });
     queryService.get(
@@ -143,7 +173,6 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
     $scope.dtInstance = {}; //Use for reloadData
     $scope.actionsHtml = function (i, type, data, meta) {
         var html = '';
-
         $scope.DATA[i] = data;
         if ($scope.el.length > 0) {
             html = '<div class="btn-group btn-group-xs">';
@@ -154,7 +183,7 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
                     </button>
                 `;
             }
-            if ($scope.el.indexOf('buttonDelete') > -1) {
+            if (data.status != 1 && $scope.el.indexOf('buttonDelete') > -1) {
                 html += `
                     <button class="btn btn-default" title="Delete" ng-click="delete(${i})">
                         <i class="fa fa-trash-o"></i>
@@ -203,23 +232,19 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
         .renderWith(function (i, type, data, prop) {
             return moment(new Date(data.transc_date)).format('YYYY-MM-DD')
         }).withOption('width', '130px'),
-        DTColumnBuilder.newColumn('status').withTitle('Status').withOption('width', '80px'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '80px'),
         DTColumnBuilder.newColumn('outlet_type_name').withTitle('Outlet').withOption('width', '150px'),
         DTColumnBuilder.newColumn('ccard_batch_code').withTitle('CC Batch#').withOption('width', '150px'),
         DTColumnBuilder.newColumn('credit_card_name').withTitle('CC').withOption('width', '150px'),
         DTColumnBuilder.newColumn('card_no').withTitle('Card No.').withOption('width', '150px'),
-        DTColumnBuilder.newColumn('customer_id').withTitle('Guest Name')
-        .renderWith(function (i, type, data, prop) {
-            var {customer_title, customer_first_name, customer_last_name} = data;
-            return [customer_title, customer_first_name, customer_last_name].join(' ')
-        }).withOption('width', '150px'),
+        DTColumnBuilder.newColumn('customer_name').withTitle('Guest Name').withOption('width', '150px'),
         DTColumnBuilder.newColumn('trace_no').withTitle('Trace#').withOption('width', '150px'),
         DTColumnBuilder.newColumn('credit_fee_amount_').withTitle('Fee').withOption('width', '150px'),
         DTColumnBuilder.newColumn('total_amount_').withTitle('Total').withOption('width', '150px'),
         //DTColumnBuilder.newColumn('folio_code').withTitle('Folio#').withOption('width', '150px'),
         //DTColumnBuilder.newColumn('fo_transc_code').withTitle('FO Transaction#').withOption('width', '150px'),
         //DTColumnBuilder.newColumn('pos_order_code').withTitle('Order#').withOption('width', '150px'),
-        DTColumnBuilder.newColumn('remarks').withTitle('Remarks').withOption('width', '100px')
+        DTColumnBuilder.newColumn('remark').withTitle('Remarks').withOption('width', '100px')
     );
 
     var qwhereobj = {
@@ -268,44 +293,71 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
         }
     };
     $scope.submit = function () {
-        var param = Object.assign({}, $scope.data);
-        param.status = 1;
+        var param = {};
+        var date = globalFunction.currentDate(),
+            user = $localStorage.currentUser.name.id;
+        for (var key in $scope.data) {
+            if ($scope.fields.indexOf(key) > -1) {
+                if ($scope.data[key].hasOwnProperty('selected')) {
+                    param[key] = $scope.data[key].selected.id
+                } else {
+                    param[key] = $scope.data[key]
+                }
+            }
+        }
         if (!$scope.data.id) {
-            queryService.post(`select next_document_no('CCB','${moment().format('YYYY/MM')}') code`)
-            .then(function (res) {
-                Object.assign(param, res.data[0]);
-                param.created_date = globalFunction.currentDate();
-                param.created_by = $localStorage.currentUser.name.id;
-                queryService.post('insert into acc_ar_ccard_journal SET ?', param)
-                .then(
-                    function (result) {
-                        $('#form-input').modal('hide');
-                        $scope.dtInstance.reloadData();
-                        $('body').pgNotification({
-                            style: 'flip',
-                            message: 'Success Insert',
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'success'
-                        }).show();
-                        $scope.clear()
+            delete param.id;
+            //
+            param.created_date = date;
+            param.created_by = user;
+            //
+            var sql = `
+                START TRANSACTION;
 
-                    },
-                    function (err) {
-                        $('#form-input').pgNotification({
-                            style: 'flip',
-                            message: 'Error Insert: ' + err.code,
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'danger'
-                        }).show();
-                    }
-                )
-            });
+                SET @code=(select next_document_no('CCB','${moment().format('YYYY/MM')}'));
 
+                INSERT INTO acc_ar_ccard_journal (${
+                    Object.keys(param)
+                }) VALUES (${
+                    Object.keys(param).map(function(a){
+                        var v = param[a] || '';
+                        if (a == 'code') {
+                            return '@code'
+                        }
+                        if (!param[a]) return 'NULL';
+                        return v.constructor == Number ? param[a] : `'${param[a]}'`
+                    })
+                });
+            `;
+            sql += 'COMMIT;';
+            //
+            queryService.post(trim(sql)).then(
+                function (result) {
+                    $('#form-input').modal('hide');
+                    $scope.dtInstance.reloadData();
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Insert',
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
+                    $scope.clear()
+
+                },
+                function (err) {
+                    $('#form-input').pgNotification({
+                        style: 'flip',
+                        message: 'Error Insert: ' + err.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'danger'
+                    }).show();
+                }
+            )
         } else { //exec update
-            param.modified_date = globalFunction.currentDate();
-            param.modified_by = $localStorage.currentUser.name.id;
+            param.modified_date = date;
+            param.modified_by = user;
 
             queryService.post(
                 'update acc_ar_ccard_journal SET ? WHERE id=' + $scope.editing.id, param
@@ -331,21 +383,75 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
     $scope.update = function (key) {
         $('#form-input').modal('show');
         $scope.editing = $scope.DATA[key];
-        queryService.post(qstring + 'AND a.id=' + $scope.editing.id, undefined).then(function (result) {
+        queryService.post(qstring + ' AND a.id=' + $scope.editing.id, undefined).then(function (result) {
             var d = result.data[0];
             $scope.data = Object.assign($scope.data, d);
+            //
             $scope.data.transc_date = moment(new Date(d.transc_date)).format('YYYY-MM-DD');
+            $scope.data.status = {
+                selected: {
+                    id : d.status,
+                    name : d.status_name
+                }
+            };
+            $scope.data.credit_card_id = {
+                selected: {
+                    id : d.credit_card_id,
+                    code : d.credit_card_code,
+                    name : d.credit_card_name,
+                    percent_fee : d.percent_fee
+                }
+            };
+            $scope.data.outlet_type_id = {
+                selected: {
+                    id : d.outlet_type_id,
+                    code : d.outlet_type_code,
+                    name : d.outlet_type_name
+                }
+            };
+            $scope.data.pos_order_id = {
+                selected: {
+                    id : d.pos_order_id,
+                    code : d.pos_order_code
+                }
+            };
+            $scope.data.ccard_batch_id = {
+                selected: {
+                    id : d.ccard_batch_id,
+                    code : d.ccard_batch_code
+                }
+            };
+            $scope.data.folio_id = {
+                selected: {
+                    folio_id : d.folio_id,
+                    folio_code : d.folio_code,
+                    customer_id : d.customer_id,
+                    customer_code : d.customer_code,
+                    customer_name : d.customer_name
+                }
+            };
+            $scope.data.fo_transc_id = {
+                selected: {
+                    id : d.fo_transc_id,
+                    code : d.fo_transc_code,
+                    customer_id : d.fo_transc_customer_id,
+                    customer_code : d.fo_transc_customer_code,
+                    customer_name : d.fo_transc_customer_name,
+                    payment_amount : d.fo_transc_payment_amount
+                }
+            };
+            $scope.onSelectOutlet();
         })
     };
     $scope.delete = function (key) {
         $scope.removing = $scope.DATA[key];
-        queryService.get(trim(qstring + 'AND a.id=' + $scope.removing.id), undefined)
+        queryService.get(trim(qstring + ' AND a.id=' + $scope.removing.id), undefined)
         .then(function (result) {
             $('#modalDelete').modal('show')
         })
     };
     $scope.execDelete = function () {
-        queryService.post('update acc_ar_ccard_journal SET status=\'2\', ' +
+        queryService.post('update acc_ar_ccard_journal SET status=\'1\', ' +
             ' modified_by=' + $localStorage.currentUser.name.id + ', ' +
             ' modified_date=\'' + globalFunction.currentDate() + '\' ' +
             ' WHERE id=' + $scope.removing.id, undefined)
@@ -377,10 +483,21 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
         $scope.data.credit_fee_amount = v ? $scope.data.total_amount * v : 0
     };
     $scope.onSelectCC = function () {
-        var v = ($scope.data.credit_card_id.selected.percent_fee / 100) || 0;
+        var {selected} = $scope.data.credit_card_id;
+        selected = selected || {};
+        selected.percent_fee = selected.percent_fee || 0;
+        var v = (selected.percent_fee / 100) || 0;
         if ($scope.data.total_amount && v) {
             $scope.data.credit_fee_amount = $scope.data.total_amount * v;
+        } else {
+            $scope.data.credit_fee_amount = 0;
         }
+    };
+    $scope.onSelectFoTrans = function () {
+        var {payment_amount} = $scope.data.fo_transc_id.selected;
+        payment_amount = payment_amount || 0;
+        $scope.data.total_amount = payment_amount;
+        $scope.onSelectCC();
     };
     $scope.onSelectOutlet = function () {
         var {code} = $scope.data.outlet_type_id.selected;
@@ -389,10 +506,12 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
             $('#col-order').hide();
             $('#col-folio').show();
             $('#col-fo-trans').show();
+            $('#data_total_amount').attr('disabled', 1);
         } else if (code === 'fb') {
             $('#col-folio').hide();
             $('#col-fo-trans').hide();
             $('#col-order').show();
+            $('#data_total_amount').removeAttr('disabled');
         }
     };
     //

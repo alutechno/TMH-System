@@ -165,7 +165,7 @@
                                             <div class="col-sm-6">
                                                 <div pg-form-group
                                                      class="form-group form-group-default"
-                                                     ng-class="{ 'has-error' : !data.credit_fee_amount }">
+                                                     ng-class="{ 'has-error' : data.credit_fee_amount < 0 }">
                                                     <label>Credit Fee Amount</label>
                                                     <input type="text" format="number"
                                                            class="form-control"
@@ -222,6 +222,26 @@
                                                     </ui-select>
                                                 </div>
                                             </div>
+                                            <div class="col-sm-6" id="col-folio">
+                                                <div pg-form-group
+                                                     class="form-group form-group-default form-group-default-select"
+                                                     ng-class="{ 'has-error' : !data.folio_id.selected }">
+                                                    <label>Folio</label>
+                                                    <ui-select
+                                                        ng-model="data.folio_id.selected"
+                                                        theme="bootstrap">
+                                                        <ui-select-match
+                                                            placeholder="Choose one">
+                                                            {{$select.selected.folio_code}}
+                                                        </ui-select-match>
+                                                        <ui-select-choices
+                                                            repeat="item in ls.folios | filter: $select.search">
+                                                        <span
+                                                            ng-bind-html="trustAsHtml((item.folio_code + ' - ' + item.customer_name | highlight: $select.search))"></span>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </div>
+                                            </div>
                                             <div class="col-sm-6" id="col-order">
                                                 <div pg-form-group
                                                      class="form-group form-group-default form-group-default-select"
@@ -238,26 +258,6 @@
                                                             repeat="item in ls.pos_orders | filter: $select.search">
                                                             <span
                                                                 ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
-                                                        </ui-select-choices>
-                                                    </ui-select>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-6" id="col-folio">
-                                                <div pg-form-group
-                                                     class="form-group form-group-default form-group-default-select"
-                                                     ng-class="{ 'has-error' : !data.folio_id.selected }">
-                                                    <label>Folio</label>
-                                                    <ui-select
-                                                        ng-model="data.folio_id.selected"
-                                                        theme="bootstrap">
-                                                        <ui-select-match
-                                                            placeholder="Choose one">
-                                                            {{$select.selected.code}}
-                                                        </ui-select-match>
-                                                        <ui-select-choices
-                                                            repeat="item in ls.folios | filter: $select.search">
-                                                        <span
-                                                            ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
                                                         </ui-select-choices>
                                                     </ui-select>
                                                 </div>
@@ -290,7 +290,7 @@
                                                      class="form-group form-group-default"
                                                      ng-class="{ 'has-error' : !data.trace_no }">
                                                     <label>Trace No.</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="text" class="form-control"
                                                            name="trace_no" id="data_trace_no"
                                                            ng-model="data.trace_no" ui-jq="popover"
                                                            data-container="body"
@@ -309,6 +309,7 @@
                                                     <label>FO Transaction</label>
                                                     <ui-select
                                                         ng-model="data.fo_transc_id.selected"
+                                                        on-select="onSelectFoTrans()"
                                                         theme="bootstrap">
                                                         <ui-select-match placeholder="Choose one">
                                                             {{$select.selected.code}}
@@ -316,7 +317,7 @@
                                                         <ui-select-choices
                                                             repeat="item in ls.fo_transactions | filter: $select.search">
                                                             <span
-                                                                ng-bind-html="trustAsHtml((item.code | highlight: $select.search))"></span>
+                                                                ng-bind-html="trustAsHtml((item.code + ' - ' + item.customer_name | highlight: $select.search))"></span>
                                                         </ui-select-choices>
                                                     </ui-select>
                                                 </div>
@@ -328,8 +329,8 @@
                                                      class="form-group form-group-default">
                                                     <label>Remarks</label>
                                                     <input type="text" class="form-control"
-                                                           name="remarks" id="data_remarks"
-                                                           ng-model="data.remarks"
+                                                           name="remark" id="data_remark"
+                                                           ng-model="data.remark"
                                                            ui-jq="popover" data-container="body"
                                                            data-placement="top"
                                                            data-trigger="manual"
