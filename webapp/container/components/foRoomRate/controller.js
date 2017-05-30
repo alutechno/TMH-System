@@ -15,6 +15,96 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.child = {}
     $scope.items = []
     $scope.itemsOri = []
+    $scope.mr = false;
+    $scope.selected_pack = {};
+    $scope.avail_pack = [
+        /*{ id:1,name:'satu',description:'desc1',incl_tax:true,charge:100000,bg:'white' },
+        { id:2,name:'dua',description:'desc2',incl_tax:false,charge:100000,bg:'white' },
+        { id:3,name:'tiga',description:'desc3',incl_tax:true,charge:100000,bg:'white' },
+        { id:4,name:'empat',description:'desc4',incl_tax:true,charge:100000,bg:'white' },
+        { id:5,name:'lima',description:'desc5',incl_tax:true,charge:100000,bg:'white' }*/
+    ]
+    $scope.highlight = function(a){
+        for (var i=0;i<$scope.avail_pack.length;i++){
+            if ($scope.avail_pack[i].id == a.id){
+                $scope.avail_pack[i].bg = 'antiquewhite'
+                $scope.selected_pack = $scope.avail_pack[i];
+            }
+            else $scope.avail_pack[i].bg = 'white'
+        }
+        $scope.mr = false
+    }
+
+    $scope.attach_pack = [
+
+    ]
+    $scope.highlightOth = function(a){
+        for (var i=0;i<$scope.attach_pack.length;i++){
+            if ($scope.attach_pack[i].id == a.id){
+                $scope.attach_pack[i].bg = 'antiquewhite'
+                $scope.selected_pack = $scope.attach_pack[i];
+            }
+            else $scope.attach_pack[i].bg = 'white'
+        }
+        $scope.mr = true
+    }
+    $scope.moveRight = function(){
+        if (Object.keys($scope.selected_pack).length>0){
+            $scope.attach_pack.push($scope.selected_pack)
+            for (var i=0;i<$scope.avail_pack.length;i++){
+                if ($scope.avail_pack[i].id == $scope.selected_pack.id){
+                    $scope.avail_pack.splice(i,1)
+                    $scope.selected_pack = {};
+                }
+            }
+            $scope.clearBg();
+        }
+
+    }
+    $scope.moveLeft = function(){
+        if (Object.keys($scope.selected_pack).length>0){
+            $scope.avail_pack.push($scope.selected_pack)
+            for (var i=0;i<$scope.attach_pack.length;i++){
+                if ($scope.attach_pack[i].id == $scope.selected_pack.id){
+                    $scope.attach_pack.splice(i,1)
+                    $scope.selected_pack = {};
+                }
+            }
+            $scope.clearBg();
+        }
+    }
+    $scope.clearBg = function(){
+        for (var i=0;i<$scope.attach_pack.length;i++){
+            $scope.attach_pack[i].bg = 'white'
+        }
+        for (var i=0;i<$scope.avail_pack.length;i++){
+            $scope.avail_pack[i].bg = 'white'
+        }
+    }
+    $scope.setAvail = function(id){
+        var qstr = 'select id,code,name,is_tax_included,flat_rate from mst_package'
+        if (id!=undefined){
+            qstr += ' where id not in(select package_id from mst_room_rate_package where room_rate_id='+id+') '
+        }
+        queryService.get(qstr,undefined)
+        .then(function(data){
+            $scope.avail_pack = data.data
+            $scope.clearBg();
+        })
+    }
+    $scope.setAttach = function(id){
+        var qstr = 'select id,code,name,is_tax_included,flat_rate from mst_package'
+        if (id!=undefined){
+            console.log('sini')
+            qstr += ' where id in(select package_id from mst_room_rate_package where room_rate_id='+id+') '
+        }
+        console.log('setAttach',id,qstr)
+        queryService.get(qstr,undefined)
+        .then(function(data){
+            $scope.attach_pack = data.data
+            $scope.clearBg();
+        })
+    }
 
     var qstring = "select a.id,a.code,a.name,a.description,a.user_display_description,a.status,a.rate_type_id,a.currency_id,"+
         "date_format(a.valid_date_from,'%Y-%m-%d')valid_date_from,date_format(a.valid_date_until,'%Y-%m-%d')valid_date_until, "+
@@ -27,8 +117,9 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         "if(is_room_only_voucher='Y','Yes','No') is_room_only_voucher_name,"+
         "if(is_require_deposit='Y','Yes','No') is_require_deposit_name,"+
         "b.name rate_type_name,c.name currency_name,e.name pension_name,f.status_name, "+
-        "a.room_transc_type_id,g.short_name room_transc_type_name, a.ext_bed_transc_type_id,h.short_name ext_bed_transc_type_name, "+
-        "a.disc_transc_type_id,i.short_name disc_transc_type_name "+
+        "a.room_transc_type_id,g.short_name room_transc_type_name,g.code room_transc_type_code,g.folio_text room_transc_type_folio_text, "+
+        "a.ext_bed_transc_type_id,h.short_name ext_bed_transc_type_name,h.code ext_bed_transc_type_code,h.folio_text ext_bed_transc_type_folio_text, "+
+        "a.disc_transc_type_id,i.short_name disc_transc_type_name,i.code disc_transc_type_code,i.folio_text disc_transc_type_folio_text "+
     "from mst_room_rate a "+
     "left join ref_room_rate_type b on a.rate_type_id = b.id "+
     "left join ref_currency c on a.currency_id = c.id "+
@@ -104,7 +195,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.room_transc_type = []
     $scope.ext_bed_transc_type = []
     $scope.disc_transc_type = []
-    queryService.get('select id,short_name as name from mst_guest_transaction_type where status!=2 order by short_name asc',undefined)
+    queryService.get('select id,short_name as name,code,folio_text from mst_guest_transaction_type where status=1 order by code asc',undefined)
     .then(function(data){
         $scope.room_transc_type = data.data
         $scope.ext_bed_transc_type = data.data
@@ -211,7 +302,12 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         //DTColumnBuilder.newColumn('code').withTitle('Code Ori').notVisible(),
         DTColumnBuilder.newColumn('code').withTitle('Code'),
         DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
-        DTColumnBuilder.newColumn('description').withTitle('Description'),
+        DTColumnBuilder.newColumn('rate_type_name').withTitle('type'),
+        DTColumnBuilder.newColumn('valid_date_from').withTitle('start'),
+        DTColumnBuilder.newColumn('valid_date_until').withTitle('end'),
+        DTColumnBuilder.newColumn('currency_name').withTitle('CUR'),
+        //DTColumnBuilder.newColumn('status_name').withTitle('status'),
+        //DTColumnBuilder.newColumn('description').withTitle('Description'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
 
@@ -223,7 +319,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhereobj.text = ' lower(a.name) like \'%'+$scope.filterVal.search+'%\' '
+                if ($scope.filterVal.search.length>0) qwhereobj.text = ' (lower(a.name) like \'%'+$scope.filterVal.search.toLowerCase()+'%\' or lower(a.code) like \'%'+$scope.filterVal.search.toLowerCase()+'%\' )'
                 else qwhereobj.text = ''
                 qwhere = setWhere()
 
@@ -284,6 +380,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         if (state == 'add'){
             $scope.clear()
         }
+        $scope.setAvail(undefined);
+        $scope.setAttach(0);
         $('#form-input').modal('show')
         $scope.items = []
         queryService.post(qstringdetail+' and b.room_rate_id=0 '+qwheredetail,undefined)
@@ -345,6 +443,22 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
             queryService.post('insert into mst_room_rate SET ?',param)
             .then(function (result){
+                var sqlPackage = [];
+                for (var i=0;i<$scope.attach_pack.length;i++){
+                    sqlPackage.push("insert into mst_room_rate_package(room_rate_id,package_id,valid_date_from,valid_date_until,created_by,created_date)"+
+                    "values("+result.data.insertId+","+$scope.attach_pack[i].id+",'"+$scope.coa.valid_date_from+"','"+$scope.coa.valid_date_until+"',"+$localStorage.currentUser.name.id+",'"+globalFunction.currentDate()+"')")
+                }
+                if (sqlPackage.length>0){
+                    queryService.post(sqlPackage.join(';'),undefined)
+                    .then(function (result3){
+                        console.log('success insert package')
+                    },
+                    function (err3){
+                        console.log('error:'+err3.code)
+                    })
+                }
+
+
                 var sqld = $scope.child.saveTable(result.data.insertId)
                 queryService.post(sqld.join(';'),undefined)
                 .then(function (result3){
@@ -419,6 +533,30 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             console.log(param)
             queryService.post('update mst_room_rate SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
+
+                queryService.post('delete from mst_room_rate_package where room_rate_id='+$scope.coa.id,undefined)
+                .then(function (result2){
+                    console.log('success delete package')
+                    var sqlPackage = [];
+                    for (var i=0;i<$scope.attach_pack.length;i++){
+                        sqlPackage.push("insert into mst_room_rate_package(room_rate_id,package_id,valid_date_from,valid_date_until,created_by,created_date)"+
+                        "values("+$scope.coa.id+","+$scope.attach_pack[i].id+",'"+$scope.coa.valid_date_from+"','"+$scope.coa.valid_date_until+"',"+$localStorage.currentUser.name.id+",'"+globalFunction.currentDate()+"')")
+                    }
+                    if (sqlPackage.length>0){
+                        queryService.post(sqlPackage.join(';'),undefined)
+                        .then(function (result3){
+                            console.log('success insert package')
+                        },
+                        function (err3){
+                            console.log('error:'+err3.code)
+                        })
+                    }
+
+                },
+                function (err2){
+                    console.log('error delete:'+err2.code)
+                })
+
                 var sqld = $scope.child.saveTable($scope.coa.id)
                 queryService.post(sqld.join(';'),undefined)
                 .then(function (result3){
@@ -454,6 +592,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         //$('#coa_code').prop('disabled', true);
 
         // console.log(obj)
+        $scope.setAvail(obj.id)
+        $scope.setAttach(obj.id)
         queryService.post(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
             console.log(result)
@@ -468,9 +608,24 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             $scope.selected.currency.selected = {id: result.data[0].currency_id,name:result.data[0].currency_name}
             $scope.coa.valid_date_from = result.data[0].valid_date_from
             $scope.coa.valid_date_until = result.data[0].valid_date_until
-            $scope.selected.room_transc_type.selected = {id:result.data[0].room_transc_type_id,name:result.data[0].room_transc_type_name}
-            $scope.selected.ext_bed_transc_type.selected = {id:result.data[0].ext_bed_transc_type_id,name:result.data[0].ext_bed_transc_type_name}
-            $scope.selected.disc_transc_type.selected = {id:result.data[0].disc_transc_type_id,name:result.data[0].disc_transc_type_name}
+            $scope.selected.room_transc_type.selected = {
+                id:result.data[0].room_transc_type_id,
+                name:result.data[0].room_transc_type_name,
+                code:result.data[0].room_transc_type_code,
+                folio_text:result.data[0].room_transc_type_folio_text
+            }
+            $scope.selected.ext_bed_transc_type.selected = {
+                id:result.data[0].ext_bed_transc_type_id,
+                name:result.data[0].ext_bed_transc_type_name,
+                code:result.data[0].ext_bed_transc_type_code,
+                folio_text:result.data[0].ext_bed_transc_type_folio_text
+            }
+            $scope.selected.disc_transc_type.selected = {
+                id:result.data[0].disc_transc_type_id,
+                name:result.data[0].disc_transc_type_name,
+                code:result.data[0].disc_transc_type_code,
+                folio_text:result.data[0].disc_transc_type_folio_text
+            }
             //$scope.selected.tax.selected = {id: result.data[0].tax_id,name:result.data[0].tax_name}
             $scope.coa.max_discount_prcn = result.data[0].max_discount_prcn
             $scope.coa.extra_bed_cost = result.data[0].extra_bed_cost
