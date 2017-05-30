@@ -8,6 +8,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
 	$scope.buttonAdjust = false;
+	$scope.close=false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -115,7 +116,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         var html = ''
 		if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
-			if ($scope.el.indexOf('buttonAdjust')>-1){
+			if ($scope.el.indexOf('buttonAdjust')>-1 && full.status!=2){
                 html+='<button class="btn btn-default" title="Adjustment" ng-click="adjust(\'' + data + '\')" >' +
                 '   <i class="fa fa-undo"></i>' +
                 '</button>';
@@ -223,6 +224,30 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 			delete $scope.ie.guest_name;
             queryService.post('insert into acc_ar_invoice set ?',$scope.ie)
             .then(function (result){
+				var qstr = $scope.child.saveTable()
+				if(qstr.length>0){
+					queryService.post(qstr.join(';'),undefined)
+					.then(function (result3){
+						$('#form-input').modal('hide')
+						$scope.dtInstance.reloadData(function(obj){}, false)
+						$('body').pgNotification({
+							style: 'flip',
+							message: 'Success Update '+$scope.ie.code,
+							position: 'top-right',
+							timeout: 2000,
+							type: 'success'
+						}).show();
+					},
+					function (err){
+						$('#form-input').pgNotification({
+		                    style: 'flip',
+		                    message: 'Error Update: '+err.code,
+		                    position: 'top-right',
+		                    timeout: 2000,
+		                    type: 'danger'
+		                }).show();
+					})
+				}else{
 					$('#form-input').modal('hide')
 					$scope.dtInstance.reloadData(function(obj){}, false)
 					$('body').pgNotification({
@@ -232,6 +257,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 						timeout: 2000,
 						type: 'success'
 					}).show();
+				}
 				},function (err){
                 $('#form-input').pgNotification({
                     style: 'flip',
@@ -249,9 +275,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 			$scope.ie.modified_by=$localStorage.currentUser.name.id
 			$scope.ie.customer_id=1;
 			$scope.ie.modified_date=globalFunction.currentDate()
-			console.log($scope.selected.source.selected)
-			console.log($scope.ie)
-            queryService.post('update acc_ar_invoice set ? where id='+$scope.ie.id,$scope.ie)
+			queryService.post('update acc_ar_invoice set ? where id='+$scope.ie.id,$scope.ie)
 			.then(function (result2){
 				var qstr = $scope.child.saveTable()
 				if(qstr.length>0){
@@ -290,6 +314,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 		}
 	}
 	$scope.update = function(obj){
+		$scope.clear();
 		$scope.buttonUpdate = true;
 		queryService.post(qstring+ ' and a.id='+obj,undefined)
         .then(function(result){
@@ -308,6 +333,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 id: result.data[0].status,
                 name: result.data[0].status_name
             }
+			if(result.data[0].status==2)
+				$scope.close=true;
 			if(result.data[0].status==0){
 				$scope.status=[$scope.status_all[0],$scope.status_all[1]]
 			}else if(result.data[0].status==1){
@@ -371,6 +398,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                         {
                             id:(i+1),
                             p_id: d[i].id,
+							notes: d[i].notes,
                             account_id:d[i].account_id,
                             account_code:d[i].account_code,
                             account_name: d[i].account_name,
@@ -397,6 +425,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         })
 	}
 	$scope.adjust = function(obj){
+		$scope.clear()
 		$scope.buttonAdjust = true;
 		queryService.post(qstring+ ' and a.id='+obj,undefined)
         .then(function(result){
@@ -405,16 +434,27 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 			$scope.ie=result.data[0]
 			$scope.ie.open_date=$scope.ie.open_date2
 			$scope.ie.due_date=$scope.ie.due_date2
-
+			$scope.orig_home=parseFloat($scope.ie.home_total_amount)
+			$scope.orig_total=parseFloat($scope.ie.total_amount)
+			$scope.adjust_home=parseFloat($scope.ie.home_adjust_amount)
+			$scope.adjust_total=parseFloat($scope.ie.adjust_amount)
 			$scope.selected.source['selected']= {
                 id: result.data[0].source_type,
                 name: result.data[0].source_type,
 				value: result.data[0].source_type
             }
+
 			$scope.selected.status['selected']= {
                 id: result.data[0].status,
                 name: result.data[0].status_name
             }
+			if(result.data[0].status==0){
+				$scope.status=[$scope.status_all[0],$scope.status_all[1]]
+			}else if(result.data[0].status==1){
+				$scope.status=[$scope.status_all[1],$scope.status_all[2]]
+			}else{
+				$scope.status=[$scope.status_all[2]]
+			}
 			$scope.selected.currency['selected']= {
                 currency_id: result.data[0].used_currency_id,
 				exchange:result.data[0].currency_exchange,
@@ -424,7 +464,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 id: result.data[0].folio_id,
                 value: result.data[0].folio_id
             }
-
 			$scope.guest={
 				room_no:result.data[0].room_no,
 				arrival_date:result.data[0].arrival_date,
@@ -471,6 +510,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                         {
                             id:(i+1),
                             p_id: d[i].id,
+							notes: d[i].notes,
                             account_id:d[i].account_id,
                             account_code:d[i].account_code,
                             account_name: d[i].account_name,
@@ -548,6 +588,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 			folio:{},
 			currency:{}
 		}
+		$scope.items = []
+		$scope.guest={}
+		$scope.close=false;
     }
 	$scope.trustAsHtml = function(value) {
 		return $sce.trustAsHtml(value.toString());
@@ -560,6 +603,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         account_name: '',
         debit: '',
         credit: ''
+    };
+	$scope.filterUser = function(user) {
+        return user.isDeleted !== true;
     };
 	$scope.deleteUser = function(id) {
         var filtered = $filter('filter')($scope.items, {id: id});
@@ -608,50 +654,66 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         var results = [];
         var sqlitem = []
 		sqlitem.push('START TRANSACTION')
-		if($scope.gl_id==undefined){
+		if($scope.gl_id==undefined && $scope.items.length>0){
 			sqlitem.push('insert into acc_gl_transaction(code,journal_type_id,ar_invoice_id,gl_status,notes)'+
 				' values (\''+$scope.ie.code+'\', 1, '+$scope.ie.id+', \'0\', \''+$scope.ie.notes+'\') ')
 			sqlitem.push('set @id=(select last_insert_id())')
 		}
 		for (var i = $scope.items.length; i--;) {
+
             var user = $scope.items[i];
+			user.notes=user.notes==undefined?'':user.notes
 			if (user.isNew && !user.isDeleted){
 				if($scope.gl_id==undefined){
 					if (user.debit>0){
-	                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values'+
-						'(@id,'+user.account_id+',\'D\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+	                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date,notes) values'+
+						'(@id,'+user.account_id+',\'D\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.notes+'")')
 	                }
 	                else if (user.credit>0){
-	                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values'+
-						'(@id,'+user.account_id+',\'C\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+	                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date,notes) values'+
+						'(@id,'+user.account_id+',\'C\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.notes+'")')
 	                }
 				}else{
 					if (user.debit>0){
-						sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
-						$scope.gl_id+','+user.account_id+',\'D\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+						sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date,notes) values('+
+						$scope.gl_id+','+user.account_id+',\'D\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.notes+'")')
 					}
 					else if (user.credit>0){
-						sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
-						$scope.gl_id+','+user.account_id+',\'C\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+						sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date,notes) values('+
+						$scope.gl_id+','+user.account_id+',\'C\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.notes+'")')
 					}
 				}
             }
             else if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from acc_gl_journal where id='+user.p_id)
             }
-            /*else if(!user.isNew){
 
-                for (var j=0;j<$scope.itemsOri.length;j++){
-                    if ($scope.itemsOri[j].p_id==user.p_id){
-                        var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].request_qty+$scope.itemsOri[j].issued_qty_n+$scope.itemsOri[j].item_notes
-                        var d2 = user.p_id+user.product_id+user.request_qty+user.issued_qty_n+user.item_notes
-                        if(d1 != d2){
-							var sql1 = 'update acc_ar_receipt_line_item set '
-							sqlitem.push(sql1)
-						}
-					}
+            else if(!user.isNew){
+				if (user.debit>0){
+				sqlitem.push(`update acc_gl_journal set gl_id=`+$scope.gl_id+
+					`,account_id=`+user.account_id+
+					`,notes='`+user.notes+`'
+					,transc_type='D',amount=`+user.debit+` where id=`+user.p_id)
+				}else if (user.credit>0){
+					sqlitem.push(`update acc_gl_journal set gl_id=`+$scope.gl_id+
+						`,account_id=`+user.account_id+
+						`,notes='`+user.notes+`'
+						,transc_type='C',amount=`+user.credit+` where id=`+user.p_id)
 				}
-			}*/
+			}
+		}
+		if($scope.buttonAdjust==true && ($scope.adjust_home!=parseFloat($scope.ie.home_adjust_amount) || $scope.adjust_total!=parseFloat($scope.ie.adjust_amount))){
+			for (var i =0;i< $scope.items.length&&i<2; i++) {
+				var user = $scope.items[i];
+				if (user.debit>0){
+					sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date,notes) values('+
+					$scope.gl_id+','+user.account_id+',\'D\','+($scope.ie.adjust_amount-$scope.orig_total)+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"Adjustment")')
+				}
+				else if (user.credit>0){
+					sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date,notes) values('+
+					$scope.gl_id+','+user.account_id+',\'C\','+($scope.ie.adjust_amount-$scope.orig_total)+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"Adjustment")')
+				}
+			}
 		}
 		sqlitem.push('COMMIT')
 		return sqlitem
@@ -675,6 +737,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             $scope.totalcredit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
         }
     }
+	$scope.updateNotes = function(e,d,p){
+		$scope.items[d-1].notes = p
+	}
 	$scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
     }

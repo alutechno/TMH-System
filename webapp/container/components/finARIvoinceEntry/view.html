@@ -250,14 +250,14 @@
 				<div class="col-sm-3">
 					<div pg-form-group class="form-group form-group-default">
 						<label>Total</label>
-						<input type="text" class="form-control" name="name" format="number" ng-model="ie.home_total_amount" ui-jq="popover" ng-disabled="selected.currency.selected.currency_id==1" data-container="body" data-placement="top"
+						<input type="text" class="form-control" name="name" format="number" ng-model="ie.home_total_amount" ui-jq="popover" ng-disabled="selected.currency.selected.currency_id==1||buttonAdjust==true" data-container="body" data-placement="top"
 						ng-change="ie.home_current_due_amount=ie.home_total_amount;ie.home_total_due_amount=ie.home_total_amount;ie.total_amount=ie.home_total_amount*ie.currency_exchange;ie.current_due_amount=ie.total_amount;ie.total_due_amount=ie.total_amount">
 					</div>
 				</div>
 				<div class="col-sm-3">
 					<div pg-form-group class="form-group form-group-default">
 						<label>Total</label>
-						<input type="text" class="form-control" name="name" format="number" ng-model="ie.total_amount" ui-jq="popover" ng-disabled="selected.currency.selected.currency_id!=1" data-container="body" data-placement="top"
+						<input type="text" class="form-control" name="name" format="number" ng-model="ie.total_amount" ui-jq="popover" ng-disabled="selected.currency.selected.currency_id!=1||buttonAdjust==true" data-container="body" data-placement="top"
 						ng-change="ie.current_due_amount=ie.total_amount;ie.total_due_amount=ie.total_amount">
 					</div>
 				</div>
@@ -303,13 +303,15 @@
 				 <div class="col-sm-3">
  					<div pg-form-group class="form-group form-group-default">
  						<label>Adjustment</label>
- 						<input type="text" class="form-control" format="number" name="name" ng-model="ie.home_adjust_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+ 						<input type="text" class="form-control" format="number" name="name" ng-model="ie.home_adjust_amount" ui-jq="popover" data-container="body" data-placement="top" ng-disabled="selected.currency.selected.currency_id==1 || buttonAdjust==false"
+						ng-change="ie.adjust_amount=ie.home_adjust_amount*ie.currency_exchange;ie.home_total_amount=ie.home_adjust_amount;ie.home_current_due_amount=ie.home_total_amount;ie.home_total_due_amount=ie.home_total_amount;ie.total_amount=ie.home_total_amount*ie.currency_exchange;ie.current_due_amount=ie.total_amount;ie.total_due_amount=ie.total_amount">
  					</div>
  				</div>
  				<div class="col-sm-3">
  					<div pg-form-group class="form-group form-group-default">
  						<label>Adjustment</label>
- 						<input type="text" class="form-control" format="number" name="name" ng-model="ie.adjust_amount" ui-jq="popover" data-container="body" data-placement="top" ng-readonly="true">
+ 						<input type="text" class="form-control" format="number" name="name" ng-model="ie.adjust_amount" ui-jq="popover" data-container="body" data-placement="top" ng-disabled="selected.currency.selected.currency_id!=1 || buttonAdjust==false"
+						ng-change="ie.total_amount=ie.adjust_amount;ie.current_due_amount=ie.total_amount;ie.total_due_amount=ie.total_amount">
  					</div>
  				</div>
 			 </div>
@@ -406,23 +408,24 @@
                 </div>
               </div>
 
-              <div ng-controller="EditableTableSrCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()" ng-show="selected.status.selected.id==1">
+              <div ng-controller="EditableTableSrCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()">
                                     <!-- table -->
                                     <table class="table  table-hover itemtable">
                                         <thead>
                                         <tr>
                                             <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
                                             <th width="20%">Account ID</th>
-                                            <th width="40%">Account Name</th>
-                                            <th width="15%">Debit</th>
-                                            <th width="15%">Credit</th>
+                                            <th width="20%">Account Name</th>
+											<th width="20%">Notes</th>
+                                            <th width="10%">Debit</th>
+                                            <th width="10%">Credit</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         <tr ng-repeat="item in items | filter:filterUser">
                                             <td style="vertical-align: middle;">
                                                 <div class="btn-group btn-group-xs" ng-show="tableform.$visible">
-                                                    <button type="button" class="btn btn-default" title="Delete" ng-click="deleteUser(item.id)" ><i class="fa fa-trash-o"></i></button>
+                                                    <button type="button" class="btn btn-default" title="Delete" ng-click="deleteUser(item.id)" ng-show="selected.status.selected.id==0"><i class="fa fa-trash-o"></i></button>
                                                 </div>
                                             </td>
                                             <td >
@@ -443,6 +446,11 @@
                                                 </span>
                                             </td>
                                             <td><span>{{item.account_name}}</span></td>
+											<td style="text-align: left;vertical-align: middle;">
+			                                    <span editable-textarea="item.notes" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updateNotes($event,item.id,$data)">
+			                                        {{ item.notes }}
+			                                    </span>
+			                                </td>
                                             <td >
                                                 <span editable-text="item.debit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')">
                                                     {{ item.debit }}
@@ -457,6 +465,7 @@
                                         <tr ng-show="items.length>0">
                                             <td>&nbsp;</td>
                                             <td>&nbsp;</td>
+											<td>&nbsp;</td>
                                             <td>Total</td>
                                             <td><span>{{totaldebit}}</span></td>
                                             <td><span>{{totalcredit}}</span></td>
@@ -465,7 +474,7 @@
                                     </table>
                                     <!-- buttons -->
                                     <div class="btn-edit">
-                                      <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()">
+                                      <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-disabled="close==true" ng-click="tableform.$show()">
                                         Modify Item List
                                       </button>
                                     </div>
@@ -477,7 +486,7 @@
               </div>
               <br>
               <div class="clearfix"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid || close==true" ng-click="submit()" >Save</button>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalidadjustState" ng-click="saveAdjustment()" ng-show="adjustState" >Save Adjustment</button>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="releaseAdjustment()" ng-show="adjustState">Release Adjustment</button>
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
