@@ -1565,7 +1565,7 @@
                               </div>
                               <div class="row clearfix">
                                   <h5>Additional Folio</h5>
-                                  <table class="table  table-hover">
+                                  <table class="table  table-condensed">
                                       <thead>
                                       <tr>
 
@@ -1580,24 +1580,24 @@
                                       </thead>
 
                                       <tbody>
-                                      <!--<tr ng-repeat="item in items | filter:filterUser">
-                                          <td >{{item.product_name}}
-                                          </td>
-                                          <td style="text-align: right;">
-                                              {{ item.qty | number : fractionSize }}
-                                          </td>
-                                          <td style="text-align: right;">
-                                              {{ item.price | number : fractionSize }}
-
-                                          </td>
-                                          <td style="text-align: right;">
-                                              {{ item.amount | number : fractionSize }}
-                                          </td>
+                                      <tr ng-repeat="item in direction.listAdditional">
                                           <td >
-                                              {{item.supplier_name}}
+                                              <div class="btn-group btn-group-xs">
+                                                  <button class="btn btn-default" title="Show" ng-click="direction.action.showDetail(item)">
+                                                      <i class="fa fa-edit"></i>
+                                                  </button>
+                                              </div>
                                           </td>
-                                      </tr>-->
-                                        <tr>
+                                          <td >{{item.id}}</td>
+                                          <td >{{item.customer_name}} [{{item.stat}}]</td>
+                                          <td >{{item.share}}</td>
+                                          <td >{{item.status}}</td>
+                                          <td >{{item.balance}}</td>
+                                          <td >{{item.check_in_date}}</td>
+                                          <td >{{item.check_out_date}}</td>
+
+                                      </tr>
+                                        <!--<tr>
                                             <td>12345</td>
                                             <td>namaku</td>
                                             <td>0</td>
@@ -1606,7 +1606,7 @@
                                             <td>12000</td>
                                             <td>13000</td>
 
-                                        </tr>
+                                        </tr>-->
                                       </tbody>
                                       <tfooter >
                                           <tr>
@@ -1614,7 +1614,7 @@
                                               <th width="25%">&nbsp;</th>
                                               <th width="10%">&nbsp;</th>
                                               <th width="10%">&nbsp;</th>
-                                              <th width="10%">1230000</th>
+                                              <th width="10%">0</th>
                                               <th width="10%">&nbsp;</th>
                                               <th width="10%">&nbsp;</th>
                                           </tr>
@@ -1622,7 +1622,7 @@
                                   </table>
 
                               </div>
-                              <div class="row clearfix">
+                              <div class="row clearfix" ng-show="direction.stat == 'update'">
                                   <div class="col-sm-6">
                                       <div class="row">
                                           <div class="col-sm-6">
@@ -1648,42 +1648,48 @@
 
                                   </div>
                                   <div class="col-sm-6">
+                                      <div class="row clearfix">
+                                          <div class="col-sm-6">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Category</label>
+                                                  <ui-select ng-model="direction.form.gf.selected.trans_type" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in account.form.trans_type | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-4">
+                                              <button class="btn btn-primary" type="submit" ng-click="direction.action.addCategory()" >Add</button>
+                                          </div>
+                                      </div>
                                       <h5>Directed Transaction Code</h5>
-                                      <table class="table  table-hover">
+                                      <table class="table  table-condensed">
                                           <thead>
-                                          <tr>
+                                              <tr >
+                                                  <th width="10%">Act</th>
+                                                  <th width="25%">Code</th>
+                                                  <th width="40%">Name</th>
+                                                  <th width="35%">Class</th>
 
-                                              <th width="25%">Code</th>
-                                              <th width="40%">Name</th>
-                                              <th width="35%">Class</th>
-
-                                          </tr>
+                                              </tr>
                                           </thead>
 
                                           <tbody>
-                                          <!--<tr ng-repeat="item in items | filter:filterUser">
-                                              <td >{{item.product_name}}
-                                              </td>
-                                              <td style="text-align: right;">
-                                                  {{ item.qty | number : fractionSize }}
-                                              </td>
-                                              <td style="text-align: right;">
-                                                  {{ item.price | number : fractionSize }}
+                                              <tr ng-repeat="item in direction.listTrans">
+                                                  <td >
+                                                      <div class="btn-group btn-group-xs">
+                                                          <button class="btn btn-default" title="Show" ng-click="direction.action.deleteCategory(item.id)">
+                                                              <i class="fa fa-trash-o"></i>
+                                                          </button>
+                                                      </div>
+                                                  </td>
+                                                  <td >{{item.trans_code}}</td>
+                                                  <td >{{item.trans_name}}</td>
+                                                  <td >{{item.class_name}}</td>
+                                              </tr>
 
-                                              </td>
-                                              <td style="text-align: right;">
-                                                  {{ item.amount | number : fractionSize }}
-                                              </td>
-                                              <td >
-                                                  {{item.supplier_name}}
-                                              </td>
-                                          </tr>-->
-                                            <tr>
-                                                <td>C123</td>
-                                                <td>Breeze</td>
-                                                <td>BClass</td>
-
-                                            </tr>
                                           </tbody>
 
                                       </table>
@@ -1692,7 +1698,8 @@
 
 
                               </div>
-                              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit('additional')" >Save</button>
+                              <!--<button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit('additional')" >Save</button>-->
+                              <button class="btn btn-primary" type="submit" ng-click="direction.action.addAdditional()" >Additional</button>
 
                           </div>
                       </div>

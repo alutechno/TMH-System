@@ -941,12 +941,14 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
             queryService.post("select id,code,cust_id,term,date_format(due_date,'%Y-%m-%d')due_date,status,deposit_amount,payment_amount,closing_amount,paid_date,created_date,created_by "+
                 " from fd_guest_deposit where cust_id= "+result.data[0].customer_id,undefined)
             .then(function(data){
+                if (data.data.length>0)
                 $scope.deposit.form.gf = {
                     due_date: data.data[0].due_date,
                     term: data.data[0].term,
                     deposit_amount: data.data[0].deposit_amount
                 }
             })
+            $scope.direction.action.listAdditional()
 
         })
     }
@@ -994,7 +996,8 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         })
     }
     $scope.buildTrans = function(ids){
-        var insTrans = "select (a.num_of_stays *a.room_rate_amount*(c.percentage/100)) amount, "+
+        var insTrans = "insert into fd_folio_transc_account(transc_charge,folio_id,transc_remarks,debit,credit,customer_id,transc_type_id,transc_code) "+
+        "select (a.num_of_stays *a.room_rate_amount*(c.percentage/100)) amount, "+
         "	a.id folio_id,concat(c.folio_text,'(',c.percentage,'%)') folio_text, "+
         "	if(c.transc_type='D',(a.num_of_stays *a.room_rate_amount*(c.percentage/100)),0)debit, "+
         "    if(c.transc_type='C',(a.num_of_stays *a.room_rate_amount*(c.percentage/100)),0)credit, "+
@@ -1009,7 +1012,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         "where a.room_rate_id = b.id  "+
         "and b.room_transc_type_id = c.id "+
         "and a.id= "+ids+
-        "union "+
+        " union "+
         "select sum(amount*-1),folio_id,'Deduct Room for Tax ' folio_text,sum(debit*-1),sum(credit*-1),customer_id,fid,fcode "+
         "from (select (a.num_of_stays *a.room_rate_amount*(c.percentage/100)) amount, "+
         "	a.id folio_id,c.short_name,c.id fid,c.code fcode, "+
@@ -1025,7 +1028,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         "	left join mst_guest_transaction_type d on c.transc_type_id = d.id) c "+
         "where a.room_rate_id = b.id  "+
         "and a.id= "+ids+
-        "and b.room_transc_type_id = c.id)a "+
+        " and b.room_transc_type_id = c.id)a "+
         "group by folio_id,short_name,customer_id,fid,fcode "+
         "union "+
         "select (a.num_of_extra_bed * a.extra_bed_charge_amount) amount,a.id folio_id,c.folio_text , "+
@@ -1037,7 +1040,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         "where a.room_rate_id = b.id  "+
         "and b.ext_bed_transc_type_id = c.id "+
         "and a.id="+ids+
-        "union "+
+        " union "+
         "select (a.num_of_stays* if(a.discount_percent>0,(a.discount_percent/100*a.room_rate_amount),(a.room_rate_amount-a.discount_amount))) amount,a.id folio_id,c.folio_text , "+
         "	if(c.transc_type='D',-1*(a.num_of_stays* if(a.discount_percent>0,(a.discount_percent/100*a.room_rate_amount),(a.room_rate_amount-a.discount_amount))),0)debit, "+
         "    if(c.transc_type='C',(a.num_of_stays* if(a.discount_percent>0,(a.discount_percent/100*a.room_rate_amount),(a.room_rate_amount-a.discount_amount))),0)credit, "+
@@ -1047,7 +1050,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         "where a.room_rate_id = b.id  "+
         "and b.disc_transc_type_id = c.id "+
         "and a.id="+ids+
-        "union  "+
+        " union  "+
         "select (a.num_of_stays * e.flat_rate) amount,a.id folio_id,c.folio_text, "+
         "	if(c.transc_type='D',(a.num_of_stays * e.flat_rate),0)debit, "+
         "    if(c.transc_type='C',(a.num_of_stays * e.flat_rate),0)credit, "+
@@ -1059,7 +1062,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         "and d.package_id = e.id "+
         "and b.id = d.room_rate_id "+
         "and a.id="+ids+
-        "union "+
+        " union "+
         "select (a.num_of_stays * e.flat_rate*(c.percentage/100)) amount, "+
         "	a.id folio_id,concat(c.folio_text,'(',c.percentage,'%)') folio_text, "+
         "	if(c.transc_type='D',(a.num_of_stays *e.flat_rate*(c.percentage/100)),0)debit, "+
@@ -1077,7 +1080,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         "and d.package_id = e.id "+
         "and b.id = d.room_rate_id "+
         "and a.id="+ids+
-        "union "+
+        " union "+
         "select sum(a.num_of_stays * e.flat_rate*(c.percentage/100)) amount,a.id folio_id,c.short_name folio_text, "+
         "	sum(if(c.transc_type='D',(a.num_of_stays *e.flat_rate*(c.percentage/100)),0))debit, "+
         "    sum(if(c.transc_type='C',(a.num_of_stays *e.flat_rate*(c.percentage/100)),0))credit, "+
@@ -1094,13 +1097,14 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         "and d.package_id = e.id "+
         "and b.id = d.room_rate_id "+
         "and a.id="+ids+
-        "group by a.id,c.short_name,c.id,a.customer_id" ;
+        " group by a.id,c.short_name,c.id,a.customer_id" ;
 
+console.log('buildTrans',insTrans)
         queryService.post(insTrans,undefined)
         .then(function(data){
             console.log('success insert')
         }, function(err){
-            console.log('error insert:'+err)
+            console.log('error insert:'+JSON.stringify(err))
         })
 
     }
@@ -1465,6 +1469,7 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     queryService.get('select value as id,name from table_ref where table_name = \'fd_guest_folio\' and column_name=\'reservation_status\' and value in(0,1,2,3) order by name asc',undefined)
     .then(function(data){
         $scope.profile.form.reservation_status = data.data
+        $scope.profile.form.selected.reservation_status.selected = data.data[0]
     })
     $scope.profile.form.member = []
     //???UNK
@@ -2285,8 +2290,126 @@ function($scope, $state, $sce, $q,queryService, departmentService, accountTypeSe
 })
 .controller('FoReservationDirectionsCtrl',
 function($scope, $state, $sce, queryService, $q,departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+    $scope.direction.listAdditional = [];
+    $scope.direction.listTrans = [];
+    $scope.direction.stat = null;
+    $scope.direction.action.listAdditional = function(){
+        queryService.post("select a.id,a.included_folio_id,concat(c.first_name,' ',c.last_name) customer_name,if(b.folio_type=0,'A','M') stat,if(b.folio_type=0,'Additional','Master') share, "+
+        	" '' status,'' balance, "+
+        	" date_format(b.check_in_date,'%Y-%m-%d')check_in_date,date_format(b.check_out_date,'%Y-%m-%d')check_out_date "+
+        " from fd_included_folio a,fd_guest_folio b,mst_customer c "+
+        " where a.included_folio_id = b.id "+
+        " and b.customer_id = c.id "+
+        " and a.folio_id = "+$scope.profile.form.gf.id,undefined)
+        .then(function (result){
+            $scope.direction.listAdditional = result.data;
+        },
+        function (err){
+            console.log('errorListing',err)
+        })
+    }
+    $scope.direction.action.listTrans = function(id){
+        queryService.post("select a.id,a.transc_type_id,c.code trans_code,c.short_name trans_name,d.name class_name "+
+            "from fd_folio_directed_transaction a, fd_guest_folio b, mst_guest_transaction_type c, ref_guest_transaction_class d "+
+            "where a.folio_id = b.id "+
+            "and a.transc_type_id = c.id "+
+            "and c.transc_class_id = d.id and a.folio_id="+id,undefined)
+        .then(function (result){
+            $scope.direction.listTrans = result.data;
+        },
+        function (err){
+            console.log('errorListing',err)
+        })
+
+    }
+    $scope.direction.action.showDetail = function(obj){
+        console.log(obj)
+        $scope.direction.stat = 'update';
+        $scope.direction.form.gf.included_folio_id = obj.included_folio_id;
+        $scope.direction.action.listTrans($scope.direction.form.gf.included_folio_id);
+    }
+    $scope.direction.action.addCategory =function(){
+        console.log($scope.direction.form.gf.selected.trans_type)
+        var param = {
+            folio_id:$scope.direction.form.gf.included_folio_id,
+            transc_type_id:$scope.direction.form.gf.selected.trans_type.id,
+            created_date: globalFunction.currentDate(),
+            created_by: $localStorage.currentUser.name.id
+        }
+        queryService.post("insert into fd_folio_directed_transaction SET ?",param)
+        .then(function (result){
+            $scope.direction.action.listTrans($scope.direction.form.gf.included_folio_id);
+        },
+        function (err){
+            console.log('errorListing',err)
+        })
+    }
+    $scope.direction.action.deleteCategory =function(id){
+        queryService.post("delete from fd_folio_directed_transaction where id="+id,undefined)
+        .then(function (result){
+            $scope.direction.action.listTrans($scope.direction.form.gf.included_folio_id);
+        },
+        function (err){
+            console.log('errorListing',err)
+        })
+    }
+    $scope.direction.action.addAdditional = function(){
+        //insert ke fd_guest_folio type 0
+        //insert ke fd_included_folio hasil insert ke fd_guest_folio
+        var param = {
+            folio_type: 0,
+            customer_id: $scope.profile.form.gf.customer_id,
+            arrival_date: $scope.profile.form.gf.arrival_date,
+            created_date: globalFunction.currentDate(),
+            created_by: $localStorage.currentUser.name.id
+        }
+        queryService.post('insert into fd_guest_folio SET ?',param)
+        .then(function (result){
+            console.log('success',result.data.insertId)
+            var param2 = {
+                folio_id:$scope.profile.form.gf.id,
+                included_folio_id:result.data.insertId,
+                created_date: globalFunction.currentDate(),
+                created_by: $localStorage.currentUser.name.id
+            }
+            queryService.post('insert into fd_included_folio SET ?',param2)
+            .then(function (result2){
+                console.log('success2',result2.data.insertId)
+                $scope.direction.action.listAdditional()
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Success Add Additional Folio',
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+
+            },
+            function (err2){
+                console.log('error2',err2);
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Add Additional Folio:'+err2.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'error'
+                }).show();
+            })
+        },
+        function (err){
+            console.log('error',err);
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Add Additional Folio:'+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'error'
+            }).show();
+        })
+    }
     $scope.direction.form.gf = {
         folio_id: '',
+        included_folio_id: '',
         transfer_folio_id: '',
         internet_code_status: '',
         pay_tv_status: '',
@@ -2307,9 +2430,11 @@ function($scope, $state, $sce, queryService, $q,departmentService, accountTypeSe
         is_sick_guest: '0',
         is_handicap_guest: '0',
         is_reject_for_cleaning: '0',
-        is_door_double_lock: '0'
+        is_door_double_lock: '0',
+        selected:{trans_type:{}}
 
     }
+
     $scope.additional.form.selected = {
         newspaper: {},
         pay_tv: {},
@@ -2517,7 +2642,7 @@ function($scope, $window, $state, $sce, queryService, $q,departmentService, acco
         $scope.account.form.payment_method = data.data
     })
     $scope.account.form.trans_type = []
-    queryService.get('select id,short_name name,code from mst_guest_transaction_type where status=1 order by id  ',undefined)
+    queryService.get('select a.id,a.short_name name,a.code,b.name class_name from mst_guest_transaction_type a,ref_guest_transaction_class b where a.transc_class_id=b.id and a.status=1 order by id  ',undefined)
     .then(function(data){
         $scope.account.form.trans_type = data.data
     })

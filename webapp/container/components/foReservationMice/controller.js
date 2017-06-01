@@ -36,6 +36,14 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
         form: {},
         action: {}
     }
+    $scope.deposit = {
+        form: {},
+        action: {}
+    }
+    $scope.blocking = {
+        form: {},
+        action: {}
+    }
     var qstringOri = "select a.id, a.code, date_format(a.arrival_date,'%Y-%m-%d')arrival_date, date_format(a.departure_date,'%Y-%m-%d')departure_date, "+
         "a.num_of_nights_stay, a.reservation_status, date_format(a.drop_date,'%Y-%m-%d')drop_date, "+
     	"a.num_of_room_nights, a.num_of_picked_up, a.num_of_pax, a.num_of_child, a.revenue_amount, a.discount_amount,  "+
@@ -579,9 +587,8 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
             $scope.remark.form.gf.remarks_pickup = result.data[0].pickup_remarks;
 
             $scope.member.form.getMember(result.data[0].id);
-
-
-
+            $scope.deposit.action.listDeposit();
+            $scope.blocking.action.listBlocking();
 
         })
     }
@@ -1269,136 +1276,166 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
 })
 .controller('FoReservationBlockingCtrl',
 function($scope, $state, $sce, queryService, $q,departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
-    $scope.additional.form.gf = {
-        folio_id: '',
-        transfer_folio_id: '',
-        internet_code_status: '',
-        pay_tv_status: '',
-        deposit_box_id: '',
-        deposit_box_notes: '',
-        newspaper_id: '',
-        car_no: '',
-        total_car: '',
-        amenities_notes: '',
-        fruit_notes: '',
-        is_closed_transc: '0',
-        is_cash_transc_only: '0',
-        is_incognito: '0',
-        is_sleep_out: '0',
-        is_lock_minibar: '0',
-        is_block_phone: '0',
-        is_no_alcohol_in_pos: '0',
-        is_sick_guest: '0',
-        is_handicap_guest: '0',
-        is_reject_for_cleaning: '0',
-        is_door_double_lock: '0'
+    $scope.blocking.form.gf = {
+        selected: {
+            date: {},
+            room_type: {}
+        },
+        num_of_blocking_room: 0,
+        num_of_picked_up: 0
 
     }
-    $scope.additional.form.selected = {
-        newspaper: {},
-        pay_tv: {},
-        internet_code: {}
+    $scope.blocking.date = [];
+    $scope.blocking.stat = null;
+    $scope.blocking.listBlocking = [];
+    $scope.blocking.action.addBlocking = function(){
+        var param = {
+            company_id: $scope.profile.form.selected.company['selected'].id,
+            mice_id: $scope.profile.form.gf.id,
+            blocking_date:$scope.blocking.form.gf.selected.date['name'],
+            room_type_id:$scope.blocking.form.gf.selected.room_type['id'],
+            num_of_blocking_room:$scope.blocking.form.gf.num_of_blocking_room,
+            num_of_picked_up_room:$scope.blocking.form.gf.num_of_picked_up
+        }
+        var sqlrmk = []
+        sqlrmk.push('insert into fd_mice_room_blocking(company_id,mice_id,blocking_date,room_type_id,num_of_blocking_room,num_of_picked_up_room,created_date,created_by) '+
+            ' values('+$scope.profile.form.selected.company['selected'].id+','+$scope.profile.form.gf.id+',\''+$scope.blocking.form.gf.selected.date['name']+'\','+
+            $scope.blocking.form.gf.selected.room_type['id']+ ',' + $scope.blocking.form.gf.num_of_blocking_room + ',' + $scope.blocking.form.gf.num_of_picked_up + ','+
+            ' \''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+') '+
+            ' ON DUPLICATE KEY UPDATE num_of_blocking_room='+$scope.blocking.form.gf.num_of_blocking_room+',num_of_picked_up_room='+$scope.blocking.form.gf.num_of_picked_up+
+            ',modified_date=\''+globalFunction.currentDate()+'\',modified_by='+$localStorage.currentUser.name.id+' '
+        )
+        queryService.post(sqlrmk.join(';'),undefined)
+        .then(function (result){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Success Process Blocking',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.blocking.action.listBlocking();
+            $scope.blocking.stat = null;
+        },
+        function (err){
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Process Blocking: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
     }
-    $scope.additional.form.internetCode = [
-        {id:'1',name: 'Blocked'},
-        {id:'2',name: 'Pre Paid'},
-        {id:'3',name: 'Post Paid'}
-    ]
-    $scope.additional.form.payTv = [
-        {id:'1',name:'Allow'},
-        {id:'2',name:'Blocked'}
-    ]
-    $scope.additional.form.newspaper = []
-    queryService.get('select id,code,name from mst_newspaper where status!=2 order by id  ',undefined)
-    .then(function(data){
-        $scope.additional.form.newspaper = data.data
-    })
-    $scope.additional.action.submit = function(){
-        var defer = $q.defer();
-        //exec update
-        var qcommand = ''
-        var param = {}
-        queryService.get('select count(1) cnt from fd_folio_adds where folio_id=  '+$scope.additional.form.gf.id,undefined)
+    $scope.blocking.action.listBlocking = function(){
+
+        $scope.blocking.listBlocking = []
+        var startDate = new Date($scope.profile.form.gf.arrival_date),
+        endDate = new Date($scope.profile.form.gf.departure_date);
+        //endDate = new Date('2017-04-02')
+        var s = []
+        s.push($scope.profile.form.gf.arrival_date);
+        for (var dt = new Date(startDate); dt < endDate; dt.setDate(dt.getDate() + 1)) {
+            s.push(dt.getFullYear() + '-' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1) + '-' + (dt.getDate()<9?'0':'') + (dt.getDate()+1))
+        }
+        var t = [];
+        var case1 = []
+        var case2 = []
+        var sumcase2 = []
+        var sum = []
+        for (var i=0;i<s.length;i++){
+            //t.push('Blocked','Picked Up','Available')
+            t.push('Available','Blocked','Picked Up')
+            case1.push("CASE when '"+s[i]+"' between arrival_date and departure_date then 1 END as e"+i);
+            sumcase2.push("sum(r"+i+")r"+i,"sum(p"+i+")p"+i);
+            case2.push("case when blocking_date ='"+s[i]+"' then num_of_blocking_room end as r"+i,"case when blocking_date ='"+s[i]+"' then num_of_picked_up_room end as p"+i);
+            sum.push("sum(total-e"+i+")e"+i,"sum(r"+i+")r"+i,"sum(p"+i+")p"+i)
+            $scope.blocking.date.push({id:i,name:s[i]})
+        }
+
+        var sqlStr =
+        "select b.room_type_id,b.name,b.total, "+sum.join(',')+
+        " from  "+
+        "	(select room_type_id,b.name,count(1)total from mst_room a,ref_room_type b  "+
+        "    where a.room_type_id=b.id "+
+        "    group by room_type_id)b "+
+        "	left join  "+
+        "	(select room_type_id,arrival_date,departure_date, "+ case1.join(',')+
+        "	from fd_guest_folio gf) a  "+
+        "    on a.room_type_id=b.room_type_id "+
+        "    left join  "+
+        "    (select room_type_id, "+sumcase2.join(',')+
+        "	from( "+
+        "	select room_type_id, "+ case2.join(',')+
+        "		from fd_mice_room_blocking "+
+        "	)a group by room_type_id "+
+        "    )c "+
+        "    on b.room_type_id = c.room_type_id "+
+        "group by room_type_id";
+        var cr = [];
+        var r = [];
+        queryService.post(sqlStr,undefined)
         .then(function(data){
-            if (data.data[0].cnt>0){
-                //update
-                qcommand = 'update fd_folio_adds set ? where folio_id='+$scope.additional.form.gf.id
-                param = {
-                    //folio_id: '',
-                    //transfer_folio_id: '',
-                    internet_code_status: $scope.additional.form.gf.internet_code_status,
-                    pay_tv_status: $scope.additional.form.gf.pay_tv_status,
-                    deposit_box_id: ($scope.additional.form.gf.deposit_box_id.toString().length>0?$scope.additional.form.gf.deposit_box_id:null),
-                    deposit_box_notes: $scope.additional.form.gf.deposit_box_notes,
-                    newspaper_id: ($scope.additional.form.gf.newspaper_id.toString().length>0?$scope.additional.form.gf.newspaper_id:null),
-                    car_no: $scope.additional.form.gf.car_no,
-                    total_car: $scope.additional.form.gf.total_car,
-                    amenities_notes: $scope.additional.form.gf.amenities_notes,
-                    fruit_notes: $scope.additional.form.gf.fruit_notes,
-                    is_closed_transc: $scope.additional.form.gf.is_closed_transc,
-                    is_cash_transc_only: $scope.additional.form.gf.is_cash_transc_only,
-                    is_incognito: $scope.additional.form.gf.is_incognito,
-                    is_sleep_out: $scope.additional.form.gf.is_sleep_out,
-                    is_lock_minibar: $scope.additional.form.gf.is_lock_minibar,
-                    is_block_phone: $scope.additional.form.gf.is_block_phone,
-                    is_no_alcohol_in_pos: $scope.additional.form.gf.is_no_alcohol_in_pos,
-                    is_sick_guest: $scope.additional.form.gf.is_sick_guest,
-                    is_handicap_guest: $scope.additional.form.gf.is_handicap_guest,
-                    is_reject_for_cleaning: $scope.additional.form.gf.is_reject_for_cleaning,
-                    is_door_double_lock: $scope.additional.form.gf.is_door_double_lock,
-                    modified_date: globalFunction.currentDate(),
-                    modified_by: $localStorage.currentUser.name.id
+            //cr = Object.keys(data.data[0])
+            for (var key in data.data[0]){
+                if (key!='total'){
+                    if (key=='room_type_id') cr.push('id')
+                    else if (key=='name') cr.push('name')
+                    else cr.push(key)
+                }
+
+
+            }
+            for (var i=0;i<data.data.length;i++){
+                var obj = {}
+                for (var key in data.data[i]){
+                    if (key!='total'){
+                        if (key=='room_type_id') obj['id']={val:data.data[i][key],bg:'white'}
+                        else if (key=='name') obj['name']={val:data.data[i][key],bg:'white'}
+                        else {
+                            if (key.indexOf('e')>-1) obj[key] = {val:data.data[i][key],bg:'aquamarine'}
+                            else if (key.indexOf('r')>-1) obj[key] = {val:data.data[i][key],bg:'antiquewhite'}
+                            else obj[key] = {val:data.data[i][key],bg:'aliceblue'}
+
+                        }
+                    }
 
                 }
-            }
-            else {
-                //insert
-                qcommand = 'insert into fd_folio_adds set ?'
-                param = {
-                    folio_id: $scope.additional.form.gf.id,
-                    //transfer_folio_id: '',
-                    internet_code_status: $scope.additional.form.gf.internet_code_status,
-                    pay_tv_status: $scope.additional.form.gf.pay_tv_status,
-                    deposit_box_id: ($scope.additional.form.gf.deposit_box_id.toString().length>0?$scope.additional.form.gf.deposit_box_id:null),
-                    deposit_box_notes: $scope.additional.form.gf.deposit_box_notes,
-                    newspaper_id: ($scope.additional.form.gf.newspaper_id.toString().length>0?$scope.additional.form.gf.newspaper_id:null),
-                    car_no: $scope.additional.form.gf.car_no,
-                    total_car: $scope.additional.form.gf.total_car,
-                    amenities_notes: $scope.additional.form.gf.amenities_notes,
-                    fruit_notes: $scope.additional.form.gf.fruit_notes,
-                    is_closed_transc: $scope.additional.form.gf.is_closed_transc,
-                    is_cash_transc_only: $scope.additional.form.gf.is_cash_transc_only,
-                    is_incognito: $scope.additional.form.gf.is_incognito,
-                    is_sleep_out: $scope.additional.form.gf.is_sleep_out,
-                    is_lock_minibar: $scope.additional.form.gf.is_lock_minibar,
-                    is_block_phone: $scope.additional.form.gf.is_block_phone,
-                    is_no_alcohol_in_pos: $scope.additional.form.gf.is_no_alcohol_in_pos,
-                    is_sick_guest: $scope.additional.form.gf.is_sick_guest,
-                    is_handicap_guest: $scope.additional.form.gf.is_handicap_guest,
-                    is_reject_for_cleaning: $scope.additional.form.gf.is_reject_for_cleaning,
-                    is_door_double_lock: $scope.additional.form.gf.is_door_double_lock,
-                    created_date: globalFunction.currentDate(),
-                    created_by: $localStorage.currentUser.name.id
+                r.push(obj)
+                //var obj = data.data[i]
 
+                //r.push(data.data[i])
+            }
+            $scope.blocking.listBlocking.push(
+                {
+                    colHead:s,
+                    col:t,
+                    colRow:cr,
+                    rows: r
                 }
-            }
-            console.log('additional',data)
-            queryService.post(qcommand,param)
-            .then(function (result2){
-                defer.resolve('Success Update Additional Data');
-
-            },
-            function (err2){
-                defer.reject('Error Insert: '+err2.code);
-
-
-            })
+            );
+            //console.log($scope.blocking.listBlocking)
         })
 
-
-        //queryService.post('update fd_folio_remarks SET ? where folio_id='+$scope.gf.id+' and remark_type_id=1;update fd_folio_remarks SET ? where folio_id='+$scope.gf.id+' and remark_type_id=2',[param_remark1,param_remark2])
-
-         return defer.promise;
+        /*$scope.blocking.listBlocking.push(
+            {
+                colHead:['2017-01-01','2017-01-01'],
+                col:['Blocked','Picked Up','Available','Blocked','Picked Up','Available','Blocked','Picked Up','Available'],
+                colRow:['roomType','b1','p1','a1','b2','p2','a2','b3','p3','a3'],
+                rows: [{
+                    roomType:'CQ',
+                    b1:{val:'-',bg:'aquamarine'},
+                    p1:{val:'-',bg:'antiquewhite'},
+                    a1:{val:'10',bg:'aliceblue'},
+                    b2:{val:'-',bg:'aquamarine'},
+                    p2:{val:'-',bg:'antiquewhite'},
+                    a2:{val:'11',bg:'aliceblue'},
+                    b3:{val:'-',bg:'aquamarine'},
+                    p3:{val:'-',bg:'antiquewhite'},
+                    a3:{val:'12',bg:'aliceblue'}
+                }]
+            }
+        );*/
     }
 })
 .controller('FoReservationRemarksCtrl',
@@ -1790,8 +1827,6 @@ function($scope, $state, $sce, $q,queryService, departmentService, accountTypeSe
         },
         function (err2){
             defer.reject('Error Insert: '+err2.code);
-
-
         })
 
         defer.resolve('Success Update Venue');
@@ -1814,4 +1849,84 @@ function($scope, $state, $sce, $q,queryService, departmentService, accountTypeSe
          return defer.promise;
     }
 
+})
+.controller('FoReservationDepositCtrl',
+function($scope, $state, $sce, queryService, $q,departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+    $scope.deposit.listDeposit = []
+    $scope.deposit.totalAmount = 0;
+    $scope.deposit.totalPayment = 0;
+    $scope.deposit.totalClosing = 0;
+
+    $scope.deposit.action.listDeposit = function(){
+        queryService.post("select a.id,a.code,a.mice_id,a.term,date_format(a.due_date,'%Y-%m-%d')due_date,a.status,b.name status_name,a.deposit_amount, "+
+            	"a.closing_amount,date_format(a.paid_date,'%Y-%m-%d')paid_date,a.payment_amount "+
+            "from fd_mice_deposit a "+
+            "left join (select id,value,name from table_ref where table_name = 'fd_mice_deposit')b on a.status = b.value "+
+            "where a.mice_id="+$scope.profile.form.gf.id+
+            " order by id",undefined)
+        .then(function(data){
+            $scope.deposit.listDeposit = data.data
+            $scope.deposit.totalAmount = 0;
+            $scope.deposit.totalPayment = 0;
+            $scope.deposit.totalClosing = 0;
+            for (var i=0;i<$scope.deposit.listDeposit.length;i++){
+                $scope.deposit.totalAmount += $scope.deposit.listDeposit[i].deposit_amount;
+                $scope.deposit.totalPayment += $scope.deposit.listDeposit[i].payment_amount;
+                $scope.deposit.totalClosing += $scope.deposit.listDeposit[i].closing_amount;
+            }
+        })
+    }
+    $scope.deposit.stat = null;
+
+    $scope.deposit.form.gf = {
+        id: '',
+        mice_id: '',
+        code: '',
+        term: '',
+        amount: '',
+        due_date: '',
+        status: ''
+    }
+    $scope.deposit.action.addNewDeposit = function(){
+        console.log('addNewDeposit',$scope.deposit.form.gf);
+        var dt = new Date()
+        var ym = '';
+
+        $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        queryService.post('select cast(concat(\'MD/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'MD\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+        //queryService.post('select curr_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
+        .then(function(data){
+            var param = {
+                status: 1,
+                mice_id: $scope.profile.form.gf.id,
+                code: data.data[0].code,
+                term: $scope.deposit.form.gf.term,
+                deposit_amount: $scope.deposit.form.gf.amount,
+                due_date: $scope.deposit.form.gf.due_date,
+                created_date: globalFunction.currentDate(),
+                created_by: $localStorage.currentUser.name.id
+            }
+            queryService.post('insert into fd_mice_deposit SET ?',param)
+            .then(function (result2){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Success Add Deposit',
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+                $scope.deposit.stat = null;
+                $scope.deposit.action.listDeposit();
+            },
+            function (err2){
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Add Deposit: '+err2.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
+            })
+        })
+    }
 })
