@@ -995,6 +995,163 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
             $('#modalDeleteHouse').modal('show')
         })
     }
+    $scope.prePosting = function(ids){
+        var insTrans= "insert into fd_folio_transc_account(transc_charge,folio_id,transc_remarks,debit,credit,customer_id,transc_type_id,transc_code) "+
+        "select (a.num_of_nights *a.room_rate_amount) amount,a.id folio_id,c.folio_text, "+
+            "if(c.transc_type='D',(a.num_of_nights *a.room_rate_amount),0)debit,      "+
+            "if(c.transc_type='C',(a.num_of_nights *a.room_rate_amount),0)credit,      "+
+            "a.customer_id,c.id_detail transc_type_id, 	c.code transc_code  "+
+        "from fd_guest_folio a,mst_room_rate b, 	 "+
+        	"(select a.id,a.short_name, a.id id_detail,a.short_name short_name_detail,a.code,a.folio_text,a.transc_type 	 "+
+            "from mst_guest_transaction_type a) c  "+
+        "where a.room_rate_id = b.id   "+
+        "and b.room_transc_type_id = c.id and a.id="+ids;
+        queryService.post(insTrans,undefined)
+        .then(function(data){
+            console.log('success insert Main Rate');
+            $scope.prePostingTax(ids);
+            $scope.prePostingTaxSum(ids);
+            $scope.prePostingExtraBed(ids);
+            $scope.prePostingDiscount(ids);
+            $scope.prePostingPackage(ids);
+            $scope.prePostingPackageTax(ids);
+            $scope.prePostingPackageTaxSum(ids);
+        }, function(err){
+            console.log('error insert Main Rate:'+JSON.stringify(err))
+        })
+    }
+    $scope.prePostingTax = function(ids){
+        var insTrans = "insert into fd_folio_transc_account(transc_charge,folio_id,transc_remarks,debit,credit,customer_id,transc_type_id,transc_code) "+
+        "select (a.num_of_nights *a.room_rate_amount*((100+c.percentage)/100)) amount, 	"+
+        	"a.id folio_id,concat(c.folio_text,'(',c.percentage,'%)') folio_text, 	"+
+            "if(c.transc_type='D',(a.num_of_nights *a.room_rate_amount*((100+c.percentage)/100)),0)debit,     "+
+            "if(c.transc_type='C',(a.num_of_nights *a.room_rate_amount*((100+c.percentage)/100)),0)credit,     "+
+            "a.customer_id,c.id_detail transc_type_id, 	c.code transc_code "+
+        "from fd_guest_folio a,mst_room_rate b, 	"+
+        	"(select a.id,a.short_name, d.id id_detail,d.short_name short_name_detail,d.code,d.folio_text,c.percentage,c.sequence_no,d.transc_type 	"+
+            "from mst_guest_transaction_type a 	"+
+            "left join mst_guest_transaction_tax b on a.tax_id = b.id 	"+
+            "left join mst_transaction_tax_detail c on b.id = c.tax_id 	"+
+            "left join mst_guest_transaction_type d on c.transc_type_id = d.id) c "+
+        "where a.room_rate_id = b.id  "+
+        "and b.room_transc_type_id = c.id and a.id= "+ids;
+        queryService.post(insTrans,undefined)
+        .then(function(data){
+            console.log('success insert Main Rate Tax')
+        }, function(err){
+            console.log('error insert Main Rate Tax:'+JSON.stringify(err))
+        })
+    }
+    $scope.prePostingTaxSum = function(ids){
+        var insTrans = "insert into fd_folio_transc_account(transc_charge,folio_id,transc_remarks,debit,credit,customer_id,transc_type_id,transc_code) "+
+        "select sum(amount*-1),folio_id,'Deduct Room for Tax ' folio_text,sum(debit*-1),sum(credit*-1),customer_id,fid,fcode "+
+        "from (select (a.num_of_nights *a.room_rate_amount*((100+c.percentage)/100)) amount, 	"+
+        	"a.id folio_id,c.short_name,c.id fid,c.code fcode, 	"+
+            "if(c.transc_type='D',(a.num_of_nights *a.room_rate_amount*((100+c.percentage)/100)),0)debit,     "+
+            "if(c.transc_type='C',(a.num_of_nights *a.room_rate_amount*((100+c.percentage)/100)),0)credit,     "+
+            "a.customer_id,c.id_detail transc_type_id, 	c.code transc_code "+
+        	"from fd_guest_folio a,mst_room_rate b, 	"+
+            "(select a.id,a.short_name, d.id id_detail,d.short_name short_name_detail,a.code,d.folio_text,c.percentage,c.sequence_no,d.transc_type 	"+
+        		"from mst_guest_transaction_type a 	left join mst_guest_transaction_tax b on a.tax_id = b.id 	"+
+                "left join mst_transaction_tax_detail c on b.id = c.tax_id 	"+
+                "left join mst_guest_transaction_type d on c.transc_type_id = d.id) c "+
+                "where a.room_rate_id = b.id  and a.id= "+ids+" and b.room_transc_type_id = c.id)a "+
+        	"group by folio_id,short_name,customer_id,fid,fcode "
+        queryService.post(insTrans,undefined)
+        .then(function(data){
+            console.log('success insert Main Rate Tax Sum')
+        }, function(err){
+            console.log('error insert Main Rate Tax Sum:'+JSON.stringify(err))
+        })
+    }
+    $scope.prePostingExtraBed = function(ids){
+        var insTrans = "insert into fd_folio_transc_account(transc_charge,folio_id,transc_remarks,debit,credit,customer_id,transc_type_id,transc_code) "+
+        "select (a.num_of_extra_bed * a.extra_bed_charge_amount) amount,a.id folio_id,c.folio_text , 	"+
+        	"if(c.transc_type='D',(a.num_of_extra_bed * a.extra_bed_charge_amount),0)debit,     "+
+            "if(c.transc_type='C',(a.num_of_extra_bed * a.extra_bed_charge_amount),0)credit,     "+
+            "a.customer_id,c.id transc_type_id, 	c.code transc_code "+
+        "from fd_guest_folio a,mst_room_rate b,mst_guest_transaction_type c "+
+        "where a.room_rate_id = b.id  and b.ext_bed_transc_type_id = c.id and a.id="+ids;
+        queryService.post(insTrans,undefined)
+        .then(function(data){
+            console.log('success insert Extra Bed')
+        }, function(err){
+            console.log('error insert Extra Bed:'+JSON.stringify(err))
+        })
+    }
+    $scope.prePostingDiscount = function(ids){
+        var insTrans = "insert into fd_folio_transc_account(transc_charge,folio_id,transc_remarks,debit,credit,customer_id,transc_type_id,transc_code) "+
+        "select (a.num_of_nights* if(a.discount_percent>0,(a.discount_percent/100*a.room_rate_amount),(a.room_rate_amount-a.discount_amount))) amount,a.id folio_id,c.folio_text , 	"+
+        	"if(c.transc_type='D',-1*(a.num_of_nights* if(a.discount_percent>0,(a.discount_percent/100*a.room_rate_amount),(a.room_rate_amount-a.discount_amount))),0)debit,     "+
+            "if(c.transc_type='C',(a.num_of_nights* if(a.discount_percent>0,(a.discount_percent/100*a.room_rate_amount),(a.room_rate_amount-a.discount_amount))),0)credit,     "+
+            "a.customer_id,c.id transc_type_id, 	c.code transc_code "+
+        "from fd_guest_folio a,mst_room_rate b,mst_guest_transaction_type c "+
+        "where a.room_rate_id = b.id  and b.disc_transc_type_id = c.id and a.id="+ids;
+        queryService.post(insTrans,undefined)
+        .then(function(data){
+            console.log('success insert Discount')
+        }, function(err){
+            console.log('error insert Discount:'+JSON.stringify(err))
+        })
+    }
+    $scope.prePostingPackage = function(ids){
+        var insTrans = "insert into fd_folio_transc_account(transc_charge,folio_id,transc_remarks,debit,credit,customer_id,transc_type_id,transc_code) "+
+        "select (a.num_of_nights * e.flat_rate) amount,a.id folio_id,c.folio_text, 	"+
+        	"if(c.transc_type='D',(a.num_of_nights * e.flat_rate),0)debit,     "+
+            "if(c.transc_type='C',(a.num_of_nights * e.flat_rate),0)credit,     "+
+            "a.customer_id,c.id transc_type_id, 	c.code transc_code "+
+        "from fd_guest_folio a,mst_room_rate b,mst_guest_transaction_type c, mst_room_rate_package d,mst_package e "+
+        "where a.room_rate_id = b.id  and e.transc_type_id = c.id and d.package_id = e.id and b.id = d.room_rate_id and a.id="+ids;
+        queryService.post(insTrans,undefined)
+        .then(function(data){
+            console.log('success insert Package')
+        }, function(err){
+            console.log('error insert Package:'+JSON.stringify(err))
+        })
+    }
+    $scope.prePostingPackageTax = function(ids){
+        var insTrans = "insert into fd_folio_transc_account(transc_charge,folio_id,transc_remarks,debit,credit,customer_id,transc_type_id,transc_code) "+
+        "select (a.num_of_nights * e.flat_rate*((100+c.percentage)/100)) amount, 	"+
+        	"a.id folio_id,concat(c.folio_text,'(',c.percentage,'%)') folio_text, 	"+
+            "if(c.transc_type='D',(a.num_of_nights *e.flat_rate*((100+c.percentage)/100)),0)debit,     "+
+            "if(c.transc_type='C',(a.num_of_nights *e.flat_rate*((100+c.percentage)/100)),0)credit,     "+
+            "a.customer_id,c.id_detail transc_type_id, 	"+
+            "c.code transc_code from fd_guest_folio a,mst_room_rate b, 	"+
+            "(select a.id,a.short_name, d.id id_detail,d.short_name short_name_detail,d.code,d.folio_text,c.percentage,c.sequence_no,d.transc_type 	"+
+        		"from mst_guest_transaction_type a 	"+
+                "left join mst_guest_transaction_tax b on a.tax_id = b.id 	"+
+                "left join mst_transaction_tax_detail c on b.id = c.tax_id 	"+
+                "left join mst_guest_transaction_type d on c.transc_type_id = d.id) c, mst_room_rate_package d,mst_package e "+
+        	"where a.room_rate_id = b.id  and e.transc_type_id = c.id and d.package_id = e.id and b.id = d.room_rate_id and a.id="+ids;
+        queryService.post(insTrans,undefined)
+        .then(function(data){
+            console.log('success insert Package Tax')
+        }, function(err){
+            console.log('error insert Package Tax:'+JSON.stringify(err))
+        })
+    }
+    $scope.prePostingPackageTaxSum = function(ids){
+        var insTrans = "insert into fd_folio_transc_account(transc_charge,folio_id,transc_remarks,debit,credit,customer_id,transc_type_id,transc_code) "+
+        "select sum(a.num_of_nights * e.flat_rate*((100+c.percentage)/100)) amount,a.id folio_id,c.short_name folio_text, 	"+
+        	"sum(if(c.transc_type='D',(a.num_of_nights *e.flat_rate*((100+c.percentage)/100)),0))debit,     "+
+            "sum(if(c.transc_type='C',(a.num_of_nights *e.flat_rate*((100+c.percentage)/100)),0))credit,     "+
+            "a.customer_id,c.id transc_type_id, 	c.code transc_code from fd_guest_folio a,mst_room_rate b, 	"+
+            "(select a.id,a.short_name, d.id id_detail,d.short_name short_name_detail,a.code,d.folio_text,c.percentage,c.sequence_no,d.transc_type 	"+
+            "from mst_guest_transaction_type a 	left join mst_guest_transaction_tax b on a.tax_id = b.id 	"+
+            "left join mst_transaction_tax_detail c on b.id = c.tax_id 	"+
+            "left join mst_guest_transaction_type d on c.transc_type_id = d.id) c, mst_room_rate_package d,mst_package e "+
+        "where a.room_rate_id = b.id  "+
+        "and e.transc_type_id = c.id "+
+        "and d.package_id = e.id "+
+        "and b.id = d.room_rate_id and a.id="+ids+" "+
+        "group by a.id,c.short_name,c.id,a.customer_id";
+        queryService.post(insTrans,undefined)
+        .then(function(data){
+            console.log('success insert Package Tax Sum')
+        }, function(err){
+            console.log('error insert Package Tax Sum:'+JSON.stringify(err))
+        })
+    }
     $scope.buildTrans = function(ids){
         var insTrans = "insert into fd_folio_transc_account(transc_charge,folio_id,transc_remarks,debit,credit,customer_id,transc_type_id,transc_code) "+
         "select (a.num_of_stays *a.room_rate_amount*(c.percentage/100)) amount, "+
@@ -1118,7 +1275,8 @@ console.log('buildTrans',insTrans)
         .then(function (result){
             console.log(result)
             if (result.status = "200"){
-                $scope.buildTrans($scope.profile.form.gf.id);
+                //$scope.buildTrans($scope.profile.form.gf.id);
+                $scope.prePosting($scope.profile.form.gf.id);
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
                     // console.log(obj)
