@@ -208,7 +208,7 @@ if (cluster.isMaster) {
                             sheet[i].v
                     } else if (i[0] === 'B' && sql != undefined) {
                         sql += ',(select id from mst_ledger_account where code="' + sheet[i].v + '")'
-                    } else if (sql != undefined && i[0] != 'C') {
+                    } else if (sql != undefined ) {
                         if (int == 0) {
                             sqlupdate += 'ON DUPLICATE KEY UPDATE '
                             sqlupdate += 'total_budget_amount=' + sheet[i].v
@@ -221,6 +221,7 @@ if (cluster.isMaster) {
                 }
             }
             sqlstr += sql + ') ' + sqlupdate + ',modified_date=now();' + 'commit;';
+			console.log(sqlstr)
             connection(sqlstr, undefined, function (err, rows, fields) {
                 if (err)
                     res.end(err.toString());

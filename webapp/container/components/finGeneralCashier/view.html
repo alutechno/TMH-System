@@ -217,19 +217,19 @@
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default" >
                           <label>Debit</label>
-                          <input type="text" class="form-control" name="debit" ng-model="ap.debit" >
+                          <input type="text" format="number" class="form-control" name="debit" ng-model="ap.debit" ng-readonly="true">
                       </div>
                   </div>
                 <div class="col-sm-4">
                     <div pg-form-group class="form-group form-group-default" >
                         <label>Credit</label>
-                        <input type="text" class="form-control" name="credit" ng-model="ap.credit" >
+                        <input type="text" format="number" class="form-control" name="credit" ng-model="ap.credit"  ng-readonly="true">
                     </div>
                 </div>
                 <div class="col-sm-4">
                     <div pg-form-group class="form-group form-group-default" >
                         <label>Balance</label>
-                        <input type="text" class="form-control" name="balance" ng-model="ap.balance" >
+                        <input type="text" format="number" class="form-control" name="balance" ng-model="ap.balance"  ng-readonly="true">
                     </div>
                 </div>
               </div>
@@ -277,12 +277,12 @@
                                                 </span>
                                             </td>
                                             <td >
-                                                <span editable-text="item.debit" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')">
+                                                <span editable-text="item.debit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')">
                                                     {{ item.debit }}
                                                 </span>
                                             </td>
                                             <td >
-                                                <span editable-text="item.credit" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')">
+                                                <span editable-text="item.credit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')">
                                                     {{ item.credit }}
                                                 </span>
                                             </td>

@@ -749,7 +749,10 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 		$scope.ap = {
 	        id: '',
 	        code: '',
-	        notes: ''
+	        notes: '',
+			debit:0,
+			credit:0,
+			balance:0
 	    }
 
 	    $scope.selected = {
@@ -967,5 +970,6 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
             $scope.total_debit= $scope.total_debit + (parseInt($scope.items[i].debit)>0?parseFloat($scope.items[i].debit):0)
             $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
         }
+		console.log($scope.total_debit)
     }
 });
