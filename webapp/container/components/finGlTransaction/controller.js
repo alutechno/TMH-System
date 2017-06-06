@@ -568,7 +568,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 						type: 'danger'
 					}).show();
 				})
-			else{
+			}else{
 	            var param = {
 	                code: $scope.ap.code,
 	                journal_type_id: $scope.selected.journal_type.selected.id,
