@@ -438,9 +438,9 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         $scope.statusShow.push($scope.status[0])
         $scope.selected.status['selected']=$scope.status[0]
         $('#form-input').modal('show')
-        queryService.post("select cast(concat('BB',lpad(seq('BB','BB'),8,'0')) as char) as code ",undefined)
+		queryService.post('select curr_item_code(\'GL\',\'BB\') as code',undefined)
+        //queryService.post("select cast(concat('BB',lpad(seq('BB','BB'),8,'0')) as char) as code ",undefined)
         .then(function(data){
-            console.log(data)
             $scope.ap.code = data.data[0].code
         })
     }

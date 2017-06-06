@@ -83,7 +83,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'select group_concat(object) as object from menu a, menu_detail b '+
         'where a.id = b.menu_id '+
         'and a.state = "'+req.body.state+'"';
-        connection(sqlstr,undefined, function(err, rows, fields) {
+		connection(sqlstr,undefined, function(err, rows, fields) {
             if (err) throw err;
             if (rows.length>0){
                 res.send(rows.length==0?[]:rows[0].object.split(','))

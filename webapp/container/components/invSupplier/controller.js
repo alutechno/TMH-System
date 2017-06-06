@@ -231,7 +231,8 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
             $scope.supplier['created_date'] = globalFunction.currentDate();
 			queryService.post('select next_item_code(\'supplier\',\''+$scope.selected.supplier_type.selected.code+'\') as code',undefined)
 			.then(function(data){
-	            $scope.supplier.code = data.data[0].code
+			});
+	            $scope.supplier.code = $scope.selected.supplier_type.selected.code
 		        queryService.post('insert into mst_supplier SET ?',$scope.supplier)
 	            .then(function (result){
 	                    $('#form-input').modal('hide')
@@ -256,7 +257,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
 	                    type: 'danger'
 	                }).show();
 	            })
-			})
+
         }
         else {
             //exec update
