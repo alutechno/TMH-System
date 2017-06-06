@@ -746,12 +746,21 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     }
 
     $scope.clear = function(){
-        $scope.cat = {
-            id: '',
-            name: '',
-            description: '',
-            status: ''
-        }
+		$scope.ap = {
+	        id: '',
+	        code: '',
+	        notes: ''
+	    }
+
+	    $scope.selected = {
+	        status: {},
+	        journal_type: {},
+	        filter_year: {},
+	        filter_month: {},
+	        filter_status: [],
+	        filter_journal: {},
+	        filter_source: {}
+	    }
     }
 
 })
