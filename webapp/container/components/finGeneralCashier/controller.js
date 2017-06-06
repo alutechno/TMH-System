@@ -3,7 +3,6 @@ var userController = angular.module('app', []);
 userController
 .controller('FinGeneralCashierCtrl',
 function($scope,$stateParams, $state, $sce, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
-    console.log('asdasdads',$stateParams)
     $scope.el = [];
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
@@ -81,10 +80,8 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     }
 
     $scope.generateCode = function(a){
-        console.log(a)
         queryService.post("select cast(concat('"+a.code+"',lpad(seq('"+a.code+"','"+a.code+"'),8,'0')) as char) as code ",undefined)
         .then(function(data){
-            console.log(data)
             $scope.ap.code = data.data[0].code
         })
     }
@@ -138,8 +135,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         xhr.open("POST", "/uploadJurnal",true);
 		xhr.setRequestHeader("authorization", 'Basic ' + $localStorage.mediaToken);
         $scope.progressVisible = true;
-		console.log(fd)
-        xhr.send(fd);
+		xhr.send(fd);
     }
 
 	function uploadProgress(evt) {
@@ -154,7 +150,6 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 
 	function uploadComplete(evt) {
 		/* This event is raised when the server send back a response */
-		console.log(evt)
 		var d=JSON.parse(evt.target.response)
 		var d1=0
 		var c1=0
@@ -438,9 +433,9 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         $scope.statusShow.push($scope.status[0])
         $scope.selected.status['selected']=$scope.status[0]
         $('#form-input').modal('show')
-        queryService.post("select cast(concat('BB',lpad(seq('BB','BB'),8,'0')) as char) as code ",undefined)
+		queryService.post('select curr_item_code(\'GL\',\'BB\') as code',undefined)
+        //queryService.post("select cast(concat('BB',lpad(seq('BB','BB'),8,'0')) as char) as code ",undefined)
         .then(function(data){
-            console.log(data)
             $scope.ap.code = data.data[0].code
         })
     }
@@ -448,7 +443,6 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     $scope.submit = function(){
         if ($scope.ap.id.length==0){
             //exec creation
-            console.log($scope.ap)
 
             var param = {
                 code: $scope.ap.code,
@@ -458,7 +452,9 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
                 notes: $scope.ap.notes,
                 ref_account: $scope.ap.ref_account
             }
-            console.log(param)
+			queryService.post('select next_item_code(\'GL\',\'BB\') as code',undefined)
+			.then(function (data){
+			});
             queryService.post('insert into acc_gl_transaction SET ?',param)
             .then(function (result){
 
@@ -585,10 +581,8 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     }
 
     $scope.update = function(obj){
-        console.log(qstring+ ' and a.id='+obj.id)
         queryService.post(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-            console.log(result)
             $('#form-input').modal('show');
             $scope.ap = result.data[0]
             $scope.selected.journal_type['selected'] = {
@@ -644,15 +638,10 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
                 $scope.ap.credit = c1
                 $scope.ap.balance = d1-c1
                 $scope.itemsOri = angular.copy($scope.items)
-                console.log($scope.items)
-
             },
             function(err2){
                 console.log(err2)
             })
-
-
-
         },function(err){
             $('body').pgNotification({
                 style: 'flip',
@@ -701,12 +690,21 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     }
 
     $scope.clear = function(){
-        $scope.cat = {
-            id: '',
-            name: '',
-            description: '',
-            status: ''
-        }
+		$scope.ap = {
+	        id: '',
+	        code: '',
+	        notes: ''
+	    }
+
+	    $scope.selected = {
+	        status: {},
+	        journal_type: {},
+	        filter_year: {},
+	        filter_month: {},
+	        filter_status: [],
+	        filter_journal: {},
+	        filter_source: {}
+	    }
     }
 
 })

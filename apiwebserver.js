@@ -193,10 +193,11 @@ if (cluster.isMaster) {
             var workbook = XLSX.readFile(req.files[0].path);
             fs.unlinkSync(req.files[0].path)
             var sqlstr = 'START TRANSACTION;'
+			var sqlstr = ''
             var array = []
             for (var key in workbook.Sheets) {
                 var sheet = workbook.Sheets[key]
-                for (var i in sheet) {
+				for (var i in sheet) {
                     if (i[0] === '!') continue;
                     if (i[0] === 'A' && !isNaN(sheet[i].v)) {
                         if (sql != undefined) {
@@ -208,8 +209,8 @@ if (cluster.isMaster) {
                             sheet[i].v
                     } else if (i[0] === 'B' && sql != undefined) {
                         sql += ',(select id from mst_ledger_account where code="' + sheet[i].v + '")'
-                    } else if (sql != undefined && i[0] != 'C') {
-                        if (int == 0) {
+                    } else if (sql != undefined ) {
+						if (int == 0) {
                             sqlupdate += 'ON DUPLICATE KEY UPDATE '
                             sqlupdate += 'total_budget_amount=' + sheet[i].v
                         } else {
@@ -220,8 +221,9 @@ if (cluster.isMaster) {
                     }
                 }
             }
-            sqlstr += sql + ') ' + sqlupdate + ',modified_date=now();' + 'commit;';
-            connection(sqlstr, undefined, function (err, rows, fields) {
+            //sqlstr += sql + ') ' + sqlupdate + ',modified_date=now();' + 'commit;';
+			sqlstr += sql + ') ' + sqlupdate + ',modified_date=now();' ;
+			connection(sqlstr, undefined, function (err, rows, fields) {
                 if (err)
                     res.end(err.toString());
                 else
