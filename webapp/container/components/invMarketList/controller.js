@@ -1,6 +1,5 @@
-xvar userController = angular.module('app', []);
-userController
-.controller('InvMarketListCtrl',
+var userController = angular.module('app', []);
+userController.controller('InvMarketListCtrl',
 function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,prService, DTOptionsBuilder, DTColumnBuilder,DTColumnDefBuilder, $localStorage, $compile, $rootScope, API_URL,
     warehouseService) {
     $scope.el = [];
