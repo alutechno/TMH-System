@@ -473,7 +473,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 ' ,stock_qty_l='+(user.real_stock!=null?(user.real_stock*user.unit_conversion):user.real_stock_l)+
                 ' ,modified_date=\''+globalFunction.currentDate()+ '\',modified_by='+$localStorage.currentUser.name.id+
                 ' where id='+$scope.items[i].w_id)
-                qs.push('insert into inv_cs_stock_move(transc_type,stock_opname_id,origin_warehouse_id,product_id,qty,unit_type_id,qty_l,lowest_unit_type_id,created_by) '+
+                qs.push('insert into inv_cs_stock_move(transc_type,stock_opname_id,origin_cost_center_id,product_id,qty,unit_type_id,qty_l,lowest_unit_type_id,created_by) '+
                 'values(\'SO\','+$scope.so.stock_id+','+$scope.so.id+','+user.product_id+','+(user.real_stock!=null?user.real_stock:(user.real_stock_l/user.unit_conversion))+
                 ','+user.unit_id+','+(user.real_stock!=null?(user.real_stock*user.unit_conversion):user.real_stock_l)+','+user.unit_id2+','+$localStorage.currentUser.name.id+')')
             }
