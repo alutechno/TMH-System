@@ -21,18 +21,18 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.table = 'mst_asset'
 
     var qstring = 'select a.id, a.code as account, a.name as account_name, b.name as account_type, '+
-           'a.short_name, a.description, a.status, a.report_level, c.total_budget_amount, '+
-           'c.month1_budget_amount, c.month2_budget_amount, c.month3_budget_amount,  '+
-           'c.month4_budget_amount, c.month5_budget_amount, c.month6_budget_amount,  '+
-           'c.month7_budget_amount, c.month8_budget_amount, c.month9_budget_amount,  '+
-           'c.month10_budget_amount, c.month11_budget_amount, c.month12_budget_amount '+
+           'a.short_name, a.description, a.status, a.report_level, FORMAT(c.total_budget_amount,2)total_budget_amount, '+
+           'FORMAT(c.month1_budget_amount,2)month1_budget_amount, FORMAT(c.month2_budget_amount,2)month2_budget_amount, FORMAT(c.month3_budget_amount,2)month3_budget_amount,  '+
+           'FORMAT(c.month4_budget_amount,2)month4_budget_amount, FORMAT(c.month5_budget_amount,2)month5_budget_amount, FORMAT(c.month6_budget_amount,2)month6_budget_amount,  '+
+           'FORMAT(c.month7_budget_amount,2)month7_budget_amount, FORMAT(c.month8_budget_amount,2)month8_budget_amount, FORMAT(c.month9_budget_amount,2)month9_budget_amount,  '+
+           'FORMAT(c.month10_budget_amount,2)month10_budget_amount, FORMAT(c.month11_budget_amount,2)month11_budget_amount, FORMAT(c.month12_budget_amount,2)month12_budget_amount '+
       'from mst_ledger_account a '+
       'left join ref_ledger_account_type b on b.id = a.account_type_id '+
-      'left join acc_monthly_budget_alloc c on c.account_id = a.id '
+      ',acc_monthly_budget_alloc c where c.account_id = a.id '
       //and c.year = \'2016\' '+
      //'where a.status = 1 '
     var qwhere = ''
-    var qwhere2 = 'where a.status = 1 '
+    var qwhere2 = 'and a.status = 1 '
 
     $scope.rowdata = {}
     $scope.field = {
@@ -225,7 +225,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('account').withTitle('Account#'),
         DTColumnBuilder.newColumn('account_name').withTitle('Name'),
-        DTColumnBuilder.newColumn('account_type').withTitle('Type'),
+        //DTColumnBuilder.newColumn('account_type').withTitle('Type'),
         DTColumnBuilder.newColumn('total_budget_amount').withTitle('Total'),
         DTColumnBuilder.newColumn('month1_budget_amount').withTitle('January'),
         DTColumnBuilder.newColumn('month2_budget_amount').withTitle('February'),
