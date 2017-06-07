@@ -212,7 +212,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 $('#form-input').modal('show')
                 $scope.items = []
                 if ($scope.so._id.indexOf('C')>-1){
-                    qdetail = 'select a.id w_id,b.name item,a.stock_qty,c.name stock_unit,a.stock_qty_in_recipe_unit,d.name stock_unit2,b.recipe_unit_conversion unit_conversion,b.unit_type_id unit_id,b.recipe_unit_type_id unit_id2,b.price_per_unit,b.id product_id '+
+                    qdetail = 'select a.id w_id,b.name item,a.stock_qty,c.name stock_unit,a.stock_qty_l,d.name stock_unit2,b.recipe_unit_conversion unit_conversion,b.unit_type_id unit_id,b.recipe_unit_type_id unit_id2,b.price_per_unit,b.id product_id '+
                         'from inv_cost_center_stock a,mst_product b,ref_product_unit c,ref_product_unit d '+
                         'where a.cost_center_id= '+$scope.so.id+' '+
                         'and a.product_id=b.id '+
