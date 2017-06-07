@@ -145,7 +145,7 @@
 </div>
 
 <!--START FORM INPUT-->
-<div class="modal fade slide-right form-input-big" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade slide-right form-input-full" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
@@ -238,12 +238,12 @@
                                     <table class="table  table-hover itemtable">
                                         <thead>
                                         <tr>
-                                            <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
+                                            <th width="3%"><span ng-show="tableform.$visible">Action</span></th>
                                             <th width="15%">Account ID</th>
-                                            <th width="20%">Account Name</th>
-                                            <th width="25%">Notes</th>
-                                            <th width="15%">Debit</th>
-                                            <th width="15%">Credit</th>
+                                            <th width="15%">Account Name</th>
+                                            <th width="20%">Notes</th>
+                                            <th width="10%">Debit</th>
+                                            <th width="10%">Credit</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -260,7 +260,7 @@
                                                 <span editable-ui-select="item.account_code" theme="bootstrap" data-e-name="account_code" name="account" data-e-ng-model="selected.account.selected"
                                                 data-e-form="tableform" data-e-ng-keyup="accountUp(item.id,$select.search)" data-e-on-select="getAccount($item,item.id)" >
                                                 {{item.account_code}}
-                                                      <editable-ui-select-match placeholder="select account" style="width: 300px" >
+                                                      <editable-ui-select-match placeholder="select account" style="width: 400px;" >
                                                           <!--{{$select.selected.name}}-->
                                                           {{item.account_code || 'Empty'}}
                                                       </editable-ui-select-match>
@@ -272,7 +272,7 @@
                                             </td>
                                             <td><span>{{item.account_name}}</span></td>
                                             <td >
-                                                <span editable-text="item.notes" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'notes')">
+                                                <span editable-textarea="item.notes" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'notes')">
                                                     {{ item.notes }}
                                                 </span>
                                             </td>
