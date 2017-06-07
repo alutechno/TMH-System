@@ -461,7 +461,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             console.log(user)
             if ($scope.so._id.indexOf('W')>-1){
                 qs.push('update inv_warehouse_stock set stock_qty='+(user.real_stock!=null?user.real_stock:(user.real_stock_l/user.unit_conversion))+
-                ' ,stock_qty_l='+(user.real_stock!=null?(user.real_stock*user.unit_conversion):user.real_stock_l)+
+                ' ,stock_qty_l='+(user.real_stock!=null?(user.real_stock*user.unit_conversion):user.stock_qty_l)+
                 ' ,modified_date=\''+globalFunction.currentDate()+ '\',modified_by='+$localStorage.currentUser.name.id+
                 ' where id='+$scope.items[i].w_id)
                 qs.push('insert into inv_wh_stock_move(transc_type,stock_opname_id,origin_warehouse_id,product_id,qty,unit_type_id,qty_l,lowest_unit_type_id,created_by) '+
@@ -470,7 +470,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             }
             else if ($scope.so._id.indexOf('C')>-1){
                 qs.push('update inv_cost_center_stock set stock_qty='+(user.real_stock!=null?user.real_stock:(user.real_stock_l/user.unit_conversion))+
-                ' ,stock_qty_l='+(user.real_stock!=null?(user.real_stock*user.unit_conversion):user.real_stock_l)+
+                ' ,stock_qty_l='+(user.real_stock!=null?(user.real_stock*user.unit_conversion):user.stock_qty_l)+
                 ' ,modified_date=\''+globalFunction.currentDate()+ '\',modified_by='+$localStorage.currentUser.name.id+
                 ' where id='+$scope.items[i].w_id)
                 qs.push('insert into inv_cs_stock_move(transc_type,stock_opname_id,origin_cost_center_id,product_id,qty,unit_type_id,qty_l,lowest_unit_type_id,created_by) '+
@@ -488,13 +488,14 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
             // send on server
             //results.push($http.post('/saveUser', user));
-
+            sqlitem.push(qs[0])
+            sqlitem.push(qs[1])
 
         }
         console.log($scope.items)
         console.log(qs)
         console.log(sqlitem.join(';'))
-        return qs
+        return sqlitem
         //return $q.all(results);
     };
     $scope.trustAsHtml = function(value) {
