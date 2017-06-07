@@ -16,7 +16,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstringCostCenter = 'select cast(concat(\'W-\',a.id) as char) _id,a.id,a.name,DATE_FORMAT(a.modified_date,\'%Y-%m-%d\') last_stock_opname,count(b.product_id) items,format(sum(b.stock_qty*c.price_per_unit),0) amount '+
+    var qstringCostCenter = 'select cast(concat(\'C-\',a.id) as char) _id,a.id,a.name,DATE_FORMAT(a.modified_date,\'%Y-%m-%d\') last_stock_opname,count(b.product_id) items,format(sum(b.stock_qty*c.price_per_unit),0) amount '+
         'from mst_cost_center a,inv_cost_center_stock b,mst_product c '+
         'where a.id=b.cost_center_id '+
         'and b.product_id=c.id '+
