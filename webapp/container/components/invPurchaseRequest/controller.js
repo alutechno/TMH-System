@@ -1400,7 +1400,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             'left join (select * from inv_prod_price_contract where contract_end_date>curdate() and product_id ='+$scope.items[d-1].product_id + ' ) b '+
             'on a.id = b.supplier_id  '+
             'left join ref_supplier_type c on a.supplier_type_id=c.id '+
-            'and a.status=1  '+
+            'where a.status=1  '+
             //'and b.product_id ='+$scope.items[d-1].product_id + ' '+
             'and lower(a.name) like \''+e.toLowerCase()+'%\'' +
             ' order by price desc limit 50'
