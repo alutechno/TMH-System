@@ -1056,7 +1056,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 $scope.rejectState = true
 
             }
-
+			if(result.data[0].approval_status==0){
+				$scope.approveState = false
+				$scope.rejectState = false
+			}
 
             if ((result.data[0].doc_status_id==1) && $scope.el.indexOf('buttonCreate')>-1) $scope.viewMode = false
             else if (((result.data[0].doc_status_id==2&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==1 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalDeptHead')>-1) $scope.viewMode = false

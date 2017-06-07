@@ -818,14 +818,18 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             }
             else if (result.data[0].approval_status==0 && result.data[0].doc_status_id>1){
                 $scope.statusState=true
+				$scope.approveState = false
             }
             else {
                 $scope.selected.approval = 0
                 $scope.approveState = true
                 $scope.rejectState = true
             }
-
-            if ((result.data[0].doc_status_id==1) && $scope.el.indexOf('buttonCreate')>-1) $scope.viewMode = false
+			if(result.data[0].approval_status==0){
+				$scope.approveState = false
+                $scope.rejectState = false
+			}
+			if ((result.data[0].doc_status_id==1) && $scope.el.indexOf('buttonCreate')>-1) $scope.viewMode = false
             else if (((result.data[0].doc_status_id==2&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==1 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalDeptHead')>-1) $scope.viewMode = false
 			else if (((result.data[0].doc_status_id==3&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==2 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalCostControl')>-1) $scope.viewMode = false
             else if (((result.data[0].doc_status_id==4&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==3 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalPoManager')>-1) $scope.viewMode = false
