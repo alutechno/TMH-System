@@ -33,7 +33,33 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
      //'where a.status = 1 '
     var qwhere = ''
     var qwhere2 = 'and a.status = 1 '
-
+	$scope.focusinControl = {};
+	$scope.fileName = "Budget Allocation";
+	$scope.exportExcel = function(){
+		queryService.post('select c.year,a.code as account, a.name as account_name,'+
+		   'FORMAT(c.total_budget_amount,2)total_budget_amount, '+
+		   'FORMAT(c.month1_budget_amount,2)month1_budget_amount, FORMAT(c.month2_budget_amount,2)month2_budget_amount, FORMAT(c.month3_budget_amount,2)month3_budget_amount,  '+
+		   'FORMAT(c.month4_budget_amount,2)month4_budget_amount, FORMAT(c.month5_budget_amount,2)month5_budget_amount, FORMAT(c.month6_budget_amount,2)month6_budget_amount,  '+
+		   'FORMAT(c.month7_budget_amount,2)month7_budget_amount, FORMAT(c.month8_budget_amount,2)month8_budget_amount, FORMAT(c.month9_budget_amount,2)month9_budget_amount,  '+
+		   'FORMAT(c.month10_budget_amount,2)month10_budget_amount, FORMAT(c.month11_budget_amount,2)month11_budget_amount, FORMAT(c.month12_budget_amount,2)month12_budget_amount '+
+			'from mst_ledger_account a '+
+			'left join ref_ledger_account_type b on b.id = a.account_type_id '+
+			',acc_monthly_budget_alloc c where c.account_id = a.id and a.status=1 and c.year='+ $scope.selected.filter_year.selected.name,undefined)
+		.then(function(data){
+			$scope.exportData = [];
+			//Header
+			$scope.exportData.push(["Year","account_id","account Name","Total","January","February","March","April","May","June","July","August","September","October","November","December"]);
+			//Data
+			for(var i=0;i<data.data.length;i++){
+				var arr = []
+				for (var key in data.data[i]){
+					arr.push(data.data[i][key])
+				}
+				$scope.exportData.push(arr)
+			}
+			$scope.focusinControl.downloadExcel()
+		})
+	}
     $scope.rowdata = {}
     $scope.field = {
         id: '',

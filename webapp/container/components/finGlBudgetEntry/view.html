@@ -10,7 +10,9 @@
                 <div class="pull-right" style="width: 80%;">
 
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Budget</button>
-
+					<span ng-click="exportExcel()">
+						<div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
+					</span>
 
                     <div class="btn-group pull-right m-r-5">
 						<div class="btn-group form-group-default-select pull-left  m-r-5">
