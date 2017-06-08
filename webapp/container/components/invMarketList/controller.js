@@ -737,6 +737,25 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $('#form-input').modal('show');
         $scope.pr.id = ids
         //$scope.updateState = true
+        queryService.post(`select a.seq_id, a.name doc_status,
+				   case b.approval_status
+						when '1' then 'Approved'
+			            when '2' then 'Rejected'
+			            else 'None'
+				   end approval_status,
+			       case b.approval_status
+						when '1' then b.approval_notes
+			            when '2' then b.denial_notes
+				   end notes,
+				   c.name created_by, b.created_date
+			  from ref_ml_document_status a
+			  left join inv_ml_doc_state b on a.id = b.doc_status_id and b.ml_id = `+ids+`
+			  left join user c on c.id = b.created_by
+			 where a.status = '1'
+			 order by a.seq_id, b.created_date;`
+		,undefined).then(function (result){
+			$scope.history=result.data;
+		});
 
         queryService.post(qstring+' and a.id='+ids,undefined)
         .then(function (result){

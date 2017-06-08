@@ -187,16 +187,6 @@
                              <label>&nbsp;</label><br />
                            <button id="show-modal" class="btn btn-primary pull-right" ng-click="applyFilter()" ><i class="fa fa-search"></i> Apply</button>
                           </div>
-
-
-
-                        <!--<div class="input-prepend input-group date col-sm-4 pull-right m-r-5" style="width: 250px;" >
-                          <input date-range-picker type="text" placeholder="filter due date" class="form-control date-picker lDate">
-                          <span class="add-on input-group-addon bDate"><i class="fa fa-calendar"></i></span>
-                      </div>-->
-
-
-
                     </div>
                 </div>
             </div>
@@ -276,15 +266,6 @@
                               </div>
                           </div>
                           <div class="col-md-3">
-                              <!--<div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : pr.cost_center_id.$invalid && !pr.cost_center_id.$pristine }">
-                                  <label>Cost Center</label>
-                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
-                                      <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
-                                      <ui-select-choices repeat="item in cost_center | filter: $select.search">
-                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                      </ui-select-choices>
-                                  </ui-select>
-                              </div>-->
                               <div pg-form-group class="form-group form-group-default form-group-default-select required " ng-class="{ 'has-error' : selected.cost_center.selected.$invalid && !selected.cost_center.selected.$pristine }">
                                   <label>Cost Center</label>
                                   <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" validate-attached-form-element required>
@@ -334,9 +315,11 @@
 
                       </div>
                       <div class="col-sm-12">
-
-                          <div class="col-md-9">
+                          <div class="col-md-6">
                               &nbsp;
+                          </div>
+						  <div class="col-md-3">
+                              <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="popup=true" data-toggle="modal" data-target="#myModal" ><i class="fa fa-history"></i>History</button>
                           </div>
                           <div class="col-md-3">
                               <div class="checkbox check-primary" >
@@ -346,7 +329,6 @@
                                   <label for="cbReject">Reject</label>
                               </div>
                           </div>
-
                       </div>
 
 
@@ -354,6 +336,41 @@
                   </div>
               </div>
               </div>
+
+  <div class="modal fade slide-up disable-scroll" id="myModal" tabindex="-1" role="dialog" aria-hidden="false" ng-show="popup">
+      <div class="modal-dialog modal-sm">
+          <div class="modal-content-wrapper">
+                    <div class="modal-body text-center m-t-20">
+						<table class="table  table-hover itemtable">
+							<thead>
+							<tr>
+								<th  >Sequence</th>
+								<th  >Status</th>
+								<th  >Approval</th>
+								<th  >Notes</th>
+								<th  >Created by</th>
+								<th  >Created date</th>
+							</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="item in history">
+									<td>{{ item.seq_id }}</td>
+									<td>{{ item.doc_status }}</td>
+									<td>{{ item.approval_status }}</td>
+									<td>{{ item.notes }}</td>
+									<td>{{ item.created_by }}</td>
+									<td>{{ item.created_date }}</td>
+								</tr>
+							</tbody>
+						</table>
+
+                      <div >
+                          <button type="button" class="btn btn-primary" data-dismiss="myModal" ng-click="popup=false">Close</button>
+                      </div>
+                  </div>
+          </div>
+      </div>
+  </div>
               <div class="row clearfix">
               <div class="col-sm-12">
                   <h4>List of Item</h4>

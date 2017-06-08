@@ -195,7 +195,14 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
         if (state == 'add'){
             $scope.clear()
         }
-        $('#form-input').modal('show')
+		$('#form-input').modal('show')
+		var dt = new Date()
+        $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+		//queryService.post('select curr_item_code(\'product\',\''+$scope.selected.category_id.selected.short_name+'\') as code',undefined)
+		queryService.post('select curr_item_code(\'ML\',\''+$scope.ym+'\') as code',undefined)
+        .then(function(data){
+            $scope.contract.code = data.data[0].code
+        })
     }
 
     $scope.submit = function(){
@@ -346,7 +353,4 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
             discount_amount: ''
         }
     }
-
-
-
 })
