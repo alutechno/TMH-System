@@ -405,11 +405,15 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.clear = function(){
-        $scope.cat = {
+        $scope.sr = {
             id: '',
-            name: '',
-            description: '',
-            status: ''
+            code: '',
+            warehouse_id: '',
+            cost_center_id: '',
+            request_status: '',
+            issued_status: '',
+            date: '',
+            notes: ''
         }
     }
 })
@@ -465,6 +469,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             issued_id: '',
             issued_status: '',
 			request_notes: '',
+            item_notes: '',
             isNew: true
         };
         $scope.items.push($scope.item)
@@ -566,6 +571,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             }
 
         }
+        console.log(sqlitem)
         return sqlitem
         //return $q.all(results);
     };
