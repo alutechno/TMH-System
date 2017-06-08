@@ -273,9 +273,12 @@
                           </div>
                           <div class="col-sm-12">
 
-                              <div class="col-md-9">
+                              <div class="col-md-6">
                                   &nbsp;
                               </div>
+							  <div class="col-md-3">
+	                              <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="popup=true" data-toggle="modal" data-target="#myModal" ><i class="fa fa-history"></i>History</button>
+	                          </div>
                               <div class="col-md-3">
                                   <div class="checkbox check-primary" >
                                       <input type="checkbox" id="cbApprove" ng-checked="selected.approval==1" ng-true-value="1" ng-model="selected.approval" ng-disabled="updateState || approveState ||viewMode">
@@ -292,6 +295,39 @@
                       </div>
                   </div>
               </div>
+			  <div class="modal fade slide-up disable-scroll" id="myModal" tabindex="-1" role="dialog" aria-hidden="false" ng-show="popup">
+			      <div class="modal-dialog modal-sm">
+			          <div class="modal-content-wrapper">
+			                    <div class="modal-body text-center m-t-20">
+									<table class="table  table-hover itemtable">
+										<thead>
+										<tr>
+											<th  >Sequence</th>
+											<th  >Status</th>
+											<th  >Approval</th>
+											<th  >Notes</th>
+											<th  >Created by</th>
+											<th  >Created date</th>
+										</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="item in history">
+												<td>{{ item.seq_id }}</td>
+												<td>{{ item.doc_status }}</td>
+												<td>{{ item.approval_status }}</td>
+												<td>{{ item.notes }}</td>
+												<td>{{ item.created_by }}</td>
+												<td>{{ item.created_date }}</td>
+											</tr>
+										</tbody>
+									</table>
+			                      <div >
+			                          <button type="button" class="btn btn-primary" data-dismiss="myModal" ng-click="popup=false">Close</button>
+			                      </div>
+			                  </div>
+			          </div>
+			      </div>
+			  </div>
               <div class="row clearfix">
               <div class="col-sm-12">
                   <h4>List of Item</h4>

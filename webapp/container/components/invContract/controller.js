@@ -48,16 +48,27 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
     ]
 
     $scope.opt_supplier_id = []
-    queryService.post('select id,name, id as value from mst_supplier order by name limit 20',undefined)
+    queryService.post('select b.code sup_code,a.id,a.name, a.id as value from mst_supplier a,ref_supplier_type b where a.supplier_type_id=b.id order by a.name limit 20',undefined)
     .then(function(data){
         $scope.opt_supplier_id = data.data
     })
     $scope.supplierUp = function(text){
-        queryService.post('select id,name, id as value from mst_supplier where lower(name) like \'%'+text.toLowerCase()+'%\' order by name limit 20',undefined)
+        queryService.post('select b.code sup_code,a.id,a.name, a.id as value from mst_supplier a,ref_supplier_type b where a.supplier_type_id=b.id and lower(name) like \'%'+text.toLowerCase()+'%\' order by name limit 20',undefined)
         .then(function(data){
             $scope.opt_supplier_id = data.data
         })
     }
+	$scope.change_sup = function(){
+		console.log($scope.selected.supplier_id.selected)
+		var dt = new Date()
+        $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1);
+		queryService.post('select curr_item_code(\'contract-'+$scope.selected.supplier_id.selected.sup_code+'\',\''+$scope.ym+'\') as code',undefined)
+		.then(function(data){
+			console.log(data)
+            $scope.contract.code = data.data[0].code
+        })
+
+	}
 
     $scope.opt_product_id = []
     queryService.post('select id,name,last_order_price from mst_product order by name limit 20',undefined)
@@ -196,19 +207,18 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
             $scope.clear()
         }
 		$('#form-input').modal('show')
-		var dt = new Date()
-        $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-		//queryService.post('select curr_item_code(\'product\',\''+$scope.selected.category_id.selected.short_name+'\') as code',undefined)
-		queryService.post('select curr_item_code(\'ML\',\''+$scope.ym+'\') as code',undefined)
-        .then(function(data){
-            $scope.contract.code = data.data[0].code
-        })
+
     }
 
     $scope.submit = function(){
         // console.log('submit')
         if ($scope.contract.id.length==0){
             //exec creation
+			var dt = new Date()
+	        $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1);
+			queryService.post('select next_item_code(\'contract-'+$scope.selected.supplier_id.selected.sup_code+'\',\''+$scope.ym+'\') as code',undefined)
+			.then(function(data){
+	        })
             $scope.contract.supplier_id = $scope.selected.supplier_id.selected.id;
             $scope.contract.product_id = $scope.selected.product_id.selected.id;
             $scope.contract.contract_status = $scope.selected.contract_status.selected.value;
