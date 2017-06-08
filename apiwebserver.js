@@ -363,6 +363,7 @@ if (cluster.isMaster) {
             'and a.default_module = i.id ' +
             'and a.default_menu = j.id ' +
             'and a.name="' + req.username + '" ' +
+            'and a.password="' + req.body.password + '" ' +
             'group by l2state,submenuname ' +
             'order by e.seqParent,menuname,e.sequence, submenuname ';
         connection(sqlstr, undefined, function (err, rows, fields) {

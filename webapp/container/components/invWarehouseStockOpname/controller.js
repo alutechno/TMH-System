@@ -110,8 +110,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('id').withTitle('id').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('name').withTitle('Warehouse'),
-        DTColumnBuilder.newColumn('last_stock_opname').withTitle('last stock opname date'),
+        DTColumnBuilder.newColumn('name').withTitle('Warehouse').withOption('width', '30%'),
+        DTColumnBuilder.newColumn('last_stock_opname').withTitle('last stock opname date').withOption('width', '20%'),
         DTColumnBuilder.newColumn('amount').withTitle('amount').withClass('text-right')
     );
 

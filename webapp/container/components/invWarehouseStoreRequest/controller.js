@@ -20,8 +20,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         'and a.issued_status=b.value '+
         'and a.origin_warehouse_id=d.id '+
         'and a.dest_cost_center_id=e.id '+
-		'and e.department_id = f.id '+
-		'and a.request_status!=0 '
+		'and e.department_id = f.id '
+		//'and a.request_status!=0 '
     var qstringdetail = 'select b.price_per_lowest_unit,a.request_notes as item_notes,a.id p_id,a.product_id ,b.name product_name,d.stock_qty,d.stock_qty_l stock_in_hand,a.request_qty,e.name unit_name,a.issued_qty,a.issued_status,f.name issued_status,b.unit_type_id unit_id,b.lowest_unit_type_id unit_id2,b.lowest_unit_conversion unit_conversion,d.id warehouse_item_id,b.recipe_unit_conversion '+
         'from inv_store_req_line_item a,mst_product b,inv_store_request c,inv_warehouse_stock d,ref_product_unit e,(select value,name from table_ref where table_name=\'inv_store_req_line_item\')f '+
         'where a.product_id=b.id '+
