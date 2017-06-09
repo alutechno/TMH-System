@@ -1167,9 +1167,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             'and lower(a.name) like \''+e.toLowerCase()+'%\'' +
             ' order by price desc limit 50'*/
 		var sqlCtr=`select a.id,a.name,a.address,b.price,cast(concat('Price: ',ifnull(concat(b.price,' (valid until:',date_format(contract_end_date,'%Y-%m-%d'),')' ),' - ')) as char)as price_name,b.contract_end_date,cast(concat('Type: ',c.name) as char) type_name
-			from mst_supplier a , (select * from inv_prod_price_contract where contract_end_date>curdate() and product_id =`+$scope.items[d-1].product_id +` ) b
+			from mst_supplier a left join (select * from inv_prod_price_contract where contract_end_date>curdate() and product_id =`+$scope.items[d-1].product_id +` ) b on a.id = b.supplier_id
 			, ref_supplier_type c
-			where a.id = b.supplier_id and a.status=1  and a.supplier_type_id=c.id
+			where a.status=1  and a.supplier_type_id=c.id
 			and lower(a.name) like '%`+e.toLowerCase()+`%' order by price desc limit 50`
 		//queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
         queryService.post(sqlCtr,undefined)
