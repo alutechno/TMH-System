@@ -53,7 +53,7 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
         $scope.opt_supplier_id = data.data
     })
     $scope.supplierUp = function(text){
-        queryService.post('select b.code sup_code,a.id,a.name, a.id as value from mst_supplier a,ref_supplier_type b where a.supplier_type_id=b.id and lower(name) like \'%'+text.toLowerCase()+'%\' order by name limit 20',undefined)
+        queryService.post('select b.code sup_code,a.id,a.name, a.id as value from mst_supplier a,ref_supplier_type b where a.supplier_type_id=b.id and lower(a.name) like \'%'+text.toLowerCase()+'%\' order by a.name limit 20',undefined)
         .then(function(data){
             $scope.opt_supplier_id = data.data
         })
