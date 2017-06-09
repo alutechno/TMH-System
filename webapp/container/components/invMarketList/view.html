@@ -423,7 +423,7 @@
                                                           <editable-ui-select-match placeholder="Supplier..."  style="width: 250px;">
                                                               {{item.supplier_name}}
                                                           </editable-ui-select-match>
-                                                          <editable-ui-select-choices repeat="item in suppliers | filter: $select.search" refresh="funcAsync($select.search,item.id)" refresh-delay="0" style="width: 250px;">
+                                                          <editable-ui-select-choices repeat="item in suppliers[item.id-1] | filter: $select.search" refresh="funcAsync($select.search,item.id)" refresh-delay="0" style="width: 250px;">
                                                               <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
                                                               <small ng-bind-html="trustAsHtml((item.type_name | highlight: $select.search))"></small><br />
                                                               <small ng-bind-html="trustAsHtml((item.price_name | highlight: $select.search))"></small>
