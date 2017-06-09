@@ -993,7 +993,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
  		});
         queryService.post(qstring+' and a.id='+ids,undefined)
         .then(function (result){
-            if ($scope.seqState < parseInt(result.data[0].doc_status_id)){
+            if ($scope.seqState < parseInt(result.data[0].doc_status_id) && result.data[0].approval_status>0){
                 $scope.disableAction = true;
             }
             else {
@@ -1021,7 +1021,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             }
             $scope.statusState = false
             $scope.doc_status = []
-            if (result.data[0].doc_status_id == 7){
+            if (result.data[0].doc_status_id == 7 && result.data[0].approval_status>0){
                 $scope.releaseState = false
             }
             if ($scope.el.indexOf('approvalDeptHead')>-1 && (result.data[0].doc_status_id == 1 && result.data[0].approval_status == 1)){
