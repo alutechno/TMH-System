@@ -132,6 +132,7 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
                     "when a.contract_status = 3 then 'Suspended' "+
                     "when a.contract_status = 4 then 'Terminated' "+
                     "end as contract_status_name, "+
+					"date_format(a.contract_start_date,'%Y-%m-%d') start_date,date_format(a.contract_end_date,'%Y-%m-%d') end_date,"+
                     "b.name as supplier_name,c.name as product_name from  "+
                     "inv_prod_price_contract a, mst_supplier b, mst_product c "+
                     "where a.supplier_id = b.id and a.product_id = c.id "
@@ -169,8 +170,8 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
         DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier'),
         DTColumnBuilder.newColumn('product_name').withTitle('Product'),
         DTColumnBuilder.newColumn('contract_status_name').withTitle('Status'),
-        DTColumnBuilder.newColumn('contract_start_date').withTitle('Start'),
-        DTColumnBuilder.newColumn('contract_end_date').withTitle('End'),
+        DTColumnBuilder.newColumn('start_date').withTitle('Start'),
+        DTColumnBuilder.newColumn('end_date').withTitle('End'),
         DTColumnBuilder.newColumn('price').withTitle('Price'),
         DTColumnBuilder.newColumn('discount1_percent').withTitle('Disc 1(%)'),
         DTColumnBuilder.newColumn('discount2_percent').withTitle('Disc 2(%)'),
@@ -282,34 +283,24 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
-        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
+        queryService.post(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-            $scope.contract.id = result.data[0].id
+			$scope.contract.id = result.data[0].id
             $scope.contract.code = result.data[0].code
             $scope.contract.supplier_id = result.data[0].supplier_id
             $scope.contract.product_id = result.data[0].product_id
             $scope.contract.description = result.data[0].description
             $scope.contract.contract_status = result.data[0].contract_status
-            $scope.contract.contract_start_date = result.data[0].contract_start_date
-            $scope.contract.contract_end_date = result.data[0].contract_end_date
+            $scope.contract.contract_start_date = result.data[0].start_date
+            $scope.contract.contract_end_date = result.data[0].end_date
             $scope.contract.price = result.data[0].price
             $scope.contract.previous_price = result.data[0].previous_price
             $scope.contract.discount1_percent = result.data[0].discount1_percent
             $scope.contract.discount2_percent = result.data[0].discount2_percent
             $scope.contract.discount_amount = result.data[0].discount_amount
 
-            for (var i = $scope.opt_supplier_id.length - 1; i >= 0; i--) {
-                if ($scope.opt_supplier_id[i].id == result.data[0].supplier_id){
-                    $scope.selected.supplier_id.selected = {name: $scope.opt_supplier_id[i].name, id: $scope.opt_supplier_id[i].id}
-                }
-            };
-			$scope.selected.supplier_id.selected = {name: result.data[0].supplier_name, id: result.data[0].supplier_id}
-            for (var i = $scope.opt_product_id.length - 1; i >= 0; i--) {
-                if ($scope.opt_product_id[i].id == result.data[0].product_id){
-                    $scope.selected.product_id.selected = {name: $scope.opt_product_id[i].name, id: $scope.opt_product_id[i].id}
-                }
-            };
-			$scope.selected.product_id.selected = {name: result.data[0].product_name, id: $scope.contract.product_id}
+            $scope.selected.supplier_id.selected = {name: result.data[0].supplier_name, id: result.data[0].supplier_id}
+            $scope.selected.product_id.selected = {name: result.data[0].product_name, id: $scope.contract.product_id}
 
             for (var i = $scope.opt_contract_status.length - 1; i >= 0; i--) {
                 if ($scope.opt_contract_status[i].value == result.data[0].contract_status){
