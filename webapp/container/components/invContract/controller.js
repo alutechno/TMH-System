@@ -131,7 +131,7 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
                     "when a.contract_status = 2 then 'Expired' "+
                     "when a.contract_status = 3 then 'Suspended' "+
                     "when a.contract_status = 4 then 'Terminated' "+
-                    "end as contract_status_name, "+
+                    "end as contract_status_name, format(a.price,2) price_number,format(previous_price,2) prev_number,"+
 					"date_format(a.contract_start_date,'%Y-%m-%d') start_date,date_format(a.contract_end_date,'%Y-%m-%d') end_date,"+
                     "b.name as supplier_name,c.name as product_name from  "+
                     "inv_prod_price_contract a, mst_supplier b, mst_product c "+
@@ -172,7 +172,7 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
         DTColumnBuilder.newColumn('contract_status_name').withTitle('Status'),
         DTColumnBuilder.newColumn('start_date').withTitle('Start'),
         DTColumnBuilder.newColumn('end_date').withTitle('End'),
-        DTColumnBuilder.newColumn('price').withTitle('Price'),
+        DTColumnBuilder.newColumn('price_number').withTitle('Price'),
         DTColumnBuilder.newColumn('discount1_percent').withTitle('Disc 1(%)'),
         DTColumnBuilder.newColumn('discount2_percent').withTitle('Disc 2(%)'),
         DTColumnBuilder.newColumn('discount_amount').withTitle('Disc Amount')

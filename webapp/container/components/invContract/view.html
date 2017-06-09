@@ -125,7 +125,7 @@
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.price.$invalid && !contract.price.$pristine }">
                           <label>Price</label>
-                          <input type="text" class="form-control" name="price" ng-model="contract.price" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
+                          <input type="text" format="number" class="form-control" name="price" ng-model="contract.price" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
               </div>
@@ -133,7 +133,7 @@
                   <div class="col-sm-12">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : contract.previous_price.$invalid && !contract.previous_price.$pristine }">
                           <label>Previous Price</label>
-                          <input type="text" class="form-control" name="previous_price" ng-model="contract.previous_price" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
+                          <input type="text" format="number" class="form-control" name="previous_price" ng-model="contract.previous_price" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
               </div>
