@@ -1166,7 +1166,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             //'and b.product_id ='+$scope.items[d-1].product_id + ' ' +
             'and lower(a.name) like \''+e.toLowerCase()+'%\'' +
             ' order by price desc limit 50'
-        //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
+		//queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
         queryService.post(sqlCtr,undefined)
         .then(function(data){
             $scope.suppliers = data.data
