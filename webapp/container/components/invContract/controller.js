@@ -303,11 +303,14 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
                     $scope.selected.supplier_id.selected = {name: $scope.opt_supplier_id[i].name, id: $scope.opt_supplier_id[i].id}
                 }
             };
+			$scope.selected.supplier_id.selected = {name: result.data[0].supplier_name, id: result.data[0].supplier_id}
             for (var i = $scope.opt_product_id.length - 1; i >= 0; i--) {
                 if ($scope.opt_product_id[i].id == result.data[0].product_id){
                     $scope.selected.product_id.selected = {name: $scope.opt_product_id[i].name, id: $scope.opt_product_id[i].id}
                 }
             };
+			$scope.selected.product_id.selected = {name: result.data[0].product_name, id: $scope.contract.product_id}
+
             for (var i = $scope.opt_contract_status.length - 1; i >= 0; i--) {
                 if ($scope.opt_contract_status[i].value == result.data[0].contract_status){
                     $scope.selected.contract_status.selected = {name: $scope.opt_contract_status[i].name, value: $scope.opt_contract_status[i].value}
