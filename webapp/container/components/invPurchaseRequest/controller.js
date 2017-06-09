@@ -1410,7 +1410,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             'order by price desc limit 50'
         queryService.post(sqlCtr,undefined)
         .then(function(data){
-            $scope.suppliers = data.data
+            $scope.suppliers[d-1] = data.data
         })
     }
     $scope.funcAsync = function(e,d){
@@ -1427,7 +1427,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
         queryService.post(sqlCtr,undefined)
         .then(function(data){
-            $scope.suppliers = data.data
+            $scope.suppliers[d-1] = data.data
         })
     }
     $scope.getProductPriceSupplier = function(e,d){
