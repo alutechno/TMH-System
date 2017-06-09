@@ -759,7 +759,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
         queryService.post(qstring+' and a.id='+ids,undefined)
         .then(function (result){
-            if ($scope.seqState < parseInt(result.data[0].doc_status_id) ){
+            if ($scope.seqState < parseInt(result.data[0].doc_status_id) && result.data[0].approval_status>0){
                 $scope.disableAction = true;
             }
             else {
