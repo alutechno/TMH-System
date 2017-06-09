@@ -759,7 +759,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
         queryService.post(qstring+' and a.id='+ids,undefined)
         .then(function (result){
-            if ($scope.seqState < parseInt(result.data[0].doc_status_id) && result.data[0].approval_status >0){
+            if ($scope.seqState < parseInt(result.data[0].doc_status_id) ){
                 $scope.disableAction = true;
             }
             else {
@@ -791,7 +791,7 @@ console.log($scope.seqState)
             $scope.pr.purchase_notes = result.data[0].ml_notes
             $scope.statusState = false
             $scope.doc_status = []
-            if (result.data[0].doc_status_id == 4){
+            if (result.data[0].doc_status_id == 4 && && result.data[0].approval_status>0){
                 $scope.releaseState = false
             }
             else $scope.releaseState = true
