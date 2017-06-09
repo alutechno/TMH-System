@@ -765,7 +765,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             else {
                 $scope.disableAction = false;
             }
-
+console.log($scope.disableAction)
+console.log(result.data[0].approval_status)
             $scope.pr = result.data[0]
             $scope.selected.warehouse = {
                 selected: {
