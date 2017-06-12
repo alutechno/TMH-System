@@ -3171,7 +3171,32 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                     }]
                 }
             })
-
+		.state('app.pos', {
+            url: '/pos',
+            template: '<div ui-view></div>'
+        })
+		.state("app.pos.menuList", {
+				url: "/menuList",
+				templateUrl: "container/components/posRefMenuList/view.html",
+				controller: "PosMenuList",
+				resolve: {
+					deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+						return $ocLazyLoad.load([
+							"dataTables",
+							"select",
+							"datepicker",
+							"daterangepicker",
+							"tagsInput",
+							"autonumeric"
+						], {
+							insertBefore: "#lazyload_placeholder"
+						})
+						.then(function () {
+							return $ocLazyLoad.load("container/components/posRefMenuList/controller.js");
+						});
+					}]
+				}
+			})
         // Extra - Others
         .state('access', {
             url: '/access',
