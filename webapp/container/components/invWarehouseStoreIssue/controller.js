@@ -250,7 +250,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 	                    }).show();
 	                },
 	                function (err2){
-	                    console.log(err2)
+						queryService.post('rollback',undefined)
+		                .then(function (result2){
+						})
 	                })
 				}else{
 					$('#form-input').modal('hide')
@@ -306,6 +308,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 	                    }).show();
 	                },
 	                function (err2){
+						queryService.post('rollback',undefined)
+		                .then(function (result2){
+						})
 	                    console.log(err2)
 	                })
 				}else{

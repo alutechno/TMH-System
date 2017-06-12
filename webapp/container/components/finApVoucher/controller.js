@@ -273,12 +273,16 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 
         //$scope.statusShow.push($scope.status[0])
         if (stat!='update'){
-            var dt = new Date()
+            /*var dt = new Date()
             var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-            queryService.post('select cast(concat(\'AP/'+$scope.selected.source.selected.value+'/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'AP'+$scope.selected.source.selected.value+'\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+			queryService.post('select curr_document_no(\'AP/'+$scope.selected.source.selected.value+'/\',\''+$scope.ym+'\') as code',undefined)
             .then(function(data){
                 $scope.ap.code = data.data[0].code
-            })
+            })*/
+			queryService.post('select curr_item_code(\'GL\',\'AP\') as code',undefined)
+			.then(function(data){
+				$scope.ap.code = data.data[0].code
+			})
         }
     }
 
@@ -1216,8 +1220,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     $scope.child.saveTable = function(pr_id) {
         var results = [];
         var sqlitem = []
-		console.log('aaaa '+pr_id)
-        for (var i = $scope.items.length; i--;) {
+		for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
 			if (user.isNew && !user.isDeleted){
                 if (user.debit>0){
@@ -1273,7 +1276,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         //queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
         queryService.post('select id,code,name from mst_ledger_account where lower(code) like \''+text.toLowerCase()+'%\' order by id limit 10 ',undefined)
         .then(function(data){
-            $scope.account[d] = data.data
+            $scope.account[d-1] = data.data
         })
     }
     /*$scope.supplierUp = function(text,d) {

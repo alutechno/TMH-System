@@ -596,7 +596,7 @@
 
 
 
-              <div ng-controller="EditableTableApvCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()" ng-show="selected.status.selected.id==1">
+              <div ng-controller="EditableTableApvCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()" >
                                     <!-- table -->
                                     <table class="table  table-hover itemtable">
                                         <thead>
@@ -636,12 +636,12 @@
                                             </td>
                                             <td><span>{{item.account_name}}</span></td>
                                             <td >
-                                                <span editable-text="item.debit" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')">
+                                                <span editable-text="item.debit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')">
                                                     {{ item.debit }}
                                                 </span>
                                             </td>
                                             <td >
-                                                <span editable-text="item.credit" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')">
+                                                <span editable-text="item.credit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')">
                                                     {{ item.credit }}
                                                 </span>
                                             </td>
@@ -653,7 +653,7 @@
                                             <td>Tax</td>
                                             <td>&nbsp;</td>
                                             <td>
-                                                <span editable-text="item.tax_credit" e-form="tableform" onbeforesave="checkName($data, user.id)">
+                                                <span editable-text="item.tax_credit" format="number" e-form="tableform" onbeforesave="checkName($data, user.id)">
                                                     {{ tax_credit }}
                                                 </span>
                                             </td>
@@ -677,7 +677,7 @@
                                     <div class="btn-form" ng-show="tableform.$visible">
 
                                       <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
-                                      <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" ng-show="selected.source.selected.id=='MT'" class="btn btn-primary "> Add New Item</button>
+                                      <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()"  class="btn btn-primary "> Add New Item</button>
                                       <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
                                     </div>
 

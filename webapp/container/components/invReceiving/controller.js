@@ -26,7 +26,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         "       receive_notes notes,d.warehouse_id,d.cost_center_id,DATE_FORMAT(d.delivery_date,'%Y-%m-%d') delivery_date,a.home_currency_exchange,  "+
         "        d.code po_code,d.po_source,DATE_FORMAT(a.receive_date,'%Y-%m-%d')receive_date,a.receive_notes , "+
         "        date_format(d.created_date,'%Y-%m-%d') po_created_date, date_format( d.released_date,'%Y-%m-%d') po_released_date,a.inv_no,a.faktur_no, "+
-        "        (select name from table_ref x where table_name='inv_purchase_order' and value in(3,4) and x.value = d.receive_status) as receive_status_name "+
+        "        (select name from table_ref x where table_name='inv_purchase_order' and column_name='receive_status' and value in(3,4) and x.value = d.receive_status) as receive_status_name "+
     	"	from inv_po_receive a,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f  "+
         "    where c.table_name='inv_po_receive'   "+
         "    and a.received_status=c.value   "+
@@ -39,7 +39,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     ") z "
 
     var qwhere = '';
-    var qstringdetail = 'select (select g.order_qty-sum(received_qty) from inv_receive_line_item where item_id=b.item_id)remaining_qty,b.item_id,b.id rcv_id,a.id,a.code,a.po_id,c.name,a.created_date,a.currency_id,e.name supplier_name,f.code,a.total_amount, b.item_id,b.received_qty,g.order_qty,g.price,g.amount,g.product_id,h.name product_name,b.received_price, '+
+    var qstringdetail = 'select (select g.order_qty-sum(received_qty) from inv_receive_line_item where item_id=b.item_id)remaining_qty,b.item_id,b.id rcv_id,a.id,a.code,a.po_id,c.name,a.created_date,a.currency_id,e.name supplier_name,f.code,a.total_amount, b.item_id,IFNULL(b.received_qty,0)received_qty,g.order_qty,g.price,g.amount,g.product_id,h.name product_name,b.received_price, '+
         'h.unit_type_id,h.lowest_unit_conversion,h.recipe_unit_conversion,h.lowest_unit_type_id ,b.order_notes '+
         'from inv_po_receive a,inv_receive_line_item b,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f, inv_po_line_item g ,mst_product h '+
         'where a.id=b.receive_id  '+
@@ -394,7 +394,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 				sql+='insert into inv_receive_line_item (item_id,receive_id,product_id,received_qty,received_price,total_amount,created_by,order_notes) values('+user.item_id+',@id,'+user.product_id+','+user.rcv_qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+',"'+user.order_notes+'");'
 			}
 			sql+='commit;'
-			console.log(sql)
 			queryService.post(sql,param)
 			.then(function (result2){
                 $('#form-input').modal('hide')
@@ -434,6 +433,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             .then(function (result){
                 result.data['insertId'] = $scope.po.id
 				    var q = $scope.child.saveTable($scope.po.id)
+					console.log(q)
 					queryService.post(q.join(';'), undefined)
                     .then(function (result2){
                         queryService.post('select po_id,sum(order_qty)order_qty,sum(received_qty)received_qty,sum(order_qty-received_qty)delta from( '+
@@ -468,6 +468,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         })
                     },
                     function(err2){
+						queryService.post('rollback')
+						.then(function(result9){
+						})
                         $('#form-input').pgNotification({
                             style: 'flip',
                             message: 'Error Insert Line Item, some of fields is empty (rcv qty or rcv price) ',
@@ -721,7 +724,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         remaining_qty: result2.data[i].remaining_qty,
                         rcv_qty: flag==undefined?result2.data[i].received_qty:0,
                         price: result2.data[i].price,
-                        rcv_price: result2.data[i].received_price,
+                        rcv_price: result2.data[i].received_price==null?result2.data[i].price:result2.data[i].received_price,
 						rcv_price_dis: result2.data[i].received_price,
                         amount: result2.data[i].amount,
                         lowest_unit_conversion: result2.data[i].lowest_unit_conversion,
@@ -909,10 +912,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.child.saveTable = function(pr_id) {
         var results = [];
         var sqlitem = []
+
+		sqlitem.push("start transaction");
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
             if(!user.isNew && user.isDeleted){
-                sqlitem.push('delete from inv_po_line_item where id='+user.p_id)
+                sqlitem.push('delete from inv_receive_line_item where id='+user.p_id)
             }
             else if(!user.isNew){
                 var amt = 0
@@ -921,85 +926,101 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].item_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].rcv_qty+$scope.itemsOri[j].rcv_price+$scope.itemsOri[j].order_notes
                         var d2 = user.p_id+user.item_id+user.product_id+user.rcv_qty+user.rcv_price+user.order_notes
                         if(d1 != d2){
-                            amt += (user.rcv_qty*user.rcv_price)
+                            //amt += (user.rcv_qty*user.rcv_price)
                             sqlitem.push('update inv_receive_line_item set '+
                             //' product_id = '+user.product_id+',' +
                             ' received_qty = '+user.rcv_qty+',' +
-							' order_notes = '+user.order_notes+',' +
+							' order_notes = "'+user.order_notes+'",' +
                             ' received_price = '+user.rcv_price+',' +
                             ' total_amount = '+user.amount+',' +
                             ' modified_by = '+$localStorage.currentUser.name.id+',' +
                             ' modified_date = \''+globalFunction.currentDate()+'\'' +
                             ' where id='+user.p_id)
 						}
-						if($scope.selected.delivery_status.id==2){
-                            if ($scope.selected.warehouse.selected){
-                                sqlitem.push('INSERT INTO inv_warehouse_stock(warehouse_id,product_id,stock_qty,stock_qty_l,last_order_date,last_order_qty,last_order_supplier_id)'+
-                                'values('+$scope.selected.warehouse.selected.id+','+user.product_id+',stock_qty+'+user.qty+',stock_qty_l+'+(user.rcv_qty*user.lowest_unit_conversion)+','+
-                                ' \''+globalFunction.currentDate()+'\','+user.rcv_qty+','+$scope.selected.supplier.selected.id+')'+
-                                ' ON DUPLICATE KEY UPDATE '+
-                                ' stock_qty = stock_qty+'+user.rcv_qty+' ,'+
-                                ' stock_qty_l = stock_qty_l+'+(user.rcv_qty*user.lowest_unit_conversion)+' ,'+
-                                ' last_order_date = \''+globalFunction.currentDate()+'\','+
-                                ' last_order_qty = '+user.rcv_qty+','+
-                                ' last_order_supplier_id = '+$scope.selected.supplier.selected.id+' '
-                                )
-                                sqlitem.push('insert into inv_wh_stock_move(transc_type,receive_id,origin_warehouse_id,dest_warehouse_id,product_id,unit_type_id,'+
-                                'qty,lowest_unit_type_id,qty_l,created_by) '+
-                                'values(\'RC\','+pr_id+','+$scope.selected.warehouse.selected.id+','+$scope.selected.warehouse.selected.id+','+user.product_id+','+user.unit_type_id+','+
-                                ' '+user.rcv_qty+', '+user.lowest_unit_type_id+','+(user.rcv_qty*user.lowest_unit_type_id)+','+$localStorage.currentUser.name.id+')')
-                            }
-                            else if($scope.selected.cost_center.selected){
-                                sqlitem.push('INSERT INTO inv_cost_center_stock(cost_center_id,product_id,stock_qty,stock_qty_l,stock_qty_in_recipe_unit,last_order_date,last_order_qty,last_order_supplier_id)'+
-                                'values('+$scope.selected.cost_center.selected.id+','+user.product_id+','+user.rcv_qty+','+(user.rcv_qty*user.lowest_unit_conversion)+','+(user.rcv_qty*user.lowest_unit_conversion*user.recipe_unit_conversion)+','+
-                                ' \''+globalFunction.currentDate()+'\','+user.rcv_qty+','+$scope.selected.supplier.selected.id+')'+
-                                ' ON DUPLICATE KEY UPDATE '+
-                                ' stock_qty = stock_qty+'+user.rcv_qty+' ,'+
-                                ' stock_qty_l = stock_qty_l+'+(user.rcv_qty*user.lowest_unit_conversion)+' ,'+
-                                ' stock_qty_in_recipe_unit = stock_qty_in_recipe_unit+'+(user.rcv_qty*user.lowest_unit_conversion*user.recipe_unit_conversion)+' ,'+
-                                ' last_order_date = \''+globalFunction.currentDate()+'\','+
-                                ' last_order_qty = '+user.rcv_qty+','+
-                                ' last_order_supplier_id = '+$scope.selected.supplier.selected.id+' '
-                                )
-                                sqlitem.push('insert into inv_cs_stock_move(transc_type,receive_id,origin_cost_center_id,dest_cost_center_id,product_id,unit_type_id,'+
-                                'qty,lowest_unit_type_id,qty_l,created_by) '+
-                                'values(\'RC\','+pr_id+','+$scope.selected.cost_center.selected.id+','+$scope.selected.cost_center.selected.id+','+user.product_id+','+user.unit_type_id+','+
-                                ' '+user.rcv_qty+', '+user.lowest_unit_type_id+','+(user.rcv_qty*user.lowest_unit_conversion)+','+$localStorage.currentUser.name.id+')')
 
-                            }
-                            sqlitem.push('insert into inv_prod_price_contract(supplier_id,product_id,contract_status,contract_start_date,contract_end_date,price,net_price)'+
-                            ' values('+$scope.selected.supplier.selected.id+','+user.product_id+',1,\''+globalFunction.currentDate()+'\',\''+globalFunction.next30Day()+'\','+user.rcv_price+','+user.rcv_price+')'+
-                            ' ON DUPLICATE KEY UPDATE '+
-                            ' previous_price = net_price ,'+
-                            ' contract_start_date = \''+globalFunction.currentDate()+'\' ,'+
-                            ' contract_end_date = \''+globalFunction.next30Day()+'\','+
-                            ' price ='+user.rcv_price+','+
-                            ' net_price = '+user.rcv_price)
-
-                            sqlitem.push('update mst_product b,(select IF(a.avg> 0, a.avg, '+user.rcv_price+') as amount from (select avg(received_price) avg from inv_receive_line_item where product_id='+user.product_id+' and received_price>0 and modified_date<now() and modified_date>now() - interval 30 day) a )c set'+
-                            ' price_per_unit =c.amount,'+
-                            (isFinite(user.rcv_price/user.lowest_unit_conversion)?(' price_per_lowest_unit = c.amount/lowest_unit_conversion,'):'')+
-                        	//' price_per_lowest_unit = '+(isFinite(user.rcv_price/user.lowest_unit_conversion)?(user.rcv_price/user.lowest_unit_conversion):user.rcv_price)+', '+
-                            (isFinite(user.rcv_price/user.lowest_unit_conversion/user.recipe_unit_conversion)?(' price_per_recipe_unit =  c.amount/recipe_unit_conversion, '):'')+
-                        	//' price_per_recipe_unit =  '+(user.rcv_price/user.lowest_unit_conversion/user.recipe_unit_conversion)+', '+
-                            ' last_order_qty ='+user.rcv_qty+','+
-                        	' last_order_price= '+user.rcv_price+','+
-                        	' last_order_date= \''+globalFunction.currentDate()+'\' ,'+
-                            ' last_received_qty ='+user.rcv_qty+','+
-                        	' last_received_price= '+user.rcv_price+','+
-                        	' last_received_date= \''+globalFunction.currentDate()+'\' ,'+
-                        	' last_supplier='+$scope.selected.supplier.selected.id + ' where id='+user.product_id)
-                        }
                     }
                 }
             }
+			if($scope.selected.delivery_status.selected.id==2){
+				amt += (user.rcv_qty*user.rcv_price)
+				if($scope.selected.cost_center.selected){
+					sqlitem.push('INSERT INTO inv_cost_center_stock(cost_center_id,product_id,stock_qty,stock_qty_l,stock_qty_in_recipe_unit,last_order_date,last_order_qty,last_order_supplier_id)'+
+					'values('+$scope.selected.cost_center.selected.id+','+user.product_id+','+user.rcv_qty+','+(user.rcv_qty*user.lowest_unit_conversion)+','+(user.rcv_qty*user.lowest_unit_conversion*user.recipe_unit_conversion)+','+
+					' \''+globalFunction.currentDate()+'\','+user.rcv_qty+','+$scope.selected.supplier.selected.id+')'+
+					' ON DUPLICATE KEY UPDATE '+
+					' stock_qty = stock_qty+'+user.rcv_qty+' ,'+
+					' stock_qty_l = stock_qty_l+'+(user.rcv_qty*user.lowest_unit_conversion)+' ,'+
+					' stock_qty_in_recipe_unit = stock_qty_in_recipe_unit+'+(user.rcv_qty*user.lowest_unit_conversion*user.recipe_unit_conversion)+' ,'+
+					' last_order_date = \''+globalFunction.currentDate()+'\','+
+					' last_order_qty = '+user.rcv_qty+','+
+					' last_order_supplier_id = '+$scope.selected.supplier.selected.id+' '
+					)
+					sqlitem.push('insert into inv_cs_stock_move(transc_type,receive_id,origin_cost_center_id,dest_cost_center_id,product_id,unit_type_id,'+
+					'qty,lowest_unit_type_id,qty_l,created_by) '+
+					'values(\'RC\','+pr_id+','+$scope.selected.cost_center.selected.id+','+$scope.selected.cost_center.selected.id+','+user.product_id+','+user.unit_type_id+','+
+					' '+user.rcv_qty+', '+user.lowest_unit_type_id+','+(user.rcv_qty*user.lowest_unit_conversion)+','+$localStorage.currentUser.name.id+')')
+
+				}
+				else if ($scope.selected.warehouse.selected){
+					sqlitem.push('INSERT INTO inv_warehouse_stock(warehouse_id,product_id,stock_qty,stock_qty_l,last_order_date,last_order_qty,last_order_supplier_id)'+
+					'values('+$scope.selected.warehouse.selected.id+','+user.product_id+',stock_qty+'+user.qty+',stock_qty_l+'+(user.rcv_qty*user.lowest_unit_conversion)+','+
+					' \''+globalFunction.currentDate()+'\','+user.rcv_qty+','+$scope.selected.supplier.selected.id+')'+
+					' ON DUPLICATE KEY UPDATE '+
+					' stock_qty = stock_qty+'+user.rcv_qty+' ,'+
+					' stock_qty_l = stock_qty_l+'+(user.rcv_qty*user.lowest_unit_conversion)+' ,'+
+					' last_order_date = \''+globalFunction.currentDate()+'\','+
+					' last_order_qty = '+user.rcv_qty+','+
+					' last_order_supplier_id = '+$scope.selected.supplier.selected.id+' '
+					)
+					sqlitem.push('insert into inv_wh_stock_move(transc_type,receive_id,origin_warehouse_id,dest_warehouse_id,product_id,unit_type_id,'+
+					'qty,lowest_unit_type_id,qty_l,created_by) '+
+					'values(\'RC\','+pr_id+','+$scope.selected.warehouse.selected.id+','+$scope.selected.warehouse.selected.id+','+user.product_id+','+user.unit_type_id+','+
+					' '+user.rcv_qty+', '+user.lowest_unit_type_id+','+(user.rcv_qty*user.lowest_unit_type_id)+','+$localStorage.currentUser.name.id+')')
+				}
+				sqlitem.push('insert into inv_prod_price_contract(supplier_id,product_id,contract_status,contract_start_date,contract_end_date,price,net_price)'+
+				' values('+$scope.selected.supplier.selected.id+','+user.product_id+',1,\''+globalFunction.currentDate()+'\',\''+globalFunction.next30Day()+'\','+user.rcv_price+','+user.rcv_price+')'+
+				' ON DUPLICATE KEY UPDATE '+
+				' previous_price = net_price ,'+
+				' contract_start_date = \''+globalFunction.currentDate()+'\' ,'+
+				' contract_end_date = \''+globalFunction.next30Day()+'\','+
+				' price ='+user.rcv_price+','+
+				' net_price = '+user.rcv_price)
+
+				sqlitem.push('update mst_product b,(select IF(a.avg> 0, a.avg, '+user.rcv_price+') as amount from (select avg(received_price) avg from inv_receive_line_item where product_id='+user.product_id+' and received_price>0 and modified_date<now() and modified_date>now() - interval 30 day) a )c set'+
+				' price_per_unit =c.amount,'+
+				(isFinite(user.rcv_price/user.lowest_unit_conversion)?(' price_per_lowest_unit = c.amount/lowest_unit_conversion,'):'')+
+				//' price_per_lowest_unit = '+(isFinite(user.rcv_price/user.lowest_unit_conversion)?(user.rcv_price/user.lowest_unit_conversion):user.rcv_price)+', '+
+				(isFinite(user.rcv_price/user.lowest_unit_conversion/user.recipe_unit_conversion)?(' price_per_recipe_unit =  c.amount/recipe_unit_conversion, '):'')+
+				//' price_per_recipe_unit =  '+(user.rcv_price/user.lowest_unit_conversion/user.recipe_unit_conversion)+', '+
+				' last_order_qty ='+user.rcv_qty+','+
+				' last_order_price= '+user.rcv_price+','+
+				' last_order_date= \''+globalFunction.currentDate()+'\' ,'+
+				' last_received_qty ='+user.rcv_qty+','+
+				' last_received_price= '+user.rcv_price+','+
+				' last_received_date= \''+globalFunction.currentDate()+'\' ,'+
+				' last_supplier='+$scope.selected.supplier.selected.id + ' where id='+user.product_id)
+			}
         }
-		if($scope.selected.delivery_status.id==2){
+		if($scope.selected.delivery_status.selected.id==2){
+			var dt = new Date()
+	        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
 	        sqlitem.push('insert into acc_ap_voucher(code,source,receive_id,supplier_id,currency_id,total_amount,home_total_amount,status,open_date,created_by,inv_no,faktur_no)'+
-	        'values(\''+$scope.po.code+'\',\'RR\','+pr_id+','+$scope.selected.supplier.selected.id+','+$scope.po.currency_id+','+amt+
-	        ','+($scope.po.home_currency_exchange*amt)+',0,\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+',"'+$scope.po.inv_no+'","'+$scope.po.faktur_no+'")'
-	        )
+		        'values(next_document_no("AP/RR","'+ym+'"),\'RR\','+pr_id+','+$scope.selected.supplier.selected.id+','+$scope.po.currency_id+','+amt+
+		        ','+($scope.po.home_currency_exchange*amt)+',0,\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+',"'+$scope.po.inv_no+'","'+$scope.po.faktur_no+'")'
+			);
+			sqlitem.push("set @id=(select last_insert_id())");
+			 sqlitem.push('insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes)'+
+				' values (next_item_code(\'GL\',\'AP\'), 1, @id, \'0\', \''+$scope.po.notes+'\') on duplicate KEY UPDATE '+
+				'notes=\''+$scope.po.notes+'\'');
+				//debit dr cost center account
+			sqlitem.push("set @id=(select last_insert_id())");
+			sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
+				'@id,(select b.payable_account_id from mst_supplier a,ref_supplier_type b where a.supplier_type_id=b.id and a.id='+$scope.po.supplier_id+'),\'D\','+amt+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+				//credit supplier type
+			sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
+				'@id,(select account_id from mst_cost_center where id='+$scope.selected.cost_center.selected.id+' union select account_id from mst_warehouse where id='+$scope.selected.warehouse.selected.id+' limit 1),\'C\','+amt+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
 		}
+		sqlitem.push("commit");
         return sqlitem
     };
     $scope.trustAsHtml = function(value) {
@@ -1046,12 +1067,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             $scope.items[d-1].amount = $scope.items[d-1].rcv_price*p
         }
         if (t=='price') {
-			p=p.toString()
-			while (p.indexOf(",") != -1)
-            {
-                p = p.replace(",", "");
-            }
-            if(parseFloat(p)>parseFloat($scope.items[d-1].price)){
+			if(parseFloat(p)>parseFloat($scope.items[d-1].price)){
                 $scope.items[d-1].rcv_price = $scope.items[d-1].price
 				p=$scope.items[d-1].price
             }
@@ -1059,9 +1075,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 $scope.items[d-1].rcv_price = parseFloat(p)
             }
             $scope.items[d-1].amount = $scope.items[d-1].rcv_qty*$scope.items[d-1].rcv_price
-			var prc=p.toString()
-			var parts = prc.toString().split(".");
-			$scope.items[d-1].rcv_price_dis =parts[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, ",") + (parts[1] ? "." + parts[1] : "")
         }
     }
 	$scope.updateNotes = function(e,d,p){
