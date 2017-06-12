@@ -601,9 +601,10 @@
                                     <table class="table  table-hover itemtable">
                                         <thead>
                                         <tr>
-                                            <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
+                                            <th width="5%"><span ng-show="tableform.$visible">Action</span></th>
                                             <th width="20%">Account ID</th>
-                                            <th width="40%">Account Name</th>
+                                            <th width="20%">Account Name</th>
+											<th width="20%">Notes</th>
                                             <th width="15%">Debit</th>
                                             <th width="15%">Credit</th>
                                         </tr>
@@ -635,6 +636,11 @@
                                                 </span>
                                             </td>
                                             <td><span>{{item.account_name}}</span></td>
+											<td >
+                                                <span editable-textarea="item.notes"  e-form="tableform" data-e-ng-keyup="notes($event,item.id,$data)">
+                                                    {{ item.notes }}
+                                                </span>
+                                            </td>
                                             <td >
                                                 <span editable-text="item.debit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')">
                                                     {{ item.debit }}

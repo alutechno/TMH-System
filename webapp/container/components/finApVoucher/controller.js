@@ -681,13 +681,11 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             queryService.post('update acc_ap_voucher SET ? WHERE id='+$scope.ap.id ,param)
             .then(function (result){
                 if ($scope.selected.status.selected.id=="1"){
-					console.log('11111')
-                    var qq = 'insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes)'+
+					var qq = 'insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes)'+
                         ' values (\''+$scope.ap.code+'\', 1, '+$scope.ap.id+', \'0\', \''+$scope.ap.notes+'\') on duplicate KEY UPDATE '+
 						'notes=\''+$scope.ap.notes+'\''
                     queryService.post(qq ,undefined)
                     .then(function (result2){
-						console.log($scope.ap)
 						if(result2.data==undefined)
 							var qd = $scope.child.saveTable($scope.ap.gl_id);
 						else
@@ -890,7 +888,9 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             $scope.ap = result.data[0]
             $scope.ap.notes = result.data[0].voucher_notes
 			$scope.ap.faktur_no = result.data[0].faktur_no
-            $scope.ap.due_date = (result.data[0].due==null?'':result.data[0].due)
+            $scope.ap.due_date = result.data[0].due_date
+
+			//(result.data[0].due==null?'':result.data[0].due)
             $scope.ap.total_home = result.data[0].home_total_amount
             $scope.ap.total_idr = result.data[0].total_amount
             for (var i=0;i<$scope.currency.length;i++){
@@ -947,6 +947,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                             id:(i+1),
                             p_id: d[i].id,
 							gl_id: d[i].gl_id,
+							notes: d[i].notes,
                             account_id:d[i].account_id,
                             account_code:d[i].account_code,
                             account_name: d[i].account_name,
@@ -1224,19 +1225,19 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             var user = $scope.items[i];
 			if (user.isNew && !user.isDeleted){
                 if (user.debit>0){
-                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
+                    sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date) values('+
                     pr_id+','+user.account_id+',\'D\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                     if ($scope.ap.is_adjusted=='Y'){
-                        sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date,notes) values('+
-                        pr_id+','+user.account_id+',\'D\','+($scope.ap.adjustment_idr-$scope.ap.total_idr)+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\',\'Adjustment Entries\')')
+                        sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date,notes) values('+
+                        user.notes+','+pr_id+','+user.account_id+',\'D\','+($scope.ap.adjustment_idr-$scope.ap.total_idr)+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\',\'Adjustment Entries\')')
                     }
                 }
                 else if (user.credit>0){
-                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
-                    pr_id+','+user.account_id+',\'C\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date) values('+
+                    user.notes+','+pr_id+','+user.account_id+',\'C\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                     if ($scope.ap.is_adjusted=='Y'){
-                        sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date,notes) values('+
-                        pr_id+','+user.account_id+',\'C\','+($scope.ap.adjustment_idr-$scope.ap.total_idr)+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\',\'Adjustment Entries\')')
+                        sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date,notes) values('+
+                        user.notes+','+pr_id+','+user.account_id+',\'C\','+($scope.ap.adjustment_idr-$scope.ap.total_idr)+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\',\'Adjustment Entries\')')
                     }
                 }
             }
@@ -1251,6 +1252,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                         if(d1 != d2){
                             sqlitem.push('update acc_gl_journal set '+
                             ' account_id = '+user.account_id+',' +
+							' notes = "'+user.notes+'",' +
                             ' transc_type = \''+(user.debit>0?'D':'C')+'\',' +
                             ' amount = '+(user.debit>0?user.debit:user.credit)+',' +
                             ' modified_by = '+$localStorage.currentUser.name.id+',' +
@@ -1262,7 +1264,6 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             }
 
         }
-        console.log(sqlitem)
         return sqlitem
         //return $q.all(results);
     };
@@ -1341,5 +1342,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             $scope.totalcredit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
         }
     }
-
+	$scope.notes = function(e,d,p){
+        $scope.items[d-1].notes = p
+    }
 });
