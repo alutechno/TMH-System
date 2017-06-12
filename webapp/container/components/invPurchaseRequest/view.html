@@ -212,9 +212,9 @@
                                   </div>
                               </div>
                               <div class="col-md-3">
-                                  <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : pr.warehouse_id.$invalid && !pr.warehouse_id.$pristine }">
+                                  <div pg-form-group class="form-group form-group-default form-group-default-select ">
                                       <label>Store Location</label>
-                                      <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode">
+                                      <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode" >
                                           <ui-select-match placeholder="Select Location">{{$select.selected.name}}</ui-select-match>
                                           <ui-select-choices repeat="item in warehouse | filter: $select.search">
                                               <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
