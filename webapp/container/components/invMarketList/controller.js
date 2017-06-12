@@ -1182,13 +1182,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.items[d-1].amount = e.price * $scope.items[d-1].qty
     }
     $scope.updatePrice = function(e,d,p){
-		p=p.toString()
-		while (p.indexOf(",") != -1)
-		{
-			p = p.replace(",", "");
-		}
-		p=parseFloat(p).toString()=='NaN'?0:parseFloat(p)
-
         $scope.items[d-1].price = p
         $scope.items[d-1].amount = p * $scope.items[d-1].qty
         $scope.child.tAmt = 0
@@ -1198,7 +1191,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         }
         if ($scope.child.tAmt.toString()=='NaN') $scope.child.tAmt = 0
         if ($scope.child.totalQty.toString()=='NaN') $scope.child.totalQty = 0
-		$scope.items[d-1].price_dis=p.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, ",")
     }
     $scope.updatePriceQty = function(e,d,q){
         $scope.items[d-1].qty = q

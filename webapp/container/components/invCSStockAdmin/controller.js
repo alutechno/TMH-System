@@ -13,8 +13,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstring = 'select a.id,b.name cost_center,a.product_id,c.name product,format(a.stock_qty,0)stock_qty, ' +
-                  'd.name stock_unit,format(a.stock_qty_l,0)stock_qty_l,e.name lowest_stock_unit,format(a.stock_qty_l*c.price_per_lowest_unit,0) amount, '+
+    var qstring = 'select a.id,b.name cost_center,a.product_id,c.name product,format(a.stock_qty,2)stock_qty, ' +
+                  'd.name stock_unit,format(a.stock_qty_l,2)stock_qty_l,e.name lowest_stock_unit,format(a.stock_qty_l*c.price_per_lowest_unit,0) amount, '+
                   'c.code product_code, b.code cost_center_code ' +
         'from inv_cost_center_stock a,mst_cost_center b, mst_product c,ref_product_unit d,ref_product_unit e '+
         'where a.cost_center_id=b.id '+

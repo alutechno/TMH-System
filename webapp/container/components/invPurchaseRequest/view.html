@@ -393,13 +393,13 @@
                                   </span>
                               </td>
                               <td style="text-align: right;vertical-align: middle;" ng-if="seqState>2">
-                                  <span editable-text="item.price_dis" e-form="tableform" data-e-ng-keyup="updatePrice($event,item.id,$data)" >
-                                      {{ item.price_dis }}
+                                  <span editable-text="item.price" format="number" e-form="tableform" data-e-ng-keyup="updatePrice($event,item.id,$data)" >
+                                      {{ item.price | number : fractionSize}}
                                   </span>
                               </td>
                               <td style="text-align: right;vertical-align: middle;" ng-if="seqState==1||seqState==2">
                                   <span >
-                                      {{ item.price_dis }}
+                                      {{ item.price_dis | number : fractionSize}}
                                   </span>
                               </td>
                               <td style="text-align: right;vertical-align: middle;"  ng-if="seqState>2">
