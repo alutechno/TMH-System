@@ -1,8 +1,8 @@
 
-var userController = angular.module('app', ['mgo-angular-wizard']);
+var userController = angular.module('app', []);
 userController
-.controller('FoShiftAuditCtrl',
-function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL,WizardHandler) {
+.controller('PosKitchenCtrl',
+function($scope, $state, $sce, queryService, departmentService, accountTypeService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
     $scope.el = [];
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
@@ -12,128 +12,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope[$scope.el[i]] = true;
     }
 
-    $scope.finished = function() {
-       console.log("Wizard finished :)");
-   }
-
-   $scope.logStep = function() {
-       console.log("Step continued");
-   }
-
-   $scope.goBack = function() {
-       WizardHandler.wizard().goTo(0);
-   }
-
-   $scope.getCurrentStep = function(){
-       return WizardHandler.wizard().currentStepNumber();
-   }
-   $scope.goToStep = function(step){
-       console.log(step)
-       WizardHandler.wizard().goTo(step);
-   }
-   $scope.currentShift = {
-       id:'',code:'',name:'',description:'',start_time:'',end_time:''
-   };
-   queryService.post('select id,code,name,description,start_time,end_time from ref_hk_working_shift where is_current_shift = \'Y\' ',undefined)
-   .then(function(data){
-       $scope.currentShift = data.data[0]
-   });
-   var dateIn = new Date();
-   $scope.currentPeriod = dateIn.toISOString().split('T')[0];
-   console.log('period',$scope.currentPeriod)
-   $scope.closedTransaction = [];
-   $scope.currentAuditId = 0;
-   $scope.showClosedTransaction = function(){
-
-       // call begin_audit(p_period, 'NA', 0, 3, p_auditor, @out_id_audit);
-       queryService.post('SET @out_id_audit = 0;CALL `begin_audit`(\''+$scope.currentPeriod+'\',\'NA\','+$scope.currentShift.id+',3,'+$localStorage.currentUser.name.id+',@out_id_audit);SELECT @out_id_audit;', undefined)
-       .then(function (result2){
-           $scope.currentAuditId = result2.data[2]['0']['@out_id_audit'];
-       },
-       function(err2){
-           console.log(err2)
-       })
-       queryService.post("select a.id, a.payment_type_id, a.home_payment_amount, c.category payment_cat, "+
-        	"c.account_id cash_account_id, d.ar_account_id, d.fee_account_id,  "+
-            "a.card_no, date_format(a.created_date,'%Y-%m-%d %H:%i:%s')created_date, a.folio_id,c.name payment_type_name, "+
-            "concat(f.first_name,' ',f.last_name) cust_name,g.name room_name "+
-        "from fd_guest_payment a "+
-        "left join fo_cashier_transaction b on b.id = a.cashier_transc_id "+
-        "left join ref_payment_method c on c.id = a.payment_type_id "+
-        "left join mst_credit_card d on d.id = c.credit_card_id "+
-        "left join fd_guest_folio e on e.id = a.folio_id "+
-        "left join mst_customer f on e.customer_id = f.id "+
-        "left join mst_room g on e.room_id = g.id "+
-        "where a.created_date >= b.start_transc_time  "+
-        "and a.created_date <= b.end_transc_time "+
-        "and '2017-06-08' between b.start_transc_time and b.end_transc_time "+
-        "and b.working_shift_id = 1 "+
-        "and a.payment_status = '1' "+
-        "order by id",undefined)
-       .then(function(data){
-           //$scope.closedTransaction = data.data;
-           var obj = {}
-           for (var i=0;i<data.data.length;i++){
-               if (!obj[data.data[i].payment_type_name]){
-                   obj[data.data[i].payment_type_name] = [data.data[i]]
-               }
-               else obj[data.data[i].payment_type_name].push(data.data[i])
-           }
-
-           for (var key in obj){
-               var tot = 0
-               for (var i=0;i<obj[key].length;i++){
-                   tot += obj[key][i].home_payment_amount
-               }
-               $scope.closedTransaction.push({
-                   payment_type_name: key,
-                   total:tot,
-                   data:obj[key]
-               })
-           }
-           console.log('closedTransaction',$scope.closedTransaction)
-
-       });
-   }
-   $scope.guestDeposit = [];
-   $scope.showGuestDeposit = function(){
-       queryService.post('call sa_guest_payments(\''+$scope.currentPeriod+'\', '+$scope.currentShift.id+',  '+$localStorage.currentUser.name.id+');', undefined)
-       .then(function (result2){
-           console.log('sa_guest_payments',result2)
-       },
-       function(err2){
-           console.log(err2)
-       })
-       queryService.post("select b.id folio_id, b.code folio_code,d.name room_name, a.deposit_amount,b.check_in_date, "+
-            	"concat(c.first_name , ' ',c.last_name) cust_name,date_format(a.created_date,'%Y-%m-%d %H:%i:%s') created_date "+
-            "from fd_guest_deposit a "+
-            "left join fd_guest_folio b on b.id = a.folio_id "+
-            "left join mst_customer c on b.customer_id = c.id "+
-            "left join mst_room d on b.room_id = d.id "+
-            "where b.check_in_date between '2017-06-04 00:00:00' and '2017-06-04 23:59:59' ",undefined)
-       .then(function(data){
-           $scope.guestDeposit = data.data
-       });
-   }
-   $scope.showEnd = function(){
-       queryService.post('call sa_guest_deposit(\''+$scope.currentPeriod+'\', '+$scope.currentShift.id+',  '+$localStorage.currentUser.name.id+');', undefined)
-       .then(function (result2){
-           console.log('sa_guest_deposit',result2)
-       },
-       function(err2){
-           console.log(err2)
-       })
-   }
-   $scope.finish = function(){
-       queryService.post('call end_audit('+$scope.currentAuditId+');', undefined)
-       .then(function (result2){
-           console.log('end_audit',result2)
-       },
-       function(err2){
-           console.log(err2)
-       })
-   }
-    var qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_day_type a, "+
+    var qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_room_type a, "+
         "(select id as status_id, value as status_value,name as status_name  "+
             "from table_ref  "+
             "where table_name = 'ref_product_category' and column_name='status')b "+
@@ -169,7 +48,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     })
 
     $scope.focusinControl = {};
-    $scope.fileName = "Day Type Reference";
+    $scope.fileName = "Room Type Reference";
     $scope.exportExcel = function(){
 
         queryService.post('select code,name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
@@ -345,7 +224,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             }
             console.log(param)
 
-            queryService.post('insert into ref_day_type SET ?',param)
+            queryService.post('insert into ref_room_type SET ?',param)
             .then(function (result){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
@@ -385,7 +264,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 modified_by: $localStorage.currentUser.name.id
             }
             console.log(param)
-            queryService.post('update ref_day_type SET ? WHERE id='+$scope.coa.id ,param)
+            queryService.post('update ref_room_type SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
                 if (result.status = "200"){
                     console.log('Success Update')
@@ -439,7 +318,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.execDelete = function(){
-        queryService.post('update ref_day_type SET status=\'2\', '+
+        queryService.post('update ref_room_type SET status=\'2\', '+
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
         ' WHERE id='+$scope.coa.id ,undefined)

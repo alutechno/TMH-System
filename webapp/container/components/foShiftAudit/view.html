@@ -31,41 +31,54 @@
                                 <div class="col-md-5 b-r b-dashed b-grey sm-b-b">
                                     <div class="padding-30">
                                         <h4 class="pull-left">Shift Information</h4>
-                                        <button class="btn btn-primary pull-right m-t-10" type="submit" >Change Shift</button>
                                         <div class="row">
-                                            <div class="col-sm-12">
-                                                    <h5>Current Shift: Shift #1</h5>
+                                            <div class="col-md-8">
+                                                <div class="col-sm-12">
+                                                        <h5>Current Shift: {{currentShift.code}}</h5>
 
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <div class="checkbox check-primary" >
-                                                    <input type="checkbox" id="cbShift1" ng-checked="additional.form.gf.is_incognito==1" ng-true-value="1" ng-model="additional.form.gf.is_incognito" >
-                                                    <label for="cbShift1">Shift 1 Closed Status</label>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="checkbox check-primary" >
+                                                        <input type="checkbox" id="cbShift1" ng-checked="additional.form.gf.is_incognito==1" ng-true-value="1" ng-model="additional.form.gf.is_incognito" >
+                                                        <label for="cbShift1">Shift 1 Closed Status</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="checkbox check-primary" >
+                                                        <input type="checkbox" id="cbShift1" ng-checked="additional.form.gf.is_incognito==1" ng-true-value="1" ng-model="additional.form.gf.is_incognito" >
+                                                        <label for="cbShift1">Shift 2 Closed Status</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="checkbox check-primary" >
+                                                        <input type="checkbox" id="cbShift1" ng-checked="additional.form.gf.is_incognito==1" ng-true-value="1" ng-model="additional.form.gf.is_incognito" >
+                                                        <label for="cbShift1">Shift 3 Closed Status</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="checkbox check-primary" >
+                                                        <input type="checkbox" id="cbShift1" ng-checked="additional.form.gf.is_incognito==1" ng-true-value="1" ng-model="additional.form.gf.is_incognito" >
+                                                        <label for="cbShift1">Closed Transaction</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="checkbox check-primary" >
+                                                        <input type="checkbox" id="cbShift1" ng-checked="additional.form.gf.is_incognito==1" ng-true-value="1" ng-model="additional.form.gf.is_incognito" >
+                                                        <label for="cbShift1">Guest Deposit</label>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="col-sm-12">
-                                                <div class="checkbox check-primary" >
-                                                    <input type="checkbox" id="cbShift1" ng-checked="additional.form.gf.is_incognito==1" ng-true-value="1" ng-model="additional.form.gf.is_incognito" >
-                                                    <label for="cbShift1">Shift 2 Closed Status</label>
+                                            <div class="col-md-4">
+                                                <div class="row">
+                                                    <button class="btn btn-primary m-t-10" type="submit" >Change Shift</button>
                                                 </div>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <div class="checkbox check-primary" >
-                                                    <input type="checkbox" id="cbShift1" ng-checked="additional.form.gf.is_incognito==1" ng-true-value="1" ng-model="additional.form.gf.is_incognito" >
-                                                    <label for="cbShift1">Shift 3 Closed Status</label>
+                                                <div class="row">
+                                                    <button class="btn btn-primary m-t-10" type="submit" >Close Shift</button>
                                                 </div>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <div class="checkbox check-primary" >
-                                                    <input type="checkbox" id="cbShift1" ng-checked="additional.form.gf.is_incognito==1" ng-true-value="1" ng-model="additional.form.gf.is_incognito" >
-                                                    <label for="cbShift1">Closed Transaction</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <div class="checkbox check-primary" >
-                                                    <input type="checkbox" id="cbShift1" ng-checked="additional.form.gf.is_incognito==1" ng-true-value="1" ng-model="additional.form.gf.is_incognito" >
-                                                    <label for="cbShift1">Guest Deposit</label>
-                                                </div>
+
+
+
+
                                             </div>
                                         </div>
                                         <br>
@@ -75,7 +88,7 @@
                                 </div>
                                 <div class="col-md-7">
                                     <div class="padding-30">
-                                        <h5>Active Cashier from shift #1</h5>
+                                        <h5>Active Cashier from {{currentShift.code}}</h5>
                                         <table class="table table-condensed">
                                             <thead>
                                                 <tr>
@@ -105,15 +118,15 @@
                             <div class="padding-20 bg-white">
                                 <ul class="pager wizard">
                                     <li class="next">
-                                        <button type="button" class="btn btn-primary btn-cons btn-animated from-left fa fa-arrow-right pull-right" wz-next>
-                                            <span>Next</span>
+                                        <button type="button" class="btn btn-primary btn-cons btn-animated from-left fa fa-arrow-right pull-right" wz-next ng-click="showClosedTransaction()">
+                                            <span>Start Audit</span>
                                         </button>
                                     </li>
-                                    <li class="previous disabled">
+                                    <!--<li class="previous disabled">
                                         <button type="button" class="btn btn-default btn-cons pull-right">
                                             <span>Previous</span>
                                         </button>
-                                    </li>
+                                    </li>-->
                                 </ul>
                             </div>
                         </wz-step>
@@ -121,8 +134,36 @@
                             <div class="row row-same-height">
                                 <div class="padding-30">
                                     <h4>Closed Payment Transaction</h4>
+                                    <ng-container ng-repeat="item in closedTransaction">
+                                        <h5>{{item.payment_type_name}}</h5>
+                                        <table class="table table-condensed">
+                                            <thead>
+                                                <tr>
+                                                    <th >Room Number</th>
+                                                    <th >Guest Name</th>
+                                                    <th >Transaction Time</th>
+                                                    <th style="text-align:center">Total Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr  ng-repeat="item2 in item.data">
+                                                    <td>{{item2.room_name}}</td>
+                                                    <td>{{item2.cust_name}}</td>
+                                                    <td>{{item2.created_date}}</td>
+                                                    <td align="right">{{item2.home_payment_amount|number:fractionSize}}</td>
+                                                </tr>
+                                            </tbody>
+                                            <tfooter>
+                                                <tr>
+                                                    <td colspan="3">{{item.payment_type_name}} Total</td>
+                                                    <td align="right">{{item.total|number:fractionSize}}</td>
+                                                </tr>
+                                            </tfooter>
 
-                                    <h5>Cash</h5>
+                                        </table>
+                                    </ng-container>
+
+                                    <!--<h5>Cash</h5>
                                     <table class="table table-condensed">
                                         <thead>
                                             <tr>
@@ -206,14 +247,14 @@
                                             </tr>
                                         </tfooter>
 
-                                    </table>
+                                    </table>-->
 
                                 </div>
                             </div>
                             <div class="padding-20 bg-white">
                                 <ul class="pager wizard">
                                     <li class="next">
-                                        <button type="button" class="btn btn-primary btn-cons btn-animated from-left fa fa-arrow-right pull-right" wz-next>
+                                        <button type="button" class="btn btn-primary btn-cons btn-animated from-left fa fa-arrow-right pull-right" wz-next ng-click="showGuestDeposit()">
                                             <span>Next</span>
                                         </button>
                                     </li>
@@ -238,38 +279,24 @@
                                                 <th>Room Number</th>
                                                 <th>Guest Name</th>
                                                 <th>Transaction Time</th>
-                                                <th>Deposit Amount</th>
+                                                <th style="text-align:center">Deposit Amount</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>29212</td>
-                                                <td>1108</td>
-                                                <td>Mr. Indrax Xusumax</td>
-                                                <td>08:15</td>
-                                                <td>1.000.000</td>
-                                            </tr>
-                                            <tr>
-                                                <td>29102</td>
-                                                <td>1118</td>
-                                                <td>Mr. Dien Ciet</td>
-                                                <td>09:25</td>
-                                                <td>500.000</td>
-                                            </tr>
-                                            <tr>
-                                                <td>29302</td>
-                                                <td>2108</td>
-                                                <td>Mr. Terbots</td>
-                                                <td>11:10</td>
-                                                <td>3.000.000</td>
+                                            <tr ng-repeat="item in guestDeposit">
+                                                <td>{{item.folio_code}}</td>
+                                                <td>{{item.room_name}}</td>
+                                                <td>{{item.cust_name}}</td>
+                                                <td>{{item.created_date}}</td>
+                                                <td align="right">{{item.deposit_amount|number:fractionSize}}</td>
                                             </tr>
                                         </tbody>
-                                        <tfooter>
+                                        <!--<tfooter>
                                             <tr>
                                                 <td colspan="4">Total Deposit</td>
                                                 <td>4.500.000</td>
                                             </tr>
-                                        </tfooter>
+                                        </tfooter>-->
 
                                     </table>
 
@@ -279,7 +306,7 @@
                             <div class="padding-20 bg-white">
                                 <ul class="pager wizard">
                                     <li class="next">
-                                        <button type="button" class="btn btn-primary btn-cons btn-animated from-left fa fa-arrow-right pull-right" wz-next>
+                                        <button type="button" class="btn btn-primary btn-cons btn-animated from-left fa fa-arrow-right pull-right" wz-next ng-click="showEnd()">
                                             <span>Next</span>
                                         </button>
                                     </li>

@@ -1541,10 +1541,11 @@
 
                                       <div pg-form-group class="form-group form-group-default form-group-default-select " >
                                           <label>Transfer all transactions to folio</label>
-                                          <ui-select ng-model="additional.form.selected.internet_code.selected" theme="bootstrap" on-select="additional.form.gf.internet_code_status=$item.id">
-                                              <ui-select-match placeholder="">{{$select.selected.name}}</ui-select-match>
-                                              <ui-select-choices repeat="item in additional.form.internetCode | filter: $select.search">
-                                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                          <ui-select ng-model="direction.form.gf.selected.folio" theme="bootstrap" on-select="direction.action.getFolio()">
+                                              <ui-select-match placeholder="">{{$select.selected.folio_id}}</ui-select-match>
+                                              <ui-select-choices repeat="item in direction.listFolio | filter: $select.search">
+                                                  <span ng-bind-html="trustAsHtml((item.folio_id | highlight: $select.search))"></span>
+                                                  (<small ng-bind-html="trustAsHtml((item.guest_name | highlight: $select.search))"></small>)
                                               </ui-select-choices>
                                           </ui-select>
                                       </div>
@@ -1552,13 +1553,13 @@
                                   <div class="col-sm-2">
                                       <div pg-form-group class="form-group form-group-default" >
                                           <label>Room No.</label>
-                                          <input type="text" class="form-control" ng-model="profile.form.gf.mice_id">
+                                          <input type="text" class="form-control" ng-model="direction.form.gf.room_no" ng-readonly="true">
                                       </div>
                                   </div>
                                   <div class="col-sm-4">
                                       <div pg-form-group class="form-group form-group-default" >
                                           <label>Name</label>
-                                          <input type="text" class="form-control" ng-model="profile.form.gf.mice_id">
+                                          <input type="text" class="form-control" ng-model="direction.form.gf.guest_name" ng-readonly="true">
                                       </div>
                                   </div>
 
@@ -1698,7 +1699,7 @@
 
 
                               </div>
-                              <!--<button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit('additional')" >Save</button>-->
+                              <button class="btn btn-primary" type="submit" ng-click="direction.action.transfer()" >Save Transfer</button>
                               <button class="btn btn-primary" type="submit" ng-click="direction.action.addAdditional()" >Additional</button>
 
                           </div>
@@ -2450,139 +2451,138 @@
                       <div class="row m-l-10">
                           <div class="clearfix" ng-controller="FoReservationAccountCtrl">
                               <div class="row clearfix">
-                                  <div class="col-sm-8">
+                                  <div class="col-sm-3">
                                       <div class="row">
                                           <div class="col-sm-4">
-                                              <div pg-form-group class="form-group form-group-default" >
-                                                  <label>Room No.</label>
-                                                  <input type="text" class="form-control" name="code" ng-model="profile.form.gf.room_no" >
-                                              </div>
+                                              <h6 >Room<h6>
                                           </div>
-                                          <div class="col-sm-4">
-                                              <div pg-form-group class="form-group form-group-default" >
-                                                  <label>Room Type</label>
-                                                  <input type="text" class="form-control" name="code" ng-model="profile.form.gf.room_type_name" >
-                                              </div>
+                                          <div class="col-sm-8">
+                                              <h6 >: {{profile.form.gf.room_no}}</h6>
                                           </div>
-                                          <div class="col-sm-4">
-                                              <div pg-form-group class="form-group form-group-default" >
-                                                  <label>Payment</label>
-                                                  <input type="text" class="form-control" name="code" ng-model="profile.form.gf.payment_type_name" >
-                                              </div>
-                                          </div>
-
                                       </div>
                                       <div class="row">
                                           <div class="col-sm-4">
-                                              <div pg-form-group class="form-group form-group-default" >
-                                                  <label>Status</label>
-                                                  <input type="text" class="form-control" name="code" ng-model="profile.form.gf.status_name" >
-                                              </div>
+                                              <h6 class="m-t-5">Room Type<h6>
                                           </div>
-                                          <div class="col-sm-2">
-                                              <div pg-form-group class="form-group form-group-default" >
-                                                  <label>Pax</label>
-                                                  <input type="text" class="form-control" name="code" ng-model="profile.form.gf.num_of_pax" >
-                                              </div>
+                                          <div class="col-sm-8">
+                                              <h6 class="m-t-5">: {{profile.form.gf.room_type_name}}</h6>
                                           </div>
-                                          <div class="col-sm-2">
-                                              <div pg-form-group class="form-group form-group-default" >
-                                                  <label>Child</label>
-                                                  <input type="text" class="form-control" name="code" ng-model="profile.form.gf.num_of_child" >
-                                              </div>
-                                          </div>
-                                          <div class="col-sm-4">
-                                              <div pg-form-group class="form-group form-group-default" >
-                                                  <label>Card No.</label>
-                                                  <input type="text" class="form-control" name="code" ng-model="profile.form.gf.card_no" >
-                                              </div>
-                                          </div>
-
                                       </div>
                                       <div class="row">
-                                          <div class="col-sm-6">
-                                              <div pg-form-group class="form-group form-group-default" >
-                                                  <label>Guest Name</label>
-                                                  <input type="text" class="form-control" name="code" ng-model="profile.form.gf.guest_name" >
-                                              </div>
+                                          <div class="col-sm-4">
+                                              <h6>Guest <h6>
                                           </div>
-                                          <div class="col-sm-6">
-                                              <div pg-form-group class="form-group form-group-default" >
-                                                  <label>Company Name</label>
-                                                  <input type="text" class="form-control" name="code" ng-model="profile.form.gf.company_name" >
-                                              </div>
+                                          <div class="col-sm-8">
+                                              <h6 >: {{profile.form.gf.guest_name}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-4">
+                                              <h6 class="m-t-5">Company <h6>
+                                          </div>
+                                          <div class="col-sm-8">
+                                              <h6 class="m-t-5">: {{profile.form.gf.company_name}}</h6>
                                           </div>
                                       </div>
                                   </div>
-                                  <div class="col-sm-4">
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <div pg-form-group class="form-group form-group-default" >
-                                                <label>Folio#</label>
-                                                <input type="text" class="form-control" name="code" ng-model="profile.form.gf.folio_code" >
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div pg-form-group class="form-group form-group-default" >
-                                                <label>Balance</label>
-                                                <input type="text" class="form-control" name="code" ng-model="profile.form.gf.balance" >
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <div pg-form-group class="form-group form-group-default" >
-                                                <label>Check In</label>
-                                                <input type="text" class="form-control" name="code" ng-model="profile.form.gf.check_in_date" >
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div pg-form-group class="form-group form-group-default" >
-                                                <label>Master</label>
-                                                <input type="text" class="form-control" name="code" ng-model="profile.form.gf.master" >
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <div pg-form-group class="form-group form-group-default" >
-                                                <label>Check Out</label>
-                                                <input type="text" class="form-control" name="code" ng-model="profile.form.gf.check_out_date" >
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div pg-form-group class="form-group form-group-default" >
-                                                <label>Additional</label>
-                                                <input type="text" class="form-control" name="code" ng-model="profile.form.gf.add" >
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <div pg-form-group class="form-group form-group-default" >
-                                                <label>Rate Code</label>
-                                                <input type="text" class="form-control" name="code" ng-model="profile.form.gf.room_rate_code" >
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div pg-form-group class="form-group form-group-default" >
-                                                <label>Total</label>
-                                                <input type="text" class="form-control" name="code" ng-model="profile.form.gf.total" >
-                                            </div>
-                                        </div>
-                                    </div>
+                                  <div class="col-sm-3">
+                                      <div class="row">
+                                          <div class="col-sm-4">
+                                              <h6>Arrival<h6>
+                                          </div>
+                                          <div class="col-sm-8">
+                                              <h6>: {{profile.form.gf.arrival_date}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-4">
+                                              <h6 class="m-t-8">Departure<h6>
+                                          </div>
+                                          <div class="col-sm-8">
+                                              <h6 class="m-t-5">: {{profile.form.gf.departure_date}}</h6>
+                                          </div>
+                                      </div>
 
+                                  </div>
+                                  <div class="col-sm-3">
+                                      <div class="row">
+                                          <div class="col-sm-4">
+                                              <h6>Folio#<h6>
+                                          </div>
+                                          <div class="col-sm-8">
+                                              <h6>: {{profile.form.gf.code}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-4">
+                                              <h6 class="m-t-5">Check In<h6>
+                                          </div>
+                                          <div class="col-sm-8">
+                                              <h6 class="m-t-5">: {{profile.form.gf.check_in_date}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-4">
+                                              <h6 class="m-t-5">Check Out<h6>
+                                          </div>
+                                          <div class="col-sm-8">
+                                              <h6 class="m-t-5">: {{profile.form.gf.check_out_date}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-4">
+                                              <h6 class="m-t-5">Rate Code<h6>
+                                          </div>
+                                          <div class="col-sm-8">
+                                              <h6>: {{profile.form.gf.room_rate_code}}</h6>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="col-sm-3">
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6>Balance<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6>: 0,0</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Master<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{profile.form.gf.master_folio}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Additional<h6>
+                                          </div>
+                                          <div class="col-sm-9">
+                                              <h6 class="m-t-5">: {{profile.form.gf.additional}}</h6>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-3">
+                                              <h6 class="m-t-5">Total<h6>
+                                          </div>
+                                          <div class="col-sm-8">
+                                              <h6 class="m-t-5">: 0,00</h6>
+                                          </div>
+                                      </div>
                                   </div>
                               </div>
+
                               <div class="row clearfix">
+                                  <h5 class="m-t-20 m-l-20">Transaction List</h5>
                                   <table class="table  table-condensed">
                                       <thead>
                                       <tr>
-                                          <th width="10%">Action</th>
-                                          <th width="15%">Date</th>
-                                          <th width="25%">Description</th>
-                                          <th width="10%">Remark</th>
-                                          <th width="10%">Reference</th>
+                                          <th width="10%">ACT</th>
+                                          <th width="10%">Date</th>
+                                          <th width="20%">Description</th>
+                                          <th width="15%">Remark</th>
                                           <th width="10%">Charge</th>
                                           <th width="10%">Credit</th>
                                           <th width="10%">Code</th>
@@ -2591,7 +2591,7 @@
                                       </thead>
                                       <tbody>
                                         <tr ng-repeat="item in account.form.account | filter:filterUser">
-                                            <td ng-click="account.action.showDetail('asd')">
+                                            <td >
                                                 <div class="btn-group btn-group-xs">
                                                     <button class="btn btn-default" title="Show" ng-click="account.action.showDetail(item)">
                                                         <i class="fa fa-edit"></i>
@@ -2601,9 +2601,8 @@
                                             <td>{{item.transc_date}}</td>
                                             <td>{{item.transc_type_name}}</td>
                                             <td>{{item.transc_remarks}}</td>
-                                            <td>{{item.transc_ref}}</td>
-                                            <td>{{item.debit}}</td>
-                                            <td>{{item.credit}}</td>
+                                            <td align="right">{{item.debit|number:fractionSize}}</td>
+                                            <td align="right">{{item.credit|number:fractionSize}}</td>
                                             <td>{{item.transc_code}}</td>
                                             <td>{{item.package_name}}</td>
                                         </tr>
@@ -2620,8 +2619,41 @@
 
                               <br>
                               <div class="row clearfix" ng-if="account.stat=='detail'">
-                                  <h5>Detail Transaction</h5>
-                                  <div class="col-sm-8">
+                                  <h5>Add Correction</h5>
+                                  <div class="col-sm-12">
+                                      <div class="col-sm-4">
+                                          <div pg-form-group class="form-group form-group-default" >
+                                              <label>Previous Debit</label>
+                                              <input type="text" format="number" class="form-control" name="code" ng-model="account.correction.prev_debit" ng-readonly="true">
+                                          </div>
+                                      </div>
+                                      <div class="col-sm-4">
+                                          <div pg-form-group class="form-group form-group-default" >
+                                              <label>Previous Credit</label>
+                                              <input type="text" format="number" class="form-control" name="code" ng-model="account.correction.prev_credit" ng-readonly="true">
+                                          </div>
+                                      </div>
+
+                                  </div>
+                                  <div class="col-sm-12">
+                                      <div class="col-sm-4">
+                                          <div pg-form-group class="form-group form-group-default" >
+                                              <label>Debit</label>
+                                              <input type="text" format="number" class="form-control" name="code" ng-model="account.correction.debit" >
+                                          </div>
+                                      </div>
+                                      <div class="col-sm-4">
+                                          <div pg-form-group class="form-group form-group-default" >
+                                              <label>Credit</label>
+                                              <input type="text" format="number" class="form-control" name="code" ng-model="account.correction.credit" >
+                                          </div>
+                                      </div>
+
+                                  </div>
+                                  <button class="btn btn-primary" type="submit" ng-click="account.action.submitCorrection()" >Post Correction</button>
+                                  <!--<button class="btn btn-primary" ng-show="account.statInsert==false" type="submit" ng-click="account.action.removeCredit()" >Remove Credit</button>-->
+                                  <button class="btn btn-default" ng-click="account.action.cancelCorrection()"><i class="pg-close"></i> Cancel</button>
+                                  <!--<div class="col-sm-8">
                                       <div class="row">
                                           <div class="col-sm-4">
                                               <div pg-form-group class="form-group form-group-default" >
@@ -2848,23 +2880,7 @@
                                           </thead>
 
                                           <tbody>
-                                          <!--<tr ng-repeat="item in items | filter:filterUser">
-                                              <td >{{item.product_name}}
-                                              </td>
-                                              <td style="text-align: right;">
-                                                  {{ item.qty | number : fractionSize }}
-                                              </td>
-                                              <td style="text-align: right;">
-                                                  {{ item.price | number : fractionSize }}
 
-                                              </td>
-                                              <td style="text-align: right;">
-                                                  {{ item.amount | number : fractionSize }}
-                                              </td>
-                                              <td >
-                                                  {{item.supplier_name}}
-                                              </td>
-                                          </tr>-->
                                             <tr>
                                                 <td >User 1</td>
                                                 <td>312</td>
@@ -2878,7 +2894,7 @@
                                             </tr>
                                           </tbody>
                                       </table>
-                                  </div>
+                                  </div>-->
 
                               </div>
                               <div class="row clearfix" ng-if="account.stat=='allfolio'">
@@ -2935,9 +2951,40 @@
                                           <div class="col-sm-4">
                                               <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                   <label>Category</label>
-                                                  <ui-select ng-model="account.credit.selected.category" theme="bootstrap" >
-                                                      <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                                                  <ui-select ng-model="account.credit.selected.category" theme="bootstrap" on-select="account.action.setPaymentMethod($select.selected.id)">
+                                                      <ui-select-match placeholder="select..">{{$select.selected.folio_text}}</ui-select-match>
                                                       <ui-select-choices repeat="item in account.form.trans_type_payment | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.folio_text | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-4">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Payment Method</label>
+                                                  <ui-select ng-model="account.credit.selected.payment_method" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select..">{{$select.selected.payment_name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in account.form.payment_method_credit | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.payment_name | highlight: $select.search))"></span>
+                                                      </ui-select-choices>
+                                                  </ui-select>
+                                              </div>
+                                          </div>
+                                          <div class="col-sm-4" ng-if="account.credit.selected.payment_method.category=='CC'">
+                                              <div pg-form-group class="form-group form-group-default" >
+                                                  <label>Card No</label>
+                                                  <input type="text" class="form-control" name="code" ng-model="account.credit.card_no" >
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                      <div class="row">
+                                          <div class="col-sm-4">
+                                              <div pg-form-group class="form-group form-group-default form-group-default-select  " >
+                                                  <label>Currency</label>
+                                                  <ui-select ng-model="account.credit.selected.currency" theme="bootstrap" >
+                                                      <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in profile.form.currency | filter: $select.search">
                                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                                       </ui-select-choices>
                                                   </ui-select>
@@ -2950,6 +2997,7 @@
                                                   <input type="text" class="form-control" name="code" ng-model="account.credit.charge" >
                                               </div>
                                           </div>
+
                                       </div>
                                       <div class="row">
                                           <div class="col-sm-12">
@@ -2980,9 +3028,9 @@
                                               <div pg-form-group class="form-group form-group-default form-group-default-select  " >
                                                   <label>Category</label>
                                                   <ui-select ng-model="account.cl.selected.category" theme="bootstrap" >
-                                                      <ui-select-match placeholder="select..">{{$select.selected.name}}</ui-select-match>
-                                                      <ui-select-choices repeat="item in account.form.trans_type_payment | filter: $select.search">
-                                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                                      <ui-select-match placeholder="select..">{{$select.selected.folio_text}}</ui-select-match>
+                                                      <ui-select-choices repeat="item in account.form.trans_type_cl | filter: $select.search">
+                                                          <span ng-bind-html="trustAsHtml((item.folio_text | highlight: $select.search))"></span>
                                                       </ui-select-choices>
                                                   </ui-select>
                                               </div>

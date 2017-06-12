@@ -3175,7 +3175,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
             url: '/pos',
             template: '<div ui-view></div>'
         })
-		.state("app.pos.menuList", {
+        .state("app.pos.menuList", {
 				url: "/menuList",
 				templateUrl: "container/components/posRefMenuList/view.html",
 				controller: "PosMenuList",
@@ -3196,7 +3196,447 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
 						});
 					}]
 				}
-			})
+		})
+        .state("app.pos.paymentMethod", {
+			url: "/payment-method",
+			templateUrl: "container/components/posPaymentMethod/view.html",
+			controller: "PosPaymentMethodCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posPaymentMethod/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.customerSegment", {
+			url: "/customer-segment",
+			templateUrl: "container/components/posCustomerSegment/view.html",
+			controller: "PosCustomerSegmentCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posCustomerSegment/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.segmentPayment", {
+			url: "/segment-payment",
+			templateUrl: "container/components/posSegmentPayment/view.html",
+			controller: "PosSegmentPaymentCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posSegmentPayment/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.categoryClass", {
+			url: "/category-class",
+			templateUrl: "container/components/posCategoryClass/view.html",
+			controller: "PosCategoryClassCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posCategoryClass/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.groupMenu", {
+			url: "/group-menu",
+			templateUrl: "container/components/posGroupMenu/view.html",
+			controller: "PosGroupMenuCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posGroupMenu/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.cuisineCategory", {
+			url: "/cuisine-category",
+			templateUrl: "container/components/posCuisineCategory/view.html",
+			controller: "PosCuisineCategoryCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posCuisineCategory/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.cuisineRegion", {
+			url: "/cuisine-region",
+			templateUrl: "container/components/posCuisineRegion/view.html",
+			controller: "PosCuisineRegionCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posCuisineRegion/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.mealTime", {
+			url: "/payment-method",
+			templateUrl: "container/components/posMealTime/view.html",
+			controller: "PosMealTimeCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posMealTime/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.promotion", {
+			url: "/payment-method",
+			templateUrl: "container/components/posPromotion/view.html",
+			controller: "PosPromotionCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posPromotion/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.outlet", {
+			url: "/pos-outlet",
+			templateUrl: "container/components/posOutlet/view.html",
+			controller: "PosOutletCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posOutlet/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.tables", {
+			url: "/pos-tables",
+			templateUrl: "container/components/posTables/view.html",
+			controller: "PosTablesCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posTables/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.tax", {
+			url: "/pos-tax",
+			templateUrl: "container/components/posTax/view.html",
+			controller: "PosTaxCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posTax/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.houseUse", {
+			url: "/house-use",
+			templateUrl: "container/components/posHouseUse/view.html",
+			controller: "PosHouseUseCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posHouseUse/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.discount", {
+			url: "/discount",
+			templateUrl: "container/components/posDiscount/view.html",
+			controller: "PosDiscountCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posDiscount/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.costCenter", {
+			url: "/cost-center",
+			templateUrl: "container/components/posCostCenter/view.html",
+			controller: "PosCostCenterCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posCostCenter/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.kitchen", {
+			url: "/kitchen",
+			templateUrl: "container/components/posKitchen/view.html",
+			controller: "PosKitchenCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posKitchen/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.kitchenSection", {
+			url: "/kitchen-section",
+			templateUrl: "container/components/posKitchenSection/view.html",
+			controller: "PosKitchenSectionCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posKitchenSection/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.cuisineRecipe", {
+			url: "/cuisine-recipe",
+			templateUrl: "container/components/posCuisineRecipe/view.html",
+			controller: "PosCuisineRecipeCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posCuisineRecipe/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.memberPackage", {
+			url: "/member-package",
+			templateUrl: "container/components/posMemberPackage/view.html",
+			controller: "PosMemberPackageCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posMemberPackage/controller.js");
+					});
+				}]
+			}
+		})
+        .state("app.pos.outletType", {
+			url: "/outlet-type",
+			templateUrl: "container/components/posOutletType/view.html",
+			controller: "PosOutletTypeCtrl",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/posOutletType/controller.js");
+					});
+				}]
+			}
+		})
         // Extra - Others
         .state('access', {
             url: '/access',
