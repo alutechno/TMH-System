@@ -222,7 +222,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             function (err){
                 $('#form-input').pgNotification({
                     style: 'flip',
-                    message: 'Error Insert: '+err.desc.code,
+                    message: 'Error Insert: '+JSON.stringify(err),
                     position: 'top-right',
                     timeout: 2000,
                     type: 'danger'
