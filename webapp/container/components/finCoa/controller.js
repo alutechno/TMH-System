@@ -297,7 +297,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 account_type_id: $scope.selected.account_type.selected.id,
                 report_level: $scope.selected.report_level.selected.id,
                 dept_id: ($scope.selected.dept.selected?$scope.selected.dept.selected.id:null),
-                parent_id: ($scope.selected.parent.selected.id?$scope.selected.parent.selected.id:null),
+                parent_id: ($scope.selected.parent.selected?$scope.selected.parent.selected.id:null),
                 created_date: globalFunction.currentDate(),
                 created_by: $localStorage.currentUser.name.id
             }
