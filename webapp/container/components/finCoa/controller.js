@@ -322,7 +322,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             function (err){
                 $('#form-input').pgNotification({
                     style: 'flip',
-                    message: 'Error Insert: '+err,
+                    message: 'Error Insert: '+JSON.stringify(err),
                     position: 'top-right',
                     timeout: 2000,
                     type: 'danger'
