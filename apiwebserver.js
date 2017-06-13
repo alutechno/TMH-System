@@ -346,6 +346,7 @@ if (cluster.isMaster) {
     });
 
     app.post('/authenticate', function (req, res) {
+		console.log(req)
         var sqlstr = 'select a.id,a.name as username, a.full_name,a.password, a.token, g.name as gname, e.l1 as menuname, e.l2 as submenuname, h.name as module, e.l2state, ' +
             'group_concat(f.object), f.custom, i.name as default_module, e.l2id,j.name as default_menu, j.state as default_state,e.is_sidebar,e.sidebar_short,e.sidebar_icon ' +
             'from user a, role_user b, role c, role_menu d, ' +
@@ -362,7 +363,7 @@ if (cluster.isMaster) {
             'and g.module_id = h.id  ' +
             'and a.default_module = i.id ' +
             'and a.default_menu = j.id ' +
-            'and a.name="' + req.username + '" ' +
+            'and a.name="' + req.body.username + '" ' +
             'and a.password="' + req.body.password + '" ' +
             'group by l2state,submenuname ' +
             'order by e.seqParent,menuname,e.sequence, submenuname ';
