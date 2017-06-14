@@ -18,7 +18,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         selected: []
     };
 
-    $scope.table = 'ref_ar_outlet_type'
+    $scope.table = 'ref_outlet_type'
 
     var qstring = "select a.*,d.status_name "+
                     "from "+ $scope.table +" a "+
@@ -32,7 +32,6 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         id: '',
         code: '',
         name: '',
-        short_name: '',
         description: '',
         status: ''
     }
@@ -55,11 +54,11 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.fileName = "Tax";
     $scope.exportExcel = function(){
 
-        queryService.post('select code,name,short_name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
+        queryService.post('select code,name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
         .then(function(data){
             $scope.exportData = [];
             //Header
-            $scope.exportData.push(["Code", "Name",'Short Name', 'Description','Status']);
+            $scope.exportData.push(["Code", "Name",'Description','Status']);
             //Data
             for(var i=0;i<data.data.length;i++){
                 var arr = []
@@ -136,7 +135,6 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('code').withTitle('Code'),
         DTColumnBuilder.newColumn('name').withTitle('Name'),
-        DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
         DTColumnBuilder.newColumn('description').withTitle('Description'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
@@ -249,7 +247,6 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.field.code = result.data[0].code
             $scope.field.description = result.data[0].description
             $scope.field.status = result.data[0].status
-            $scope.field.short_name = result.data[0].short_name
             for (var i = $scope.arr.status.length - 1; i >= 0; i--) {
                 if ($scope.arr.status[i].id == result.data[0].status){
                     $scope.selected.status.selected = {name: $scope.arr.status[i].name, id: $scope.arr.status[i].id}
@@ -303,7 +300,6 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             id: '',
             code: '',
             name: '',
-            short_name: '',
             description: '',
             status: ''
         }
