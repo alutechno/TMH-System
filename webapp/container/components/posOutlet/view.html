@@ -9,7 +9,7 @@
                 </div>
                 <div class="pull-right" style="width: 60%;">
                     <!--<button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>-->
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Type</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Outlet</button>
                     <span ng-click="exportExcel()">
                         <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
                     </span>
@@ -78,12 +78,12 @@
 </div>
 
 <!--START FORM INPUT-->
-<div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade slide-right form-input-medium" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Room Type Information</div>
+       <div class="panel-title">Outlet Information</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -95,44 +95,213 @@
       <div class="panel panel-transparent m-t-20">
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
-                  <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.code.$invalid && !coa.code.$pristine }">
+                  <div class="col-sm-3">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.name.$invalid && !field.name.$pristine }">
                           <label>Code</label>
-                          <input type="text" class="form-control" name="code" id="coa_code" ng-model="coa.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" class="form-control" name="code" ng-model="field.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
-              </div>
-
-              <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.name.$invalid && !coa.name.$pristine }">
+                  <div class="col-sm-9">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.name.$invalid && !field.name.$pristine }">
                           <label>Name</label>
-                          <input type="text" class="form-control" name="name" ng-model="coa.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" class="form-control" name="name" ng-model="field.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
               </div>
-
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default">
-                          <label>Desc</label>
-                          <input type="text" class="form-control" name="name" ng-model="coa.description" >
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.address.$invalid && !field.address.$pristine }">
+                          <label>Address</label>
+                          <input type="text" class="form-control" name="address" ng-model="field.address" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
                       </div>
                   </div>
               </div>
               <div class="row clearfix">
-                <div class="col-sm-12">
-                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.status.selected.$invalid && !selected.status.selected.$pristine }">
-                        <label>Status</label>
-                        <ui-select ng-model="selected.status.selected" theme="bootstrap" validate-attached-form-element required>
-                            <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                            <ui-select-choices repeat="item in arrActive | filter: $select.search">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.bill_footer.$invalid && !field.bill_footer.$pristine }">
+                          <label>Bill Footer</label>
+                          <input type="text" class="form-control" name="bill_footer" ng-model="field.bill_footer" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                <div class="col-sm-6">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : field.outlet_type_id.$invalid && !field.outlet_type_id.$pristine }">
+                        <label>Outlet Type</label>
+                        <ui-select ng-model="selected.outlet_type_id.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select outlet">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.outlet_type_id | filter: $select.search">
                                 <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                             </ui-select-choices>
                         </ui-select>
                     </div>
                 </div>
-            </div>
+                <div class="col-sm-6">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.cost_center_id.$invalid && !field.cost_center_id.$pristine }">
+                        <label>Cost Center</label>
+                        <ui-select ng-model="selected.cost_center_id.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select cost center">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.cost_center_id | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+              </div>
+              <div class="row clearfix">
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.tax_id.$invalid && !field.tax_id.$pristine }">
+                        <label>Tax</label>
+                        <ui-select ng-model="selected.tax_id.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select tax">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.tax_id | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.is_allow_cancel_tax.$invalid && !field.is_allow_cancel_tax.$pristine }">
+                        <label>Allow Cancel Tax</label>
+                        <ui-select ng-model="selected.is_allow_cancel_tax.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.is_allow_cancel_tax | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : field.status.$invalid && !field.status.$pristine }">
+                        <label>Status</label>
+                        <ui-select ng-model="selected.status.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.status | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.delivery_bill_footer.$invalid && !field.delivery_bill_footer.$pristine }">
+                          <label>Delivery Bill Footer</label>
+                          <input type="text" class="form-control" name="delivery_bill_footer" ng-model="field.delivery_bill_footer" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.m2.$invalid && !field.m2.$pristine }">
+                          <label>M2</label>
+                          <input type="text" class="form-control" name="m2" ng-model="field.m2" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.last_meal_period.$invalid && !field.last_meal_period.$pristine }">
+                          <label>Last Meal Period</label>
+                          <input type="text" class="form-control" name="last_meal_period" ng-model="field.last_meal_period" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.curr_meal_period.$invalid && !field.curr_meal_period.$pristine }">
+                          <label>Curr Meal Period</label>
+                          <input type="text" class="form-control" name="curr_meal_period" ng-model="field.curr_meal_period" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.list_number.$invalid && !field.list_number.$pristine }">
+                          <label>List Number</label>
+                          <input type="text" class="form-control" name="list_number" ng-model="field.list_number" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.num_of_employee.$invalid && !field.num_of_employee.$pristine }">
+                          <label>No Of Employee</label>
+                          <input type="text" class="form-control" name="num_of_employee" ng-model="field.num_of_employee" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.fo_gl_journal_code.$invalid && !field.fo_gl_journal_code.$pristine }">
+                          <label>FO GL Journal Code</label>
+                          <input type="text" class="form-control" name="fo_gl_journal_code" ng-model="field.fo_gl_journal_code" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.bill_image_uri.$invalid && !field.bill_image_uri.$pristine }">
+                          <label>Bill Image Uri</label>
+                          <input type="text" class="form-control" name="bill_image_uri" ng-model="field.bill_image_uri" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.bill_image_path.$invalid && !field.bill_image_path.$pristine }">
+                          <label>Bill Image Path</label>
+                          <input type="text" class="form-control" name="bill_image_path" ng-model="field.bill_image_path" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.small_bill_image_uri.$invalid && !field.small_bill_image_uri.$pristine }">
+                          <label>Small Bill Image Uri</label>
+                          <input type="text" class="form-control" name="small_bill_image_uri" ng-model="field.small_bill_image_uri" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.small_bill_image_path.$invalid && !field.small_bill_image_path.$pristine }">
+                          <label>Small Bill Image Path</label>
+                          <input type="text" class="form-control" name="small_bill_image_path" ng-model="field.small_bill_image_path" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.printed_bill_image_uri.$invalid && !field.printed_bill_image_uri.$pristine }">
+                          <label>Printed Bill Image Uri</label>
+                          <input type="text" class="form-control" name="printed_bill_image_uri" ng-model="field.printed_bill_image_uri" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.printed_bill_image_path.$invalid && !field.printed_bill_image_path.$pristine }">
+                          <label>Printed Bill Image Path</label>
+                          <input type="text" class="form-control" name="printed_bill_image_path" ng-model="field.printed_bill_image_path" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.small_printed_bill_image_uri.$invalid && !field.small_printed_bill_image_uri.$pristine }">
+                          <label>Small Printed Bill Image Uri</label>
+                          <input type="text" class="form-control" name="small_printed_bill_image_uri" ng-model="field.small_printed_bill_image_uri" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.small_printed_bill_image_path.$invalid && !field.small_printed_bill_image_path.$pristine }">
+                          <label>Small Printed Bill Image Path</label>
+                          <input type="text" class="form-control" name="small_printed_bill_image_path" ng-model="field.small_printed_bill_image_path" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
               </div>
 
               <br>
