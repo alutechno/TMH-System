@@ -20,8 +20,11 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 
     $scope.table = 'mst_outlet'
 
-    var qstring = "select a.*,d.status_name "+
+    var qstring = "select a.*,d.status_name,b.name as outlet_type_name,c.name as cost_center_name,e.name as tax_name "+
                     "from "+ $scope.table +" a "+
+                    "left join ref_outlet_type b on a.outlet_type_id = b.id "+
+                    "left join mst_cost_center c on a.cost_center_id = c.id "+
+                    "left join mst_pos_taxes e on a.tax_id = e.id "+
                     "left join (select id as status_id, value as status_value,name as status_name from table_ref "+
                     "where table_name = 'ref_product_category' and column_name='status' and value in (0,1)) d on a.status = d.status_value "+
                     "where a.status!=2 "
@@ -187,8 +190,9 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '6%'),
         DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('address').withTitle('Address'),
-        DTColumnBuilder.newColumn('bill_footer').withTitle('Bill Footer'),
+        DTColumnBuilder.newColumn('outlet_type_name').withTitle('Outlet Type'),
+        DTColumnBuilder.newColumn('cost_center_name').withTitle('Cost Center'),
+        DTColumnBuilder.newColumn('tax_name').withTitle('Tax'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '10%')
     );
 
