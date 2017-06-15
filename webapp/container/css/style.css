@@ -204,9 +204,18 @@ table.dataTable td {
 }
 
 input[ng-readonly="true"]{
-    color: chocolate !important;
+    color: red !important;
+}
+input[readonly="readonly"]{
+    color: red !important;
+}
+input[disabled="disabled"]{
+    color: red !important;
+}
+input[ng-disabled="disabled"]{
+    color: red !important;
 }
 
-input[ng-disabled]{
-    color: chocolate !important;
+.ui-select-bootstrap .ui-select-match-text span {
+	color:red !important;
 }
