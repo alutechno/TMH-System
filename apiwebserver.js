@@ -156,6 +156,11 @@ if (cluster.isMaster) {
                 }
 
             }
+            else if(req.path.indexOf('upload')>-1){
+                log(req.headers, req.path, 'authorization-200', JSON.stringify(req.query), JSON.stringify(req.body), 'success')
+                //req.username = user.username
+                next();
+            }
 			else {
                 log(req.headers, req.path, 'authorization-500', JSON.stringify(req.query), JSON.stringify(req.body), 'Forbidden')
                 res.status(500).send({status: 500, desc: 'Forbidden'})
