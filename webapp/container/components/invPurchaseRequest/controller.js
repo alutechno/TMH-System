@@ -369,7 +369,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.statusState = true
         $scope.approveState = false
         $scope.rejectState = true
-        $scope.selected.approval = 1
+        //$scope.selected.approval = 0
         var dt = new Date()
 
         $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
