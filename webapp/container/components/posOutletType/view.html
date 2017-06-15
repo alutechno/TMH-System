@@ -9,7 +9,7 @@
                 </div>
                 <div class="pull-right" style="width: 60%;">
                     <!--<button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>-->
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Type</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Outlet Type</button>
                     <span ng-click="exportExcel()">
                         <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
                     </span>
@@ -83,7 +83,7 @@
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Room Type Information</div>
+       <div class="panel-title">Outlet Type Information</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -95,44 +95,41 @@
       <div class="panel panel-transparent m-t-20">
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
-                  <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.code.$invalid && !coa.code.$pristine }">
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.name.$invalid && !field.name.$pristine }">
                           <label>Code</label>
-                          <input type="text" class="form-control" name="code" id="coa_code" ng-model="coa.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" class="form-control" name="code" ng-model="field.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
               </div>
-
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.name.$invalid && !coa.name.$pristine }">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.name.$invalid && !field.name.$pristine }">
                           <label>Name</label>
-                          <input type="text" class="form-control" name="name" ng-model="coa.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" class="form-control" name="name" ng-model="field.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
               </div>
-
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default">
-                          <label>Desc</label>
-                          <input type="text" class="form-control" name="name" ng-model="coa.description" >
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.description.$invalid && !field.description.$pristine }">
+                          <label>Description</label>
+                          <input type="text" class="form-control" name="name" ng-model="field.description" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
                       </div>
                   </div>
               </div>
               <div class="row clearfix">
                 <div class="col-sm-12">
-                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.status.selected.$invalid && !selected.status.selected.$pristine }">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : field.status.$invalid && !field.status.$pristine }">
                         <label>Status</label>
-                        <ui-select ng-model="selected.status.selected" theme="bootstrap" validate-attached-form-element required>
+                        <ui-select ng-model="selected.status.selected" theme="bootstrap" >
                             <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                            <ui-select-choices repeat="item in arrActive | filter: $select.search">
+                            <ui-select-choices repeat="item in arr.status | filter: $select.search">
                                 <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                             </ui-select-choices>
                         </ui-select>
                     </div>
                 </div>
-            </div>
               </div>
 
               <br>
