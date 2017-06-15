@@ -36,7 +36,24 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     "where table_name = 'ref_product_category' and column_name='status' and value in (0,1)) b on a.status = b.status_value "+
                     "where a.status!=2 "
     var qwhere = ""
+	$scope.dropzoneConfigImage = {
+		parallelUploads: 1,
+		maxFileSize: 10,
+		url: '/upload',
+		paramName: 'image',
+		autoProcessQueue : true
+	};
+	$scope.dzCallbacks = {
+		'addedfile' : function(file){
+			console.log(file);
+		},
+		'success' : function(file, xhr){
+			$scope.user.image = xhr.pth
+			$scope.$apply();
 
+		}
+	};
+	$scope.dz;
     $scope.rowdata = {}
     $scope.field = {
         id: '',
@@ -390,6 +407,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.field.description = result.data[0].description
             $scope.field.outlet_id = result.data[0].outlet_id
             $scope.field.status = result.data[0].status
+			$scope.field.image = result.data[0].image
             $scope.field.menu_class_id = result.data[0].menu_class_id
             $scope.field.menu_group_id = result.data[0].menu_group_id
             $scope.field.meal_time_id = result.data[0].meal_time_id
