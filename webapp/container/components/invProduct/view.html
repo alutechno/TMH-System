@@ -160,7 +160,7 @@
                   <div class="col-sm-6">
                       <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.price_per_unit.$invalid && !product.price_per_unit.$pristine }">
                           <label>Price Per Unit</label>
-                          <input type="text" class="form-control" name="price_per_unit" ng-model="product.price_per_unit" ng-keyup="setPriceUnit()" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                          <input type="text" format="number" class="form-control" name="price_per_unit" ng-model="product.price_per_unit" ng-keyup="setPriceUnit()" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
               </div>
@@ -233,7 +233,7 @@
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.price_per_lowest_unit.$invalid && !product.price_per_lowest_unit.$pristine }">
                           <label>Price Inventory Unit</label>
-                          <input type="text" class="form-control" name="price_per_lowest_unit" ng-model="product.price_per_lowest_unit" ng-readonly="true" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                          <input type="text" format="number" class="form-control" name="price_per_lowest_unit" ng-model="product.price_per_lowest_unit" ng-readonly="true" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
               </div>
@@ -258,7 +258,7 @@
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : product.price_per_recipe_unit.$invalid && !product.price_per_recipe_unit.$pristine }">
                           <label>Price Recipe Unit</label>
-                          <input type="text" class="form-control" name="price_per_recipe_unit" ng-model="product.price_per_recipe_unit" ng-readonly="true" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
+                          <input type="text" format="number" class="form-control" name="price_per_recipe_unit" ng-model="product.price_per_recipe_unit" ng-readonly="true" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element >
                       </div>
                   </div>
               </div>
