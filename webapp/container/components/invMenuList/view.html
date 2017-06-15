@@ -34,7 +34,7 @@
 </div>
 
 <!--START FORM INPUT-->
-<div class="modal fade slide-right form-input-medium" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade slide-right form-input-big" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
@@ -268,6 +268,15 @@
                             </ui-select-choices>
                         </ui-select>
                     </div>
+                </div>
+				<div class="col-md-3">
+
+                    <div class="thumbnail-wrapper d100 circular bordered b-white m-t-30 m-l-10 " >
+                          <img ng-dropzone dropzone="dropzoneImage" dropzone-config="dropzoneConfigImage" event-handlers="dzCallbacks" name="image" width="100" height="100" ng-src="{{user.image}}" onerror="this.src='container/img/profile/_default2x.jpg'" id="dzid" />
+                    </div>
+                    <br />
+                    <span><i>click on image to change menu image</i></span>
+
                 </div>
               </div>
 

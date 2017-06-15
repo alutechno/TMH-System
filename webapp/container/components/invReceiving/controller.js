@@ -14,6 +14,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.itemsOri = []
     $scope.updateState = false;
     $scope.finalState = false;
+	$scope.rcv_qty=0;
+	$scope.amount=0;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -39,7 +41,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     ") z "
 
     var qwhere = '';
-    var qstringdetail = 'select (select g.order_qty-sum(received_qty) from inv_receive_line_item where item_id=b.item_id)remaining_qty,b.item_id,b.id rcv_id,a.id,a.code,a.po_id,c.name,a.created_date,a.currency_id,e.name supplier_name,f.code,a.total_amount, b.item_id,IFNULL(b.received_qty,0)received_qty,g.order_qty,g.price,g.amount,g.product_id,h.name product_name,b.received_price, '+
+    var qstringdetail = 'select (select g.order_qty-sum(received_qty) from inv_receive_line_item where item_id=b.item_id)remaining_qty, '+
+		'b.item_id,b.id rcv_id,a.id,a.code,a.po_id,c.name,a.created_date,a.currency_id,e.name supplier_name,f.code,a.total_amount, b.item_id,IFNULL(b.received_qty,0)received_qty,g.order_qty,g.price,IFNULL(b.total_amount,0)amount,g.product_id,h.name product_name,b.received_price, '+
         'h.unit_type_id,h.lowest_unit_conversion,h.recipe_unit_conversion,h.lowest_unit_type_id ,b.order_notes '+
         'from inv_po_receive a,inv_receive_line_item b,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f, inv_po_line_item g ,mst_product h '+
         'where a.id=b.receive_id  '+
@@ -712,6 +715,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             $scope.itemsOri = []
             queryService.post(qstringdetail+' and a.id='+ids,undefined)
             .then(function (result2){
+				$scope.order=0;
                 for (var i=0;i<result2.data.length;i++){
                     $scope.items.push({
                         id:(i+1),
@@ -732,6 +736,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         lowest_unit_type_id: result2.data[i].lowest_unit_type_id,
                         unit_type_id: result2.data[i].unit_type_id
                     })
+					$scope.order+=result2.data[i].order_qty;
                 }
                 $scope.itemsOri = angular.copy($scope.items)
 				var date = new Date()
@@ -823,8 +828,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             delivery_status: '',
             delivery_date: '',
             receive_status: '',
-
         }
+		$scope.rcv_qty=0;
+		$scope.amount=0;
 		$scope.flag=false;
         $scope.items = []
         $scope.itemsOri = []
@@ -1076,6 +1082,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             }
             $scope.items[d-1].amount = $scope.items[d-1].rcv_qty*$scope.items[d-1].rcv_price
         }
+		$scope.rcv_qty=0;
+		$scope.amount=0;
+		for(var i=0;i<$scope.items.length;i++){
+			$scope.rcv_qty+=parseFloat($scope.items[i].rcv_qty)
+			$scope.amount+=parseFloat($scope.items[i].amount)
+		}
     }
 	$scope.updateNotes = function(e,d,p){
 		$scope.items[d-1].order_notes = p

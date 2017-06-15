@@ -206,3 +206,7 @@ table.dataTable td {
 input[ng-readonly="true"]{
     color: chocolate !important;
 }
+
+input[ng-disabled]{
+    color: chocolate !important;
+}

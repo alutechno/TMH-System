@@ -172,11 +172,11 @@
                                             <thead>
                                             <tr>
                                                 <th width="5%"><span ng-show="tableform.$visible">Action</span></th>
-                                                <th width="20%">Product</th>
+                                                <th width="15%">Product</th>
 												<th width="15%">Notes</th>
                                                 <th width="5%">Order Qty</th>
                                                 <th width="5%">Remaining</th>
-                                                <th width="5%">Rcv Qty</th>
+                                                <th width="10%">Rcv Qty</th>
                                                 <th width="15%">Price</th>
                                                 <th width="15%">Rcv Price</th>
                                                 <th width="15%">Amount</th>
@@ -210,6 +210,17 @@
                                                 </td>
                                                 <td style="text-align: right;vertical-align: middle;"><span>{{item.amount | number : fractionSize}}</span></td>
                                             </tr>
+											<tr>
+												<td></td>
+												<td></td>
+												<td style="text-align: right;">Total</td>
+												<td style="text-align: right;">{{order}}</td>
+												<td></td>
+												<td style="text-align: right;">{{rcv_qty}}</td>
+												<td></td>
+												<td></td>
+												<td style="text-align: right;">{{amount}}</td>
+											</tr>
                                             </tbody>
                                         </table>
 
