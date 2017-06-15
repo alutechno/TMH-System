@@ -18,9 +18,9 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         selected: []
     };
 
-    $scope.table = 'mst_asset'
+    $scope.table = 'acc_monthly_budget_alloc'
 
-    var qstring = 'select a.id, a.code as account, a.name as account_name, b.name as account_type, '+
+    var qstring = 'select c.id budget_id,a.id, a.code as account, a.name as account_name, b.name as account_type, '+
            'a.short_name, a.description, a.status, a.report_level, FORMAT(c.total_budget_amount,2)total_budget_amount, '+
            'FORMAT(c.month1_budget_amount,2)month1_budget_amount, FORMAT(c.month2_budget_amount,2)month2_budget_amount, FORMAT(c.month3_budget_amount,2)month3_budget_amount,  '+
            'FORMAT(c.month4_budget_amount,2)month4_budget_amount, FORMAT(c.month5_budget_amount,2)month5_budget_amount, FORMAT(c.month6_budget_amount,2)month6_budget_amount,  '+
@@ -154,7 +154,6 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         xhr.open("POST", "/uploadBudget",true);
 		xhr.setRequestHeader("authorization", 'Basic ' + $localStorage.mediaToken);
         $scope.progressVisible = true;
-		console.log(fd)
         xhr.send(fd);
     }
 
@@ -170,7 +169,11 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 
     function uploadComplete(evt) {
         /* This event is raised when the server send back a response */
+		$scope.dtInstance.reloadData(function(obj){
+			// console.log(obj)
+		}, false)
         alert(evt.target.responseText)
+
     }
 
     function uploadFailed(evt) {
@@ -207,7 +210,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" title="Delete" ng-click="delete(rowdata[\'' + data + '\'])" )"="">' +
+                html+='<button class="btn btn-default" title="Delete" ng-click="delete(' + full.budget_id + ')">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
@@ -483,18 +486,16 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 
     $scope.delete = function(obj){
         $scope.field.id = obj.id;
-        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
+        queryService.get(qstring+ ' and c.id='+obj,undefined)
         .then(function(result){
-            $scope.field.name = result.data[0].name;
+            $scope.field = result.data[0];
             $('#modalDelete').modal('show')
         })
     }
 
     $scope.execDelete = function(){
-        queryService.post('update '+ $scope.table +' set status=2, '+
-        ' modified_by='+$localStorage.currentUser.name.id+
-        ' ,modified_date=\''+globalFunction.currentDate()+'\''+
-        '  where id='+$scope.field.id,undefined)
+        queryService.post('delete from acc_monthly_budget_alloc'+
+        '  where id='+$scope.field.budget_id,undefined)
         .then(function (result){
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){

@@ -370,6 +370,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.pr.id.length==0 ){
             if ($scope.items.length>0){
                 var param = {}
@@ -435,6 +436,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                                 timeout: 2000,
                                 type: 'success'
                             }).show();
+							$scope.disableAction = false;
                         },
                         function (err3){
                             $('#form-input').pgNotification({
@@ -444,6 +446,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                                 timeout: 2000,
                                 type: 'danger'
                             }).show();
+							$scope.disableAction = false;
                         })
                     },
                     function (err2){
@@ -454,6 +457,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                             timeout: 2000,
                             type: 'danger'
                         }).show();
+						$scope.disableAction = false;
                     })
                 },
                 function (err){
@@ -464,6 +468,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         timeout: 2000,
                         type: 'danger'
                     }).show();
+					$scope.disableAction = false;
                 })
 
             }
@@ -475,7 +480,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     timeout: 10000,
                     type: 'danger'
                 }).show();
-
+				$scope.disableAction = false;
             }
 
 
@@ -522,7 +527,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     },
                     function (err3){
                         console.log(err3)
-
+						$scope.disableAction = false;
                     })
 
                 }
@@ -616,6 +621,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                                 $scope.clear();
                             },
                             function (err){
+								$scope.disableAction = false;
                                 $('#form-input').pgNotification({
                                     style: 'flip',
                                     message: 'Error Approve: '+err.code,
@@ -642,7 +648,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 }
             },
             function (err){
-                console.log(err)
+                $scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Update: '+err.code,
@@ -970,7 +976,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             doc_status: {},
             approval: 0
         }
-
+		$scope.disableAction = false;
         $scope.updateState = false
     }
 

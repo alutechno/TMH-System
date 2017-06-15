@@ -156,7 +156,7 @@ if (cluster.isMaster) {
                 }
 
             }
-            else {
+			else {
                 log(req.headers, req.path, 'authorization-500', JSON.stringify(req.query), JSON.stringify(req.body), 'Forbidden')
                 res.status(500).send({status: 500, desc: 'Forbidden'})
             }
@@ -187,8 +187,12 @@ if (cluster.isMaster) {
         retval['pth'] = 'container/img/tmp/' + req.file.filename
         res.send(retval)
     });
-
-    app.post('/uploadBudget', upload.any(), function (req, res, next) {
+	app.post('/uploadMenu', upload.single('image'), function (req, res, next) {
+        var retval = req.file;
+        retval['pth'] = 'container/img/tmp/' + req.file.filename
+        res.send(retval)
+    });
+	app.post('/uploadBudget', upload.any(), function (req, res, next) {
         try {
             var workbook = XLSX.readFile(req.files[0].path);
             fs.unlinkSync(req.files[0].path)

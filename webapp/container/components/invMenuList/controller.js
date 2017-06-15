@@ -3,7 +3,6 @@ var userController = angular.module('app', []);
 userController
 .controller('InvMenuListCtrl',
 function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
-
     $scope.el = [];
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
@@ -13,7 +12,6 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-
     $scope.role = {
         selected: []
     };
@@ -36,24 +34,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     "where table_name = 'ref_product_category' and column_name='status' and value in (0,1)) b on a.status = b.status_value "+
                     "where a.status!=2 "
     var qwhere = ""
-	$scope.dropzoneConfigImage = {
-		parallelUploads: 1,
-		maxFileSize: 10,
-		url: '/upload',
-		paramName: 'image',
-		autoProcessQueue : true
-	};
-	$scope.dzCallbacks = {
-		'addedfile' : function(file){
-			console.log(file);
-		},
-		'success' : function(file, xhr){
-			$scope.user.image = xhr.pth
-			$scope.$apply();
 
-		}
-	};
-	$scope.dz;
     $scope.rowdata = {}
     $scope.field = {
         id: '',
@@ -78,8 +59,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         is_disable_change_price: '',
         is_tax_included: '',
         print_kitchen_id: '', //mst_kitchen
-        print_kitchen_section_id: '', //mst_kitchen_section
-        image: ''
+        print_kitchen_section_id: '' //mst_kitchen_section
     }
 
     $scope.selected = {
@@ -120,7 +100,6 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         {id: 'Y', name: 'Yes'},
         {id: 'N', name: 'No'}
     ]
-
 
     $scope.arr.status = []
     queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1) order by name',undefined)
@@ -202,7 +181,25 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
     };
+	$scope.dropzoneConfigImage = {
+		parallelUploads: 1,
+		maxFileSize: 10,
+		url: '/uploadMenu',
+		paramName: 'image',
+		autoProcessQueue : true
+	};
 
+	$scope.dzCallbacks = {
+		'addedfile' : function(file){
+			console.log(file);
+		},
+		'success' : function(file, xhr){
+			$scope.user.image = xhr.pth
+			$scope.$apply();
+
+		}
+	};
+	$scope.dz;
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
@@ -408,6 +405,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.field.outlet_id = result.data[0].outlet_id
             $scope.field.status = result.data[0].status
 			$scope.field.image = result.data[0].image
+			console.log($scope.field.image)
             $scope.field.menu_class_id = result.data[0].menu_class_id
             $scope.field.menu_group_id = result.data[0].menu_group_id
             $scope.field.meal_time_id = result.data[0].meal_time_id

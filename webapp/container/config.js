@@ -2139,7 +2139,8 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
                         'dataTables',
-                        'select'
+                        'select',
+						'dropzone'
                     ], {
                         insertBefore: '#lazyload_placeholder'
                     })
