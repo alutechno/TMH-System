@@ -205,7 +205,7 @@
                                                 <td style="text-align: right;vertical-align: middle;"><span>{{item.price | number : fractionSize}}</span></td>
                                                 <td style="text-align: right;">
                                                     <span editable-text="item.rcv_price" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'price')">
-                                                        {{ item.rcv_price }}
+                                                        {{ item.rcv_price| number : fractionSize }}
                                                     </span>
                                                 </td>
                                                 <td style="text-align: right;vertical-align: middle;"><span>{{item.amount | number : fractionSize}}</span></td>
@@ -219,7 +219,7 @@
 												<td style="text-align: right;">{{rcv_qty}}</td>
 												<td></td>
 												<td></td>
-												<td style="text-align: right;">{{amount}}</td>
+												<td style="text-align: right;">{{amount| number : fractionSize}}</td>
 											</tr>
                                             </tbody>
                                         </table>
