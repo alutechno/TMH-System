@@ -9,6 +9,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -158,6 +159,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.ws.id.length==0){
             //exec creation
             $scope.selected.product_id = $scope.selected.product.selected.id;
@@ -173,6 +175,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
             queryService.post('insert into inv_warehouse_stock set ?',param)
             .then(function (result){
+				$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
@@ -186,6 +189,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                     }).show();
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -208,6 +212,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             }
             queryService.post('update inv_warehouse_stock SET ? WHERE id='+$scope.ws.id ,param)
             .then(function (result){
+				$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
@@ -221,6 +226,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                     }).show();
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Update: '+err.code,

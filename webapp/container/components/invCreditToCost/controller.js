@@ -9,6 +9,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -184,6 +185,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.it.id.length==0){
             //exec creation
             var param = {
@@ -202,6 +204,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 console.log(qstr)
                 queryService.post(qstr.join(';'),undefined)
                 .then(function (result2){
+					$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){}, false)
                     $('body').pgNotification({
@@ -214,10 +217,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 },
                 function (err2){
                     console.log(err2)
+					$scope.disableAction = false;
                 })
 
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -246,6 +251,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 console.log(qstr)
                 queryService.post(qstr.join(';'),undefined)
                 .then(function (result2){
+					$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){}, false)
                     $('body').pgNotification({
@@ -258,10 +264,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 },
                 function (err2){
                     console.log(err2)
+					$scope.disableAction = false;
                 })
 
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,

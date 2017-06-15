@@ -9,6 +9,7 @@ function($scope, $state, $sce, customerService, DTOptionsBuilder, DTColumnBuilde
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }

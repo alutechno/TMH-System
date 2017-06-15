@@ -9,6 +9,7 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -212,7 +213,7 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
     }
 
     $scope.submit = function(){
-        // console.log('submit')
+        $scope.disableAction = true;
         if ($scope.contract.id.length==0){
             //exec creation
 			var dt = new Date()
@@ -230,6 +231,7 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
 
             queryService.post(query,$scope.contract)
             .then(function (result){
+				$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
@@ -241,9 +243,9 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
                         timeout: 2000,
                         type: 'success'
                     }).show();
-
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -266,6 +268,7 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
 
             queryService.post(query,$scope.contract)
             .then(function (result){
+				$scope.disableAction = false;
                 if (result.status = "200"){
                     console.log('Success Update')
                     $('#form-input').modal('hide')

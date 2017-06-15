@@ -7,6 +7,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -429,6 +430,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.ap.id.length==0){
             //exec creation
             var param = {
@@ -448,6 +450,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 				if(qd.length>0){
 	                queryService.post(qd.join(';') ,undefined)
 	                .then(function (result3){
+						$scope.disableAction = false;
 	                        $('#form-input').modal('hide')
 	                        $scope.dtInstance.reloadData(function(obj){
 	                            // console.log(obj)
@@ -461,6 +464,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 	                        }).show();
 	                },
 	                function (err3){
+						$scope.disableAction = false;
 	                    $('#form-input').pgNotification({
 	                        style: 'flip',
 	                        message: 'Error Update: '+err3.code,
@@ -470,6 +474,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 	                    }).show();
 	                })
 				}else{
+					$scope.disableAction = false;
 					$('#form-input').modal('hide')
 					$scope.dtInstance.reloadData(function(obj){
 						// console.log(obj)
@@ -484,6 +489,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 				}
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -514,6 +520,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 						if(qd.length>0){
 			                queryService.post(qd.join(';') ,undefined)
 			                .then(function (result3){
+								$scope.disableAction = false;
 			                        $('#form-input').modal('hide')
 			                        $scope.dtInstance.reloadData(function(obj){
 			                            // console.log(obj)
@@ -527,6 +534,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 			                        }).show();
 			                },
 			                function (err3){
+								$scope.disableAction = false;
 			                    $('#form-input').pgNotification({
 			                        style: 'flip',
 			                        message: 'Error Update: '+err3.code,
@@ -536,6 +544,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 			                    }).show();
 			                })
 						}else{
+							$scope.disableAction = false;
 							$('#form-input').modal('hide')
 							$scope.dtInstance.reloadData(function(obj){
 								// console.log(obj)
@@ -550,6 +559,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 						}
 		            },
 		            function (err){
+						$scope.disableAction = false;
 		                $('#form-input').pgNotification({
 		                    style: 'flip',
 		                    message: 'Error Update: '+err.code,
@@ -560,6 +570,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 		            })
 				},
 				function (err){
+					$scope.disableAction = false;
 					$('#form-input').pgNotification({
 						style: 'flip',
 						message: 'Error Update: '+err.code,
@@ -584,6 +595,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 					if(qd.length>0){
 		                queryService.post(qd.join(';') ,undefined)
 		                .then(function (result3){
+							$scope.disableAction = false;
 		                        $('#form-input').modal('hide')
 		                        $scope.dtInstance.reloadData(function(obj){
 		                            // console.log(obj)
@@ -597,6 +609,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 		                        }).show();
 		                },
 		                function (err3){
+							$scope.disableAction = false;
 		                    $('#form-input').pgNotification({
 		                        style: 'flip',
 		                        message: 'Error Update: '+err3.code,
@@ -606,6 +619,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 		                    }).show();
 		                })
 					}else{
+						$scope.disableAction = false;
 						$('#form-input').modal('hide')
 						$scope.dtInstance.reloadData(function(obj){
 							// console.log(obj)
@@ -620,6 +634,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 					}
 	            },
 	            function (err){
+					$scope.disableAction = false;
 	                $('#form-input').pgNotification({
 	                    style: 'flip',
 	                    message: 'Error Update: '+err.code,

@@ -9,6 +9,7 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -343,6 +344,7 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
 // console.log($localStorage.currentUser)
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.product.id.length==0){
             //exec creation
 
@@ -370,6 +372,7 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
                 var query = "insert into mst_product set ?";
                 queryService.post(query,$scope.product)
                 .then(function (result){
+					$scope.disableAction = false;
                         $('#form-input').modal('hide')
                         $scope.dtInstance.reloadData(function(obj){
                             console.log(obj)
@@ -384,6 +387,7 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
 
                 },
                 function (err){
+					$scope.disableAction = false;
                     $('#form-input').pgNotification({
                         style: 'flip',
                         message: 'Error Insert: '+err.code,
@@ -417,6 +421,7 @@ function($scope, $state, $sce, queryService, globalFunction, productService, pro
 
             queryService.post(query,$scope.product)
             .then(function (result){
+				$scope.disableAction = false;
                 if (result.status = "200"){
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){}, false)

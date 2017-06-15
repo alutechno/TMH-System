@@ -9,6 +9,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -152,6 +153,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.field.id.length==0){
             //exec creation
             $scope.field.status = $scope.selected.status.selected.id;
@@ -160,6 +162,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 
             queryService.post('insert into '+ $scope.table +' SET ?',$scope.field)
             .then(function (result){
+				$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
@@ -173,6 +176,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     }).show();
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -191,6 +195,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 
             queryService.post('update '+ $scope.table +' SET ? WHERE id='+$scope.field.id ,$scope.field)
             .then(function (result){
+				$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
@@ -205,6 +210,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     $scope.clear()
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Update: '+err.code,

@@ -10,6 +10,7 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i = 0; i < $scope.el.length; i++) {
         $scope[$scope.el[i]] = true;
     }
@@ -226,6 +227,7 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
         $('#form-input').modal('show')
     };
     $scope.submit = function () {
+		$scope.disableAction = true;
         if ($scope.data.id.length == 0) {
             var param = { //exec insertion
                 id: $scope.data.id,
@@ -245,6 +247,7 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
             queryService.post('insert into mst_credit_card SET ?', param)
             .then(function (result) {
                     $('#form-input').modal('hide')
+					$scope.disableAction = false;
                     $scope.dtInstance.reloadData()
                     $('body').pgNotification({
                         style: 'flip',
@@ -257,6 +260,7 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
 
                 },
                 function (err) {
+					$scope.disableAction = false;
                     $('#form-input').pgNotification({
                         style: 'flip',
                         message: 'Error Insert: ' + err.code,
@@ -296,6 +300,7 @@ angular.module('app', []).controller('FinARCreditCardCtrl', function ($scope, $s
                 else {
                     console.log('Failed Update')
                 }
+				$scope.disableAction = false;
             })
         }
     };

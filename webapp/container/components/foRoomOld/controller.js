@@ -8,6 +8,7 @@ function($scope, $state, $sce, roomService, roomTypeService, DTOptionsBuilder, D
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -176,7 +177,7 @@ function($scope, $state, $sce, roomService, roomTypeService, DTOptionsBuilder, D
     }
 
     $scope.submit = function(){
-        // console.log($scope.contract)
+        $scope.disableAction = true;
         if ($scope.room.id.length==0){
             //exec creation
 
@@ -187,6 +188,7 @@ function($scope, $state, $sce, roomService, roomTypeService, DTOptionsBuilder, D
 
             roomService.create($scope.room)
             .then(function (result){
+				$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
@@ -201,6 +203,7 @@ function($scope, $state, $sce, roomService, roomTypeService, DTOptionsBuilder, D
 
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.desc.code,
@@ -219,6 +222,7 @@ function($scope, $state, $sce, roomService, roomTypeService, DTOptionsBuilder, D
 
             roomService.update($scope.room)
             .then(function (result){
+				$scope.disableAction = false;
                 if (result.status = "200"){
                     // console.log('Success Update')
                     $('#form-input').modal('hide')

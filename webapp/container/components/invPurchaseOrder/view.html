@@ -626,7 +626,7 @@
               <br>
               <div class="row divider"></div>
               <div class="clearfix"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||finalState" ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||finalState||disableAction " ng-click="submit()" >Save</button>
               <button class="btn btn-primary" type="submit" ng-show="finalState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>

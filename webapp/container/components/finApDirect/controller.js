@@ -27,7 +27,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.total_credit_f = 0
     $scope.total_balance = 0
     $scope.journal_type_id = null
-
+	$scope.disableAction = false;
     var year = ['2015','2016','2017','2018','2019']
     var month = [
         {id:'01',last:'31'},
@@ -516,6 +516,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.ap.id.length==0){
             //exec creation
             var total_amount = 0
@@ -558,30 +559,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     timeout: 2000,
                     type: 'success'
                 }).show();
+				$scope.disableAction = false;
                 $scope.clear();
-                /*var qstr = $scope.child.saveTableT(result.data.insertId)
-                queryService.post(qstr.join(';'),undefined)
-                .then(function (result2){
-                        $('#form-input').modal('hide')
-                        $scope.dtInstance.reloadData(function(obj){}, false)
-                        $('body').pgNotification({
-                            style: 'flip',
-                            message: 'Success Insert '+$scope.ap.code,
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'success'
-                        }).show();
-                        $scope.clear();
-                },
-                function (err2){
-                    $('#form-input').pgNotification({
-                        style: 'flip',
-                        message: 'Error Insert: '+err2.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'danger'
-                    }).show();
-                })*/
             },
             function (err){
                 $('#form-input').pgNotification({
@@ -591,6 +570,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     timeout: 2000,
                     type: 'danger'
                 }).show();
+				$scope.disableAction = false;
             })
 
         }
@@ -655,13 +635,16 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                                 timeout: 2000,
                                 type: 'success'
                             }).show();
+							$scope.disableAction = false;
                         },
                         function(err3){
                             console.log(err3)
+							$scope.disableAction = false;
                         })
                     },
                     function(err2){
                         console.log(err2)
+						$scope.disableAction = false;
                     })
                 }
                 else if($scope.selected.status.selected.id=='3'){
@@ -682,18 +665,22 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                                 timeout: 2000,
                                 type: 'success'
                             }).show();
+							$scope.disableAction = false;
                         },
                         function(err3){
                             console.log(err3)
+							$scope.disableAction = false;
                         })
                     },
                     function(err2){
                         console.log(err2)
+						$scope.disableAction = false;
                     })
 
                 }
                 else {
                     $('#form-input').modal('hide')
+					$scope.disableAction = false;
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
                     }, false)
@@ -708,6 +695,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Update: '+err.code,

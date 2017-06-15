@@ -8,6 +8,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -275,6 +276,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.coa.id.length==0){
             //exec creation
             var param = {
@@ -316,6 +318,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                     console.log(JSON.stringify(param_f,null,2))
                     queryService.post('insert into mst_room_owned_feature(room_id,feature_id,created_date,created_by) VALUES ?',[param_f])
                     .then(function (result2){
+						$scope.disableAction = false;
                         $('#form-input').modal('hide')
                         $scope.dtInstance.reloadData(function(obj){
                             console.log(obj)
@@ -330,6 +333,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                         $scope.clear()
                     },
                     function(err2){
+						$scope.disableAction = false;
                         $('#form-input').pgNotification({
                             style: 'flip',
                             message: 'Error Insert: '+err2.code,
@@ -340,6 +344,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                     })
                 }
                 else {
+					$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
@@ -354,12 +359,9 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                     $scope.clear()
                 }
 
-
-
-
             },
             function (err){
-                console.log(err)
+                $scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -411,6 +413,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                     console.log(JSON.stringify(param_f,null,2))
                     queryService.post('delete from mst_room_owned_feature where room_id='+$scope.coa.id+'; insert into mst_room_owned_feature(room_id,feature_id,created_date,created_by) VALUES ?',[param_f])
                     .then(function (result2){
+						$scope.disableAction = false;
                         $('#form-input').modal('hide')
                         $scope.dtInstance.reloadData(function(obj){
                             console.log(obj)
@@ -425,6 +428,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                         $scope.clear()
                     },
                     function(err2){
+						$scope.disableAction = false;
                         $('#form-input').pgNotification({
                             style: 'flip',
                             message: 'Error Insert: '+err.code,
@@ -435,6 +439,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                     })
                 }
                 else {
+					$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
@@ -451,7 +456,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             },
             function(err){
                 console.log(err)
-
+				$scope.disableAction = false;
             })
         }
     }

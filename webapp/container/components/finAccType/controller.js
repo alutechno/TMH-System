@@ -9,6 +9,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -146,6 +147,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.accountType.id.length==0){
             //exec creation
 
@@ -175,7 +177,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                         timeout: 2000,
                         type: 'success'
                     }).show();
-
+					$scope.disableAction = false;
             },
             function (err){
                 $('#form-input').pgNotification({
@@ -185,6 +187,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     timeout: 2000,
                     type: 'danger'
                 }).show();
+				$scope.disableAction = false;
             })
 
         }
@@ -215,6 +218,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                 else {
                     // console.log('Failed Update')
                 }
+				$scope.disableAction = false;
             })
         }
     }

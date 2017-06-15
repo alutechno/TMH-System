@@ -41,7 +41,7 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
         where c.status = 1 and d.status = 'Y' and a.status != 2
     `);
     var qwhere = '';
-
+	$scope.disableAction = false;
     $scope.el = $state.current.data || [];
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
@@ -255,6 +255,7 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
         $('#form-input').modal('show')
     };
     $scope.submit = function () {
+		$scope.disableAction = true;
         var param = {};
         for (var key in $scope.data) {
             if ($scope.fields.indexOf(key) > -1) {
@@ -334,9 +335,10 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
                         type: 'success'
                     }).show();
                     $scope.clear()
-
+					$scope.disableAction = false;
                 },
                 function (err) {
+					$scope.disableAction = false;
                     $('#form-input').pgNotification({
                         style: 'flip',
                         message: 'Error Insert: ' + err.code,
@@ -409,6 +411,7 @@ angular.module('app', []).controller('FinARCustomerDepositCtrl', function ($scop
                 else {
                     console.log('Failed Update')
                 }
+				$scope.disableAction = false;
             })
         }
     };

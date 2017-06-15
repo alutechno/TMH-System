@@ -486,9 +486,9 @@
               </div>
               <br>
               <div class="clearfix"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid || close==true" ng-click="submit()" >Save</button>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalidadjustState" ng-click="saveAdjustment()" ng-show="adjustState" >Save Adjustment</button>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="releaseAdjustment()" ng-show="adjustState">Release Adjustment</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid || close==true||disableAction " ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalidadjustState||disableAction " ng-click="saveAdjustment()" ng-show="adjustState" >Save Adjustment</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction " ng-click="releaseAdjustment()" ng-show="adjustState">Release Adjustment</button>
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>
       </div>

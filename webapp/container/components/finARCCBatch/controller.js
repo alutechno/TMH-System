@@ -197,6 +197,7 @@ angular.module('app', []).controller('FinARCCBatchCtrl', function ($scope, $stat
         }
     };
     $scope.submit = function () {
+		$scope.disableAction = true;
         var param = Object.assign({}, $scope.data);
         param.status = 1;
         if (!$scope.data.id) {
@@ -208,6 +209,7 @@ angular.module('app', []).controller('FinARCCBatchCtrl', function ($scope, $stat
                 queryService.post('insert into acc_ar_ccard_batch SET ?', param)
                 .then(
                     function (result) {
+						$scope.disableAction = false;
                         $('#form-input').modal('hide');
                         $scope.dtInstance.reloadData();
                         $('body').pgNotification({
@@ -221,6 +223,7 @@ angular.module('app', []).controller('FinARCCBatchCtrl', function ($scope, $stat
 
                     },
                     function (err) {
+						$scope.disableAction = false;
                         $('#form-input').pgNotification({
                             style: 'flip',
                             message: 'Error Insert: ' + err.code,
@@ -240,6 +243,7 @@ angular.module('app', []).controller('FinARCCBatchCtrl', function ($scope, $stat
                 'update acc_ar_ccard_batch SET ? WHERE id=' + $scope.editing.id, param
             ).then(function (result) {
                 if (result.status = "200") {
+					$scope.disableAction = false;
                     $('#form-input').modal('hide');
                     $scope.dtInstance.reloadData();
                     $('body').pgNotification({
@@ -252,6 +256,7 @@ angular.module('app', []).controller('FinARCCBatchCtrl', function ($scope, $stat
                     $scope.clear()
                 }
                 else {
+					$scope.disableAction = false;
                     console.log('Failed Update')
                 }
             })

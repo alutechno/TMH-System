@@ -31,6 +31,7 @@ hkMRS.main = function (args) {
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     $scope.nested = {};
     $scope.cls = {
         browse: { tab: 'active', view: '' },
@@ -278,6 +279,7 @@ hkMRS.main = function (args) {
         $('#form-input').modal('show')
     };
     $scope.submit = function () {
+		$scope.disableAction = true;
         if ($scope.coa.id.length == 0) {
             //exec creation
 
@@ -294,6 +296,7 @@ hkMRS.main = function (args) {
             }
             queryService.post('update mst_room SET ? WHERE id=' + $scope.coa.id, param)
             .then(function (result) {
+
                 if (result.status = "200") {
                     var param2 = {
                         room_id: $scope.coa.id,
@@ -307,6 +310,7 @@ hkMRS.main = function (args) {
                     console.log(param2)
                     queryService.post('insert into hk_room_status_change_log SET ?', param2)
                     .then(function (result2) {
+						$scope.disableAction = false;
                         if (result2.status = "200") {
                             console.log('Success Update')
                             $('#form-input').modal('hide')
@@ -323,12 +327,14 @@ hkMRS.main = function (args) {
                             $scope.clear()
                         }
                         else {
+							$scope.disableAction = false;
                             console.log('Failed Update')
                         }
                     })
 
                 }
                 else {
+					$scope.disableAction = false;
                     console.log('Failed Update')
                 }
             })

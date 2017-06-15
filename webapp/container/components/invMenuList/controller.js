@@ -8,6 +8,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -194,9 +195,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 			console.log(file);
 		},
 		'success' : function(file, xhr){
-			$scope.user.image = xhr.pth
+			$scope.field.image = xhr.pth
 			$scope.$apply();
-
 		}
 	};
 	$scope.dz;
@@ -298,6 +298,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.field.id.length==0){
             //exec creation
             $scope.field.status = $scope.selected.status.selected ? $scope.selected.status.selected.id : null;
@@ -319,6 +320,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 
             queryService.post('insert into '+ $scope.table +' SET ?',$scope.field)
             .then(function (result){
+				$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
@@ -332,6 +334,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     }).show();
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -344,9 +347,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         }
         else {
             //exec update
-            console.log($scope.selected);
             $scope.field.status = $scope.selected.status.selected ? $scope.selected.status.selected.id : null;
-            $scope.field.outlet_id = $scope.selected.outlet_id.selected ? $scope.selected.outlet_id.selected.id : null;
+			$scope.field.outlet_id = $scope.selected.outlet_id.selected ? $scope.selected.outlet_id.selected.id : null;
             $scope.field.menu_class_id = $scope.selected.menu_class_id.selected ? $scope.selected.menu_class_id.selected.id : null;
             $scope.field.menu_group_id = $scope.selected.menu_group_id.selected ? $scope.selected.menu_group_id.selected.id : null;
             $scope.field.meal_time_id = $scope.selected.meal_time_id.selected ? $scope.selected.meal_time_id.selected.id : null;
@@ -362,9 +364,9 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.field['modified_by'] = $localStorage.currentUser.name.id;
             $scope.field['modified_date'] = globalFunction.currentDate();
 
-            console.log($scope.field.is_promo_enabled);
             queryService.post('update '+ $scope.table +' SET ? WHERE id='+$scope.field.id ,$scope.field)
             .then(function (result){
+				$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
@@ -379,6 +381,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     $scope.clear()
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Update: '+err.code,

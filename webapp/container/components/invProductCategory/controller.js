@@ -9,6 +9,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -143,6 +144,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.cat.id.length==0){
             //exec creation
             $scope.cat.status = $scope.selected.status.selected.id;
@@ -153,6 +155,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
             queryService.post('insert into ref_product_category SET ?',$scope.cat)
             .then(function (result){
+				$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
@@ -166,6 +169,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                     }).show();
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -184,6 +188,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             console.log($scope.cat)
             queryService.post('update ref_product_category SET ? WHERE id='+$scope.cat.id ,$scope.cat)
             .then(function (result){
+				$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
@@ -198,6 +203,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                     $scope.clear()
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Update: '+err.code,

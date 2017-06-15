@@ -9,6 +9,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -191,6 +192,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.supplier.id.length==0){
             //$scope.supplier.status = $scope.selected.status.selected.id;
             $scope.supplier.country_id = $scope.selected.country_id.selected?$scope.selected.country_id.selected.id:null;
@@ -202,6 +204,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
 				console.log($scope.supplier)
 		        queryService.post('insert into mst_cust_company SET ?',$scope.supplier)
 	            .then(function (result){
+					$scope.disableAction = false;
 	                    $('#form-input').modal('hide')
 	                    $scope.dtInstance.reloadData(function(obj){
 	                        // console.log(obj)
@@ -216,6 +219,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
 	                    }).show();
 	            },
 	            function (err){
+					$scope.disableAction = false;
 	                $('#form-input').pgNotification({
 	                    style: 'flip',
 	                    message: 'Error Insert: '+err.code,
@@ -240,6 +244,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
 					$scope.supplier.code = data.data[0].code
 					queryService.post('update mst_cust_company SET ? WHERE id='+$scope.supplier.id ,param)
 		            .then(function (result){
+						$scope.disableAction = false;
 		                    $('#form-input').modal('hide')
 		                    $scope.dtInstance.reloadData(function(obj){
 		                        // console.log(obj)
@@ -254,6 +259,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
 		                    }).show();
 		            },
 		            function (err){
+						$scope.disableAction = false;
 		                $('#form-input').pgNotification({
 		                    style: 'flip',
 		                    message: 'Error Update: '+err.code,
@@ -266,6 +272,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
 			}else{
 	            queryService.post('update mst_cust_company SET ? WHERE id='+$scope.supplier.id ,param)
 	            .then(function (result){
+					$scope.disableAction = false;
 	                    $('#form-input').modal('hide')
 	                    $scope.dtInstance.reloadData(function(obj){
 	                        // console.log(obj)
@@ -280,6 +287,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
 	                    }).show();
 	            },
 	            function (err){
+					$scope.disableAction = false;
 	                $('#form-input').pgNotification({
 	                    style: 'flip',
 	                    message: 'Error Update: '+err.code,

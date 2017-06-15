@@ -9,6 +9,7 @@ function($scope, $state, $sce, customerService, customerContractService, DTOptio
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -138,7 +139,7 @@ function($scope, $state, $sce, customerService, customerContractService, DTOptio
     }
 
     $scope.submit = function(){
-        // console.log($scope.contract)
+        $scope.disableAction = true;
         if ($scope.contract.id.length==0){
             //exec creation
 
@@ -149,6 +150,7 @@ function($scope, $state, $sce, customerService, customerContractService, DTOptio
 
             customerContractService.create($scope.contract)
             .then(function (result){
+				$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
@@ -163,6 +165,7 @@ function($scope, $state, $sce, customerService, customerContractService, DTOptio
 
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.desc.code,
@@ -183,6 +186,7 @@ function($scope, $state, $sce, customerService, customerContractService, DTOptio
             console.log($scope.contract)
             customerContractService.update($scope.contract)
             .then(function (result){
+				$scope.disableAction = false;
                 if (result.status = "200"){
                     console.log('Success Update')
                     $('#form-input').modal('hide')

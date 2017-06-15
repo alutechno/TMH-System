@@ -8,6 +8,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -411,6 +412,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.coa.id.length==0){
             //exec creation
 
@@ -451,6 +453,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 if (sqlPackage.length>0){
                     queryService.post(sqlPackage.join(';'),undefined)
                     .then(function (result3){
+
                         console.log('success insert package')
                     },
                     function (err3){
@@ -462,6 +465,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 var sqld = $scope.child.saveTable(result.data.insertId)
                 queryService.post(sqld.join(';'),undefined)
                 .then(function (result3){
+					$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
@@ -477,6 +481,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
                 },
                 function (err3){
+					$scope.disableAction = false;
                     $('#form-input').pgNotification({
                         style: 'flip',
                         message: 'Error Insert: '+err3.code,
@@ -491,7 +496,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
             },
             function (err){
-                console.log(err)
+                $scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -551,15 +556,17 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                             console.log('error:'+err3.code)
                         })
                     }
-
+					$scope.disableAction = false;
                 },
                 function (err2){
+					$scope.disableAction = false;
                     console.log('error delete:'+err2.code)
                 })
 
                 var sqld = $scope.child.saveTable($scope.coa.id)
                 queryService.post(sqld.join(';'),undefined)
                 .then(function (result3){
+					$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
@@ -575,6 +582,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
                 },
                 function (err3){
+					$scope.disableAction = false;
                     $('#form-input').pgNotification({
                         style: 'flip',
                         message: 'Error Update: '+err3.code,

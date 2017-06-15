@@ -9,6 +9,7 @@ userController
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i = 0; i < $scope.el.length; i++) {
         $scope[$scope.el[i]] = true;
     }
@@ -208,6 +209,7 @@ userController
     }
 
     $scope.submit = function () {
+		$scope.disableAction = true;
         if ($scope.data.id.length == 0) {
             //exec creation
             var param = {
@@ -223,6 +225,7 @@ userController
 
             queryService.post('insert into ref_revenue_group SET ?', param)
             .then(function (result) {
+				$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData()
                     $('body').pgNotification({
@@ -236,6 +239,7 @@ userController
 
                 },
                 function (err) {
+					$scope.disableAction = false;
                     console.log(err)
                     $('#form-input').pgNotification({
                         style: 'flip',
@@ -262,6 +266,7 @@ userController
             }
             queryService.post('update ref_revenue_group SET ? WHERE id=' + $scope.data.id, param)
             .then(function (result) {
+				$scope.disableAction = false;
                 if (result.status = "200") {
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function (obj) {

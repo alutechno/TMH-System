@@ -14,6 +14,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     $scope.items = []
     $scope.itemsOri = []
     $scope.finalState = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -391,6 +392,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         console.log(JSON.stringify($scope.po))
         console.log(JSON.stringify($scope.items))
         if ($scope.po.id.length==0 ){
@@ -423,7 +425,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                     var q = $scope.child.saveTable(result.data.insertId)
                     queryService.post(q.join(';'),undefined)
                     .then(function (result3){
-                        console.log(result.data.insertId)
+                        $scope.disableAction = false;
                         $('#form-input').modal('hide')
                         $scope.nested.dtInstance.reloadData(function(obj){
                             // console.log(obj)
@@ -437,7 +439,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                         }).show();
                     },
                     function (err3){
-                        console.log(err3)
+                        $scope.disableAction = false;
                         $('#form-input').pgNotification({
                             style: 'flip',
                             message: 'Error Insert Line Item: '+err3.code,
@@ -448,7 +450,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                     })
                 },
                 function (err){
-                    console.log(err)
+                    $scope.disableAction = false;
                     $('#form-input').pgNotification({
                         style: 'flip',
                         message: 'Error Insert: '+err.code,
@@ -460,6 +462,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 
             }
             else {
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Cannot Add PO, Item list is Empty !!',
@@ -469,8 +472,6 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 }).show();
 
             }
-
-
         }
         else {
             console.log($scope.po)
@@ -517,7 +518,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 if (q.length>0){
                     queryService.post(q.join(';'), undefined)
                     .then(function (result3){
-                        console.log(result.data.insertId)
+                        $scope.disableAction = false;
                         //PO-Receive
                         $('#form-input').modal('hide')
                         $scope.nested.dtInstance.reloadData(function(obj){
@@ -534,7 +535,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 
                     },
                     function (err3){
-                        console.log(err3)
+                        $scope.disableAction = false;
                         $('#form-input').pgNotification({
                             style: 'flip',
                             message: 'Error Insert Line Item: '+err3.code,
@@ -545,6 +546,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                     })
                 }
                 else {
+					$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.nested.dtInstance.reloadData(function(obj){
                         // console.log(obj)
@@ -566,7 +568,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 
             },
             function (err){
-                console.log(err)
+                $scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Update: '+err.code,

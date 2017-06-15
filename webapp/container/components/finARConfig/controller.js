@@ -10,6 +10,7 @@ angular.module('app', []).controller('FinARConfigCtrl', function ($scope, $state
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i = 0; i < $scope.el.length; i++) {
         $scope[$scope.el[i]] = true;
     }
@@ -208,6 +209,7 @@ angular.module('app', []).controller('FinARConfigCtrl', function ($scope, $state
         $('#form-input').modal('show')
     };
     $scope.submit = function () {
+		$scope.disableAction = true;
         if ($scope.data.id.length == 0) {
             var param = { //exec insertion
                 status: 1,
@@ -220,6 +222,7 @@ angular.module('app', []).controller('FinARConfigCtrl', function ($scope, $state
             queryService.post('insert into ref_ar_config SET ?', param)
             .then(function (result) {
                     $('#form-input').modal('hide')
+					$scope.disableAction = false;
                     $scope.dtInstance.reloadData()
                     $('body').pgNotification({
                         style: 'flip',
@@ -232,6 +235,7 @@ angular.module('app', []).controller('FinARConfigCtrl', function ($scope, $state
 
                 },
                 function (err) {
+					$scope.disableAction = false;
                     $('#form-input').pgNotification({
                         style: 'flip',
                         message: 'Error Insert: ' + err.code,
@@ -265,6 +269,7 @@ angular.module('app', []).controller('FinARConfigCtrl', function ($scope, $state
                 else {
                     console.log('Failed Update')
                 }
+				$scope.disableAction = false;
             })
         }
     };

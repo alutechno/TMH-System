@@ -33,7 +33,7 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
         LEFT JOIN (
             SELECT
                 a.*, b.code customer_code,
-                c.code folio_code, 
+                c.code folio_code,
                 TRIM(CONCAT_WS(' ' ,b.title, b.first_name, b.last_name)) customer_name
             FROM
                 fd_folio_transc_account a
@@ -59,7 +59,7 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
         /* WHERE a.status = 1 */
     `);
     var qwhere = '';
-
+	$scope.disableAction = false;
     $scope.el = $state.current.data || [];
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
@@ -113,7 +113,7 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
             from fd_folio_transc_account a
             left join fd_guest_folio b on a.folio_id = b.id
             left join mst_customer c on a.customer_id = c.id
-            where 
+            where
                 payment_id in (
                     select id from fd_guest_payment where payment_type_id in (
                         select id from ref_payment_method where is_credit_card = 'Y'
@@ -293,6 +293,7 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
         }
     };
     $scope.submit = function () {
+		$scope.disableAction = true;
         var param = {};
         var date = globalFunction.currentDate(),
             user = $localStorage.currentUser.name.id;
@@ -333,6 +334,7 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
             //
             queryService.post(trim(sql)).then(
                 function (result) {
+					$scope.disableAction = false;
                     $('#form-input').modal('hide');
                     $scope.dtInstance.reloadData();
                     $('body').pgNotification({
@@ -346,6 +348,7 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
 
                 },
                 function (err) {
+					$scope.disableAction = false;
                     $('#form-input').pgNotification({
                         style: 'flip',
                         message: 'Error Insert: ' + err.code,
@@ -377,6 +380,7 @@ angular.module('app', []).controller('FinARCCJournalCtrl', function ($scope, $st
                 else {
                     console.log('Failed Update')
                 }
+				$scope.disableAction = false;
             })
         }
     };

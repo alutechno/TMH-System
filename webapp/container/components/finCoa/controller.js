@@ -9,6 +9,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -273,7 +274,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.submit = function(){
-        console.log('$scope.selected', $scope.selected);
+        $scope.disableAction = true;
         if ($scope.coa.id.length==0){
             //exec creation
 
@@ -317,9 +318,10 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                         type: 'success'
                     }).show();
                     $scope.clear()
-
+					$scope.disableAction = false;
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+JSON.stringify(err),
@@ -356,6 +358,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             console.log(param)
             queryService.post('update mst_ledger_account SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
+				$scope.disableAction = false;
                 if (result.status = "200"){
                     console.log('Success Update')
                     $('#form-input').modal('hide')

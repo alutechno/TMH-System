@@ -6,6 +6,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 
     $scope.el = [];
     $scope.el = $state.current.data;
+	$scope.disableAction = false;
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
@@ -159,18 +160,16 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         $('#modalProcess').modal('show')
     }
     $scope.execProcess = function(){
-        console.log('exec')
-
-
+        $scope.disableAction = true;
         var qstr = [
             "update acc_cash_deposit set status='5' where open_date between '"+$scope.filter_period+" 00:00:00' and '"+$scope.filter_period+" 23:59:59'",
             "update acc_cash_payment set status='5' where created_date between '"+$scope.filter_period+" 00:00:00' and '"+$scope.filter_period+" 23:59:59'",
             "update acc_gl_transaction set gl_status='0' where deposit_id in(select id from acc_cash_deposit where open_date between '"+$scope.filter_period+" 00:00:00' and '"+$scope.filter_period+" 23:59:59')",
             "update acc_gl_transaction set gl_status='0' where payment_id in(select id from acc_cash_payment where created_date between '"+$scope.filter_period+" 00:00:00' and '"+$scope.filter_period+" 23:59:59')"
         ]
-        console.log(qstr.join(';\n'))
         queryService.post(qstr.join(';'),undefined)
         .then(function (result){
+			$scope.disableAction = false;
             $('body').pgNotification({
                 style: 'flip',
                 message: 'Success Closing ',
@@ -182,9 +181,9 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.nested.reloadIssuingTable()
             $scope.nested.reloadSoTable()
             $scope.nested.reloadCtcTable()
-
         },
         function (err){
+			$scope.disableAction = false;
             $('#body').pgNotification({
                 style: 'flip',
                 message: 'Error Closing: '+err.code,

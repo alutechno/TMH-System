@@ -194,7 +194,7 @@ if (cluster.isMaster) {
     });
 	app.post('/uploadMenu', upload.single('image'), function (req, res, next) {
         var retval = req.file;
-        retval['pth'] = 'container/img/tmp/' + req.file.filename
+        retval['pth'] = 'container/img/menu/' + req.file.filename
         res.send(retval)
     });
 	app.post('/uploadBudget', upload.any(), function (req, res, next) {

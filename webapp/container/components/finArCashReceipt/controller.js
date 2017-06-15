@@ -7,6 +7,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -147,6 +148,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         //$scope.addDetail(0)
     }
 	$scope.submit = function(){
+		$scope.disableAction = true;
 		if ($scope.cr.id.length==0){
 			queryService.post('select next_document_no(\'AR\',\''+$scope.ym+'\') as code',undefined)
 			.then(function(data){
@@ -187,6 +189,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 					queryService.post(qstr.join(';'),undefined)
 	                .then(function (result2){
 	                    $('#form-input').modal('hide')
+						$scope.disableAction = false;
 	                    $scope.dtInstance.reloadData(function(obj){}, false)
 	                    $('body').pgNotification({
 	                        style: 'flip',
@@ -197,10 +200,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 	                    }).show();
 	                },
 	                function (err2){
+						$scope.disableAction = false;
 	                    console.log(err2)
 	                })
 				}else{
 					$('#form-input').modal('hide')
+					$scope.disableAction = false;
 					$scope.dtInstance.reloadData(function(obj){}, false)
 					$('body').pgNotification({
 						style: 'flip',
@@ -212,6 +217,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 				}
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -234,6 +240,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 				queryService.post(qstr.join(';'),undefined)
 				.then(function (result2){
 					$('#form-input').modal('hide')
+					$scope.disableAction = false;
 					$scope.dtInstance.reloadData(function(obj){}, false)
 					$('body').pgNotification({
 						style: 'flip',
@@ -244,6 +251,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 					}).show();
 				},
 				function (err){
+					$scope.disableAction = false;
 					$('#form-input').pgNotification({
 	                    style: 'flip',
 	                    message: 'Error Insert: '+err.code,

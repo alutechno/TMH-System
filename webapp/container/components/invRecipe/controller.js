@@ -20,6 +20,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     //$scope.role = false;
     $scope.rejectState = false;
     $scope.viewMode = false;
+	$scope.disableAction = false;
     console.log($scope.el)
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
@@ -237,6 +238,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         console.log(JSON.stringify($scope.pr))
         console.log(JSON.stringify($scope.items))
         if ($scope.pr.id.length==0 ){
@@ -272,7 +274,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 console.log(param)
                 queryService.post('insert into mst_cuisine_recipe set ?',param)
                 .then(function (result){
-                    console.log(result.data.insertId)
+                    $scope.disableAction = false;
                     $scope.addItemDetail(result.data.insertId)
                     .then(function (result3){
                         console.log(result.data.insertId)
@@ -289,7 +291,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                         }).show();
                     },
                     function (err3){
-                        console.log(err3)
+                        $scope.disableAction = false;
                         $('#form-input').pgNotification({
                             style: 'flip',
                             message: 'Error Insert Line Item: '+err3.code,
@@ -300,7 +302,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                     })
                 },
                 function (err){
-                    console.log(err)
+                    $scope.disableAction = false;
                     $('#form-input').pgNotification({
                         style: 'flip',
                         message: 'Error Insert: '+err.code,
@@ -319,17 +321,10 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                     timeout: 10000,
                     type: 'danger'
                 }).show();
-
+				$scope.disableAction = false;
             }
-
-
         }
         else {
-            console.log($scope.pr)
-            console.log($scope.items)
-            console.log($scope.selected.doc_status)
-            console.log($scope.selected.approval)
-
 
             //exec update
             var param = {}
@@ -364,6 +359,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 console.log(result)
                 $scope.addItemDetail($scope.pr.id)
                 .then(function (result3){
+					$scope.disableAction = false;
                     $scope.nested.dtInstance.reloadData(function(obj){
                         // console.log(obj)
                     }, false)
@@ -379,12 +375,12 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 },
                 function (err3){
                     console.log(err3)
-
+					$scope.disableAction = false;
                 })
 
             },
             function (err){
-                console.log(err)
+                $scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Update: '+err.code,

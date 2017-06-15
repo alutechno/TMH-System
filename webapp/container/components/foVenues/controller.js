@@ -8,6 +8,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -224,7 +225,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.submit = function(){
-
+		$scope.disableAction = false;
         if ($scope.coa.id.length==0){
             //exec creation
             var param = {
@@ -245,11 +246,10 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 				var qstr = $scope.child.saveTableT(result.data.insertId);
 				var qstr2 = $scope.child.saveTableOver(result.data.insertId);
 				var qstr_all=qstr.concat(qstr2);
-				console.log(qstr2)
-				console.log(qstr_all)
 				if(qstr_all.length>0){
 	                queryService.post(qstr_all.join(';'),undefined)
 					.then(function (result2){
+						$scope.disableAction = false;
 	                        $('#form-input').modal('hide')
 	                        $scope.dtInstance.reloadData(function(obj){}, false)
 	                        $('body').pgNotification({
@@ -262,6 +262,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 	                        $scope.clear();
 	                },
 	                function (err2){
+						$scope.disableAction = false;
 	                    $('#form-input').pgNotification({
 	                        style: 'flip',
 	                        message: 'Error Insert: '+err2.code,
@@ -271,6 +272,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 	                    }).show();
 	                })
 				}else{
+					$scope.disableAction = false;
 					$('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
@@ -286,7 +288,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 				}
             },
             function (err){
-                console.log(err)
+                $scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -318,11 +320,10 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 				var qstr = $scope.child.saveTableT($scope.coa.id);
 				var qstr2 = $scope.child.saveTableOver($scope.coa.id);
 				var qstr_all=qstr.concat(qstr2);
-				console.log(qstr2)
-				console.log(qstr_all)
 				if(qstr_all.length>0){
 	                queryService.post(qstr_all.join(';'),undefined)
 					.then(function (result2){
+						$scope.disableAction = false;
 	                        $('#form-input').modal('hide')
 	                        $scope.dtInstance.reloadData(function(obj){}, false)
 	                        $('body').pgNotification({
@@ -335,6 +336,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 	                        $scope.clear();
 	                },
 	                function (err2){
+						$scope.disableAction = false;
 	                    $('#form-input').pgNotification({
 	                        style: 'flip',
 	                        message: 'Error Insert: '+err2.code,
@@ -344,6 +346,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 	                    }).show();
 	                })
 				}else{
+					$scope.disableAction = false;
 					if (result.status = "200"){
 	                    console.log('Success Update')
 	                    $('#form-input').modal('hide')
@@ -365,6 +368,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 				}
             },function(err){
 				console.log(err)
+				$scope.disableAction = false;
 			})
         }
     }

@@ -8,6 +8,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -281,6 +282,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.coa.id.length==0){
             //exec creation
 
@@ -317,6 +319,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
             queryService.post('insert into mst_guest_transaction_type SET ?',param)
             .then(function (result){
+				$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
@@ -332,7 +335,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
             },
             function (err){
-                console.log(err)
+                $scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -378,6 +381,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             console.log(param)
             queryService.post('update mst_guest_transaction_type SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
+				$scope.disableAction = false;
                 if (result.status = "200"){
                     console.log('Success Update')
                     $('#form-input').modal('hide')

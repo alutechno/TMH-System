@@ -20,7 +20,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.voucher = {}
     $scope.sums1 = 0
     $scope.sums2 = 0
-
+	$scope.disableAction = false;
     var year = ['2015','2016','2017','2018','2019']
     var month = [
         {id:'01',last:'31'},
@@ -604,6 +604,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.ap.id.length==0){
             //exec creation
             var total_amount = 0
@@ -640,6 +641,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 var qstr = $scope.child.saveTableT(result.data.insertId)
                 queryService.post(qstr.join(';'),undefined)
                 .then(function (result2){
+					$scope.disableAction = false;
                         $('#form-input').modal('hide')
                         $scope.dtInstance.reloadData(function(obj){}, false)
                         $('body').pgNotification({
@@ -652,6 +654,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                         $scope.clear();
                 },
                 function (err2){
+					$scope.disableAction = false;
                     $('#form-input').pgNotification({
                         style: 'flip',
                         message: 'Error Insert: '+err2.code,
@@ -662,6 +665,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 })
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -735,6 +739,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                         queryService.post(q2.join(';') ,undefined)
                         .then(function (result3){
                             $('#form-input').modal('hide')
+							$scope.disableAction = false;
                             $scope.dtInstance.reloadData(function(obj){
 
                             }, false)
@@ -747,10 +752,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                             }).show();
                         },
                         function(err3){
+							$scope.disableAction = false;
                             console.log(err3)
                         })
                     },
                     function(err2){
+						$scope.disableAction = false;
                         console.log(err2)
                     })
                 }
@@ -762,6 +769,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                         queryService.post(q2.join(';') ,undefined)
                         .then(function (result3){
                             $('#form-input').modal('hide')
+							$scope.disableAction = false;
                             $scope.dtInstance.reloadData(function(obj){
                                 // console.log(obj)
                             }, false)
@@ -774,15 +782,18 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                             }).show();
                         },
                         function(err3){
+							$scope.disableAction = false;
                             console.log(err3)
                         })
                     },
                     function(err2){
+						$scope.disableAction = false;
                         console.log(err2)
                     })
 
                 }
                 else {
+					$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
@@ -798,6 +809,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Update: '+err.code,

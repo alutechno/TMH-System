@@ -8,6 +8,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -217,6 +218,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.coa.id.length==0){
             //exec creation
 
@@ -236,7 +238,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 if (q.length>0){
                     queryService.post(q.join(';'),undefined)
                     .then(function (result3){
-                        console.log(result.data.insertId)
+                        $scope.disableAction = false;
                         $('#form-input').modal('hide')
                         $scope.dtInstance.reloadData(function(obj){
                             // console.log(obj)
@@ -250,7 +252,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                         }).show();
                     },
                     function (err3){
-                        console.log(err3)
+                        $scope.disableAction = false;
                         $('#form-input').pgNotification({
                             style: 'flip',
                             message: 'Error Insert Line Item: '+err3.code,
@@ -261,6 +263,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                     })
                 }
                 else {
+					$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
@@ -277,7 +280,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
             },
             function (err){
-                console.log(err)
+                $scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -309,7 +312,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                     if (q.length>0){
                         queryService.post(q.join(';'),undefined)
                         .then(function (result3){
-                            console.log(result.data.insertId)
+                            $scope.disableAction = false;
                             $('#form-input').modal('hide')
                             $scope.dtInstance.reloadData(function(obj){
                                 // console.log(obj)
@@ -323,7 +326,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                             }).show();
                         },
                         function (err3){
-                            console.log(err3)
+                            $scope.disableAction = false;
                             $('#form-input').pgNotification({
                                 style: 'flip',
                                 message: 'Error Insert Line Item: '+err3.code,
@@ -334,6 +337,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                         })
                     }
                     else {
+						$scope.disableAction = false;
                         $('#form-input').modal('hide')
                         $scope.dtInstance.reloadData(function(obj){
                             // console.log(obj)
@@ -349,6 +353,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 }
                 else {
                     console.log('Failed Update')
+					$scope.disableAction = false;
                 }
             })
         }

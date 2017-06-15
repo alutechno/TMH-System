@@ -568,7 +568,7 @@
 
               <br>
               <div class="clearfix"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="form-items.$invalid" ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="form-items.$invalid||disableAction " ng-click="submit()" >Save</button>
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>
       </div>

@@ -23,6 +23,7 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
     $scope.sums2 = 0
     $scope.sums3 = 0
     $scope.sums4 = 0
+	$scope.disableAction = false;
     var qstring = 'select a.id,a.code, a.home_currency_exchange,a.check_no, '+
                 'DATE_FORMAT(a.open_date,\'%Y-%m-%d\') as open_date, a.status, b.name as \'status_name\', '+
                'a.notes, a.bank_account_id, c.name as \'bank_account\', d.name as \'bank\', '+
@@ -465,6 +466,7 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.ap.id.length==0){
             //exec creation
             var applied_amount = 0
@@ -508,8 +510,10 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
                             type: 'success'
                         }).show();
                         $scope.clear();
+						$scope.disableAction = false;
                 },
                 function (err2){
+					$scope.disableAction = false;
                     $('#form-input').pgNotification({
                         style: 'flip',
                         message: 'Error Insert: '+err2.code,
@@ -520,6 +524,7 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
                 })
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -571,6 +576,7 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
                         var q2 = $scope.child.saveTable(result2.data.insertId)
                         queryService.post(q2.join(';') ,undefined)
                         .then(function (result3){
+							$scope.disableAction = false;
                             $('#form-input').modal('hide')
                             $scope.dtInstance.reloadData(function(obj){
                                 // console.log(obj)
@@ -584,10 +590,12 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
                             }).show();
                         },
                         function(err3){
+							$scope.disableAction = false;
                             console.log(err3)
                         })
                     },
                     function(err2){
+						$scope.disableAction = false;
                         console.log(err2)
                     })
                 }
@@ -606,6 +614,7 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
                             timeout: 2000,
                             type: 'success'
                         }).show();
+						$scope.disableAction = false;
                     },
                     function(err3){
                         $('#form-input').pgNotification({
@@ -615,6 +624,7 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
                             timeout: 2000,
                             type: 'danger'
                         }).show();
+						$scope.disableAction = false;
                     })
                 }
                 else {
@@ -629,6 +639,7 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
                         timeout: 2000,
                         type: 'success'
                     }).show();
+					$scope.disableAction = false;
                 }
 
             },
@@ -640,6 +651,7 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
                     timeout: 2000,
                     type: 'danger'
                 }).show();
+				$scope.disableAction = false;
             })
         }
     }

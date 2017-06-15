@@ -9,6 +9,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -217,6 +218,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
 		if ($scope.sr.id.length==0){
             //exec creation
 			queryService.post('select next_document_no(\'SR\',\''+$scope.ym+'\') as code',undefined)
@@ -239,6 +241,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 				if(qstr.length>0){
 					queryService.post(qstr.join(';'),undefined)
 	                .then(function (result2){
+						$scope.disableAction = false;
 	                    $('#form-input').modal('hide')
 	                    $scope.dtInstance.reloadData(function(obj){}, false)
 	                    $('body').pgNotification({
@@ -250,11 +253,13 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 	                    }).show();
 	                },
 	                function (err2){
+						$scope.disableAction = false;
 						queryService.post('rollback',undefined)
 		                .then(function (result2){
 						})
 	                })
 				}else{
+					$scope.disableAction = false;
 					$('#form-input').modal('hide')
 					$scope.dtInstance.reloadData(function(obj){}, false)
 					$('body').pgNotification({
@@ -267,6 +272,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 				}
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -297,6 +303,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 				if(qstr.length>1){
 	                queryService.post(qstr.join(';'),undefined)
 	                .then(function (result2){
+						$scope.disableAction = false;
 	                    $('#form-input').modal('hide')
 	                    $scope.dtInstance.reloadData(function(obj){}, false)
 	                    $('body').pgNotification({
@@ -308,12 +315,14 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 	                    }).show();
 	                },
 	                function (err2){
+						$scope.disableAction = false;
 						queryService.post('rollback',undefined)
 		                .then(function (result2){
 						})
 	                    console.log(err2)
 	                })
 				}else{
+					$scope.disableAction = false;
 					$('#form-input').modal('hide')
 					$scope.dtInstance.reloadData(function(obj){}, false)
 					$('body').pgNotification({
@@ -326,6 +335,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 				}
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,

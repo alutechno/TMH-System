@@ -20,6 +20,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     $scope.updateState = false;
     $scope.totaldebit = 0
     $scope.totalkredit = 0
+	$scope.disableAction = false;
     var qstring = 'select a.id, a.inv_no,a.code, DATE_FORMAT(a.open_date,\'%Y-%m-%d\')open_date, DATE_FORMAT(a.due_date,\'%Y-%m-%d\')due_date,DATE_FORMAT(a.due_date,\'%Y-%m-%d\') as due, a.status, a.supplier_id, '+
         'c.name supplier_name, a.source, b.code as receive_no, d.name status_name,a.currency_exchange exchange, '+
         'a.receive_id, a.currency_id, a.total_amount, format(a.total_amount,0)ta, a.home_total_amount,format(a.deposit_amount,0)deposit_amount,a.deposit_amount tda,format(a.total_due_amount,0)tde,format(a.paid_amount,0)hpa,a.paid_amount,format(a.home_current_due_amount,0)hcda,format(a.home_total_amount,0)hta,a.voucher_notes, '+
@@ -585,6 +586,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         if ($scope.ap.id.length==0){
             var param = {
                 code: $scope.ap.code,
@@ -614,6 +616,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                     queryService.post(qdeposit,undefined)
                     .then(function (result2){
                         $('#form-input').modal('hide')
+						$scope.disableAction = false;
                         $scope.dtInstance.reloadData(function(obj){
                         }, false)
                         $('body').pgNotification({
@@ -626,6 +629,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 
                     },
                     function (err2){
+						$scope.disableAction = false;
                         $('#form-input').pgNotification({
                             style: 'flip',
                             message: 'Error Insert: '+err2.code,
@@ -637,6 +641,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 }
                 else {
                     $('#form-input').modal('hide')
+					$scope.disableAction = false;
                     $scope.dtInstance.reloadData(function(obj){
                     }, false)
                     $('body').pgNotification({
@@ -649,6 +654,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 }
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -694,6 +700,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 						    queryService.post(qd.join(';') ,undefined)
 	                        .then(function (result3){
 	                                $('#form-input').modal('hide')
+									$scope.disableAction = false;
 	                                $scope.dtInstance.reloadData(function(obj){
 
 	                                }, false)
@@ -706,6 +713,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 	                                }).show();
 	                        },
 	                        function (err3){
+								$scope.disableAction = false;
 	                            $('#form-input').pgNotification({
 	                                style: 'flip',
 	                                message: 'Error Update: '+err3.code,
@@ -716,6 +724,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 	                        })
 						}else{
 							$('#form-input').modal('hide')
+							$scope.disableAction = false;
 							$scope.dtInstance.reloadData(function(obj){
 							}, false)
 							$('body').pgNotification({
@@ -728,6 +737,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 						}
                     },
                     function (err2){
+						$scope.disableAction = false;
                         $('#form-input').pgNotification({
                             style: 'flip',
                             message: 'Error Update: '+err2.code,
@@ -743,6 +753,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                     queryService.post(qs ,undefined)
                     .then(function (result3){
                             $('#form-input').modal('hide')
+							$scope.disableAction = false;
                             $scope.dtInstance.reloadData(function(obj){
 
                             }, false)
@@ -755,6 +766,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                             }).show();
                     },
                     function (err3){
+						$scope.disableAction = false;
                         $('#form-input').pgNotification({
                             style: 'flip',
                             message: 'Error Update: '+err3.code,
@@ -766,6 +778,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 }
                 else {
                     $('#form-input').modal('hide')
+					$scope.disableAction = false;
                     $scope.dtInstance.reloadData(function(obj){
 
                     }, false)
@@ -779,6 +792,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 }
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Update: '+err.code,
@@ -790,6 +804,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         }
     }
     $scope.saveAdjustment = function(){
+		$scope.disableAction = true;
         var param = {
         	voucher_id: $scope.ap.id,
         	adjustment_date: globalFunction.currentDate(),
@@ -803,7 +818,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             "("+$scope.ap.id+",'"+globalFunction.currentDate()+"','0',"+$scope.ap.total_idr+","+$scope.ap.adjustment_idr+")"
         queryService.post(q,undefined)
         .then(function (result2){
-
+			$scope.disableAction = false;
             $('#form-input').modal('hide')
             $scope.dtInstance.reloadData(function(obj){
 
@@ -818,6 +833,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 
         },
         function (err2){
+			$scope.disableAction = false;
             $('#form-input').pgNotification({
                 style: 'flip',
                 message: 'Error Save Adjustment: '+err2.code,
@@ -828,6 +844,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         })
     }
     $scope.releaseAdjustment = function(){
+		$scope.disableAction = true;
         queryService.post("update acc_voucher_adjust set adjustment_status = '1' where voucher_id = "+$scope.ap.id,undefined)
         .then(function (result2){
             var param = {
@@ -842,7 +859,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 
             queryService.post("update acc_ap_voucher SET ? where id = "+$scope.ap.id,param)
             .then(function (result2){
-
+				$scope.disableAction = false;
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
 
@@ -857,6 +874,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 
             },
             function (err2){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Release Adjustment: '+err2.code,
@@ -868,6 +886,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 
         },
         function (err2){
+			$scope.disableAction = false;
             $('#form-input').pgNotification({
                 style: 'flip',
                 message: 'Error Release Adjustment: '+err2.code,

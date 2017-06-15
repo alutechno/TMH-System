@@ -8,6 +8,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
 	$scope.buttonAdjust = false;
+	$scope.disableAction = false;
 	$scope.close=false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
@@ -207,6 +208,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         })
     }
 	$scope.submit = function(){
+		$scope.disableAction = true;
 		if ($scope.ie.id.length==0){
 			var dt = new Date()
 			$scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
@@ -228,6 +230,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 				if(qstr.length>0){
 					queryService.post(qstr.join(';'),undefined)
 					.then(function (result3){
+						$scope.disableAction = false;
 						$('#form-input').modal('hide')
 						$scope.dtInstance.reloadData(function(obj){}, false)
 						$('body').pgNotification({
@@ -239,6 +242,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 						}).show();
 					},
 					function (err){
+						$scope.disableAction = false;
 						$('#form-input').pgNotification({
 		                    style: 'flip',
 		                    message: 'Error Update: '+err.code,
@@ -248,6 +252,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 		                }).show();
 					})
 				}else{
+					$scope.disableAction = false;
 					$('#form-input').modal('hide')
 					$scope.dtInstance.reloadData(function(obj){}, false)
 					$('body').pgNotification({
@@ -259,6 +264,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 					}).show();
 				}
 				},function (err){
+					$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -301,8 +307,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 		                }).show();
 					})
 				}
+				$scope.disableAction = false;
 			},
 			function (err){
+				$scope.disableAction = false;
 				$('#form-input').pgNotification({
 					style: 'flip',
 					message: 'Error Update: '+err.code,

@@ -9,6 +9,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -144,7 +145,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
 
     $scope.submit = function(){
-        // console.log($scope.contract)
+        $scope.disableAction = true;
         if ($scope.cctype.id.length==0){
             //exec creation
 
@@ -161,6 +162,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             queryService.post('insert into ref_cost_center_type set ?',param)
             .then(function (result){
                     $('#form-input').modal('hide')
+					$scope.disableAction = false;
                     $scope.dtInstance.reloadData(function(obj){
                         console.log(obj)
                     }, false)
@@ -173,6 +175,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     }).show();
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.desc.code,
@@ -197,6 +200,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             var query = "update ref_cost_center_type set ? where id = "+$scope.cctype.id;
             queryService.post(query,param)
             .then(function (result){
+				$scope.disableAction = false;
                 if (result.status = "200"){
                     console.log('Success Update')
                     $('#form-input').modal('hide')

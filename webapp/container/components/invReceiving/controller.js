@@ -16,6 +16,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.finalState = false;
 	$scope.rcv_qty=0;
 	$scope.amount=0;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -373,6 +374,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
 		if ($scope.po.id.length==0 ){
 			var param={
 				code:$scope.po.code,
@@ -399,6 +401,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 			sql+='commit;'
 			queryService.post(sql,param)
 			.then(function (result2){
+				$scope.disableAction = false;
                 $('#form-input').modal('hide')
                 $scope.nested.dtInstance.reloadData(function(obj){
                 }, false)
@@ -412,6 +415,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 				$scope.clear();
             },
             function(err2){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert Line Item: '+err2.code,
@@ -455,7 +459,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                             else paramPo.receive_status = 4
                             queryService.post('update inv_purchase_order SET ? where id='+$scope.po.po_id,paramPo)
                             .then(function(result9){
-								console.log(result9)
+								$scope.disableAction = false;
                                 $scope.clear();
 								$('#form-input').modal('hide')
 		                        $scope.nested.dtInstance.reloadData(function(obj){
@@ -471,6 +475,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         })
                     },
                     function(err2){
+						$scope.disableAction = false;
 						queryService.post('rollback')
 						.then(function(result9){
 						})
@@ -488,6 +493,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 var paramPr = {}
             },
             function (err){
+				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Update: '+err.code,

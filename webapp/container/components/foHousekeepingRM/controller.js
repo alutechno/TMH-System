@@ -29,6 +29,7 @@ angular.module('app', []).controller('FoHousekeepingRMCtrl', function ($scope, $
     `;
     //
     $scope.operation = '';
+	$scope.disableAction = false;
     $scope.data = {
         //filter form
         table: {}, type: {},
@@ -240,6 +241,7 @@ angular.module('app', []).controller('FoHousekeepingRMCtrl', function ($scope, $
         }).show();
     };
     $scope.submit = function () {
+		$scope.disableAction = true;
         var op = $scope.isUpdateOpt ? 'update' : 'insert';
         var {id, status, room, orderType, maintenance, startDate, endDate, notes} = $scope.model;
         var value = {
@@ -283,7 +285,7 @@ angular.module('app', []).controller('FoHousekeepingRMCtrl', function ($scope, $
         } else {
             query = `DELETE FROM hk_room_maintenance WHERE id = ${id}`;
         }
-        $('#form-input').modal('hide');
+
         //
         queryService.post(query, value)
         .then(function (result) {
@@ -293,8 +295,9 @@ angular.module('app', []).controller('FoHousekeepingRMCtrl', function ($scope, $
                 if (hk_status.toLowerCase() == 'r') {
                     queryService.post(`UPDATE mst_room SET ? WHERE id = ${room_id}`, {hk_status})
                     .then(function (result2) {
+						$scope.disableAction = false;
                         if (result2.status = "200") {
-                            //
+                            $('#form-input').modal('hide');
                             $scope.notification({message: `Success ${message}`});
                             $scope.dtIns.reloadData();
                             $scope.clearModel()
@@ -306,11 +309,13 @@ angular.module('app', []).controller('FoHousekeepingRMCtrl', function ($scope, $
                         }
                     })
                 } else {
+					$scope.disableAction = false;
                     $scope.notification({message: `Success ${message}`});
                     $scope.dtIns.reloadData();
                     $scope.clearModel()
                 }
             } else {
+				$scope.disableAction = false;
                 $scope.notification({
                     message: `Failed ${message}`,
                     timeout: -1, type: 'danger'

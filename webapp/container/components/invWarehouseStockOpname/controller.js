@@ -12,6 +12,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -273,6 +274,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.submit = function(){
+		$scope.disableAction = true;
         var q = $scope.child.saveTable(0)
         console.log(q)
         queryService.post(q.join(';'),undefined)
@@ -301,10 +303,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 console.log(q2)
                 queryService.post(q2,undefined)
                 .then(function (result2){
+					$scope.disableAction = false;
                     $('#form-input').modal('hide')
                     console.log(result2)
                 },
                 function (err2){
+					$scope.disableAction = false;
                     console.log(err2)
                     /*$('#form-input').pgNotification({
                         style: 'flip',
@@ -317,6 +321,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         },
         function (err){
             console.log(err)
+			$scope.disableAction = false;
             /*$('#form-input').pgNotification({
                 style: 'flip',
                 message: 'Error Delete: '+err.code,
