@@ -716,6 +716,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             queryService.post(qstringdetail+' and a.id='+ids,undefined)
             .then(function (result2){
 				$scope.order=0;
+				$scope.amount=0;
                 for (var i=0;i<result2.data.length;i++){
                     $scope.items.push({
                         id:(i+1),
@@ -737,6 +738,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         unit_type_id: result2.data[i].unit_type_id
                     })
 					$scope.order+=result2.data[i].order_qty;
+					$scope.amount+=result2.data[i].amount;
                 }
                 $scope.itemsOri = angular.copy($scope.items)
 				var date = new Date()

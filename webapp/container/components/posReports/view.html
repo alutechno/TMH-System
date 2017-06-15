@@ -1,0 +1,17 @@
+<nav class="secondary-sidebar padding-30 ">
+    <p class="menu-title">MAIN</p>
+
+    <ul class="main-menu">
+		<li ng-repeat="report in report"><a href="javascript:void(0)" ng-click="setActiveForm('{{report.id}}')">{{report.name}}</a></li>
+    </ul>
+</nav>
+<div ng-repeat="item in data">
+	<div modal="showModal" close="cancel()">
+	    <div class="modal-header">
+	        <h4>Modal Dialog</h4>
+	    </div>
+	    <div class="modal-body">
+	        <p>Example paragraph with some text.</p>
+	    </div>
+	 </div>
+</div>
