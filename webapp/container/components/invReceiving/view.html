@@ -84,7 +84,39 @@
                                   </ui-select>
                               </div>
                           </div>
+						  <div class="col-md-3">
+                              <div pg-form-group class="form-group form-group-default ">
+                                  <label>PR Code</label>
+                                  <input type="text" class="form-control" name="pr_code" ng-model="po.pr_code" data-container="body" data-placement="top" ng-readonly="true">
+                              </div>
+                          </div>
+						  <div class="col-md-3">
+                              <div pg-form-group class="form-group form-group-default " >
+                                  <label>ML Code</label>
+                                  <input type="text" class="form-control" name="ml_code" ng-model="po.ml_code" data-container="body" data-placement="top" ng-readonly="true">
+                              </div>
+                          </div>
+
+                      </div>
+                      <div class="col-sm-12">
                           <div class="col-md-3">
+                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : po.delivery_status.$invalid && !po.delivery_status.$pristine }" >
+                                  <label>Status</label>
+                                  <ui-select ng-model="selected.delivery_status.selected" theme="bootstrap" on-select="po.delivery_status=$select.selected.id" ng-disabled="!updateState">
+                                      <ui-select-match placeholder="Select Status">{{$select.selected.name}}</ui-select-match>
+                                      <ui-select-choices repeat="item in delivery_status | filter: $select.search">
+                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                      </ui-select-choices>
+                                  </ui-select>
+                              </div>
+                          </div>
+                          <div class="col-md-3">
+                              <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : po.delivery_date.$invalid && !po.delivery_date.$pristine }">
+                                  <label>Receive Date</label>
+                                  <input type="text" class="form-control" ng-model="po.delivery_date" name="delivery_date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="!updateState">
+                              </div>
+                          </div>
+						  <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default form-group-default-select " >
                                   <label>Location</label>
                                   <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  on-select="po.warehouse_id=selected.warehouse.selected.id" ng-disabled="!updateState">
@@ -107,26 +139,17 @@
                                   </ui-select>
                               </div>
                           </div>
+
+
                       </div>
                       <div class="col-sm-12">
-                          <div class="col-md-3">
-                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : po.delivery_status.$invalid && !po.delivery_status.$pristine }" >
-                                  <label>Status</label>
-                                  <ui-select ng-model="selected.delivery_status.selected" theme="bootstrap" on-select="po.delivery_status=$select.selected.id" ng-disabled="!updateState">
-                                      <ui-select-match placeholder="Select Status">{{$select.selected.name}}</ui-select-match>
-                                      <ui-select-choices repeat="item in delivery_status | filter: $select.search">
-                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                      </ui-select-choices>
-                                  </ui-select>
+                          <div class="col-md-6">
+                              <div pg-form-group class="form-group form-group-default" >
+                                  <label>Invoice Number</label>
+                                  <input type="text" class="form-control" name="inv_no" ng-model="po.inv_no" ng-disabled="!updateState">
                               </div>
                           </div>
-                          <div class="col-md-3">
-                              <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : po.delivery_date.$invalid && !po.delivery_date.$pristine }">
-                                  <label>Receive Date</label>
-                                  <input type="text" class="form-control" ng-model="po.delivery_date" name="delivery_date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" ng-model="contract.startDate" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="!updateState">
-                              </div>
-                          </div>
-                          <div class="col-md-3">
+						  <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : po.supplier_id.$invalid && !po.supplier_id.$pristine }">
                                   <label>Supplier</label>
                                   <ui-select ng-model="selected.supplier.selected" theme="bootstrap"  on-select="po.supplier_id=selected.supplier.selected.id" ng-keyup="supplierUp($select.search)" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="true">
@@ -138,26 +161,19 @@
                               </div>
                           </div>
 
-                      </div>
-                      <div class="col-sm-12">
-                          <div class="col-md-6">
-                              <div pg-form-group class="form-group form-group-default" >
-                                  <label>Invoice Number</label>
-                                  <input type="text" class="form-control" name="inv_no" ng-model="po.inv_no" ng-disabled="!updateState">
-                              </div>
-                          </div>
-                          <div class="col-md-6">
-                              <div pg-form-group class="form-group form-group-default" >
-                                  <label>Notes</label>
-                                  <input type="text" class="form-control" name="notes" ng-model="po.notes" ng-disabled="!updateState">
-                              </div>
-                          </div>
+
                       </div>
 					  <div class="col-sm-12">
                           <div class="col-md-6">
                               <div pg-form-group class="form-group form-group-default" >
                                   <label>No Faktur</label>
                                   <input type="text" class="form-control" name="notes" ng-model="po.faktur_no" ng-disabled="!updateState">
+                              </div>
+                          </div>
+						  <div class="col-md-6">
+                              <div pg-form-group class="form-group form-group-default" >
+                                  <label>Notes</label>
+                                  <input type="text" class="form-control" name="notes" ng-model="po.notes" ng-disabled="!updateState">
                               </div>
                           </div>
                       </div>

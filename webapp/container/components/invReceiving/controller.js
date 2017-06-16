@@ -22,14 +22,14 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }
 
     var qstring = "select * from ( "+
-    	"select aa.*,g.name warehouse_name,h.name cost_center_name  "+
+    	"select aa.*,g.name warehouse_name,h.name cost_center_name,i.code pr_code,j.code ml_code "+
         "from(  "+
     	"	select a.id,a.code,a.po_id,a.received_status status_id,c.name status_name,DATE_FORMAT(a.created_date,'%Y-%m-%d') as created_date, "+
     	"		a.currency_id,d.supplier_id,e.name supplier_name,f.code currency_code,format(a.total_amount,0)total_amount,a.total_amount TotalSum,a. "+
         "       receive_notes notes,d.warehouse_id,d.cost_center_id,DATE_FORMAT(d.delivery_date,'%Y-%m-%d') delivery_date,a.home_currency_exchange,  "+
         "        d.code po_code,d.po_source,DATE_FORMAT(a.receive_date,'%Y-%m-%d')receive_date,a.receive_notes , "+
         "        date_format(d.created_date,'%Y-%m-%d') po_created_date, date_format( d.released_date,'%Y-%m-%d') po_released_date,a.inv_no,a.faktur_no, "+
-        "        (select name from table_ref x where table_name='inv_purchase_order' and column_name='receive_status' and value in(3,4) and x.value = d.receive_status) as receive_status_name "+
+        "        (select name from table_ref x where table_name='inv_purchase_order' and column_name='receive_status' and value in(3,4) and x.value = d.receive_status) as receive_status_name,d.pr_id,d.ml_id "+
     	"	from inv_po_receive a,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f  "+
         "    where c.table_name='inv_po_receive'   "+
         "    and a.received_status=c.value   "+
@@ -39,6 +39,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         "    ) as aa  "+
     	"left join mst_warehouse g on aa.warehouse_id = g.id  "+
         "left join mst_cost_center h on aa.cost_center_id = h.id  "+
+		"left join inv_purchase_request i on aa.pr_id=i.id "+
+		"left join inv_market_list j on aa.ml_id=j.id "+ 
     ") z "
 
     var qwhere = '';
