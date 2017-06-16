@@ -40,9 +40,8 @@ if (cluster.isMaster) {
     app.set('views', __dirname + '/webapp');
     app.set('view engine', 'ejs');
 
-    app.use(bodyParser.urlencoded({extended: true})); //support encoded bodies
-    app.use(bodyParser.json({limit:'10mb'})); //support json encoded bodies
-	app.use(bodyParser.urlencoded({extended:true, limit:'10mb'}));
+    app.use(bodyParser.json({limit:'50mb'})); //support json encoded bodies
+	app.use(bodyParser.urlencoded({extended:true, limit:'50mb',parameterLimit:50000}));
     allowCrossDomain = function (req, res, next) {
         res.header('Access-Control-Allow-Origin', '*');
         res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
