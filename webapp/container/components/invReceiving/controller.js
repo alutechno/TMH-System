@@ -40,7 +40,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     	"left join mst_warehouse g on aa.warehouse_id = g.id  "+
         "left join mst_cost_center h on aa.cost_center_id = h.id  "+
 		"left join inv_purchase_request i on aa.pr_id=i.id "+
-		"left join inv_market_list j on aa.ml_id=j.id "+ 
+		"left join inv_market_list j on aa.ml_id=j.id "+
     ") z "
 
     var qwhere = '';
@@ -170,7 +170,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.currency = data.data
         $scope.selected.currency['selected'] = $scope.currency[0]
     })
-    queryService.get('select id,name from mst_warehouse order by name',undefined)
+    queryService.get('select id,name from mst_warehouse where status=1 order by name',undefined)
     .then(function(data){
         $scope.warehouse = data.data
     })
