@@ -3,6 +3,7 @@ var mysql = require('mysql');
 var bodyParser = require('body-parser');
 var multer = require('multer')
 var upload = multer({dest: __dirname + '/webapp/container/img/tmp/'})
+var uploadMenu = multer({dest: __dirname + '/webapp/container/img/menu/'})
 var XLSX = require('xlsx');
 var fs = require('fs');
 var cpuCount = require('os').cpus().length;
@@ -40,7 +41,8 @@ if (cluster.isMaster) {
     app.set('view engine', 'ejs');
 
     app.use(bodyParser.urlencoded({extended: true})); //support encoded bodies
-    app.use(bodyParser.json()); //support json encoded bodies
+    app.use(bodyParser.json({limit:'10mb'})); //support json encoded bodies
+	app.use(bodyParser.urlencoded({extended:true, limit:'10mb'}));
     allowCrossDomain = function (req, res, next) {
         res.header('Access-Control-Allow-Origin', '*');
         res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
@@ -192,9 +194,9 @@ if (cluster.isMaster) {
         retval['pth'] = 'container/img/tmp/' + req.file.filename
         res.send(retval)
     });
-	app.post('/uploadMenu', upload.single('image'), function (req, res, next) {
+	app.post('/uploadMenu', uploadMenu.single('image'), function (req, res, next) {
         var retval = req.file;
-        retval['pth'] = 'container/img/menu/' + req.file.filename
+		retval['pth'] = 'container/img/menu/' + req.file.filename
         res.send(retval)
     });
 	app.post('/uploadBudget', upload.any(), function (req, res, next) {
