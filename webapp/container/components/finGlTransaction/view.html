@@ -165,7 +165,7 @@
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.journal_type.selected.$invalid && !selected.journal_type.selected.$pristine }">
                           <label>Journal Code</label>
-                          <ui-select ng-model="selected.journal_type.selected" theme="bootstrap" validate-attached-form-element required on-select="generateCode($item)">
+                          <ui-select ng-model="selected.journal_type.selected" theme="bootstrap" validate-attached-form-element required on-select="generateCode($item)" ng-disabled="update">
                               <ui-select-match placeholder="select type">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in journal_type | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -276,14 +276,14 @@
                                                     {{ item.notes }}
                                                 </span>
                                             </td>
-                                            <td >
+                                            <td style="text-align:right">
 												<!--<input type="text" format="number" e-form="tableform" name="debit" ng-model="item.debit" data-e-ng-keyup="setValue($event,item.id,$data,'debit')" >-->
 												</span>
-                                                <span editable-text="item.debit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')">
+                                                <span editable-text="item.debit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')" >
                                                     {{ item.debit|number:fractionSize }}
                                                 </span>
                                             </td>
-                                            <td >
+                                            <td style="text-align:right">
 												<!--<input type="text" format="number" e-form="tableform" name="credit" ng-model="item.credit" data-e-ng-keyup="setValue($event,item.id,$data,'credit')">-->
                                                 <span editable-text="item.credit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')">
                                                     {{ item.credit |number:fractionSize}}
@@ -295,20 +295,20 @@
                                             <td>&nbsp;</td>
                                                 <td>&nbsp;</td>
                                             <td>Total</td>
-                                            <td><span>{{total_debit|number:fractionSize}}</span></td>
-                                            <td><span>{{total_credit|number:fractionSize}}</span></td>
+                                            <td style="text-align:right"><span>{{total_debit|number:fractionSize}}</span></td>
+                                            <td style="text-align:right"><span>{{total_credit|number:fractionSize}}</span></td>
                                         </tr>
                                         </tbody>
                                     </table>
                                     <!-- buttons -->
                                     <div class="btn-edit">
-                                      <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()">
+                                      <button type="button" class="btn btn-primary" ng-show="!tableform.$visible && ap.status==0" ng-click="tableform.$show()">
                                         Modify Item List
                                       </button>
                                     </div>
                                     <p ng-if="!balanceStatus.status" class="small" style="color:red"><i>(*) Cannot Save,Debit and Credit is not Balance</i></p>
                                     <div class="btn-form" ng-show="tableform.$visible">
-                                      <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
+                                      <button type="submit" ng-disabled="tableform.$waiting " ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
                                       <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
                                       <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
                                     </div>

@@ -19,6 +19,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     $scope.accounts = []
     $scope.total_debit = 0
     $scope.total_credit = 0
+	$scope.updateflag=false
     $scope.balanceStatus = {
         status:true
     }
@@ -462,6 +463,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 	                            timeout: 2000,
 	                            type: 'success'
 	                        }).show();
+							$scope.clear();
 	                },
 	                function (err3){
 						$scope.disableAction = false;
@@ -486,6 +488,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 						timeout: 2000,
 						type: 'success'
 					}).show();
+					$scope.clear();
 				}
             },
             function (err){
@@ -532,6 +535,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 			                            timeout: 2000,
 			                            type: 'success'
 			                        }).show();
+									$scope.clear();
 			                },
 			                function (err3){
 								$scope.disableAction = false;
@@ -556,6 +560,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 								timeout: 2000,
 								type: 'success'
 							}).show();
+							$scope.clear();
 						}
 		            },
 		            function (err){
@@ -607,6 +612,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 		                            timeout: 2000,
 		                            type: 'success'
 		                        }).show();
+								$scope.clear();
 		                },
 		                function (err3){
 							$scope.disableAction = false;
@@ -631,6 +637,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 							timeout: 2000,
 							type: 'success'
 						}).show();
+						$scope.clear();
 					}
 	            },
 	            function (err){
@@ -680,27 +687,35 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     }
 
     $scope.update = function(obj){
+		$scope.updateflag=true
         queryService.post(qstring+ ' where a.id='+obj.id,undefined)
         .then(function(result){
             $('#form-input').modal('show');
             $scope.ap = result.data[0]
-            $scope.selected.journal_type['selected'] = {
+			$scope.selected.journal_type['selected'] = {
                 id: result.data[0].journal_type_id,
                 name: result.data[0].journal_type_name
             }
 
-            for (var i=0;i<$scope.status.length;i++){
+            /*for (var i=0;i<$scope.status.length;i++){
                 if ($scope.status[i].id==result.data[0].status){
                     $scope.selected.status['selected'] = $scope.status[i]
                 }
+            }*/
+
+			$scope.statusShow = []
+            if($scope.ap.status==0){
+                $scope.statusShow=[$scope.status[0],$scope.status[1],$scope.status[2]]
             }
-            $scope.statusShow = []
-            if (result.data[0].status=="0"){
-                $scope.statusShow.push($scope.status[1])
-            }
-            else if(result.data[0].status=="1"){
-                $scope.statusShow.push($scope.status[2])
-            }
+            else if($scope.ap.status==1){
+                $scope.statusShow=[$scope.status[0],$scope.status[1],$scope.status[3]]
+            }else if($scope.ap.status==2){
+				$scope.statusShow=[$scope.status[0],$scope.status[2]]
+			}else{
+				$scope.statusShow=[$scope.status[3]]
+			}
+
+			$scope.selected.status.selected={id:$scope.ap.status,value:$scope.ap.status,name:$scope.ap.status_name}
             var qd = 'select a.*, b.name account_name,b.code account_code '+
                   'from acc_gl_journal a '+
                   'left join mst_ledger_account b on a.account_id = b.id '+
@@ -779,6 +794,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 	        filter_journal: {},
 	        filter_source: {}
 	    }
+		$scope.updateflag=false
     }
 
 })
