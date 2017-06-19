@@ -154,7 +154,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
     };
+	$scope.popup=true;
 
+	$scope.popup_history = function(){
+		$scope.popup=!$scope.popup;
+		console.log($scope.popup)
+	}
     queryService.get('select a.id, a.code,upper(a.name) as name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
         'from mst_cost_center a, mst_department b '+
         'where a.department_id = b.id and a.status!=2 '+
@@ -1115,11 +1120,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         })
 
     }
-	$scope.popup=false;
-	
-	$scope.popup_history = function(){
-		$scope.popup=!$scope.popup;
-	}
 
     $scope.delete = function(ids){
         $scope.pr.id = ids;

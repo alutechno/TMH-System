@@ -212,7 +212,12 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                 '<button class="btn btn-default" title="Update" ng-click="update(rowdata[\'' + data + '\'])">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
+				html +=
+                '<button class="btn btn-default" title="Duplicate" ng-click="update(rowdata[\'' + data + '\'],1)">' +
+                '   <i class="fa fa-files-o"></i>' +
+                '</button>&nbsp;' ;
             }
+
             if ($scope.el.indexOf('buttonDelete')>-1){
                 html+='<button class="btn btn-default" title="Delete" ng-click="delete(rowdata[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
@@ -393,10 +398,11 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         }
     }
 
-    $scope.update = function(obj){
+    $scope.update = function(obj,flag){
         $('#form-input').modal('show');
         $scope.clear()
-        $scope.field.id = obj.id
+        if(flag==undefined)
+			$scope.field.id = obj.id
 
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
@@ -408,8 +414,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.field.outlet_id = result.data[0].outlet_id
             $scope.field.status = result.data[0].status
 			$scope.field.image = result.data[0].image
-			console.log($scope.field.image)
-            $scope.field.menu_class_id = result.data[0].menu_class_id
+			$scope.field.menu_class_id = result.data[0].menu_class_id
             $scope.field.menu_group_id = result.data[0].menu_group_id
             $scope.field.meal_time_id = result.data[0].meal_time_id
             $scope.field.menu_price = result.data[0].menu_price
