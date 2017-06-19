@@ -108,6 +108,34 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
         return $sce.trustAsHtml(value);
     };
 
+	$scope.focusinControl = {};
+	$scope.fileName = "Master_Supplier";
+	$scope.exportExcel = function(){
+		DTColumnBuilder.newColumn('code').withTitle('Code'),
+        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '15%'),
+        DTColumnBuilder.newColumn('short_name').withTitle('Short Name').withOption('width', '7%'),
+		DTColumnBuilder.newColumn('supplier_type_name').withTitle('Type').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('contact_person').withTitle('Contact Person').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('phone_number').withTitle('Phone').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('address').withTitle('Address').withOption('width', '20%')
+
+		queryService.post('select code,name,short_name,supplier_type_name,status_name,contact_person,phone_number,address from('+qstring + qwhere+')aa order by code',undefined)
+		.then(function(data){
+			$scope.exportData = [];
+			//Header
+			$scope.exportData.push(["Code", "Name", 'short_name','supplier_type_name','status_name','contact_person','phone_number','address']);
+			//Data
+			for(var i=0;i<data.data.length;i++){
+				var arr = []
+				for (var key in data.data[i]){
+					arr.push(data.data[i][key])
+				}
+				$scope.exportData.push(arr)
+			}
+			$scope.focusinControl.downloadExcel()
+		})
+	}
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
