@@ -286,7 +286,7 @@
                                             <td >
 												<!--<input type="text" format="number" e-form="tableform" name="credit" ng-model="item.credit" data-e-ng-keyup="setValue($event,item.id,$data,'credit')">-->
                                                 <span editable-text="item.credit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')">
-                                                    {{ item.credit }}
+                                                    {{ item.credit |number:fractionSize}}
                                                 </span>
                                             </td>
                                         </tr>
@@ -295,8 +295,8 @@
                                             <td>&nbsp;</td>
                                                 <td>&nbsp;</td>
                                             <td>Total</td>
-                                            <td><span>{{total_debit}}</span></td>
-                                            <td><span>{{total_credit}}</span></td>
+                                            <td><span>{{total_debit|number:fractionSize}}</span></td>
+                                            <td><span>{{total_credit|number:fractionSize}}</span></td>
                                         </tr>
                                         </tbody>
                                     </table>
