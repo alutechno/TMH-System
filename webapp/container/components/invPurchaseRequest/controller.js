@@ -1115,6 +1115,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         })
 
     }
+	$scope.popup=false;
+	
+	$scope.popup_history = function(){
+		$scope.popup=!$scope.popup;
+	}
 
     $scope.delete = function(ids){
         $scope.pr.id = ids;

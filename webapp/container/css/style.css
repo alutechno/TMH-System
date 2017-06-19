@@ -219,3 +219,6 @@ input[ng-disabled="disabled"]{
 .ui-select-bootstrap .ui-select-match-text span {
 	color:red !important;
 }
+.m-l-300 {
+  margin-left: 300px;
+}

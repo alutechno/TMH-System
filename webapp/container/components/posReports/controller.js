@@ -7,10 +7,11 @@ function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
-
+	$scope.popup=true;
+	$scope.user=$localStorage.currentUser.name.id;
     var qstring = `select * from mst_report_params where group_id=1 `
 	$scope.sub={}
-
+	$scope.show={}
     queryService.get(qstring,undefined)
     .then(function(data){
         $scope.report = data.data
@@ -35,15 +36,34 @@ function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope
 		    .then(function(res){
 				$scope.sub[res.data[0].report]={param:{},report_file:res.data[0].report_file}
 				$scope.sub[res.data[0].report].data=res.data;
+				console.log(res.data)
+				for(var j=0;j<res.data.length;j++){
+					if(res.data[j].type=="list"){
+						queryService.post(res.data[j].source,undefined)
+					    .then(function(list){
+						})
+					}
+				}
 			});
+			$scope.show[data.data[i].name]=false
 		}
     })
 
 	$scope.submit = function(name){
-		console.log($scope.sub[name])
-		$scope.urlReport = $sce.trustAsResourceUrl(BIRT_URL+'/frameset?__report=report/inv/stockOnHand.rptdesign')
+		var url=''
+		for(var key in $scope.sub[name].param){
+			url+='&'+key+'='+$scope.sub[name].param[key]
+		}
+		console.log(BIRT_URL+'/frameset?__report='+$scope.sub[name].report_file+url+'&user_id='+$scope.user)
+		$scope.urlReport = $sce.trustAsResourceUrl(BIRT_URL+'/frameset?__report='+$scope.sub[name].report_file+url+'&user_id='+$scope.user+"&dummyVar="+ (new Date()).getTime())
 	}
-    $scope.trustAsHtml = function(value) {
+	$scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
     };
+
+	$scope.setActive = function(name){
+		for(var key in $scope.show)
+			$scope.show[key]=false;
+		$scope.show[name]=!$scope.show[name]
+	}
 })

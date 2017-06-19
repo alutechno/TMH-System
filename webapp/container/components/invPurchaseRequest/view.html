@@ -277,7 +277,7 @@
                                   &nbsp;
                               </div>
 							  <div class="col-md-3">
-	                              <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="popup=true" data-toggle="modal" data-target="#myModal" ><i class="fa fa-history"></i>History</button>
+	                              <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="popup_history()"><i class="fa fa-history"></i>History</button>
 	                          </div>
                               <div class="col-md-3">
                                   <div class="checkbox check-primary" >
@@ -295,7 +295,7 @@
                       </div>
                   </div>
               </div>
-			  <div class="modal fade slide-up disable-scroll" id="myModal" tabindex="-1" role="dialog" aria-hidden="false" ng-show="popup">
+			  <div class="modal fade slide-up disable-scroll" id="myModal" tabindex="-1" role="dialog" aria-hidden="false" ng-class="{ 'hidden': ! popup }">
 			      <div class="modal-dialog modal-sm">
 			          <div class="modal-content-wrapper">
 			                    <div class="modal-body text-center m-t-20">
