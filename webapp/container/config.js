@@ -3682,6 +3682,28 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
 				}]
 			}
 		})
+		.state("app.fin.rpt_ap", {
+			url: "/reports_ap",
+			templateUrl: "container/components/finReportsAP/view.html",
+			controller: "PosReports",
+			resolve: {
+				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+					return $ocLazyLoad.load([
+						"dataTables",
+						"select",
+						"datepicker",
+						"daterangepicker",
+						"tagsInput",
+						"autonumeric"
+					], {
+						insertBefore: "#lazyload_placeholder"
+					})
+					.then(function () {
+						return $ocLazyLoad.load("container/components/finReportsAP/controller.js");
+					});
+				}]
+			}
+		})
         // Extra - Others
         .state('access', {
             url: '/access',
