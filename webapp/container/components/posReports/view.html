@@ -15,7 +15,7 @@
 						<input type="text" ng-if="detail.type=='varchar'" class="form-control" ng-model="sub[item.name].param[detail.name]" style="width: 200px;">
 						<input type="text" ng-if="detail.type=='number'" format="number" class="form-control" ng-model="sub[item.name].param[detail.name]" style="width: 200px;">
 						<select ng-if="detail.type=='list'" ng-model="sub[item.name].param[detail.name]" style="width: 200px;" class="form-control">
-							<option ng-repeat="x in sub[item.name].data" value="{{x.id}}">{{x.name}}</option>
+							<option ng-repeat="x in sub[item.name][detail.name]" value="{{x.id}}">{{x.name}}</option>
 						</select>
 						</br>
 					</div>

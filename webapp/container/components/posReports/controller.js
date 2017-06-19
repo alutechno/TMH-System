@@ -36,11 +36,17 @@ function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope
 		    .then(function(res){
 				$scope.sub[res.data[0].report]={param:{},report_file:res.data[0].report_file}
 				$scope.sub[res.data[0].report].data=res.data;
-				console.log(res.data)
 				for(var j=0;j<res.data.length;j++){
 					if(res.data[j].type=="list"){
+						$scope.sub[res.data[0].report][res.data[j].name]
 						queryService.post(res.data[j].source,undefined)
 					    .then(function(list){
+							for(var k=0;k<res.data.length;k++){
+								if(res.data[k].type=="list" && list.data[0][res.data[k].name]!==undefined){
+									$scope.sub[res.data[k].report][res.data[k].name]=list.data;
+								}
+							}
+							console.log($scope.sub)
 						})
 					}
 				}
