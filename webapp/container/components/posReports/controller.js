@@ -36,9 +36,11 @@ function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope
 		    .then(function(res){
 				$scope.sub[res.data[0].report]={param:{},report_file:res.data[0].report_file}
 				$scope.sub[res.data[0].report].data=res.data;
+				$scope.sub[res.data[0].report].selected={}
 				for(var j=0;j<res.data.length;j++){
 					if(res.data[j].type=="list"){
-						$scope.sub[res.data[0].report][res.data[j].name]
+
+						$scope.sub[res.data[0].report].selected[res.data[j].name]={}
 						queryService.post(res.data[j].source,undefined)
 					    .then(function(list){
 							for(var k=0;k<res.data.length;k++){
@@ -56,10 +58,12 @@ function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope
     })
 
 	$scope.submit = function(name){
+		console.log($scope.sub)
 		var url=''
 		for(var key in $scope.sub[name].param){
-			url+='&'+key+'='+$scope.sub[name].param[key]
+			url+='&'+encodeURIComponent(key)+'='+encodeURIComponent($scope.sub[name].param[key])
 		}
+		//url=encodeURIComponent(url)
 		console.log(BIRT_URL+'/frameset?__report='+$scope.sub[name].report_file+url+'&user_id='+$scope.user)
 		$scope.urlReport = $sce.trustAsResourceUrl(BIRT_URL+'/frameset?__report='+$scope.sub[name].report_file+url+'&user_id='+$scope.user+"&dummyVar="+ (new Date()).getTime())
 	}
