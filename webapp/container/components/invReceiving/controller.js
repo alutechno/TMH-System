@@ -1082,7 +1082,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 $scope.items[d-1].rcv_qty = p
                 e.target.value=p
             }
-            $scope.items[d-1].amount = $scope.items[d-1].rcv_price*p
+            $scope.items[d-1].amount = $scope.items[d-1].rcv_price*$scope.items[d-1].rcv_qty
         }
         if (t=='price') {
 			if(parseFloat(p)>parseFloat($scope.items[d-1].price)){
