@@ -15,7 +15,6 @@ module.exports = function(connection,jwt){
 
     app.get('/getCountry', function (req, res) {
         //Handle Request For Selected Records
-        console.log('getCountry')
         var where = '';
         var whereArr = []
         if (req.query.id){
@@ -27,9 +26,7 @@ module.exports = function(connection,jwt){
         var sqlstr = 'select id,code,name '+
             ' from ref_country '+where
         connection(sqlstr, undefined,function(err, rows, fields) {
-            console.log(rows)
             if (err){
-                console.log(err)
                 res.status('404').send({
                     status: '404',
                     desc: err
@@ -156,7 +153,6 @@ module.exports = function(connection,jwt){
 
         var sqlstr = 'select value,name,description '+
             ' from table_ref '+where
-            console.log(sqlstr)
         connection(sqlstr, undefined,function(err, rows, fields) {
             if (err){
                 res.status('404').send({
@@ -187,7 +183,6 @@ module.exports = function(connection,jwt){
         delete req.body.menu_name;
 
         var sqlstr = 'update user set ? where id='+req.body.id
-            console.log(sqlstr)
         connection(sqlstr, req.body,function(err, rows, fields) {
             if (err){
                 res.status('404').send({

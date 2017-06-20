@@ -932,13 +932,14 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         var sqlitem = []
 
 		sqlitem.push("start transaction");
+		var amt = 0
         for (var i = $scope.items.length; i--;) {
             var user = $scope.items[i];
             if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from inv_receive_line_item where id='+user.p_id)
             }
             else if(!user.isNew){
-                var amt = 0
+
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
                         var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].item_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].rcv_qty+$scope.itemsOri[j].rcv_price+$scope.itemsOri[j].order_notes
@@ -960,6 +961,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 }
             }
 			if($scope.selected.delivery_status.selected.id==2){
+
 				amt += (user.rcv_qty*user.rcv_price)
 				if($scope.selected.cost_center.selected){
 					sqlitem.push('INSERT INTO inv_cost_center_stock(cost_center_id,product_id,stock_qty,stock_qty_l,stock_qty_in_recipe_unit,last_order_date,last_order_qty,last_order_supplier_id)'+
