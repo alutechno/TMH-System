@@ -4,7 +4,6 @@ angular.module('app')
 function($q, $http, $timeout, $localStorage,API_URL) {
     return {
         get: function(vid) {
-            console.log('aa:'+API_URL)
             var defer = $q.defer();
             var url= API_URL+"/apiinv/getPr";
             if (vid){
@@ -97,8 +96,7 @@ function($q, $http, $timeout, $localStorage,API_URL) {
 ])
 .factory('uploadBudget', ['$q', '$http', '$timeout', '$localStorage', 'API_URL',
 function($q, $http, $timeout, $localStorage,API_URL) {
-	console.log(API_URL)
-    return {
+	return {
         save: function(body) {
             var defer = $q.defer();
             $http.post('uploadBudget/apioth/uploadBudget', body)
@@ -123,7 +121,6 @@ function($q, $http, $timeout, $localStorage,API_URL) {
         get: function(sqlstr,sqlparam) {
             var defer = $q.defer();
             var url= API_URL+"/apisql/query?query="+sqlstr;
-            console.log(url)
 
             //$http.get("http://localhost:3000/getRoles")
             $http.get(url)
@@ -141,8 +138,6 @@ function($q, $http, $timeout, $localStorage,API_URL) {
         },
         post: function(sqlstr,sqlparam) {
             var defer = $q.defer();
-            console.log(sqlstr)
-            console.log(sqlparam)
             var body = {
                 query: sqlstr,
                 values: sqlparam
@@ -197,10 +192,6 @@ function($q, $http, $timeout, $localStorage,API_URL) {
         currentDate: function() {
             var d = new Date();
 
-            console.log(d.getFullYear() + "-" + ("00" + (d.getMonth() + 1)).slice(-2) + "-" + ("00" + d.getDate()).slice(-2) + " ")
-            console.log(("00" + d.getHours()).slice(-2) + ":" +
-            ("00" + d.getMinutes()).slice(-2) + ":" +
-            ("00" + d.getSeconds()).slice(-2))
             return d.getFullYear() + "-" + ("00" + (d.getMonth() + 1)).slice(-2) + "-" + ("00" + d.getDate()).slice(-2) + " " +
                 ("00" + d.getHours()).slice(-2) + ":" +
                 ("00" + d.getMinutes()).slice(-2) + ":" +
@@ -209,10 +200,6 @@ function($q, $http, $timeout, $localStorage,API_URL) {
         next30Day: function() {
             var d = new Date();
             d.setDate(d.getDate() + 30)
-            console.log(d.getFullYear() + "-" + ("00" + (d.getMonth() + 1)).slice(-2) + "-" + ("00" + d.getDate()).slice(-2) + " ")
-            console.log(("00" + d.getHours()).slice(-2) + ":" +
-            ("00" + d.getMinutes()).slice(-2) + ":" +
-            ("00" + d.getSeconds()).slice(-2))
             return d.getFullYear() + "-" + ("00" + (d.getMonth() + 1)).slice(-2) + "-" + ("00" + d.getDate()).slice(-2) + " " +
                 ("00" + d.getHours()).slice(-2) + ":" +
                 ("00" + d.getMinutes()).slice(-2) + ":" +
