@@ -870,7 +870,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         var results = [];
         var sqlitem = []
         var d=0,c=0;
-        for (var i = $scope.items.length; i--;) {
+        for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
             // actually delete user
             /*if (user.isDeleted) {
