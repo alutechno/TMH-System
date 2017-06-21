@@ -839,7 +839,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 				$scope.approveState = false
             }
             else {
-                $scope.selected.approval = 0
+                //$scope.selected.approval = 0
+				$scope.selected.approval=result.data[0].approval_status
                 $scope.approveState = true
                 $scope.rejectState = true
             }
