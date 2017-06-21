@@ -1240,7 +1240,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     $scope.child.saveTable = function(pr_id) {
         var results = [];
         var sqlitem = []
-		for (var i = $scope.items.length; i--;) {
+		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
 			if (user.isNew && !user.isDeleted){
                 if (user.debit>0){

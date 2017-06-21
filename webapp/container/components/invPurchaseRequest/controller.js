@@ -1295,7 +1295,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.child.saveTable = function(pr_id) {
         var results = [];
         var sqlitem = [];
-        for (var i = $scope.items.length; i--;) {
+		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
             //console.log(user.supplier_id)
             //console.log(user.supplier_id.toString().length)

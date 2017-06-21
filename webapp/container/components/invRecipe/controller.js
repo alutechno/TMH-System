@@ -951,15 +951,10 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 
     // save edits
     $scope.child.saveTable = function(pr_id) {
-        console.log('asd')
         var results = [];
-        console.log($scope.itemsOri)
-
-        console.log(JSON.stringify($scope.items,null,2))
         var sqlitem = []
-        for (var i = $scope.items.length; i--;) {
+		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
-            console.log(user)
             // actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);

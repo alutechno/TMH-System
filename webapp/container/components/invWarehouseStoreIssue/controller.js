@@ -525,7 +525,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         var results = [];
         var sqlitem = []
 		sqlitem.push('START TRANSACTION')
-        for (var i = $scope.items.length; i--;) {
+		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
 			// actually delete user
             /*if (user.isDeleted) {

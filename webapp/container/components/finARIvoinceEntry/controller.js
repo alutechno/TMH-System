@@ -667,7 +667,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 				' values (\''+$scope.ie.code+'\', 1, '+$scope.ie.id+', \'0\', \''+$scope.ie.notes+'\') ')
 			sqlitem.push('set @id=(select last_insert_id())')
 		}
-		for (var i = $scope.items.length; i--;) {
+		for (var i =0;i< $scope.items.length; i++) {
 
             var user = $scope.items[i];
 			user.notes=user.notes==undefined?'':user.notes

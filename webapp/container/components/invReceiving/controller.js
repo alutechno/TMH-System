@@ -396,7 +396,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 			values('`+$scope.po.code+`',`+$scope.po.po_id+`,'`+$scope.po.delivery_date+`','`+$scope.po.notes+`',0,`+$scope.po.currency_id+`,`+$scope.po.home_currency_exchange+`
 				,`+$scope.po.TotalSum+`,`+$scope.po.inv_no+`,`+$scope.po.faktur_no+`,`+$localStorage.currentUser.name.id+`);
 			set @id=(select last_insert_id());`
-			for (var i = $scope.items.length; i--;) {
+			for (var i =0;i< $scope.items.length; i++) {
 				var user = $scope.items[i];
 				sql+='insert into inv_receive_line_item (item_id,receive_id,product_id,received_qty,received_price,total_amount,created_by,order_notes) values('+user.item_id+',@id,'+user.product_id+','+user.rcv_qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+',"'+user.order_notes+'");'
 			}

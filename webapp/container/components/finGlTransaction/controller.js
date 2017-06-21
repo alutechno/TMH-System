@@ -19,6 +19,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     $scope.accounts = []
     $scope.total_debit = 0
     $scope.total_credit = 0
+	$scope.change=false
 	$scope.updateflag=false
     $scope.balanceStatus = {
         status:true
@@ -160,7 +161,6 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 		var d=JSON.parse(evt.target.response)
 		var d1=0
 		var c1=0
-		console.log(d)
 		$scope.$apply(function() {
 			for(var i=0;i<d.length;i++){
 				$scope.items.push(
@@ -450,6 +450,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
             .then(function (result){
                 var qd = $scope.child.saveTable(result.data.insertId);
 				if(qd.length>0){
+					console.log(qd.join(';'))
 	                queryService.post(qd.join(';') ,undefined)
 	                .then(function (result3){
 						$scope.disableAction = false;
@@ -594,12 +595,12 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 	                notes: $scope.ap.notes,
 	                ref_account: $scope.ap.ref_account
 	            }
-	            //queryService.post('insert into acc_ap_voucher SET ?',param)
+				//queryService.post('insert into acc_ap_voucher SET ?',param)
 	            queryService.post('update acc_gl_transaction SET ? WHERE id='+$scope.ap.id ,param)
 	            .then(function (result){
 	                var qd = $scope.child.saveTable($scope.ap.id);
 					if(qd.length>0){
-		                queryService.post(qd.join(';') ,undefined)
+				        queryService.post(qd.join(';') ,undefined)
 		                .then(function (result3){
 							$scope.disableAction = false;
 		                        $('#form-input').modal('hide')
@@ -642,6 +643,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 					}
 	            },
 	            function (err){
+
 					$scope.disableAction = false;
 	                $('#form-input').pgNotification({
 	                    style: 'flip',
@@ -796,6 +798,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 	        filter_source: {}
 	    }
 		$scope.updateflag=false
+		$scope.change=false;
     }
 
 })
@@ -872,7 +875,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         var d=0,c=0;
         for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
-            // actually delete user
+			// actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);
             }*/
@@ -904,7 +907,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 				' account_id = '+user.account_id+',' +
 				' transc_type = \''+(user.debit>0?'D':'C')+'\',' +
 				' notes = \''+user.notes+'\',' +
-				' amount = '+(user.debit>0?user.debit:user.credit)+',' +
+				' amount = '+(user.credit>0?user.credit:user.debit)+',' +
 				' modified_by = '+$localStorage.currentUser.name.id+',' +
 				' modified_date = \''+globalFunction.currentDate()+'\'' +
 				' where id='+user.p_id)

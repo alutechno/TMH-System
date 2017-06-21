@@ -514,8 +514,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         var results = [];
         var sqlitem = []
 		console.log("items")
-
-        for (var i = $scope.items.length; i--;) {
+		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
 			console.log(user)
             // actually delete user

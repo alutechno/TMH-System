@@ -552,7 +552,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.child.saveTableOver = function(pr_id) {
         var results = [];
         var sqlitem = []
-        for (var i = $scope.transover.length; i--;) {
+		for (var i =0;i< $scope.transover.length; i++) {
             var user = $scope.transover[i];
             // send on server
             //results.push($http.post('/saveUser', user));
@@ -660,7 +660,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.child.saveTableT = function(pr_id) {
         var results = [];
         var sqlitem = []
-        for (var i = $scope.trans.length; i--;) {
+		for (var i =0;i< $scope.trans.length; i++) {
             var user = $scope.trans[i];
 
             // send on server

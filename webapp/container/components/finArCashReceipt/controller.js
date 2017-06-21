@@ -340,7 +340,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         var results = [];
         var sqlitem = []
 		sqlitem.push('START TRANSACTION')
-		for (var i = $scope.items.length; i--;) {
+		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
 			if (user.isNew && !user.isDeleted){
                 sqlitem.push('insert into acc_ar_receipt_line_item(receipt_id,invoice_id,home_receipt_amount,receipt_amount,created_by,receipt_notes) values '+
@@ -417,7 +417,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         var results = [];
         var sqlitem = []
 		sqlitem.push('START TRANSACTION')
-		for (var i = $scope.items.length; i--;) {
+		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
 			if (user.isNew && !user.isDeleted){
                 sqlitem.push('insert into acc_ar_receipt_line_item(receipt_id,invoice_id,home_receipt_amount,receipt_amount,created_by,receipt_notes) values '+

@@ -794,7 +794,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
         console.log(JSON.stringify($scope.items,null,2))
         var sqlitem = []
-        for (var i = $scope.items.length; i--;) {
+		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
             console.log(user)
             if (user.line_id != null){

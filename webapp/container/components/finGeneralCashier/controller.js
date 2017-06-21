@@ -794,7 +794,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         console.log(JSON.stringify($scope.items,null,2))
         var sqlitem = []
         var d=0,c=0;
-        for (var i = $scope.items.length; i--;) {
+		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
             console.log(user)
             // actually delete user

@@ -1050,8 +1050,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         var results = [];
         var sqlitem = []
 		console.log("items")
-
-        for (var i = $scope.items.length; i--;) {
+		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
 			console.log(user)
             // actually delete user

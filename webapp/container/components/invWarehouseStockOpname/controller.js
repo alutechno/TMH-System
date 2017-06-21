@@ -453,17 +453,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
     // save edits
     $scope.child.saveTable = function(pr_id) {
-        console.log('asd')
         var results = [];
 
-
-        console.log(JSON.stringify($scope.items,null,2))
         var sqlitem = []
-        for (var i = $scope.items.length; i--;) {
+		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
-            console.log(user)
             var qs = []
-            console.log(user)
             if ($scope.so._id.indexOf('W')>-1){
                 qs.push('update inv_warehouse_stock set stock_qty='+(user.real_stock!=null?user.real_stock:(user.stock_qty_l/user.unit_conversion))+
                 ' ,stock_qty='+(user.real_stock!=null?(user.real_stock):(user.stock_qty_l/user.unit_conversion))+
