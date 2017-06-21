@@ -3704,6 +3704,50 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
 				}]
 			}
 		})
+        .state("app.inv.rpt_rcv", {
+            url: "/rpt_rcv",
+            templateUrl: "container/components/invRptReceiving/view.html",
+            controller: "ReportsCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/invRptReceiving/controller.js");
+                    });
+                }]
+            }
+        })
+        .state("app.inv.rpt_prc", {
+            url: "/rpt_prc",
+            templateUrl: "container/components/invRptPurchasing/view.html",
+            controller: "ReportsCtrl",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/invRptPurchasing/controller.js");
+                    });
+                }]
+            }
+        })
         // Extra - Others
         .state('access', {
             url: '/access',
