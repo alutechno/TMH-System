@@ -14,7 +14,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.releaseState = true;
     $scope.seqState = 1;
     $scope.disableAction = false;
-
     for (var i=0;i<$scope.el.length;i++){
 
         if ($scope.el[i]=='approvalDeptHead'){
