@@ -158,7 +158,7 @@
                             <td><span>{{item.unit_name}}</span></td>
 							<td><span>{{item.issued_qty}}</span></td>
 							<td>
-                                <span editable-text="item.issued_qty_n" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'iq')" ng-disabled="!buttonCreate">
+                                <span editable-text="item.issued_qty_n" format="number" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'iq')" ng-disabled="!buttonCreate">
                                     {{ item.issued_qty_n }}
                                 </span>
                             </td>

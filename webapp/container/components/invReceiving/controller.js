@@ -272,12 +272,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" title="Delete" ng-click="delete(\'' + data + '\')">' +
+                html+='<button class="btn btn-default" title="Cancel" ng-click="delete(\'' + data + '\')">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
 			if (full.receive_status_name=='Partially Delivered' && (full.status_id==2||full.status_id==1)){
-                html+='<button class="btn btn-default" title="Receiving" ng-click="update(\'' + data + '\',1)">' +
+                html+='<button class="btn btn-default" title="Partial Receiving" ng-click="update(\'' + data + '\',1)">' +
                 '   <i class="fa fa-plus"></i>' +
                 '</button>';
             }
@@ -740,7 +740,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         price: result2.data[i].price,
                         rcv_price: result2.data[i].received_price==null?result2.data[i].price:result2.data[i].received_price,
 						rcv_price_dis: result2.data[i].received_price,
-                        amount: result2.data[i].amount,
+                        amount: flag==undefined?result2.data[i].amount:0,
                         lowest_unit_conversion: result2.data[i].lowest_unit_conversion,
                         recipe_unit_conversion: result2.data[i].recipe_unit_conversion,
                         lowest_unit_type_id: result2.data[i].lowest_unit_type_id,
@@ -750,10 +750,13 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 					$scope.rcv_qty+=result2.data[i].received_qty;
 					$scope.amount+=result2.data[i].amount;
                 }
+
                 $scope.itemsOri = angular.copy($scope.items)
 				var date = new Date()
 				if(flag!=undefined){
 					$scope.po.id=''
+					$scope.amount=0;
+					$scope.rcv_qty=0;
 					$scope.po.delivery_date = date.getFullYear()+'-'+((date.getMonth() + 1)>9?(date.getMonth() + 1):'0'+(date.getMonth() + 1) )+ '-' + (date.getDate()>9?date.getDate():'0'+date.getDate())
 					$scope.ym = date.getFullYear() + '/' + (date.getMonth()<9?'0':'') + (date.getMonth()+1)
 					queryService.post('select curr_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
@@ -933,7 +936,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
 		sqlitem.push("start transaction");
 		var amt = 0
-        for (var i = $scope.items.length; i--;) {
+        for (var i =0; i<$scope.items.length; i++) {
             var user = $scope.items[i];
             if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from inv_receive_line_item where id='+user.p_id)

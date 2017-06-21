@@ -159,7 +159,7 @@
                             </td>
                             <td><span>{{item.stock_in_hand}}</span></td>
                             <td>
-                                <span editable-text="item.request_qty" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'rq')" ng-disabled="!buttonCreate">
+                                <span editable-text="item.request_qty" format="number" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updaterl($event,item.id,$data,'rq')" ng-disabled="!buttonCreate">
                                     {{ item.request_qty }}
                                 </span>
                             </td>
