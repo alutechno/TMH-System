@@ -482,8 +482,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 }).show();
 				$scope.disableAction = false;
             }
-
-
         }
         else {
             //exec update
@@ -505,7 +503,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 var queryState = ''
                 var paramState = []
                 var paramPr = {}
-
                 if ($scope.pr.doc_status_id==$scope.selected.doc_status.selected.id &&
                     $scope.pr.approval_status==$scope.selected.approval ){
                     //Hanya Update inv_purchase_request, tidak doc_status_id atau approval yang berubah
@@ -523,13 +520,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                             type: 'success'
                         }).show();
                         $scope.clear();
-
                     },
                     function (err3){
                         console.log(err3)
 						$scope.disableAction = false;
                     })
-
                 }
                 else {
                     result.data['insertId'] = $scope.pr.id
