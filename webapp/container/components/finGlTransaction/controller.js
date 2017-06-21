@@ -160,6 +160,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 		var d=JSON.parse(evt.target.response)
 		var d1=0
 		var c1=0
+		console.log(d)
 		$scope.$apply(function() {
 			for(var i=0;i<d.length;i++){
 				$scope.items.push(
@@ -900,7 +901,15 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
                 sqlitem.push('delete from acc_gl_journal where id='+user.p_id)
             }
             else if(!user.isNew){
-                for (var j=0;j<$scope.itemsOri.length;j++){
+				sqlitem.push('update acc_gl_journal set '+
+				' account_id = '+user.account_id+',' +
+				' transc_type = \''+(user.debit>0?'D':'C')+'\',' +
+				' notes = \''+user.notes+'\',' +
+				' amount = '+(user.debit>0?user.debit:user.credit)+',' +
+				' modified_by = '+$localStorage.currentUser.name.id+',' +
+				' modified_date = \''+globalFunction.currentDate()+'\'' +
+				' where id='+user.p_id)
+                /*for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
                         var d1 = $scope.itemsOri._id+$scope.itemsOri[j].account_id+$scope.itemsOri[j].debit+$scope.itemsOri[j].credit+$scope.itemsOri[j].notes
                         var d2 = user.pid+user.account_id+user.debit+user.credit+user.notes
@@ -915,7 +924,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
                             ' where id='+user.p_id)
                         }
                     }
-                }
+                }*/
             }
 
         }
