@@ -1065,7 +1065,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.child.saveTableT = function(pr_id) {
         var results = [];
         var sqlitem = []
-        for (var i = $scope.trans.length; i--;) {
+		for (var i =0;i< $scope.trans.length; i++) {
             var user = $scope.trans[i];
             // actually delete user
             /*if (user.isDeleted) {
@@ -1239,7 +1239,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.child.saveTable = function(pr_id) {
         var results = [];
         var sqlitem = []
-        for (var i = $scope.items.length; i--;) {
+		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
             // actually delete user
             /*if (user.isDeleted) {
