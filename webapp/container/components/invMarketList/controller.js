@@ -1105,13 +1105,13 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.products = []
 
     queryService.get('select a.id,a.name,a.last_order_price,a.code product_code,b.name unit_name '+
-        'from mst_product a left join ref_product_unit b on a.unit_type_id=b.id where is_ml=\'Y\' order by id limit 50 ',undefined)
+        'from mst_product a left join ref_product_unit b on a.unit_type_id=b.id where a.status=1 and is_ml=\'Y\' order by id limit 50 ',undefined)
     .then(function(data){
         $scope.products = data.data
     })
     $scope.productUp = function(text) {
         queryService.post('select a.id,a.name,a.last_order_price,a.code product_code,b.name unit_name '+
-            'from mst_product a left join ref_product_unit b on a.unit_type_id=b.id where is_ml=\'Y\' and lower(a.name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
+            'from mst_product a left join ref_product_unit b on a.unit_type_id=b.id where a.status=1 and is_ml=\'Y\' and lower(a.name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
         .then(function(data){
             $scope.products = data.data
         })
