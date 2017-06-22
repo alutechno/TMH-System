@@ -421,7 +421,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         if (state == 'add'){
             $scope.clear()
         }
-        $scope.statusShow.push($scope.status[0])
+        $scope.statusShow=[$scope.status[0]]
         $scope.selected.status['selected']=$scope.status[0]
         $('#form-input').modal('show')
         $scope.items = []
