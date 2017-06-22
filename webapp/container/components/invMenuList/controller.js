@@ -1,7 +1,7 @@
 
 var userController = angular.module('app', []);
 userController
-.controller('InvMenuListCtrl',
+.controller('PosMenuList',
 function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
     $scope.el = [];
     $scope.el = $state.current.data;
