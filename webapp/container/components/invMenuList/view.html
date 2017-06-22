@@ -1,18 +1,19 @@
+
 <div class="full-height m-t-40">
+    <!-- TABLES VIEW -->
     <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
         <div class="panel panel-transparent">
             <div class="panel-heading">
-                <div class="panel-title">Customer Type
+                <div class="panel-title">Menu List
                 </div>
                 <div class="pull-right" style="width: 60%;">
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Reference</button>
-                    <span ng-click="exportExcel()">
-                        <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
-                    </span>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Menu</button>
 
                     <div class="input-group date col-sm-4 pull-right m-r-10">
-                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search name..." ng-keyup="filter('search',$event)" ng-model="filterVal.search">
+                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
                     </div>
+
                 </div>
                 <div class="clearfix"></div>
                 <div class="tools">
@@ -24,19 +25,21 @@
             </div>
             <div class="panel-body">
                 <div class="table-responsive">
-                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance" >
+                    <table class="table table-hover table-condensed " datatable="" dt-options="dtOptions" dt-columns="dtColumns" dt-instance="dtInstance">
                     </table>
             </div>
         </div>
     </div>
+    <!-- END PANEL -->
 </div>
 
-<div class="modal fade slide-right" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
+<!--START FORM INPUT-->
+<div class="modal fade slide-right form-input-big" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Customer Type Information</div>
+       <div class="panel-title">Menu Information</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -44,72 +47,237 @@
           <div class="row-xs-height">
             <div class="modal-body col-xs-height col-top">
 
+      <!-- START FORM -->
       <div class="panel panel-transparent m-t-20">
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
-                  <div class="col-sm-6">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.code.$invalid && !coa.code.$pristine }">
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.name.$invalid && !field.name.$pristine }">
                           <label>Code</label>
-                          <input type="text" class="form-control" name="code" id="coa_code" ng-model="coa.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" class="form-control" name="code" ng-model="field.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
-              </div>
-              <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : coa.name.$invalid && !coa.name.$pristine }">
+                  <div class="col-sm-8">
+                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : field.name.$invalid && !field.name.$pristine }">
                           <label>Name</label>
-                          <input type="text" class="form-control" name="name" ng-model="coa.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" class="form-control" name="name" ng-model="field.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                       </div>
                   </div>
               </div>
               <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default">
-                          <label>Desc</label>
-                          <input type="text" class="form-control" name="name" ng-model="coa.description" >
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.short_name.$invalid && !field.short_name.$pristine }">
+                          <label>Short Name</label>
+                          <input type="text" class="form-control" name="short_name" ng-model="field.short_name" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+                  <div class="col-sm-8">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.description.$invalid && !field.description.$pristine }">
+                          <label>Description</label>
+                          <input type="text" class="form-control" name="description" ng-model="field.description" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
                       </div>
                   </div>
               </div>
               <div class="row clearfix">
-                <div class="col-sm-12">
-                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.status.selected.$invalid && !selected.status.selected.$pristine }">
-                        <label>Status</label>
-                        <ui-select ng-model="selected.status.selected" theme="bootstrap" validate-attached-form-element required>
-                            <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
-                            <ui-select-choices repeat="item in arrActive | filter: $select.search">
+                <div class="col-sm-6">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.outlet_id.$invalid && !field.outlet_id.$pristine }">
+                        <label>Outlet</label>
+                        <ui-select ng-model="selected.outlet_id.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.outlet_id | filter: $select.search">
                                 <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                             </ui-select-choices>
                         </ui-select>
                     </div>
                 </div>
-            </div>
-			<div class="row clearfix">
-				<div class="col-sm-12">
-					<div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : suptype.receiveable_account_id.$invalid && !suptype.receiveable_account_id.$pristine }">
-						<label>Account Receiveable</label>
-						<ui-select ng-model="selected.receiveable_account_id.selected" theme="bootstrap" >
-							<ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
-							<ui-select-choices repeat="item in ar_accounts | filter: $select.search">
-								<span ng-bind-html="trustAsHtml((item.code + '-' + item.name | highlight: $select.search))"></span>
-							</ui-select-choices>
-						</ui-select>
-					</div>
-				</div>
-			</div>
-			<div class="row clearfix">
-				<div class="col-sm-12">
-					<div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : suptype.deposit_account_id.$invalid && !suptype.deposit_account_id.$pristine }">
-						<label>Account Deposit</label>
-						<ui-select ng-model="selected.deposit_account_id.selected" theme="bootstrap" >
-							<ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
-							<ui-select-choices repeat="item in ar_accounts | filter: $select.search">
-								<span ng-bind-html="trustAsHtml((item.code + '-' + item.name | highlight: $select.search))"></span>
-							</ui-select-choices>
-						</ui-select>
-					</div>
-				</div>
-			</div>
+                <div class="col-sm-6">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : field.status.$invalid && !field.status.$pristine }">
+                        <label>Status</label>
+                        <ui-select ng-model="selected.status.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.status | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
               </div>
+              <div class="row clearfix">
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.menu_class_id.$invalid && !field.menu_class_id.$pristine }">
+                        <label>Menu Class</label>
+                        <ui-select ng-model="selected.menu_class_id.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.menu_class_id | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.menu_group_id.$invalid && !field.menu_group_id.$pristine }">
+                        <label>Menu Group</label>
+                        <ui-select ng-model="selected.menu_group_id.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.menu_group_id | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.meal_time_id.$invalid && !field.meal_time_id.$pristine }">
+                        <label>Meal Time</label>
+                        <ui-select ng-model="selected.meal_time_id.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.meal_time_id | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+              </div>
+              <div class="row clearfix">
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.menu_type.$invalid && !field.menu_type.$pristine }">
+                          <label>Menu Type</label>
+                          <input type="text" class="form-control" name="menu_type" ng-model="field.menu_type" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.menu_price.$invalid && !field.menu_price.$pristine }">
+                          <label>Menu Price</label>
+                          <input type="text" class="form-control" name="menu_price" ng-model="field.menu_price" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+                  <div class="col-sm-4">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.unit_cost.$invalid && !field.unit_cost.$pristine }">
+                          <label>Unit Cost</label>
+                          <input type="text" class="form-control" name="unit_cost" ng-model="field.unit_cost" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                <div class="col-sm-12">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.product_id.$invalid && !field.product_id.$pristine }">
+                        <label>Product</label>
+                        <ui-select ng-model="selected.product_id.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.product_id | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+              </div>
+              <div class="row clearfix">
+                <div class="col-sm-9">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.recipe_id.$invalid && !field.recipe_id.$pristine }">
+                        <label>Recipe</label>
+                        <ui-select ng-model="selected.recipe_id.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.recipe_id | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                  <div class="col-sm-3">
+                      <div pg-form-group class="form-group form-group-default" ng-class="{ 'has-error' : field.recipe_qty.$invalid && !field.recipe_qty.$pristine }">
+                          <label>Recipe Qty</label>
+                          <input type="text" class="form-control" name="recipe_qty" ng-model="field.recipe_qty" ui-jq="popover" data-container="body" data-placement="top" data-trigger="manual" validate-attached-form-element>
+                      </div>
+                  </div>
+              </div>
+              <div class="row clearfix">
+                <div class="col-sm-3">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.is_promo_enabled.$invalid && !field.is_promo_enabled.$pristine }">
+                        <label>Enable Promo</label>
+                        <ui-select ng-model="selected.is_promo_enabled.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.is_promo_enabled | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.is_export_cost.$invalid && !field.is_export_cost.$pristine }">
+                        <label>Export Cost</label>
+                        <ui-select ng-model="selected.is_export_cost.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.is_export_cost | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.is_print_after_total.$invalid && !field.is_print_after_total.$pristine }">
+                        <label>Print After Total</label>
+                        <ui-select ng-model="selected.is_print_after_total.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.is_print_after_total | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.is_disable_change_price.$invalid && !field.is_disable_change_price.$pristine }">
+                        <label>Disable Change Price</label>
+                        <ui-select ng-model="selected.is_disable_change_price.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.is_disable_change_price | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+              </div>
+              <div class="row clearfix">
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.is_tax_included.$invalid && !field.is_tax_included.$pristine }">
+                        <label>Include Tax</label>
+                        <ui-select ng-model="selected.is_tax_included.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.is_tax_included | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.print_kitchen_id.$invalid && !field.print_kitchen_id.$pristine }">
+                        <label>Kitchen</label>
+                        <ui-select ng-model="selected.print_kitchen_id.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.print_kitchen_id | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.print_kitchen_section_id.$invalid && !field.print_kitchen_section_id.$pristine }">
+                        <label>Kitchen Section</label>
+                        <ui-select ng-model="selected.print_kitchen_section_id.selected" theme="bootstrap" >
+                            <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in arr.print_kitchen_section_id | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+				<div class="col-sm-4">
+                    <div class="thumbnail-wrapper d100 bordered b-white m-t-30 m-l-10" >
+                          <img ng-dropzone dropzone="dropzoneImage" dropzone-config="dropzoneConfigImage" event-handlers="dzCallbacks" name="image" width="100" height="100" ng-src="{{field.image||container/img/menu/food.jpg}}" onerror="this.src='container/img/menu/food.jpg'" id="dzid" />
+                    </div>
+                    <br/>
+                    <span><i>click on image to change menu image</i></span>
+                </div>
+              </div>
+
 
               <br>
               <div class="clearfix"></div>
@@ -117,21 +285,26 @@
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>
       </div>
+      <!-- END FORM -->
 
             </div>
           </div>
         </div>
       </div>
     </div>
+    <!-- /.modal-content -->
   </div>
+  <!-- /.modal-dialog -->
 </div>
+<!--END FORM INPUT-->
 
+<!-- START MODAL CONTENT-->
 <div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="false">
     <div class="modal-dialog modal-sm">
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h4 class="no-margin p-b-10">Are you sure want to delete {{coa.name}} ?</h4>
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{field.name}} ?</h4>
                     <div >
                         <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
@@ -139,5 +312,7 @@
                 </div>
             </div>
         </div>
+        <!-- /.modal-content -->
     </div>
 </div>
+<!-- END MODAL CONTENT-->
