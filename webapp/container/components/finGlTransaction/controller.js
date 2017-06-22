@@ -892,10 +892,13 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 
                 if (user.credit>0){
                     sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
-                    pr_id+','+user.account_id+',\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    //pr_id+','+user.account_id+',\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+					pr_id+',(select id from mst_ledger_account where code="' + user.account_code + '"),\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+
                 }else{
 					sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
-                    pr_id+','+user.account_id+',\'D\',\''+user.notes+'\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    //pr_id+','+user.account_id+',\'D\',\''+user.notes+'\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+					pr_id+',(select id from mst_ledger_account where code="' + user.account_code + '"),\'D\',\''+user.notes+'\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
 				}
 
             }
