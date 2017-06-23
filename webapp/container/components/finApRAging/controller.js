@@ -12,31 +12,30 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
-    var qstring = 'select * from ( '+
-        'select supplier_id, b.name as supplier_name, account_id, c.name as transc_type, '+
-                 'current, over30, over60, over90,over120, total '+
-            'from ( '+
-                          'select supplier_id, account_id, '+
-                                         'sum(case when status = \'1\' or (status = \'2\' and age <= 30) then amount end) as current, '+
-                                         'sum(case when status = \'2\' and age between 31 and 60 then amount end) as over30, '+
-                                         'sum(case when status = \'2\' and age between 61 and 90 then amount end) as over60, '+
-										 'sum(case when status = \'2\' and age between 91 and 120 then amount end) as over90, '+
-                                         'sum(case when status = \'2\' and age > 120 then amount end) as over120, '+
-                         'sum(amount) as total '+
-                           'from ( '+
-                                          'select a.supplier_id, a.status, c.account_id, c.amount,  '+
-                                                         'datediff(current_date(),a.open_date) as age '+
-                                                'from acc_ap_voucher a '+
-                                                'left join acc_gl_transaction b on a.id = b.voucher_id '+
-                                                'left join acc_gl_journal c on b.id = c.gl_id and c.transc_type = \'C\' '+
-                                           //'#where a.open_date=? '+
-                                            //'#    and a.used_currency_id=?  '+
-                                        ') as a '+
-                         'group by supplier_id, account_id '+
-                        ') as a '+
-           'left join mst_supplier b on a.supplier_id = b.id '+
-           'left join mst_ledger_account c on a.account_id = c.id '+
-           ')t '
+    var qstring = 'select supplier_id, b.code supplier_code, b.name as supplier_name, c.name supplier_type, d.name account_name, '+
+                    	 '  format(ifnull(current,0),0)current, format(ifnull(over30,0),0)over30, format(ifnull(over60,0),0)over60, format(ifnull(over90,0),0)over90, '+
+                          '   format(ifnull(over120,0),0)over120, format(ifnull(total,0),0)total  '+
+                      '  from (  '+
+                        '      select supplier_id,  '+
+                    				'  sum(case when status = \'1\' or (status = \'2\' and age <= 30) then amount end) as current,  '+
+                              '        sum(case when status = \'2\' and age between 31 and 60 then amount end) as over30,  '+
+                                '      sum(case when status = \'2\' and age between 61 and 90 then amount end) as over60,  '+
+                    				'  sum(case when status = \'2\' and age between 91 and 120 then amount end) as over90,  '+
+                              '        sum(case when status = \'2\' and age > 120 then amount end) as over120,  '+
+                                '      sum(amount) as total  '+
+                    		   '  from (  '+
+                    				  '  select a.supplier_id, a.status, current_due_amount amount,   '+
+                    						 '  datediff(current_date(),a.open_date) as age  '+
+                    					'  from acc_ap_voucher a '+
+                    				   '  where current_due_amount > 0 '+
+                               '  and status in (\'1\', \'2\') '+
+                    				'  ) as a  '+
+                    		   '  group by supplier_id '+
+                    		'  ) as a  '+
+                       '  left join mst_supplier b on a.supplier_id = b.id '+
+                       '  left join ref_supplier_type c on c.id = b.supplier_type_id '+
+                       '  left join mst_ledger_account d on d.id = c.payable_account_id ';
+    console.log(qstring);
     var qwhere = ''
 
     $scope.users = []
@@ -126,25 +125,25 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.nested.dtColumns = [];
     if ($scope.el.length>0){
         $scope.nested.dtColumns.push(DTColumnBuilder.newColumn('supplier_id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml).withOption('width', '8%'))
     }
     $scope.nested.dtColumns.push(
-        DTColumnBuilder.newColumn('supplier_id').withTitle('Supplier Id'),
-        DTColumnBuilder.newColumn('supplier_name').withTitle('Name').withOption('width','15%'),
-        DTColumnBuilder.newColumn('transc_type').withTitle('Trans Type').withOption('width','20%'),
-        DTColumnBuilder.newColumn('current').withTitle('Current'),
-        DTColumnBuilder.newColumn('over30').withTitle('Over 30 Days'),
-        DTColumnBuilder.newColumn('over60').withTitle('Over 60 Days'),
-        DTColumnBuilder.newColumn('over90').withTitle('Over 90 Days'),
-		DTColumnBuilder.newColumn('over120').withTitle('Over 120 Days'),
-        DTColumnBuilder.newColumn('total').withTitle('Total')
+        DTColumnBuilder.newColumn('supplier_type').withTitle('Supplier Type').withOption('width','10%'),
+        DTColumnBuilder.newColumn('supplier_code').withTitle('Supplier#').withOption('width','8%'),
+        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier Name').withOption('width','15%'),
+        DTColumnBuilder.newColumn('current').withTitle('Current').withOption('width','10%').withClass('text-right'),
+        DTColumnBuilder.newColumn('over30').withTitle('Over 30 Days').withOption('width','10%').withClass('text-right'),
+        DTColumnBuilder.newColumn('over60').withTitle('Over 60 Days').withOption('width','10%').withClass('text-right'),
+        DTColumnBuilder.newColumn('over90').withTitle('Over 90 Days').withOption('width','10%').withClass('text-right'),
+		    DTColumnBuilder.newColumn('over120').withTitle('Over 120 Days').withOption('width','10%').withClass('text-right'),
+        DTColumnBuilder.newColumn('total').withTitle('Total').withOption('width','15%').withClass('text-right')
     );
 
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhere = ' where lower(t.supplier_name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
-                else qwhere = ''
+                if ($scope.filterVal.search.length>0) qwhere = ' where lower(b.name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '
+                else qwhere = ' '
                 $scope.nested.dtInstance.reloadData(function(obj){
                     console.log(obj)
                 }, false)
@@ -186,36 +185,31 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 })
 .controller('DetailApraCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction,DTOptionsBuilder,DTColumnBuilder,DTColumnDefBuilder,API_URL) {
     $scope.details = []
-    var qstringdetail = 'select * from ( '+
-        'select supplier_id, b.name as supplier_name, account_id, c.name as transc_type, '+
-        'source,DATE_FORMAT(due_date,\'%Y-%m-%d\') due_date,source_no,voucher_id,DATE_FORMAT(open_date,\'%Y-%m-%d\') open_date, '+
-                 'current, over30, over60, over90,over120, total,age '+
-            'from ( '+
-                          'select supplier_id, account_id,source,due_date,source_no,voucher_id,open_date,age, '+
-                                         'sum(case when status = \'1\'or (status = \'2\' and age <= 30) then amount end) as current, '+
-                                         'sum(case when status = \'2\' and age between 31 and 60 then amount end) as over30, '+
-                                         'sum(case when status = \'2\' and age between 61 and 90 then amount end) as over60, '+
-										 'sum(case when status = \'2\' and age between 91 and 120 then amount end) as over90, '+
-                                         'sum(case when status = \'2\' and age > 120 then amount end) as over120, '+
-                         'sum(amount) as total '+
-                           'from ( '+
-                                          'select a.supplier_id, a.status, c.account_id, c.amount,  '+
-                                                         'datediff(current_date(),a.open_date) as age, '+
-                                                         'a.source, a.due_date,a.code source_no,a.id voucher_id,a.open_date '+
-                                                'from acc_ap_voucher a '+
-                                                'left join acc_gl_transaction b on a.id = b.voucher_id '+
-                                                'left join acc_gl_journal c on b.id = c.gl_id and c.transc_type = \'C\' '+
-                                           //'#where a.open_date=? '+
-                                            //'#    and a.used_currency_id=?  '+
-                                        ') as a '+
-                         'group by supplier_id, account_id '+
-                        ') as a '+
-           'left join mst_supplier b on a.supplier_id = b.id '+
-           'left join mst_ledger_account c on a.account_id = c.id '+
-           ')t '
+    var qstringdetail = 'select a.supplier_id, a.id, a.invoice_no, a.faktur_no, '+
+       ' date_format(a.open_date,\'%d-%m-%Y\')open_date, date_format(a.due_date,\'%d-%m-%Y\')due_date, '+
+       ' a.source, b.name source_name, a.receive_id, c.code source_no, a.age,  '+
+       ' case when a.status = \'1\' or (a.status = \'2\' and a.age <= 30) then amount else 0 end as current,  '+
+	   ' case when a.status = \'2\' and a.age between 31 and 60 then amount else 0 end as over30,  '+
+	   ' case when a.status = \'2\' and a.age between 61 and 90 then amount else 0 end as over60,  '+
+	   ' case when a.status = \'2\' and a.age between 91 and 120 then amount else 0 end as over90,  '+
+       ' case when a.status = \'2\' and a.age > 120 then amount else 0 end as over120, '+
+       ' a.amount total '+
+  ' from ( '+
+		' select a.id, a.code invoice_no, a.faktur_no, a.open_date, a.due_date, a.source,  '+
+			'    datediff(current_date(),a.open_date) as age, a.status, a.receive_id, '+
+			  '  a.supplier_id, format(a.current_due_amount,0)amount '+
+		  ' from acc_ap_voucher a '+
+		 ' where a.status in (\'1\',\'2\') '+
+        '    and a.current_due_amount > 0 '+
+        ' :supplier ' +
+       ' ) a '+
+ ' left join (select value id, name from table_ref '+
+  '            where table_name = \'acc_ap_voucher\' '+
+		' 	   and column_name = \'source\') b on b.id = a.source '+
+ ' left join inv_po_receive c on c.id = a.receive_id '
     var qwheredetail = ''
     $scope.nested.runDetail = function(){
-        qwheredetail = ' where t.supplier_id = '+$scope.id
+        qwheredetail = ' and a.supplier_id = '+$scope.id
         $scope.nested.dtDetailInstance.reloadData()
     }
     $scope.nested.dtDetailInstance = {}
@@ -228,7 +222,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.query = qstringdetail + (qwheredetail.length==0?' where t.supplier_id=0':qwheredetail);
+            console.log(qstringdetail.replace(':supplier',qwheredetail.length>0?qwheredetail:' '));
+            data.query = qstringdetail.replace(':supplier',qwheredetail.length>0?qwheredetail:' ');
         }
     })
     .withDataProp('data')
@@ -243,18 +238,19 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 
     $scope.nested.dtDetailColumns = []
     $scope.nested.dtDetailColumns.push(
-        DTColumnBuilder.newColumn('voucher_id').withTitle('Voucher'),
+        DTColumnBuilder.newColumn('id').withTitle('Vchr#'),
+        DTColumnBuilder.newColumn('invoice_no').withTitle('Invoice#'),
         DTColumnBuilder.newColumn('open_date').withTitle('Open Date'),
         DTColumnBuilder.newColumn('due_date').withTitle('Due Date'),
-        DTColumnBuilder.newColumn('age').withTitle('age'),
-        DTColumnBuilder.newColumn('source').withTitle('source'),
-        DTColumnBuilder.newColumn('source_no').withTitle('source_no'),
-        DTColumnBuilder.newColumn('current').withTitle('Current'),
-        DTColumnBuilder.newColumn('over30').withTitle('Over 30 Days'),
-        DTColumnBuilder.newColumn('over60').withTitle('Over 60 Days'),
-        DTColumnBuilder.newColumn('over90').withTitle('Over 90 Days'),
-		DTColumnBuilder.newColumn('over120').withTitle('Over 120 Days'),
-        DTColumnBuilder.newColumn('total').withTitle('Total')
+        DTColumnBuilder.newColumn('age').withTitle('Age').withClass('text-right'),
+        DTColumnBuilder.newColumn('source_name').withTitle('Source'),
+        DTColumnBuilder.newColumn('source_no').withTitle('Source No'),
+        DTColumnBuilder.newColumn('current').withTitle('Current').withClass('text-right'),
+        DTColumnBuilder.newColumn('over30').withTitle('> 30 Days').withClass('text-right'),
+        DTColumnBuilder.newColumn('over60').withTitle('> 60 Days').withClass('text-right'),
+        DTColumnBuilder.newColumn('over90').withTitle('> 90 Days').withClass('text-right'),
+		    DTColumnBuilder.newColumn('over120').withTitle('> 120 Days').withClass('text-right'),
+        DTColumnBuilder.newColumn('total').withTitle('Total').withClass('text-right')
     );
 
 });
