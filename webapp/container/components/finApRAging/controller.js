@@ -125,7 +125,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.nested.dtColumns = [];
     if ($scope.el.length>0){
         $scope.nested.dtColumns.push(DTColumnBuilder.newColumn('supplier_id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '8%'))
+        .renderWith($scope.actionsHtml).withOption('width', '5%'))
     }
     $scope.nested.dtColumns.push(
         DTColumnBuilder.newColumn('supplier_type').withTitle('Supplier Type').withOption('width','10%'),
