@@ -50,7 +50,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             $scope.period.push({id:year[i]+month[j],name:year[i]+'-'+month[j]})
         }
     }*/
-    console.log($scope.period)
 
     $scope.role = {
         selected: []
@@ -104,7 +103,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
     $scope.showAdvance = false
     $scope.openAdvancedFilter = function(val){
-        console.log(val)
         $scope.showAdvance = val
     }
 
@@ -116,7 +114,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        $scope.cats[data] = {id:data};
+        $scope.cats[data] = {id:data,name:full.name};
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
@@ -228,7 +226,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         if (state == 'add'){
             $scope.clear()
         }
-        $scope.statusShow.push($scope.status[0])
+        $scope.statusShow=[$scope.status[0]]
         $scope.selected.status['selected']=$scope.status[0]
         $('#form-input').modal('show')
         $scope.posting=false
@@ -238,8 +236,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 		$scope.disableAction = true;
         if ($scope.ap.id.length==0){
             //exec creation
-            console.log($scope.ap)
-
             var param = {
                 name: $scope.ap.name,
                 description:$scope.ap.description,
@@ -251,36 +247,49 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 created_by: $localStorage.currentUser.name.id,
                 created_date: globalFunction.currentDate()
             }
-            console.log(param)
+			console.log(param)
             queryService.post('insert into acc_recurring_journal SET ?',param)
             .then(function (result){
                 var qd = $scope.child.saveTable(result.data.insertId);
-                console.log(qd)
-                queryService.post(qd.join(';') ,undefined)
-                .then(function (result3){
-					$scope.disableAction = false;
-                        $('#form-input').modal('hide')
-                        $scope.dtInstance.reloadData(function(obj){
-                            // console.log(obj)
-                        }, false)
-                        $('body').pgNotification({
-                            style: 'flip',
-                            message: 'Success Insert '+$scope.ap.name,
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'success'
-                        }).show();
-                },
-                function (err3){
-					$scope.disableAction = false;
-                    $('#form-input').pgNotification({
-                        style: 'flip',
-                        message: 'Error Update: '+err3.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'danger'
-                    }).show();
-                })
+				if(qd.length>0){
+					queryService.post(qd.join(';') ,undefined)
+	                .then(function (result3){
+						$scope.disableAction = false;
+	                        $('#form-input').modal('hide')
+	                        $scope.dtInstance.reloadData(function(obj){
+	                            // console.log(obj)
+	                        }, false)
+	                        $('body').pgNotification({
+	                            style: 'flip',
+	                            message: 'Success Insert '+$scope.ap.name,
+	                            position: 'top-right',
+	                            timeout: 2000,
+	                            type: 'success'
+	                        }).show();
+	                },
+	                function (err3){
+						$scope.disableAction = false;
+	                    $('#form-input').pgNotification({
+	                        style: 'flip',
+	                        message: 'Error Update: '+err3.code,
+	                        position: 'top-right',
+	                        timeout: 2000,
+	                        type: 'danger'
+	                    }).show();
+	                })
+				}else{
+					$('#form-input').modal('hide')
+					$scope.dtInstance.reloadData(function(obj){
+						// console.log(obj)
+					}, false)
+					$('body').pgNotification({
+						style: 'flip',
+						message: 'Success Insert '+$scope.ap.name,
+						position: 'top-right',
+						timeout: 2000,
+						type: 'success'
+					}).show();
+				}
             },
             function (err){
 				$scope.disableAction = false;
@@ -317,13 +326,11 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 }
             }
 
-            console.log(param)
             //queryService.post('insert into acc_ap_voucher SET ?',param)
             queryService.post('update acc_recurring_journal SET ? WHERE id='+$scope.ap.id ,param)
             .then(function (result){
                 if ($scope.posting==false){
                     var qd = $scope.child.saveTable($scope.ap.id);
-                    console.log(qd)
                     if (qd.length>0){
                         queryService.post(qd.join(';') ,undefined)
                         .then(function (result3){
@@ -382,7 +389,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                     queryService.post('insert into acc_gl_transaction SET ?' ,param2)
                     .then(function (result2){
                         var qd = $scope.child.saveJournalTable($scope.ap.id,result2.data.insertId);
-                        console.log(qd)
                         queryService.post(qd.join(';') ,undefined)
                         .then(function (result3){
 							$scope.disableAction = false;
@@ -438,10 +444,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
     $scope.update = function(obj){
         $scope.posting=false
-        console.log(qstring+ ' where a.id='+obj.id)
         queryService.post(qstring+ ' where a.id='+obj.id,undefined)
         .then(function(result){
-            console.log(result)
             $('#form-input').modal('show');
             $scope.ap = result.data[0]
 
@@ -460,10 +464,10 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             }
             $scope.statusShow = []
             if (result.data[0].status=="0"){
-                $scope.statusShow.push($scope.status[1])
+                $scope.statusShow=[$scope.status[0],$scope.status[1]]
             }
             else if(result.data[0].status=="1"){
-                $scope.statusShow.push($scope.status[2])
+                $scope.statusShow[$scope.status[0],$scope.status[1],$scope.status[2]]
             }
             $scope.items = []
             $scope.itemsOri = []
@@ -474,7 +478,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                  'where a.id =  '+$scope.ap.id
             queryService.post(qd,undefined)
             .then(function(result2){
-                console.log(result2)
                 var d = result2.data
                 for (var i=0;i<d.length;i++){
                     $scope.items.push(
@@ -509,20 +512,16 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.postRecurring = function(obj){
-        console.log(qstring+ ' where a.id='+obj.id)
         $scope.posting = true
         var dt = new Date()
 
         var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-        console.log(ym)
         queryService.post('select cast(concat(\'RJ/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'RJ\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
         .then(function(data){
-            console.log(data)
             $scope.ap.doc_no = data.data[0].code
         })
         queryService.post(qstring+ ' where a.id='+obj.id,undefined)
         .then(function(result){
-            console.log(result)
             $('#form-input').modal('show');
             $scope.ap = result.data[0]
 
@@ -555,7 +554,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                  'where a.id =  '+$scope.ap.id
             queryService.post(qd,undefined)
             .then(function(result2){
-                console.log(result2)
                 var d = result2.data
                 for (var i=0;i<d.length;i++){
                     $scope.items.push(
@@ -591,17 +589,14 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.delete = function(obj){
+		$scope.cat = {};
         $scope.cat.id = obj.id;
-        //$scope.customer.name = obj.name;
-        /*productCategoryService.get(obj.id)
-        .then(function(result){
-            $scope.cat.name = result.data[0].name;
-            $('#modalDelete').modal('show')
-        })*/
+		$scope.cat.name = obj.name;
+        $('#modalDelete').modal('show')
     }
 
     $scope.execDelete = function(){
-        /*queryService.post('update ref_product_category set status=2 where id='+$scope.cat.id,undefined)
+        queryService.post('delete from acc_recurring_entries where recurring_id='+$scope.cat.id+';delete from acc_recurring_journal where id='+$scope.cat.id,undefined)
         .then(function (result){
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
@@ -623,16 +618,23 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 timeout: 2000,
                 type: 'danger'
             }).show();
-        })*/
+        })
     }
 
     $scope.clear = function(){
-        $scope.cat = {
-            id: '',
-            name: '',
-            description: '',
-            status: ''
-        }
+		$scope.ap = {
+	        id: '',
+	        code: '',
+	        notes: ''
+	    }
+		$scope.items = []
+        $scope.cat = {}
+		$scope.selected = {
+	        status: {},
+	        frequency: {},
+	        journal_code: {},
+	        gl_status: {}
+	    }
     }
 
 })
@@ -658,7 +660,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
     // mark user as deleted
     $scope.deleteUser = function(id) {
-        console.log(id)
         var filtered = $filter('filter')($scope.items, {id: id});
         if (filtered.length) {
             filtered[0].isDeleted = true;
@@ -702,15 +703,11 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
     // save edits
     $scope.child.saveTable = function(pr_id) {
-        console.log('asd')
         var results = [];
-        console.log($scope.itemsOri)
 
-        console.log(JSON.stringify($scope.items,null,2))
         var sqlitem = []
 		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
-            console.log(user)
             // actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);
@@ -738,7 +735,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 sqlitem.push('delete from acc_recurring_entries where id='+user.p_id)
             }
             else if(!user.isNew){
-                console.log(user)
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
                         var d1 = $scope.itemsOri._id+$scope.itemsOri[j].account_id+$scope.itemsOri[j].debit+$scope.itemsOri[j].credit
@@ -757,21 +753,15 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             }
 
         }
-        console.log($scope.items)
-        console.log(sqlitem.join(';'))
         return sqlitem
         //return $q.all(results);
     };
 
     $scope.child.saveJournalTable = function(pr_id,journal_id) {
         var results = [];
-        console.log($scope.itemsOri)
-
-        console.log(JSON.stringify($scope.items,null,2))
         var sqlitem = []
 		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
-            console.log(user)
             // actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);
@@ -801,7 +791,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 sqlitem.push('delete from acc_gl_journal where id='+user.p_id)
             }
             else if(!user.isNew){
-                console.log(user)
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
                         var d1 = $scope.itemsOri._id+$scope.itemsOri[j].account_id+$scope.itemsOri[j].debit+$scope.itemsOri[j].credit
@@ -820,8 +809,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             }
 
         }
-        console.log($scope.items)
-        console.log(sqlitem.join(';'))
         return sqlitem
         //return $q.all(results);
     };
@@ -838,67 +825,14 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             $scope.account[d] = data.data
         })
     }
-    /*$scope.supplierUp = function(text,d) {
-        console.log('supplierUp')
-        var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
-            'from mst_supplier a '+
-            'left join inv_prod_price_contract b '+
-            'on a.id = b.supplier_id  '+
-            'and a.status=1  '+
-            'and b.product_id ='+$scope.items[d-1].product_id + ' '
-            'and lower(a.name) like \''+text.toLowerCase()+'%\'' +
-            ' order by price desc limit 50'
-        //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
-        queryService.post(sqlCtr,undefined)
-        .then(function(data){
-            $scope.suppliers = data.data
-        })
-    }*/
-
     $scope.getAccount = function(e,d){
-        console.log(e)
         $scope.items[d-1].account_id = e.id
         $scope.items[d-1].account_code = e.code
         $scope.items[d-1].account_name = e.name
 
     }
-    $scope.funcAsync = function(e,d){
-        console.log('funcAsync')
-        console.log($scope.items[d-1].product_id)
-        var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
-            'from mst_supplier a '+
-            'left join inv_prod_price_contract b '+
-            'on a.id = b.supplier_id  '+
-            'and a.status=1  '+
-            'and b.product_id ='+$scope.items[d-1].product_id + ' '+
-            'and lower(a.name) like \''+e.toLowerCase()+'%\'' +
-            ' order by price desc limit 50'
-        //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
-        queryService.post(sqlCtr,undefined)
-        .then(function(data){
-            $scope.suppliers = data.data
-        })
-    }
-    $scope.getProductPriceSupplier = function(e,d){
-        console.log(e)
-        $scope.items[d-1].supplier_id = e.id
-        $scope.items[d-1].supplier_name = e.name
-        $scope.items[d-1].price = e.price
-        $scope.items[d-1].amount = e.price * $scope.items[d-1].qty
-    }
-    $scope.updatePrice = function(e,d,p){
-        $scope.items[d-1].price = p
-        $scope.items[d-1].amount = p * $scope.items[d-1].qty
-    }
-    $scope.updatePriceQty = function(e,d,q){
-        $scope.items[d-1].qty = q
-        $scope.items[d-1].amount = q * $scope.items[d-1].price
-    }
+
     $scope.setValue = function(e,d,p,t){
-        console.log(e)
-        console.log(d)
-        console.log(p)
-        console.log(t)
         if (t=='debit') $scope.items[d-1].debit = p
         if (t=='credit') $scope.items[d-1].credit = p
     }
