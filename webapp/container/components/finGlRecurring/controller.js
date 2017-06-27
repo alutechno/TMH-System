@@ -78,7 +78,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     })
 
     $scope.gl_status = []
-    queryService.get('select * from table_ref where table_name = \'acc_gl_transaction\' and column_name = \'gl_status\' order by id ',undefined)
+    queryService.get('select * from table_ref where table_name = \'acc_gl_transaction\' and column_name = \'gl_status\' order by value ',undefined)
     .then(function(data){
         $scope.gl_status = data.data
         $scope.selected.gl_status['selected'] = $scope.gl_status[0]
@@ -381,7 +381,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                         code: $scope.ap.doc_no,
                         journal_type_id: $scope.selected.journal_code.selected.id,
                         bookkeeping_date: $scope.ap.date,
-                        gl_status: $scope.selected.gl_status.selected.id,
+                        gl_status: 0,
                         notes: $scope.ap.notes,
                         ref_account: $scope.ap.ref_account,
                         source: 'Recurring'
