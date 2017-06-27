@@ -1,7 +1,7 @@
 var userController = angular.module('app', []);
 userController
 .controller('FinGlTransactionCtrl',
-function($scope,$stateParams, $state, $sce, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
     $scope.el = [];
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
@@ -278,7 +278,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        $scope.cats[data] = {id:data};
+        $scope.cats[data] = {id:data,code:full.code};
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
@@ -288,10 +288,10 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
-            if ($scope.el.indexOf('buttonDelete')>-1){
-                /*html+='<button class="btn btn-default" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
+            if ($scope.el.indexOf('buttonDelete')>-1 && full.status==0){
+                html+='<button class="btn btn-default" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
-                '</button>';*/
+                '</button>';
             }
             html += '</div>'
         }
@@ -743,17 +743,14 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     }
 
     $scope.delete = function(obj){
+		$scope.cat={};
         $scope.cat.id = obj.id;
-        //$scope.customer.name = obj.name;
-        productCategoryService.get(obj.id)
-        .then(function(result){
-            $scope.cat.name = result.data[0].name;
-            $('#modalDelete').modal('show')
-        })
+        $scope.cat.code = obj.code;
+        $('#modalDelete').modal('show')
     }
 
     $scope.execDelete = function(){
-        queryService.post('update ref_product_category set status=2 where id='+$scope.cat.id,undefined)
+        queryService.post('delete from acc_gl_journal where gl_id='+$scope.cat.id+';delete from acc_gl_transaction where id='+$scope.cat.id,undefined)
         .then(function (result){
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
@@ -761,7 +758,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
                 }, false)
                 $('body').pgNotification({
                     style: 'flip',
-                    message: 'Success Delete '+$scope.cat.name,
+                    message: 'Success Delete '+$scope.cat.code,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'success'
