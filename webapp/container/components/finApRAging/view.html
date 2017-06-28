@@ -13,6 +13,10 @@
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
                     </div>
+                    <span ng-click="exportExcel()">
+                        <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
+                    </span>
+					
 
                 </div>
                 <div class="clearfix"></div>

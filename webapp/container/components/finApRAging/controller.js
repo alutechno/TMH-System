@@ -76,6 +76,25 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
     };
+    $scope.focusinControl = {};
+    $scope.fileName = "AP Aging Report";
+    $scope.exportExcel = function(){
+        queryService.post('select supplier_type,supplier_code,supplier_name,current,over30,over60,over90,over120,total from('+qstring + qwhere+')aa ',undefined)
+        .then(function(data){
+            $scope.exportData = [];
+            //Header
+            $scope.exportData.push(["Supplier Type","Supplier#", 'Supplier Name',"Current",'Over 30 Days', 'Over 60 Days','Over 90 Days', 'Over 120 Days','Total']);
+            //Data
+            for(var i=0;i<data.data.length;i++){
+                var arr = []
+                for (var key in data.data[i]){
+                    arr.push(data.data[i][key])
+                }
+                $scope.exportData.push(arr)
+            }
+            $scope.focusinControl.downloadExcel()
+        })
+    }
 
     /*START AD ServerSide*/
     $scope.nested = {}
