@@ -79,6 +79,32 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
     };
+    $scope.focusinControl = {};
+    $scope.fileName = "AP Mutation Report";
+    $scope.exportExcel = function(){
+        DTColumnBuilder.newColumn('supplier_id').withTitle('Supplier Id'),
+        DTColumnBuilder.newColumn('supplier_name').withTitle('Name').withOption('width','15%'),
+        DTColumnBuilder.newColumn('supplier_type').withTitle('Supplier Type').withOption('width','10%'),
+        DTColumnBuilder.newColumn('previous_balance').withTitle('Previous'),
+        DTColumnBuilder.newColumn('new_voucher').withTitle('New Voucher'),
+        DTColumnBuilder.newColumn('cash_payment').withTitle('Cash'),
+        DTColumnBuilder.newColumn('ending_balance').withTitle('Ending')
+        queryService.post('select supplier_id,supplier_name,supplier_type,previous_balance,new_voucher,cash_payment,ending_balance from('+qstring + qwhere+')aa ',undefined)
+        .then(function(data){
+            $scope.exportData = [];
+            //Header
+            $scope.exportData.push(["Supplier ID","Supplier Name", 'Supplier Type',"Previous",'New Voucher', 'Cash','Ending']);
+            //Data
+            for(var i=0;i<data.data.length;i++){
+                var arr = []
+                for (var key in data.data[i]){
+                    arr.push(data.data[i][key])
+                }
+                $scope.exportData.push(arr)
+            }
+            $scope.focusinControl.downloadExcel()
+        })
+    }
 
     /*START AD ServerSide*/
     $scope.nested = {}
