@@ -525,10 +525,11 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 total_amount += $scope.trans[i].total_amount
                 home_total_amount += $scope.trans[i].home_total_amount
             }*/
-			queryService.post('select next_document_no(\'DMT\',\''+$scope.ym+'\')',undefined)
+			/*queryService.post('select next_document_no(\'DMT\',\''+$scope.ym+'\')',undefined)
 			.then(function(data){
+                console.log('direct code',data)
 				$scope.pr.code = data.data[0].code
-			})
+			})*/
             var param = {
                 code: $scope.ap.code,
             	check_no: $scope.ap.check,

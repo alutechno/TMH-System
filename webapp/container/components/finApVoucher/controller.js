@@ -362,7 +362,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     $scope.focusinControl = {};
     $scope.fileName = "AP Voucher";
     $scope.exportExcel = function(){
-        queryService.post('select id,code,open_date,due_date,status_name,supplier_name,source,created_date,created_by_name,currency_code,ta,hta from('+qstring + qwhere+')aa order by id desc',undefined)
+        queryService.post('select id,code,open_date,due_date,status_name,supplier_name,source,created_date,created_by_name,currency_code,total_amount,home_total_amount from('+qstring + qwhere+')aa order by id desc',undefined)
         .then(function(data){
             $scope.exportData = [];
             //Header
@@ -452,6 +452,11 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 $tfoot.html(content)
             });
         }
+    });
+    $scope.data2 = []
+    queryService.post(qstring+qwhere,undefined)
+    .then(function(data){
+        $scope.data2 = data.data
     });
     queryService.post('select sum(total_amount)as sm,sum(home_total_amount)as sm2 from ('+qstring+qwhere+')a',undefined)
     .then(function(data){

@@ -22,7 +22,7 @@
                 <td>&nbsp;</td>
                 <td align="center"> <b>A/P Voucher</b> </td>
             </tr>
-            <tr>
+            <!--<tr>
                 <td>
                     <table border="0" width="80%" align="center">
                         <tr>
@@ -51,7 +51,7 @@
 
                 </td>
 
-            </tr>
+            </tr>-->
         </table>
         <br>
         <table width="89%" cellpadding="5" border="1" align="center">
@@ -73,7 +73,7 @@
             </thead>
 
             <tbody>
-            <tr ng-repeat="item in data | filter:filterUser">
+            <tr ng-repeat="item in data2 | filter:filterUser">
                 <td>{{item.id}}</td>
                 <td> {{item.code}}</td>
                 <td>{{ item.open_date}}</td>
@@ -100,8 +100,8 @@
 					<td></td>
 					<td></td>
                     <td width="10%" style="text-align: center;">Total</th>
-                    <td width="10%" style="text-align: right;"><span >{{sums1}}</span></th>
                     <td width="10%" style="text-align: right;"><span >{{sums2}}</span></th>
+                    <td width="10%" style="text-align: right;"><span >{{sums1}}</span></th>
 
                 </tr>
             </tfooter>
@@ -122,7 +122,7 @@
                     <span ng-click="exportExcel()">
                         <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
                     </span>
-					 <button class="btn btn-primary" type="submit"  ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
+					 <button class="btn btn-primary" type="submit"  ng-print print-element-id="printSection" ng-click="printing=false" ng-hide="data2.length==0"><i class="fa fa-print"></i> Print</button>
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Voucher</button>
 
 
