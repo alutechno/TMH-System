@@ -9,6 +9,10 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
+    $scope.x = {
+        detailData: []
+    }
+    $scope.detailData = []
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -101,12 +105,12 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.nested.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
         $scope.deps[data] = {id:data};
-        //console.log(data)
+        //console.log('dt',data,full)
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
                 html +=
-                '<button class="btn btn-default" title="Detail" ng-click="detail(' + data + ')">' +
+                '<button class="btn btn-default" title="Detail" ng-click="detail(' + data + ', \''+full.supplier_name+'\')">' +
                 '   <i class="fa fa-list"></i>' +
                 '</button>&nbsp;' ;
             html += '</div>'
@@ -183,9 +187,10 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         }
         $('#form-input').modal('show')
     }
-
-    $scope.detail = function(ids){
+    $scope.supp_name = ''
+    $scope.detail = function(ids,name){
         $scope.id = ids
+        $scope.supp_name = name
         $scope.nested.runDetail();
         $('#form-input').modal('show')
     }
@@ -227,9 +232,19 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
 		' 	   and column_name = \'source\') b on b.id = a.source '+
  ' left join inv_po_receive c on c.id = a.receive_id '
     var qwheredetail = ''
+
     $scope.nested.runDetail = function(){
-        qwheredetail = ' and a.supplier_id = '+$scope.id
-        $scope.nested.dtDetailInstance.reloadData()
+        qwheredetail = ' and a.supplier_id = '+$scope.id;
+        queryService.post(qstringdetail.replace(':supplier',qwheredetail.length>0?qwheredetail:' ') ,undefined)
+        .then(function (result3){
+            $scope.detailData = result3.data
+            $scope.x.detailData=result3.data
+        },
+        function(err3){
+
+            console.log(err3)
+        })
+        //$scope.nested.dtDetailInstance.reloadData()
     }
     $scope.nested.dtDetailInstance = {}
 

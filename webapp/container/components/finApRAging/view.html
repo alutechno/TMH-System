@@ -1,3 +1,82 @@
+<div id="printSection">
+    <div class="row">
+        <table width="98%">
+            <tr>
+                <td width="50%" align="center">
+                    <div class="brand inline text-center center">
+                        <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="200" height="40">
+                    </div>
+                    <br><br><br>
+                    <span class="text-center" style="align:center;">JL. GUNUNG SAHARI RAYA NO.3 JAKARTA 10720</span>
+                    <br>
+                    <span class="text-center">PHONE : (62-21) 626 3001</span>&nbsp;&nbsp;
+                    <span class="text-center">FAX : (62-21) 626 3024</span>
+                    <br><br>
+                    <span class="text-center">OWNED BY PT.GRAHASAHARI SURYAJAYA</span>
+                    <br>
+                    <span class="text-center">NPWP. 01.573.522.8-026.000</span>
+                </td>
+            </tr>
+            <br>
+            <tr>
+                <td>&nbsp;</td>
+                <td align="center"> <b>A/P Aging</b> </td>
+            </tr>
+            <tr>
+                <td>
+                    <table border="0" width="80%" align="center">
+                        <tr>
+                            <td align="center" style="background-color: #000000;color: white;"><b>SUPPLIER NAME</b></td>
+							<td>
+                                {{supp_name}}<br>
+                            </td>
+                        </tr>
+
+                    </table>
+                    <br>
+
+                </td>
+
+            </tr>
+        </table>
+        <br>
+        <table width="89%" cellpadding="5" border="1" align="center">
+            <thead>
+                <th style="text-align:center">Vchr#</th>
+                <th style="text-align:center">Invoice#</th>
+                <th style="text-align:center">Open Date</th>
+                <th style="text-align:center">Due Date</th>
+                <th style="text-align:center">Age</th>
+                <th style="text-align:center">Source</th>
+                <th style="text-align:center">Source No</th>
+                <th style="text-align:center">Current</th>
+                <th style="text-align:center">> 30 Days</th>
+                <th style="text-align:center">> 60 Days</th>
+                <th style="text-align:center">> 90 Days</th>
+                <th style="text-align:center">> 120 Days</th>
+                <th style="text-align:center">Total</th>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in x.detailData | filter:filterUser">
+                    <td>{{item.id}}</td>
+                    <td>{{item.invoice_no}}</td>
+                    <td>{{item.open_date}}</td>
+                    <td>{{item.due_date}}</td>
+                    <td>{{item.age}}</td>
+                    <td>{{item.source_name}}</td>
+                    <td>{{item.source_no}}</td>
+                    <td style="text-align:right">{{item.current}}</td>
+                    <td style="text-align:right">{{item.over30}}</td>
+                    <td style="text-align:right">{{item.over60}}</td>
+                    <td style="text-align:right">{{item.over90}}</td>
+                    <td style="text-align:right">{{item.over120}}</td>
+                    <td style="text-align:right">{{item.total}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
 
 <div class="full-height m-t-40">
     <!-- TABLES VIEW -->
@@ -16,7 +95,7 @@
                     <span ng-click="exportExcel()">
                         <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
                     </span>
-					
+
 
                 </div>
                 <div class="clearfix"></div>
@@ -57,10 +136,53 @@
               <div class="row clearfix">
                   <div class="col-sm-12">
                       <div ng-controller="DetailApraCtrl" >
+                          <div class="row">
+                              <div class="col-md-6">
+                                  <h5>Supplier Name:&nbsp;&nbsp;{{supp_name}}</h5>
+                              </div>
+                              <div class="col-md-6 pull-right">
+                                  <button class="btn btn-primary pull-right" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
+                              </div>
+                          </div>
 
-                        <table datatable=""  dt-options="nested.dtDetailOptions" class="table table-hover " dt-columns="nested.dtDetailColumns"  dt-instance="nested.dtDetailInstance">
+                          <table class="table table-hover dataTable">
+                              <thead>
+                                  <th style="text-align:center">Vchr#</th>
+                                  <th style="text-align:center">Invoice#</th>
+                                  <th style="text-align:center">Open Date</th>
+                                  <th style="text-align:center">Due Date</th>
+                                  <th style="text-align:center">Age</th>
+                                  <th style="text-align:center">Source</th>
+                                  <th style="text-align:center">Source No</th>
+                                  <th style="text-align:right">Current</th>
+                                  <th>> 30 Days</th>
+                                  <th>> 60 Days</th>
+                                  <th>> 90 Days</th>
+                                  <th>> 120 Days</th>
+                                  <th align="right">Total</th>
+                              </thead>
+                              <tbody>
+                                  <tr ng-repeat="item in detailData | filter:filterUser">
+                                      <td>{{item.id}}</td>
+                                      <td>{{item.invoice_no}}</td>
+                                      <td>{{item.open_date}}</td>
+                                      <td>{{item.due_date}}</td>
+                                      <td>{{item.age}}</td>
+                                      <td>{{item.source_name}}</td>
+                                      <td>{{item.source_no}}</td>
+                                      <td style="text-align:right">{{item.current}}</td>
+                                      <td style="text-align:right">{{item.over30}}</td>
+                                      <td style="text-align:right">{{item.over60}}</td>
+                                      <td style="text-align:right">{{item.over90}}</td>
+                                      <td style="text-align:right">{{item.over120}}</td>
+                                      <td style="text-align:right">{{item.total}}</td>
+                                  </tr>
+                              </tbody>
+                          </table>
 
-                        </table>
+                        <!--<table datatable=""  dt-options="nested.dtDetailOptions" class="table table-hover " dt-columns="nested.dtDetailColumns"  dt-instance="nested.dtDetailInstance">
+
+                        </table>-->
 
                     </div>
                   </div>
