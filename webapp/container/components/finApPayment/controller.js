@@ -89,7 +89,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
               'from acc_ap_voucher a '+
               'inner join acc_payment_line_item b on a.id = b.voucher_id '*/
   var qstringt ='select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name, '+
-    'format(a.total_amount,0)ta,format(a.home_total_amount,0)hta '+
+    'format(a.total_amount,0)ta,format(a.home_total_amount,0)hta,a.paid_amount,c.payment_amount current_due_amount '+
       'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
       	'and column_name = \'status\')b, acc_payment_line_item c '+
       'where a.status=b.value '+
@@ -372,11 +372,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.setSupplier = function(e){
         $scope.ap.supplier_id=$scope.selected.supplier.selected.supplier_id
         if ($scope.trans.length>0){
-            queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
+            queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,paid_amount,current_due_amount '+
                 'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
                 	'and column_name = \'status\')b '+
                 'where a.status=b.value '+
                 'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
+                ' and current_due_amount>0 '+
                 'order by id limit 20 ',undefined)
             .then(function(data){
                 for(var i=0;i<($scope.trans.length);i++){
@@ -602,6 +603,30 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         $scope.ap.balance_home = $scope.ap.deposit_home-$scope.ap.applied_home
         $scope.ap.balance_idr = $scope.ap.deposit_idr-$scope.ap.applied_idr
     }
+    $scope.updateVoucher= function(){
+        console.log('updateVoucher')
+        var vcr_id = [],sqlv = []
+        for(var i=0; i<$scope.trans.length;i++){
+            console.log($scope.trans[i])
+            vcr_id.push($scope.trans[i].p_id)
+        }
+        queryService.post("select voucher_id, sum(payment_amount)payment_amount "+
+            "from acc_payment_line_item "+
+            "where voucher_id in("+vcr_id.join(',')+") "+
+            "group by voucher_id",undefined)
+        .then(function(data){
+            console.log(data)
+            for (var i=0;i<data.data.length;i++){
+                sqlv.push('update acc_ap_voucher set paid_amount='+data.data[i].payment_amount+', current_due_amount=total_amount-'+data.data[i].payment_amount+' where id='+data.data[i].voucher_id)
+            }
+            console.log(sqlv)
+            queryService.post(sqlv.join(';'),undefined)
+            .then(function(data2){
+                console.log(data2)
+
+            })
+        })
+    }
 
     $scope.submit = function(){
 		$scope.disableAction = true;
@@ -613,10 +638,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 total_amount += $scope.trans[i].total_amount
                 home_total_amount += $scope.trans[i].home_total_amount
             }
-			queryService.post('select next_document_no(\'PMT\',\''+$scope.ym+'\')',undefined)
+			/*queryService.post('select next_document_no(\'PMT\',\''+$scope.ym+'\')',undefined)
 			.then(function(data){
 				$scope.pr.code = data.data[0].code
-			})
+			})*/
             var param = {
                 code: $scope.ap.code,
             	check_no: $scope.ap.check,
@@ -764,15 +789,33 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 else if($scope.selected.status.selected.id=='3'){
                     queryService.post('select id from acc_gl_transaction where payment_id='+$scope.ap.id ,undefined)
                     .then(function (result2){
+                        $scope.updateVoucher();
                         var v_gl_id = result2.data[0].id
                         var q2 = $scope.child.saveTable(v_gl_id)
-                        queryService.post(q2.join(';') ,undefined)
-                        .then(function (result3){
+                        if (q2.length>0){
+                            console.log('payment',q2)
+                            queryService.post(q2.join(';') ,undefined)
+                            .then(function (result3){
+                                $('#form-input').modal('hide')
+                                $scope.disableAction = false;
+                                $scope.dtInstance.reloadData(function(obj){
+                                    // console.log(obj)
+                                }, false)
+                                $('body').pgNotification({
+                                    style: 'flip',
+                                    message: 'Success Update '+$scope.ap.code,
+                                    position: 'top-right',
+                                    timeout: 2000,
+                                    type: 'success'
+                                }).show();
+                            },
+                            function(err3){
+                                $scope.disableAction = false;
+                                console.log(err3)
+                            })
+                        }
+                        else {
                             $('#form-input').modal('hide')
-							$scope.disableAction = false;
-                            $scope.dtInstance.reloadData(function(obj){
-                                // console.log(obj)
-                            }, false)
                             $('body').pgNotification({
                                 style: 'flip',
                                 message: 'Success Update '+$scope.ap.code,
@@ -780,11 +823,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                                 timeout: 2000,
                                 type: 'success'
                             }).show();
-                        },
-                        function(err3){
-							$scope.disableAction = false;
-                            console.log(err3)
-                        })
+                        }
+
                     },
                     function(err2){
 						$scope.disableAction = false;
@@ -910,19 +950,23 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                             status_name: d[i].status_name,
                             source: d[i].source,
                             home_total_amount: d[i].home_total_amount,
-                            total_amount: d[i].total_amount
+                            total_amount: d[i].total_amount,
+                            paid_amount: d[i].paid_amount,
+                            current_due_amount: d[i].current_due_amount
                         }
                     )
-                    queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
+                    queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,paid_amount,current_due_amount '+
                         'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
                             'and column_name = \'status\')b '+
                         'where a.status=b.value '+
                         'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
+                        ' and current_due_amount>0 ' +
                         'order by id limit 20 ',undefined)
                     .then(function(data){
                         $scope.voucher[ii] = data.data
 
                     })
+                    //$scope.updateVoucher();
                 }
                 $scope.transOri = angular.copy($scope.trans)
 
@@ -1087,14 +1131,16 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             total_amount: '',
             applied_amount: '',
             current_due_amount: '',
+            paid_amount: '',
             isNew: true
         };
         $scope.trans.push($scope.item)
-        queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
+        queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,paid_amount,current_due_amount '+
             'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
                 'and column_name = \'status\')b '+
             'where a.status=b.value '+
             'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
+            ' and current_due_amount>0 '+
             'order by id limit 20 ',undefined)
         .then(function(data){
             $scope.voucher[$scope.item.id] = data.data
@@ -1135,8 +1181,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             // send on server
             //results.push($http.post('/saveUser', user));
             if (user.isNew && !user.isDeleted){
-                sqlitem.push('insert into acc_payment_line_item (payment_id,voucher_id,created_by,created_date) values('+
-                pr_id+','+user.p_id+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                sqlitem.push('insert into acc_payment_line_item (payment_id,voucher_id,home_payment_amount,payment_amount,created_by,created_date) values('+
+                pr_id+','+user.p_id+','+user.current_due_amount+','+user.current_due_amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
             }
             else if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from acc_payment_line_item where id='+user.p_id)
@@ -1149,6 +1195,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                         if(d1 != d2){
                             sqlitem.push('update acc_payment_line_item set '+
                             ' voucher_id = '+user.voucher_id+',' +
+                            ' home_payment_amount = '+user.current_due_amount+',' +
+                            ' payment_amount = '+user.current_due_amount+',' +
                             ' modified_by = '+$localStorage.currentUser.name.id+',' +
                             ' modified_date = \''+globalFunction.currentDate()+'\'' +
                             ' where id='+user.p_id)
@@ -1158,6 +1206,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             }
 
         }
+        console.log(sqlitem)
+        console.log($scope.trans)
+
         return sqlitem
         //return $q.all(results);
     };
@@ -1170,12 +1221,13 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.voucherUp = function(d,text) {
         //queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
 
-        queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name '+
+        queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,paid_amount,current_due_amount '+
                 'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
                     'and column_name = \'status\')b '+
                 'where a.status=b.value '+
             'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
             'and lower(code) like \''+text.toLowerCase()+'%\' '+
+            'and current_due_amount>0 ' +
             'order by id limit 20 ',undefined)
         .then(function(data){
             $scope.voucher[d] = data.data
@@ -1220,6 +1272,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         }
         $scope.ap.applied_idr = $scope.ap.applied_home*$scope.ap.exchange
 
+    }
+    $scope.setPayment = function(e,d,p){
+        console.log('setPayment',$scope.ap.exchange)
+        $scope.trans[d-1].current_due_amount = parseInt(p)*($scope.ap.exchange?$scope.ap.exchange:1)
     }
 
 })

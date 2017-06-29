@@ -25,6 +25,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.total_credit = 0
     $scope.total_debit_f = 0
     $scope.total_credit_f = 0
+    $scope.total = {
+        debit:0,
+        credit:0,
+        debit_f:0,
+        credit_f:0
+    }
     $scope.total_balance = 0
     $scope.journal_type_id = null
 	$scope.disableAction = false;
@@ -216,10 +222,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     }
 
     $scope.setExchange = function(){
-        $scope.total_debit = 0
-        $scope.total_credit = 0
-        $scope.total_debit_f = 0
-        $scope.total_credit_f = 0
+        $scope.total.debit = 0
+        $scope.total.credit = 0
+        $scope.total.debit_f = 0
+        $scope.total.credit_f = 0
 
         for (var i=0;i<$scope.items.length;i++){
             if ($scope.selected.currency.selected.currency_id==1){
@@ -231,18 +237,18 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 $scope.items[i].credit = ($scope.ap.exchange*$scope.items[i].credit_f)
             }
 
-            $scope.total_debit_f += (parseInt($scope.items[i].debit_f).toString()=='NaN'?0:parseInt($scope.items[i].debit_f))
-            $scope.total_credit_f += (parseInt($scope.items[i].credit_f).toString()=='NaN'?0:parseInt($scope.items[i].credit_f))
-            $scope.total_debit += (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
-            $scope.total_credit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
+            $scope.total.debit_f += (parseInt($scope.items[i].debit_f).toString()=='NaN'?0:parseInt($scope.items[i].debit_f))
+            $scope.total.credit_f += (parseInt($scope.items[i].credit_f).toString()=='NaN'?0:parseInt($scope.items[i].credit_f))
+            $scope.total.debit += (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
+            $scope.total.credit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
 
         }
         //$scope.setDebit(1000)
         //$scope.$apply();
-        $('#totalDebitF').html($scope.total_debit_f)
-        $('#totalCreditF').html($scope.total_credit_f)
-        $('#totalDebit').html($scope.total_debit)
-        $('#totalCredit').html($scope.total_credit)
+        $('#totalDebitF').html($scope.total.debit_f)
+        $('#totalCreditF').html($scope.total.credit_f)
+        $('#totalDebit').html($scope.total.debit)
+        $('#totalCredit').html($scope.total.credit)
 
     }
 
@@ -305,18 +311,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.focusinControl = {};
     $scope.fileName = "Direct Payment";
     $scope.exportExcel = function(){
-        DTColumnBuilder.newColumn('id').withTitle('Transc No').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('code').withTitle('Doc No').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('check_no').withTitle('Check No').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('open_date').withTitle('Open Date').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('due_date').withTitle('Due Date').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '15%'),
-        //DTColumnBuilder.newColumn('age').withTitle('Age'),
-        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account').withOption('width', '15%'),
-        DTColumnBuilder.newColumn('currency_code').withTitle('Currency').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('ta').withTitle('Total amount (IDR)').withOption('width', '5%').withClass('text-right'),
-        DTColumnBuilder.newColumn('hta').withTitle('Total Amount').withOption('width', '5%').withClass('text-right')
         queryService.post('select id,code,check_no,open_date,due_date,status_name,supplier_name,bank_account,currency_code,total_amount,home_total_amount from('+qstring + qwhere+')aa order by id desc',undefined)
         .then(function(data){
             $scope.exportData = [];
@@ -876,15 +870,15 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             queryService.post(qd,undefined)
             .then(function(result2){
                 var d = result2.data
-                $scope.total_debit = 0
-                $scope.total_credit = 0
-                $scope.total_debit_f = 0
-                $scope.total_credit_f = 0
-                $scope.total_balance = 0
+                $scope.total.debit = 0
+                $scope.total.credit = 0
+                $scope.total.debit_f = 0
+                $scope.total.credit_f = 0
+                $scope.total.balance = 0
                 for (var i=0;i<d.length;i++){
-                    $scope.total_debit += (d[i].transc_type=='D'?d[i].amount:0)
-                    $scope.total_credit += (d[i].transc_type=='C'?d[i].amount:0)
-                    $scope.total_balance = ($scope.total_debit-$scope.total_credit)
+                    $scope.total.debit += (d[i].transc_type=='D'?d[i].amount:0)
+                    $scope.total.credit += (d[i].transc_type=='C'?d[i].amount:0)
+                    $scope.total.balance = ($scope.total.debit-$scope.total.credit)
                     var item = {
 
                     }
@@ -905,8 +899,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                         }
                     }
                     else if ($scope.selected.currency.selected.currency_id!=1){
-                        $scope.total_debit_f += (d[i].transc_type=='D'?(d[i].amount/$scope.ap.exchange):0)
-                        $scope.total_credit_f += (d[i].transc_type=='C'?(d[i].amount/$scope.ap.exchange):0)
+                        $scope.total.debit_f += (d[i].transc_type=='D'?(d[i].amount/$scope.ap.exchange):0)
+                        $scope.total.credit_f += (d[i].transc_type=='C'?(d[i].amount/$scope.ap.exchange):0)
 
                         item = {
                             id:(i+1),
@@ -1239,7 +1233,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     // save edits
     $scope.child.saveTable = function(pr_id) {
         var results = [];
-        var sqlitem = []
+        var sqlitem = [];
+        $scope.total.debit =0;
+        $scope.total.credit=0;
+
+        $scope.total.debit_f =0;
+        $scope.total.credit_f =0;
 		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
             // actually delete user
@@ -1286,10 +1285,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     }
                 }
             }
-
+            $scope.total.debit += (!isNaN(parseInt(user.debit))?parseInt(user.debit):0)
+            $scope.total.credit += (!isNaN(parseInt(user.credit))?parseInt(user.credit):0)
+            $scope.total.debit_f += (user.transc_type=='D'?(parseInt(user.debit)/$scope.ap.exchange):0)
+            $scope.total.credit_f += (user.transc_type=='C'?(parseInt(user.credit)/$scope.ap.exchange):0)
         }
         return sqlitem
-        //return $q.all(results);
     };
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
@@ -1369,22 +1370,22 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         if (t=='debit') $scope.items[d-1].debit = p
         if (t=='credit') $scope.items[d-1].credit = p
         $scope.items[d-1].balance = ($scope.items[d-1].debit-$scope.items[d-1].credit)
-        $scope.total_debit = 0
-        $scope.total_credit = 0
-        $scope.total_debit_f = 0
-        $scope.total_credit_f = 0
+        $scope.total.debit = 0
+        $scope.total.credit = 0
+        $scope.total.debit_f = 0
+        $scope.total.credit_f = 0
         //$scope.total_balance = 0
         for (var i=0;i<$scope.items.length;i++){
-            $scope.total_debit_f += (parseInt($scope.items[i].debit_f).toString()=='NaN'?0:parseInt($scope.items[i].debit_f))
-            $scope.total_credit_f += (parseInt($scope.items[i].credit_f).toString()=='NaN'?0:parseInt($scope.items[i].credit_f))
-            $scope.total_debit += (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
-            $scope.total_credit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
+            $scope.total.debit_f += (parseInt($scope.items[i].debit_f).toString()=='NaN'?0:parseInt($scope.items[i].debit_f))
+            $scope.total.credit_f += (parseInt($scope.items[i].credit_f).toString()=='NaN'?0:parseInt($scope.items[i].credit_f))
+            $scope.total.debit += (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
+            $scope.total.credit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
             //$scope.total_balance += (parseInt($scope.items[i].balance).toString()=='NaN'?0:parseInt($scope.items[i].balance))
         }
-        $('#totalDebitF').html($scope.total_debit_f)
-        $('#totalCreditF').html($scope.total_credit_f)
-        $('#totalDebit').html($scope.total_debit)
-        $('#totalCredit').html($scope.total_credit)
+        $('#totalDebitF').html($scope.total.debit_f)
+        $('#totalCreditF').html($scope.total.credit_f)
+        $('#totalDebit').html($scope.total.debit)
+        $('#totalCredit').html($scope.total.credit)
     }
 
 });

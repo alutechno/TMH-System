@@ -146,6 +146,14 @@ span.ui-select-match-text.pull-left {
         left:0;
         top:0;
     }
+    #printSection2, #printSection2 * {
+        visibility:visible;
+    }
+    #printSection2 {
+        position:absolute;
+        left:0;
+        top:0;
+    }
     .print_a4 {
         width: 210mm;
         min-height: 297mm;
