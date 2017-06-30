@@ -20,6 +20,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.voucher = {}
     $scope.sums1 = 0
     $scope.sums2 = 0
+    $scope.total = {
+        debit:0,
+        credit:0
+    }
 	$scope.disableAction = false;
     var year = ['2015','2016','2017','2018','2019']
     var month = [
@@ -747,44 +751,67 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             queryService.post('update acc_cash_payment SET ? WHERE id='+$scope.ap.id ,param)
             .then(function (result){
                 if ($scope.selected.status.selected.id=='1'){
-                    var qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
-                     'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+$scope.ap.id+',\'5\',null,\''+$scope.ap.notes+'\');'
-                    var q1 = 'insert into acc_gl_transaction'
-                    var p1 = {
-                        code: $scope.ap.code,
-                        bookkeeping_date: $scope.ap.open_date,
-                        journal_type_id: null,
-                        deposit_id: $scope.ap.id,
-                        gl_status: '0',
-                        notes: $scope.ap.notes
-                    }
-                    queryService.post(qq ,undefined)
-                    .then(function (result2){
-                        var q2 = $scope.child.saveTable(result2.data.insertId)
-                        queryService.post(q2.join(';') ,undefined)
-                        .then(function (result3){
-                            $('#form-input').modal('hide')
-							$scope.disableAction = false;
-                            $scope.dtInstance.reloadData(function(obj){
-
-                            }, false)
-                            $('body').pgNotification({
-                                style: 'flip',
-                                message: 'Success Update '+$scope.ap.code,
-                                position: 'top-right',
-                                timeout: 2000,
-                                type: 'success'
-                            }).show();
+                    queryService.get('select id from acc_gl_transaction where payment_id= '+$scope.ap.id,undefined)
+                    .then(function(data){
+                        console.log(data)
+                        var qq = ''
+                        if(data.data.length==0){
+                            qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
+                             'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+$scope.ap.id+',\'5\',null,\''+$scope.ap.notes+'\');'
+                        }
+                        else {
+                            qq = 'update acc_gl_transaction set '+
+                                'bookkeeping_date = \''+$scope.ap.open_date+'\', '+
+                                'code = \''+$scope.ap.code+'\', '+
+                                'journal_type_id = '+$scope.journal_type_id+','+
+                                'notes = \''+$scope.ap.notes+'\' '+
+                                'where id='+data.data[0].id
+                        }
+                        queryService.post(qq ,undefined)
+                        .then(function (result2){
+                            var ids = '';
+                            if (result2.data.insertId) ids = result2.data.insertId
+                            else ids = data.data[0].id
+                            var q2 = $scope.child.saveTable(ids)
+                            if (q2.length>0){
+                                queryService.post(q2.join(';') ,undefined)
+                                .then(function (result3){
+                                    $('#form-input').modal('hide')
+        							$scope.disableAction = false;
+                                    $scope.dtInstance.reloadData(function(obj){}, false)
+                                    $('body').pgNotification({
+                                        style: 'flip',
+                                        message: 'Success Update '+$scope.ap.code,
+                                        position: 'top-right',
+                                        timeout: 2000,
+                                        type: 'success'
+                                    }).show();
+                                },
+                                function(err3){
+        							$scope.disableAction = false;
+                                    console.log(err3)
+                                })
+                            }
+                            else {
+                                $('#form-input').modal('hide')
+                                $scope.disableAction = false;
+                                $scope.dtInstance.reloadData(function(obj){}, false)
+                                $('body').pgNotification({
+                                    style: 'flip',
+                                    message: 'Success Update '+$scope.ap.code,
+                                    position: 'top-right',
+                                    timeout: 2000,
+                                    type: 'success'
+                                }).show();
+                            }
                         },
-                        function(err3){
-							$scope.disableAction = false;
-                            console.log(err3)
+                        function(err2){
+                            console.log(err2)
+    						$scope.disableAction = false;
                         })
-                    },
-                    function(err2){
-						$scope.disableAction = false;
-                        console.log(err2)
                     })
+
+
                 }
                 else if($scope.selected.status.selected.id=='3'){
                     queryService.post('select id from acc_gl_transaction where payment_id='+$scope.ap.id ,undefined)

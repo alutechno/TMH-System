@@ -611,36 +611,72 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             queryService.post('update acc_cash_payment SET ? WHERE id='+$scope.ap.id ,param)
             .then(function (result){
                 if ($scope.selected.status.selected.id=='1'){
-                    var qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
-                     'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+$scope.ap.id+',\'5\','+$scope.journal_type_id+',\''+$scope.ap.notes+'\');'
+                    queryService.get('select id from acc_gl_transaction where payment_id= '+$scope.ap.id,undefined)
+                    .then(function(data){
+                        console.log(data)
+                        var qq = ''
+                        if(data.data.length==0){
+                            qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
+                             'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+$scope.ap.id+',\'5\','+$scope.journal_type_id+',\''+$scope.ap.notes+'\');'
+                        }
+                        else {
+                            qq = 'update acc_gl_transaction set '+
+                                'bookkeeping_date = \''+$scope.ap.open_date+'\', '+
+                                'code = \''+$scope.ap.code+'\', '+
+                                'journal_type_id = '+$scope.journal_type_id+','+
+                                'notes = \''+$scope.ap.notes+'\' '+
+                                'where id='+data.data[0].id
+                        }
+                        queryService.post(qq ,undefined)
+                        .then(function (result2){
+                            var ids = '';
+                            if (result2.data.insertId) ids = result2.data.insertId
+                            else ids = data.data[0].id
+                            var q2 = $scope.child.saveTable(ids)
+                            if (q2.length>0){
+                                queryService.post(q2.join(';') ,undefined)
+                                .then(function (result3){
+                                    $('#form-input').modal('hide')
+                                    $scope.dtInstance.reloadData(function(obj){
+                                        // console.log(obj)
+                                    }, false)
+                                    $('body').pgNotification({
+                                        style: 'flip',
+                                        message: 'Success Update '+$scope.ap.code,
+                                        position: 'top-right',
+                                        timeout: 2000,
+                                        type: 'success'
+                                    }).show();
+        							$scope.disableAction = false;
+                                },
+                                function(err3){
+                                    console.log(err3)
+        							$scope.disableAction = false;
+                                })
+                            }
+                            else {
+                                $('#form-input').modal('hide')
+                                $scope.dtInstance.reloadData(function(obj){
+                                    // console.log(obj)
+                                }, false)
+                                $('body').pgNotification({
+                                    style: 'flip',
+                                    message: 'Success Update '+$scope.ap.code,
+                                    position: 'top-right',
+                                    timeout: 2000,
+                                    type: 'success'
+                                }).show();
+                                $scope.disableAction = false;
+                            }
 
-                    queryService.post(qq ,undefined)
-                    .then(function (result2){
-                        var q2 = $scope.child.saveTable(result2.data.insertId)
-                        queryService.post(q2.join(';') ,undefined)
-                        .then(function (result3){
-                            $('#form-input').modal('hide')
-                            $scope.dtInstance.reloadData(function(obj){
-                                // console.log(obj)
-                            }, false)
-                            $('body').pgNotification({
-                                style: 'flip',
-                                message: 'Success Update '+$scope.ap.code,
-                                position: 'top-right',
-                                timeout: 2000,
-                                type: 'success'
-                            }).show();
-							$scope.disableAction = false;
                         },
-                        function(err3){
-                            console.log(err3)
-							$scope.disableAction = false;
+                        function(err2){
+                            console.log(err2)
+    						$scope.disableAction = false;
                         })
-                    },
-                    function(err2){
-                        console.log(err2)
-						$scope.disableAction = false;
                     })
+
+
                 }
                 else if($scope.selected.status.selected.id=='3'){
                     queryService.post('select id from acc_gl_transaction where payment_id='+$scope.ap.id ,undefined)
@@ -720,7 +756,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                         isNew: true
                     }
                 )
-                if ($scope.selected.supplier.selected){
+                if ($scope.selected.supplier.selected.supplier_id!=null){
+                    console.log('kesini',$scope.selected.supplier)
                     $scope.items.push(
                         {
                             id:2,
@@ -782,6 +819,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
 
         }
+        console.log($scope.items)
     }
 
     $scope.update = function(obj){
@@ -1008,6 +1046,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         if (filtered.length) {
             filtered[0].isDeleted = true;
         }
+
     };
 
     // add user
@@ -1188,6 +1227,17 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         if (filtered.length) {
             filtered[0].isDeleted = true;
         }
+        for (var i=0;i<$scope.items.length;i++){
+            console.log($scope.items[i],id)
+            if ($scope.items[i].id==id){
+                $scope.total.debit_f -= (parseInt($scope.items[i].debit_f).toString()=='NaN'?0:parseInt($scope.items[i].debit_f))
+                $scope.total.credit_f -= (parseInt($scope.items[i].credit_f).toString()=='NaN'?0:parseInt($scope.items[i].credit_f))
+                $scope.total.debit -= (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
+                $scope.total.credit -= (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
+            }
+
+            //$scope.total_balance += (parseInt($scope.items[i].balance).toString()=='NaN'?0:parseInt($scope.items[i].balance))
+        }
     };
 
     // add user
@@ -1358,6 +1408,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         $scope.items[d-1].amount = q * $scope.items[d-1].price
     }
     $scope.setValue = function(e,d,p,t){
+        console.log(e,d,p,t)
         if (t=='notes') $scope.items[d-1].notes = p
         if (t=='debit_f') {
             $scope.items[d-1].debit_f = p
@@ -1376,10 +1427,13 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         $scope.total.credit_f = 0
         //$scope.total_balance = 0
         for (var i=0;i<$scope.items.length;i++){
-            $scope.total.debit_f += (parseInt($scope.items[i].debit_f).toString()=='NaN'?0:parseInt($scope.items[i].debit_f))
-            $scope.total.credit_f += (parseInt($scope.items[i].credit_f).toString()=='NaN'?0:parseInt($scope.items[i].credit_f))
-            $scope.total.debit += (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
-            $scope.total.credit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
+            if (!$scope.items[i].isDeleted){
+                $scope.total.debit_f += (parseInt($scope.items[i].debit_f).toString()=='NaN'?0:parseInt($scope.items[i].debit_f))
+                $scope.total.credit_f += (parseInt($scope.items[i].credit_f).toString()=='NaN'?0:parseInt($scope.items[i].credit_f))
+                $scope.total.debit += (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
+                $scope.total.credit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
+                
+            }
             //$scope.total_balance += (parseInt($scope.items[i].balance).toString()=='NaN'?0:parseInt($scope.items[i].balance))
         }
         $('#totalDebitF').html($scope.total.debit_f)
