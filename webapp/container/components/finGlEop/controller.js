@@ -227,9 +227,11 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
            var period = data.data[0].period
            var qstr = [
                "delete from acc_trial_balance where period="+lastDay.split(' ')[0],
-               "insert into acc_trial_balance "+
+               "insert into acc_trial_balance (period, account_id, account_no, account_name, account_type_id, account_type, "+
+                                                "opening_balance, debit_amount, credit_amount, closing_balance) "+
                "select '"+lastDay.split(' ')[0]+"' as period, "+
                    "a.id account_id, a.code account_no, a.name account_name, "+
+                   "a.account_type_id, d.name account_type,  "+
                    "ifnull(b.closing_balance,0) as opening_balance, "+
                    "ifnull(c.debit_amount,0) debit_amount, ifnull(c.credit_amount,0) credit_amount, "+
                    "(ifnull(b.closing_balance,0) + ifnull(c.credit_amount,0) - ifnull(debit_amount,0)) as closing_balance "+
@@ -243,7 +245,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                                "left join acc_gl_journal y on x.id = y.gl_id "+
                               "where x.bookkeeping_date between '"+firstDay.split(' ')[0]+"' and '"+lastDay.split(' ')[0]+"'  "+
                               "group by y.account_id "+
-                   ") c on c.account_id = a.id"
+                   ") c on c.account_id = a.id "+
+              "left join ref_ledger_account_type d on d.id = a.account_type_id"
 
            ]
            console.log(qstr.join(';\n'))
