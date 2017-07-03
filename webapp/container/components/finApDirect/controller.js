@@ -245,10 +245,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         }
         //$scope.setDebit(1000)
         //$scope.$apply();
-        $('#totalDebitF').html($scope.total.debit_f)
+        /*$('#totalDebitF').html($scope.total.debit_f)
         $('#totalCreditF').html($scope.total.credit_f)
         $('#totalDebit').html($scope.total.debit)
-        $('#totalCredit').html($scope.total.credit)
+        $('#totalCredit').html($scope.total.credit)*/
 
     }
 
@@ -545,17 +545,71 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
             queryService.post('insert into acc_cash_payment SET ?',param)
             .then(function (result){
-                $('#form-input').modal('hide')
-                $scope.dtInstance.reloadData(function(obj){}, false)
-                $('body').pgNotification({
-                    style: 'flip',
-                    message: 'Success Insert '+$scope.ap.code,
-                    position: 'top-right',
-                    timeout: 2000,
-                    type: 'success'
-                }).show();
-				$scope.disableAction = false;
-                $scope.clear();
+                var q2 = $scope.child.saveTable(0)
+                if (q2.length > 0){
+                        var qq = ''
+                        qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
+                         'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+result.data.insertId+',\'0\','+$scope.journal_type_id+',\''+($scope.ap.notes?$scope.ap.notes:'')+'\');'
+                        queryService.post(qq ,undefined)
+                        .then(function (result2){
+                            var ids = '';
+                            ids = result2.data.insertId
+                            var q2 = $scope.child.saveTable(ids)
+                            if (q2.length>0){
+                                queryService.post(q2.join(';') ,undefined)
+                                .then(function (result3){
+                                    $('#form-input').modal('hide')
+                                    $scope.dtInstance.reloadData(function(obj){
+                                        // console.log(obj)
+                                    }, false)
+                                    $('body').pgNotification({
+                                        style: 'flip',
+                                        message: 'Success Insert '+$scope.ap.code,
+                                        position: 'top-right',
+                                        timeout: 2000,
+                                        type: 'success'
+                                    }).show();
+                                    $scope.disableAction = false;
+                                },
+                                function(err3){
+                                    console.log(err3)
+                                    $scope.disableAction = false;
+                                })
+                            }
+                            else {
+                                $('#form-input').modal('hide')
+                                $scope.dtInstance.reloadData(function(obj){
+                                    // console.log(obj)
+                                }, false)
+                                $('body').pgNotification({
+                                    style: 'flip',
+                                    message: 'Success Insert '+$scope.ap.code,
+                                    position: 'top-right',
+                                    timeout: 2000,
+                                    type: 'success'
+                                }).show();
+                                $scope.disableAction = false;
+                            }
+                        },
+                        function(err2){
+                            console.log(err2)
+                            $scope.disableAction = false;
+                        })
+
+                }
+                else {
+                    $('#form-input').modal('hide')
+                    $scope.dtInstance.reloadData(function(obj){}, false)
+                    $('body').pgNotification({
+                        style: 'flip',
+                        message: 'Success Insert '+$scope.ap.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'success'
+                    }).show();
+                    $scope.disableAction = false;
+                    $scope.clear();
+                }
             },
             function (err){
                 $('#form-input').pgNotification({
@@ -610,7 +664,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
             queryService.post('update acc_cash_payment SET ? WHERE id='+$scope.ap.id ,param)
             .then(function (result){
-                if ($scope.selected.status.selected.id=='1'){
+                var q2 = $scope.child.saveTable(0)
+                if (q2.length > 0){
                     queryService.get('select id from acc_gl_transaction where payment_id= '+$scope.ap.id,undefined)
                     .then(function(data){
                         console.log(data)
@@ -678,7 +733,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
 
                 }
-                else if($scope.selected.status.selected.id=='3'){
+                /*else if($scope.selected.status.selected.id=='3'){
                     queryService.post('select id from acc_gl_transaction where payment_id='+$scope.ap.id ,undefined)
                     .then(function (result2){
                         var v_gl_id = result2.data[0].id
@@ -708,7 +763,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 						$scope.disableAction = false;
                     })
 
-                }
+                }*/
                 else {
                     $('#form-input').modal('hide')
 					$scope.disableAction = false;
@@ -737,8 +792,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             })
         }
     }
-    $scope.setStatus = function(){
-        if ($scope.selected.status.selected.id==1){
+    $scope.setStatus = function(par){
+        if ($scope.selected.status.selected.id<3){
 
             if ($scope.items.length==0){
                 $scope.items.push(
@@ -756,7 +811,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                         isNew: true
                     }
                 )
-                if ($scope.selected.supplier.selected.supplier_id!=null){
+                if ($scope.selected.supplier.selected && $scope.selected.supplier.selected.supplier_id!=null){
                     console.log('kesini',$scope.selected.supplier)
                     $scope.items.push(
                         {
@@ -778,7 +833,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
 
         }
-        else if ($scope.selected.status.selected.id==3){
+        else if ($scope.selected.status.selected.id==3&&par==1){
             var v = 0,v_gl_id=null;
 
             for (var i=0;i<$scope.items.length;i++){
@@ -1432,14 +1487,14 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 $scope.total.credit_f += (parseInt($scope.items[i].credit_f).toString()=='NaN'?0:parseInt($scope.items[i].credit_f))
                 $scope.total.debit += (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
                 $scope.total.credit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
-                
+
             }
             //$scope.total_balance += (parseInt($scope.items[i].balance).toString()=='NaN'?0:parseInt($scope.items[i].balance))
         }
-        $('#totalDebitF').html($scope.total.debit_f)
+        /*$('#totalDebitF').html($scope.total.debit_f)
         $('#totalCreditF').html($scope.total.credit_f)
         $('#totalDebit').html($scope.total.debit)
-        $('#totalCredit').html($scope.total.credit)
+        $('#totalCredit').html($scope.total.credit)*/
     }
 
 });

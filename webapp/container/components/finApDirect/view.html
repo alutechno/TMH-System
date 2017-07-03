@@ -348,7 +348,7 @@
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : ap.status.$invalid && !ap.status.$pristine }">
                           <label>Status</label>
-                          <ui-select ng-model="selected.status.selected" theme="bootstrap" on-select="ap.status=selected.status.selected.id;setStatus()" validate-attached-form-element required >
+                          <ui-select ng-model="selected.status.selected" theme="bootstrap" on-select="ap.status=selected.status.selected.id;setStatus(1)" validate-attached-form-element required >
                               <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
                               <ui-select-choices repeat="item in statusShow | filter: $select.search">
                                   <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -410,15 +410,15 @@
                       </div>
                   </div>
                   <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.due_date.$invalid && !ap.due_date.$pristine }">
+                      <div pg-form-group class="form-group form-group-default">
                           <label>Check Due Date</label>
-                          <input type="text" class="form-control" ng-model="ap.due_date" name="due_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker"  data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required >
+                          <input type="text" class="form-control" ng-model="ap.due_date" name="due_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker"  data-date-format="yyyy-mm-dd" ui-jq="popover" >
                       </div>
                   </div>
                   <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.prepared_date.$invalid && !ap.prepared_date.$pristine }">
+                      <div pg-form-group class="form-group form-group-default">
                           <label>Prepared Date</label>
-                          <input type="text" class="form-control" ng-model="ap.prepared_date" name="prepared_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker"  data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required >
+                          <input type="text" class="form-control" ng-model="ap.prepared_date" name="prepared_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker"  data-date-format="yyyy-mm-dd" ui-jq="popover" >
                       </div>
                   </div>
 
@@ -426,9 +426,9 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.code.$invalid && !ap.code.$pristine }">
+                      <div pg-form-group class="form-group form-group-default">
                           <label>Check No</label>
-                          <input type="text" class="form-control" name="name" ng-model="ap.check" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" class="form-control" name="name" ng-model="ap.check">
                       </div>
                   </div>
 
@@ -466,9 +466,9 @@
                   </div>
 
                 <div class="col-sm-8">
-                    <div pg-form-group class="form-group form-group-default required" >
+                    <div pg-form-group class="form-group form-group-default" >
                         <label>Notes</label>
-                        <input type="text" class="form-control" name="notes" ng-model="ap.notes" validate-attached-form-element required >
+                        <input type="text" class="form-control" name="notes" ng-model="ap.notes" >
                     </div>
                 </div>
               </div>
@@ -523,22 +523,22 @@
                                                         </span>
                                                     </td>
                                                     <td class="text-right">
-                                                        <span editable-text="item.debit_f" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit_f')" data-e-ng-disabled="selected.currency.selected.currency_id==1">
+                                                        <span editable-text="item.debit_f" format="number"  e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit_f')" data-e-ng-disabled="selected.currency.selected.currency_id==1">
                                                             {{ item.debit_f | number : fractionSize}}
                                                         </span>
                                                     </td>
                                                     <td class="text-right">
-                                                        <span editable-text="item.credit_f" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit_f')" data-e-ng-disabled="selected.currency.selected.currency_id==1">
+                                                        <span editable-text="item.credit_f" format="number"  e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit_f')" data-e-ng-disabled="selected.currency.selected.currency_id==1">
                                                             {{ item.credit_f | number : fractionSize}}
                                                         </span>
                                                     </td>
                                                     <td class="text-right">
-                                                        <span editable-text="item.debit" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')" data-e-ng-disabled="selected.currency.selected.currency_id!=1">
+                                                        <span editable-text="item.debit" format="number"  e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')" data-e-ng-disabled="selected.currency.selected.currency_id!=1">
                                                             {{ item.debit | number : fractionSize}}
                                                         </span>
                                                     </td>
                                                     <td class="text-right">
-                                                        <span editable-text="item.credit" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')" data-e-ng-disabled="selected.currency.selected.currency_id!=1">
+                                                        <span editable-text="item.credit" format="number"  e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')" data-e-ng-disabled="selected.currency.selected.currency_id!=1">
                                                             {{ item.credit | number : fractionSize }}
                                                         </span>
                                                     </td>
@@ -559,7 +559,7 @@
 
                                             <!-- buttons -->
                                             <div class="btn-edit">
-                                              <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()">
+                                              <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show();setStatus(0)">
                                                 Modify Item List
                                               </button>
                                             </div>
