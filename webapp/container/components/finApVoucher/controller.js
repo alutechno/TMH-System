@@ -24,7 +24,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     var qstring = 'select a.id, a.inv_no,a.code, DATE_FORMAT(a.open_date,\'%Y-%m-%d\')open_date, DATE_FORMAT(a.due_date,\'%Y-%m-%d\')due_date,DATE_FORMAT(a.due_date,\'%Y-%m-%d\') as due, a.status, a.supplier_id, '+
         'c.name supplier_name, a.source, b.code as receive_no, d.name status_name,a.currency_exchange exchange, '+
         'a.receive_id, a.currency_id, a.total_amount, format(a.total_amount,0)ta, a.home_total_amount,format(a.deposit_amount,0)deposit_amount,a.deposit_amount tda,format(a.total_due_amount,0)tde,format(a.paid_amount,0)hpa,a.paid_amount,format(a.current_due_amount,0)hcda,format(a.home_total_amount,0)hta,a.voucher_notes, '+
-        'e.name currency_name,e.code currency_code,f.name created_by_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\')created_date, '+
+        'a.current_due_amount,e.name currency_name,e.code currency_code,f.name created_by_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\')created_date, '+
         'g.previous_amount adjustment_prev_amount,g.adjusted_amount adjustment_idr, 0 adjustment_home,a.is_adjusted,a.faktur_no '+
         'from acc_ap_voucher a  '+
         'left join inv_po_receive b on a.receive_id = b.id  '+
@@ -916,6 +916,8 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 			//(result.data[0].due==null?'':result.data[0].due)
             $scope.ap.total_home = result.data[0].home_total_amount
             $scope.ap.total_idr = result.data[0].total_amount
+            $scope.ap.current_due_home = result.data[0].current_due_amount*result.data[0].exchange
+            $scope.ap.current_due_idr = result.data[0].current_due_amount
             for (var i=0;i<$scope.currency.length;i++){
                 if ($scope.currency[i].currency_id==result.data[0].currency_id){
                     $scope.selected.currency['selected'] = $scope.currency[i]

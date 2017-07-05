@@ -267,7 +267,7 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        $scope.cats[data] = {id:data};
+        $scope.cats[data] = {id:data,code:full.code};
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
@@ -278,9 +278,12 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" title="Delete" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
-                '   <i class="fa fa-trash-o"></i>' +
-                '</button>';
+                if (full.status_name=='Open'){
+                    html+='<button class="btn btn-default" title="Delete" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
+                    '   <i class="fa fa-trash-o"></i>' +
+                    '</button>';
+                }
+
             }
             html += '</div>'
         }
@@ -742,32 +745,38 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
     }
 
     $scope.delete = function(obj){
-        $scope.cat.id = obj.id;
-        //$scope.customer.name = obj.name;
-        productCategoryService.get(obj.id)
-        .then(function(result){
-            $scope.cat.name = result.data[0].name;
-            $('#modalDelete').modal('show')
-        })
+        $scope.ap.id = obj.id;
+        $scope.ap.code = obj.code;
+        $('#modalDelete').modal('show')
     }
 
     $scope.execDelete = function(){
-        queryService.post('update ref_product_category set status=2 where id='+$scope.cat.id,undefined)
+        var sql = ['delete from acc_gl_journal where gl_id in (select id from acc_gl_transaction where deposit_id='+$scope.ap.id+')',
+            'delete from acc_gl_transaction where deposit_id='+$scope.ap.id,
+            'delete from acc_deposit_line_item where deposit_id='+$scope.ap.id,
+            'delete from acc_cash_deposit where id='+$scope.ap.id]
+        queryService.post(sql.join(';'),undefined)
         .then(function (result){
-                $('#form-input').modal('hide')
-                $scope.dtInstance.reloadData(function(obj){
-                    // console.log(obj)
-                }, false)
-                $('body').pgNotification({
-                    style: 'flip',
-                    message: 'Success Delete '+$scope.cat.name,
-                    position: 'top-right',
-                    timeout: 2000,
-                    type: 'success'
-                }).show();
+            $('#modalDelete').modal('hide')
+            $scope.dtInstance.reloadData(function(obj){
+                // console.log(obj)
+            }, false)
+            $('body').pgNotification({
+                style: 'flip',
+                message: 'Success Delete '+$scope.ap.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.ap.id = '';
+            $scope.ap.code = '';
+
         },
         function (err){
-            $('#form-input').pgNotification({
+            $scope.ap.id = '';
+            $scope.ap.code = '';
+            $('#modalDelete').modal('hide')
+            $('body').pgNotification({
                 style: 'flip',
                 message: 'Error Delete: '+err.code,
                 position: 'top-right',

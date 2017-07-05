@@ -589,7 +589,7 @@
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default " >
                           <label ng-class="{'gray-text':selected.currency.selected.currency_id==2}">Current Due IDR</label>
-                          <input type="text" class="form-control" name="current_due_idr" ng-model="ap.current_due_idr" ng-disabled="selected.currency.selected.currency_id==2">
+                          <input type="text" format="number" class="form-control" name="current_due_idr" ng-model="ap.current_due_idr" ng-disabled="selected.currency.selected.currency_id==2">
                       </div>
                   </div>
               </div>
