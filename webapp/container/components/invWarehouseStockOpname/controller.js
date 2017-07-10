@@ -18,13 +18,19 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
     $scope.users = []
     var qstringCostCenter = 'select cast(concat(\'C-\',a.id) as char) _id,a.id,a.name,DATE_FORMAT(a.modified_date,\'%Y-%m-%d\') last_stock_opname,count(b.product_id) items,format(sum(b.stock_qty*c.price_per_unit),0) amount '+
-        'from mst_cost_center a,inv_cost_center_stock b,mst_product c '+
+        'from (select a.id,a.name,max(b.created_date)modified_date from mst_cost_center a '+
+        'left join inv_stock_opname b on a.id = b.cost_center_id '+
+        'group by a.id,a.name) a,inv_cost_center_stock b,mst_product c '+
         'where a.id=b.cost_center_id '+
+        'and lower(a.name) not like \'%kitchen%\' '+
         'and b.product_id=c.id '+
         'group by a.id,a.name,a.modified_date '
     var qstringWarehouse = 'select cast(concat(\'W-\',a.id) as char) _id,a.id,a.name,DATE_FORMAT(a.modified_date,\'%Y-%m-%d\') last_stock_opname,count(b.product_id) items,format(sum(b.stock_qty*c.price_per_unit),0) amount '+
-        'from mst_warehouse a,inv_warehouse_stock b,mst_product c '+
+        'from (select a.id,a.name,max(b.created_date)modified_date from mst_warehouse a '+
+        'left join inv_stock_opname b on a.id = b.warehouse_id '+
+        'group by a.id,a.name) a,inv_warehouse_stock b,mst_product c '+
         'where a.id=b.warehouse_id '+
+        'and lower(a.name) not like \'%kitchen%\' '+
         'and b.product_id=c.id '+
         'group by a.id,a.name,a.modified_date '
     var qstring = []
@@ -479,6 +485,10 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 'values(\'SO\','+$scope.so.stock_id+','+$scope.so.id+','+user.product_id+','+(user.real_stock!=null?user.real_stock:(user.stock_qty_l/user.unit_conversion))+
                 ','+user.unit_id+','+(user.real_stock!=null?(user.real_stock*user.unit_conversion):user.stock_qty_l)+','+user.unit_id2+','+$localStorage.currentUser.name.id+')')
             }
+            qs.push('insert into inv_stock_opname_line_item(code,stock_opname_id,unit_type_id,on_hand_qty,physical_qty,price,adjustment_qty,adjustment_amount,created_date,created_by) '+
+            'values(\'C\','+$scope.so.stock_id+','+user.unit_id2+','+user.stock_qty_l+','+user.real_stock+','+
+                (user.price?user.price:0)+','+(user.stock_qty_l-user.real_stock)+','+((user.stock_qty_l-user.real_stock)*(user.price?user.price:0))+
+                ',\''+globalFunction.currentDate()+ '\','+$localStorage.currentUser.name.id+') ')
             // actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);
@@ -492,6 +502,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             //results.push($http.post('/saveUser', user));
             sqlitem.push(qs[0])
             sqlitem.push(qs[1])
+            sqlitem.push(qs[2])
+
 
         }
         console.log($scope.items)
