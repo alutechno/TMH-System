@@ -1,6 +1,6 @@
 <div id="printSection">
     <div class="header-inner ">
-        <h3 class="text-center">Purchase Request</h3>
+        <h3 class="text-center">Direct Purchase</h3>
         <!--<div class="brand inline text-center center">
             <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="156" height="32">
         </div>-->
@@ -58,12 +58,12 @@
         <!-- START PANEL -->
         <div class="panel panel-transparent">
             <div class="panel-heading">
-                <div class="panel-title">Purchase Request
+                <div class="panel-title">Direct Purchase
                 </div>
                 <div class="pull-right" style="width: 60%;">
                     <button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add','non')" ng-if="show.prTable" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Non Inv</button>
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add','pr')" ng-if="show.prTable" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add PR</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add','pr')" ng-if="show.prTable" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Direct Purchase</button>
                     <!--<button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickViewItem('add')" ng-if="show.itemTable" ng-show="addItem"><i class="fa fa-plus"></i> Add Item</button>-->
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search PR Number..." ng-keyup="filter('search',$event)" ng-model="filterVal.search">
@@ -212,7 +212,7 @@
                                       <input type="text" class="form-control" name="code" ng-model="pr.code" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-disabled="viewMode" ng-readonly="true">
                                   </div>
                               </div>
-                              <div class="col-md-3" ng-if="stat.pr=='non'">
+                              <!--<div class="col-md-3" ng-if="stat.pr=='non'">
                                   <div pg-form-group class="form-group form-group-default form-group-default-select ">
                                       <label>Store Location</label>
                                       <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode" >
@@ -245,7 +245,7 @@
 	                                      </ui-select-choices>
                                       </ui-select>
                                   </div>
-                              </div>
+                              </div>-->
 
                               <div class="col-md-3">
                                   <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : pr.doc_status_name.$invalid && !pr.doc_status_name.$pristine }" >
@@ -353,13 +353,14 @@
                           <tr>
                               <th width="7%"><span ng-show="tableform.$visible">Action</span></th>
                               <th width="7%" ng-if="stat.pr=='pr'">Code</th>
-                              <th width="25%">Product</th>
+                              <th width="20%">Product</th>
                               <th width="10%" ng-if="stat.pr=='pr'">Unit</th>
+                              <th width="11%" >Cost Center</th>
 							  <th width="10%">Notes</th>
                               <th width="8%">Qty</th>
                               <th width="8%">Price</th>
                               <th width="9%">Amount</th>
-                              <th width="26%">Supplier</th>
+                              <th width="20%">Supplier</th>
                           </tr>
                           </thead>
 
@@ -397,6 +398,21 @@
                               </td>
 
                               <td style="vertical-align: middle;" ng-if="stat.pr=='pr'">{{ item.unit_name }}</td>
+                              <td style="vertical-align: middle;" >
+                                  <span editable-ui-select="item.cost_center_name" theme="bootstrap" data-e-name="cost_center_name" name="cost_center_name"
+                                  data-e-form="tableform" data-e-on-select="getCostCenter($item,item.id)" >
+                                  {{item.cost_center_name}}
+                                        <editable-ui-select-match placeholder="Cost Center..."  style="width: 300px;">
+                                            {{item.cost_center_name}}
+                                        </editable-ui-select-match>
+                                        <editable-ui-select-choices repeat="item in cost_centers | filter: $select.search" style="width: 300px;">
+                                            <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                                            <small ng-bind-html="trustAsHtml((item.dept_desc | highlight: $select.search))"></small>
+
+                                        </editable-ui-select-choices>
+                                  </span>
+                                  <!--<span data-e-ng-if="seqState==1">{{item.supplier_name}}</span>-->
+                              </td>
 							  <td style="text-align: right;vertical-align: middle;">
                                   <span editable-textarea="item.order_notes" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updateNotes($event,item.id,$data)">
                                       {{ item.order_notes }}
@@ -453,6 +469,7 @@
                                   <th width="7%" ng-if="stat.pr=='pr'">&nbsp;</th>
                                   <th width="25%">&nbsp;</th>
 								  <th width="10%" ng-if="stat.pr=='pr'">&nbsp;</th>
+                                  <th width="11%">&nbsp;</th>
                                   <th width="10%">&nbsp;</th>
                                   <th width="8%" style="text-align: right;"><span >{{child.totalQty | number : fractionSize}}</span></th>
                                   <th width="8%">&nbsp;</th>

@@ -5,7 +5,7 @@ userController.run(function(editableOptions) {
   editableOptions.theme = 'bs3';
 });
 userController
-.controller('InvPurchaseRequestCtrl',
+.controller('InvDirectPurchaseCtrl',
 function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,prService, DTOptionsBuilder, DTColumnBuilder,DTColumnDefBuilder, $localStorage, $compile, $rootScope, API_URL,
     warehouseService) {
 	$scope.el = [];
@@ -81,18 +81,20 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             'left join mst_department b on a.department_id = b.id) e  '+
         'on a.created_by = e.id '+
     'where a.doc_status_id=b.id '+
-	'and a.doc_status_id!=8 and a.purchase_type in (\'NDI\',\'NDN\') '
+	'and a.doc_status_id!=8 and a.purchase_type in (\'DI\',\'DN\') '
     var qwhere = '';
-    var qstringdetail = 'select a.id as p_id,a.product_id,b.code as product_code,d.name unit_name,b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,a.order_notes '+
+    var qstringdetail = 'select a.id as p_id,a.product_id,b.code as product_code,d.name unit_name,b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,a.order_notes,a.cost_center_id,e.name cost_center_name '+
         'from inv_pr_line_item a '+
         'left join mst_product b on a.product_id = b.id '+
         'left join mst_supplier c on a.supplier_id = c.id '+
-        'left join ref_product_unit d on b.unit_type_id=d.id '
-    var qstringdetailnon = 'select a.id as p_id,a.product_id,b.code as product_code,d.name unit_name,a.product_name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,a.order_notes '+
+        'left join ref_product_unit d on b.unit_type_id=d.id '+
+        'left join mst_cost_center e on a.cost_center_id=e.id '
+    var qstringdetailnon = 'select a.id as p_id,a.product_id,b.code as product_code,d.name unit_name,a.product_name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,a.order_notes,a.cost_center_id,e.name cost_center_name '+
         'from inv_pr_line_item a '+
         'left join mst_product b on a.product_id = b.id '+
         'left join mst_supplier c on a.supplier_id = c.id '+
-        'left join ref_product_unit d on b.unit_type_id=d.id '
+        'left join ref_product_unit d on b.unit_type_id=d.id '+
+        'left join mst_cost_center e on a.cost_center_id=e.id '
     $scope.users = []
 
     $scope.role = {
@@ -429,7 +431,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     cost_center_id: $scope.selected.cost_center.selected?$scope.selected.cost_center.selected.id:null,
                     created_by: $localStorage.currentUser.name.id,
                     created_date: globalFunction.currentDate(),
-                    purchase_type: $scope.stat.pr=='pr'?'NDI':'NDN',
+                    purchase_type: $scope.stat.pr=='pr'?'DI':'DN',
                     approval_status:$scope.selected.approval
                 }
                 queryService.post('insert into inv_purchase_request set ?',param)
@@ -859,6 +861,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         p_id: data.data[i].p_id,
                         product_id:data.data[i].product_id,
                         product_code:data.data[i].product_code,
+                        cost_center_id:data.data[i].cost_center_id,
+                        cost_center_name:data.data[i].cost_center_name,
                         product_name:data.data[i].product_name,
                         unit_name:data.data[i].unit_name,
 						order_notes: data.data[i].order_notes,
@@ -1115,8 +1119,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             else $scope.viewMode = true
 
             //console.log($scope.viewMode)
-            if ($scope.pr.purchase_type == 'NDI') $scope.stat.pr = 'pr'
-            else if ($scope.pr.purchase_type == 'NDN') $scope.stat.pr = 'non'
+            if ($scope.pr.purchase_type == 'DI') $scope.stat.pr = 'pr'
+            else if ($scope.pr.purchase_type == 'DN') $scope.stat.pr = 'non'
             $scope.addDetail(ids)
         },
         function (err){
@@ -1279,6 +1283,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             amount: 0,
             supplier_id: '',
             supplier_name: '',
+            cost_center_id:'',
+            cost_center_name: '',
             old_price: 0,
             new_price: 0,
             isNew: true
@@ -1322,12 +1328,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             //results.push($http.post('/saveUser', user));
             if (user.isNew && !user.isDeleted){
                 if (user.product_id.toString().length>0 && user.qty>0){
-                    sqlitem.push('insert into inv_pr_line_item (pr_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date,order_notes) values('+
-                    pr_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
+                    sqlitem.push('insert into inv_pr_line_item (pr_id,cost_center_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date,order_notes) values('+
+                    pr_id+','+user.cost_center_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
                 }
                 else if(user.product_name.length>0 && user.qty>0){
-                    sqlitem.push('insert into inv_pr_line_item (pr_id,product_id,product_name,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date,order_notes) values('+
-                    pr_id+',0,\''+user.product_name+'\','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
+                    sqlitem.push('insert into inv_pr_line_item (pr_id,cost_center_id,product_id,product_name,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date,order_notes) values('+
+                    pr_id+','+user.cost_center_id+',0,\''+user.product_name+'\','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
                 }
             }
             else if(!user.isNew && user.isDeleted){
@@ -1336,13 +1342,14 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             else if(!user.isNew){
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
-                        var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].supplier_id+$scope.itemsOri[j].qty+$scope.itemsOri[j].price+$scope.itemsOri[j].order_notes
-                        var d2 = user.p_id+user.product_id+user.supplier_id+user.qty+user.price+user.order_notes
+                        var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].supplier_id+$scope.itemsOri[j].qty+$scope.itemsOri[j].price+$scope.itemsOri[j].order_notes+$scope.itemsOri[j].cost_center_id
+                        var d2 = user.p_id+user.product_id+user.supplier_id+user.qty+user.price+user.order_notes+user.cost_center_id
                         if(d1 != d2){
                             sqlitem.push('update inv_pr_line_item set '+
                             ' product_id = '+user.product_id+',' +
                             ' product_name = \''+user.product_name+'\',' +
                             ' supplier_id = '+user.supplier_id+',' +
+                            ' cost_center_id = '+user.cost_center_id+',' +
                             ' order_qty = '+user.qty+',' +
                             ' net_price = '+user.price+',' +
 							' order_notes = "'+user.order_notes+'",' +
@@ -1386,7 +1393,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         'order by id limit 50 ',undefined)
     .then(function(data){
         $scope.products = data.data
-    })
+    });
     $scope.productUp = function(text) {
         queryService.post('select a.id,a.code as product_code, a.name, e.name unit_name,'+
             'b.name as category, c.name as subcategory, a.price_per_unit as on_hand_cost, '+
@@ -1409,6 +1416,14 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             $scope.products = data.data
         })
     }
+    $scope.cost_centers = [];
+    queryService.post('select a.id, a.code,upper(a.name) as name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+        'from mst_cost_center a, mst_department b '+
+        'where a.department_id = b.id and a.status=1 '+
+        'order by a.code asc',undefined)
+    .then(function(data){
+        $scope.cost_centers = data.data
+    })
     /*$scope.supplierUp = function(text,d) {
         console.log('supplierUp')
         var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
@@ -1463,6 +1478,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         .then(function(data){
             $scope.suppliers[d-1] = data.data
         })
+    }
+    $scope.getCostCenter = function(e,d){
+        $scope.items[d-1].cost_center_id = e.id
+        $scope.items[d-1].cost_center_name = e.name
+
     }
     $scope.getProductPriceSupplier = function(e,d){
         $scope.items[d-1].supplier_id = e.id

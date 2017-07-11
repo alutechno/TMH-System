@@ -1869,6 +1869,28 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
+        .state('app.inv.directPurchase', {
+            url: "/directPurchase",
+            templateUrl: "container/components/invDirectPurchase/view.html",
+            controller: 'InvDirectPurchaseCtrl',
+            resolve: {
+                deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        'dataTables',
+                        'select',
+                        'datepicker',
+                        'daterangepicker',
+                        'tagsInput',
+                        'autonumeric'
+                    ], {
+                        insertBefore: '#lazyload_placeholder'
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load('container/components/invDirectPurchase/controller.js');
+                    });
+                }]
+            }
+        })
         .state('app.inv.ml', {
             url: "/marketlist",
             templateUrl: "container/components/invMarketList/view.html",

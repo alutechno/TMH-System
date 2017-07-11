@@ -21,7 +21,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.releaseState = true;
     $scope.seqState = 1;
     $scope.disableAction = false;
-    $scope.stat = {pr:'pr'}
     for (var i=0;i<$scope.el.length;i++){
 
         if ($scope.el[i]=='approvalDeptHead'){
@@ -70,7 +69,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     	'b.name as doc_status_name,date_format(a.created_date,\'%Y-%m-%d %H:%i:%s\') created_date, e.name created_by, e.department_name,'+
         'DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date, '+
         'a.cost_center_id,c.name cost_center_name, '+
-    	'a.warehouse_id,d.name warehouse_name,purchase_type, '+
+    	'a.warehouse_id,d.name warehouse_name, '+
     'format((SELECT SUM(order_amount) FROM inv_pr_line_item item WHERE item.pr_id = a.id),0) AS Total, '+
     '(SELECT SUM(order_amount) FROM inv_pr_line_item item WHERE item.pr_id = a.id) AS TotalSum, '+
     'case when approval_status = 1 then \'Approved\' when approval_status = 2 then \'Rejected\' else \'None\'  end as status '+
@@ -81,14 +80,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             'left join mst_department b on a.department_id = b.id) e  '+
         'on a.created_by = e.id '+
     'where a.doc_status_id=b.id '+
-	'and a.doc_status_id!=8 and a.purchase_type in (\'NDI\',\'NDN\') '
+	'and a.doc_status_id!=8 '
     var qwhere = '';
     var qstringdetail = 'select a.id as p_id,a.product_id,b.code as product_code,d.name unit_name,b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,a.order_notes '+
-        'from inv_pr_line_item a '+
-        'left join mst_product b on a.product_id = b.id '+
-        'left join mst_supplier c on a.supplier_id = c.id '+
-        'left join ref_product_unit d on b.unit_type_id=d.id '
-    var qstringdetailnon = 'select a.id as p_id,a.product_id,b.code as product_code,d.name unit_name,a.product_name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,a.order_notes '+
         'from inv_pr_line_item a '+
         'left join mst_product b on a.product_id = b.id '+
         'left join mst_supplier c on a.supplier_id = c.id '+
@@ -365,12 +359,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.showAdvance = val
     }
 
-    $scope.openQuickView = function(state,stat){
+    $scope.openQuickView = function(state){
         if (state == 'add'){
             $scope.releaseState = true;
             $scope.clear()
         }
-        $scope.stat.pr = stat;
         $scope.seqState = 1
         $scope.disableAction = false;
         $('#form-input').modal('show')
@@ -409,7 +402,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             for (var i=0;i<$scope.items.length;i++){
                 //console.log('debug',$scope.items[i].product_id.length,parseFloat($scope.items[i].qty))
                 //console.log($scope.items[i].product_id)
-                if ($scope.items[i].product_id.toString().length>0||$scope.items[i].product_name.length>0) $scope.child.totalQty += parseFloat($scope.items[i].qty)
+                if ($scope.items[i].product_id.toString().length>0) $scope.child.totalQty += parseFloat($scope.items[i].qty)
             }
             //console.log($scope.items)
             //console.log($scope.items.length,$scope.child.totalQty)
@@ -429,7 +422,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     cost_center_id: $scope.selected.cost_center.selected?$scope.selected.cost_center.selected.id:null,
                     created_by: $localStorage.currentUser.name.id,
                     created_date: globalFunction.currentDate(),
-                    purchase_type: $scope.stat.pr=='pr'?'NDI':'NDN',
                     approval_status:$scope.selected.approval
                 }
                 queryService.post('insert into inv_purchase_request set ?',param)
@@ -845,7 +837,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 $scope.item2Add.amount = $scope.item2Add.price * $scope.item2Add.qty
             }*/
 
-            queryService.post(($scope.stat.pr=='pr'?qstringdetail:qstringdetailnon) + ' where a.pr_id='+ids,undefined)
+            queryService.post(qstringdetail + ' where a.pr_id='+ids,undefined)
             .then(function(data){
                 $scope.items = []
                 $scope.child.totalQty = 0
@@ -1115,8 +1107,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             else $scope.viewMode = true
 
             //console.log($scope.viewMode)
-            if ($scope.pr.purchase_type == 'NDI') $scope.stat.pr = 'pr'
-            else if ($scope.pr.purchase_type == 'NDN') $scope.stat.pr = 'non'
             $scope.addDetail(ids)
         },
         function (err){
@@ -1325,10 +1315,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     sqlitem.push('insert into inv_pr_line_item (pr_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date,order_notes) values('+
                     pr_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
                 }
-                else if(user.product_name.length>0 && user.qty>0){
-                    sqlitem.push('insert into inv_pr_line_item (pr_id,product_id,product_name,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date,order_notes) values('+
-                    pr_id+',0,\''+user.product_name+'\','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
-                }
             }
             else if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from inv_pr_line_item where id='+user.p_id)
@@ -1341,7 +1327,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         if(d1 != d2){
                             sqlitem.push('update inv_pr_line_item set '+
                             ' product_id = '+user.product_id+',' +
-                            ' product_name = \''+user.product_name+'\',' +
                             ' supplier_id = '+user.supplier_id+',' +
                             ' order_qty = '+user.qty+',' +
                             ' net_price = '+user.price+',' +
@@ -1357,7 +1342,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
         }
         //console.log($scope.items)
-        console.log(sqlitem.join(';'))
+        //console.log(sqlitem.join(';'))
         return sqlitem
         //return $q.all(results);
     };
@@ -1482,9 +1467,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         if ($scope.child.tAmt.toString()=='NaN') $scope.child.tAmt = 0
         if ($scope.child.totalQty.toString()=='NaN') $scope.child.totalQty = 0
 
-    }
-    $scope.updateProductName = function(e,d,p){
-		$scope.items[d-1].product_name = p
     }
     $scope.updatePriceQty = function(e,d,q){
         $scope.items[d-1].qty = q
