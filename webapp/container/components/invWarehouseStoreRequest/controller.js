@@ -162,6 +162,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     .withOption('bLengthChange', false)
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
+	.withOption('order', [2, 'desc'])
     .withDisplayLength(10)
     .withOption('createdRow', $scope.createdRow);
 
@@ -615,12 +616,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope.items[d-1].unit_name = e.unit_name
     }
     $scope.updaterl = function(e,d,f,g){
-        if (g=='rq') {
-            $scope.items[d-1].request_qty = f
-        }
-        else if (g=='iq') {
-            $scope.items[d-1].issued_qty_n = f
-        }
+        $scope.items[d-1].request_qty = f
     }
 	$scope.update = function(e,d,f){
 		$scope.items[d-1].item_notes=f

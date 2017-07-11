@@ -176,6 +176,7 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
         queryService.get(qStrMenu,undefined)
         .then(function(result){
 			$scope.menus = result.data
+			console.log($scope.menus)
 			if ($scope.user.default_menu == undefined || $scope.user.default_menu.length==0){
 				$scope.selected.menu['selected'] = $scope.menus[0]
 			}

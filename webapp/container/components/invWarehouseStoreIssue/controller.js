@@ -165,6 +165,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     .withOption('bLengthChange', false)
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
+	.withOption('order', [2, 'desc'])
     .withDisplayLength(10)
     .withOption('createdRow', $scope.createdRow);
 
@@ -635,20 +636,19 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope.items[d-1].unit_name = e.unit_name
     }
     $scope.updaterl = function(e,d,f,g){
-        if (g=='rq') {
-            $scope.items[d-1].request_qty = f
-        }
-        else if (g=='iq') {
-			f=parseInt(f)
-
-			if($scope.items[d-1].issued_qty_n+$scope.items[d-1].issued_qty>$scope.items[d-1].request_qty){
-				if($scope.items[d-1].stock_in_hand<$scope.items[d-1].issued_qty_n)
-					$scope.items[d-1].issued_qty_n=$scope.items[d-1].stock_in_hand
-				else
-					$scope.items[d-1].issued_qty_n=$scope.items[d-1].request_qty-$scope.items[d-1].issued_qty
-			}else
-				$scope.items[d-1].issued_qty_n = f
-        }
+    	f=parseInt(f)
+		if(f+$scope.items[d-1].issued_qty>$scope.items[d-1].request_qty){
+			if($scope.items[d-1].stock_in_hand<f){
+				$scope.items[d-1].issued_qty_n=parseInt($scope.items[d-1].stock_in_hand)
+				e.target.value=$scope.items[d-1].issued_qty_n
+			}else{
+				$scope.items[d-1].issued_qty_n=parseInt($scope.items[d-1].request_qty-$scope.items[d-1].issued_qty)
+				e.target.value=$scope.items[d-1].issued_qty_n
+			}
+		}else{
+			$scope.items[d-1].issued_qty_n=f
+			e.target.value = f
+		}
     }
 	$scope.update = function(e,d,f){
 		$scope.items[d-1].item_notes=f
