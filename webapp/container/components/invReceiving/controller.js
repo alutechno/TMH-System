@@ -331,11 +331,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         .renderWith($scope.actionsHtml).withOption('width', '7%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('code').withTitle('RR Number').withOption('width', '8%'),
+        DTColumnBuilder.newColumn('code').withTitle('RR Number').withOption('width', '10%'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status'),
-        DTColumnBuilder.newColumn('po_code').withTitle('PO Number').withOption('width', '8%'),
-        DTColumnBuilder.newColumn('pr_code').withTitle('PR Number').withOption('width', '8%'),
-        DTColumnBuilder.newColumn('ml_code').withTitle('ML Number').withOption('width', '8%'),
+        DTColumnBuilder.newColumn('po_code').withTitle('PO Number').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('pr_code').withTitle('PR Number').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('ml_code').withTitle('ML Number').withOption('width', '10%'),
         DTColumnBuilder.newColumn('receive_status_name').withTitle('Delivery Status'),
         DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '10%'),
         DTColumnBuilder.newColumn('inv_no').withTitle('Inv#'),
