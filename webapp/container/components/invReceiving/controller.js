@@ -333,7 +333,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('code').withTitle('RR Number'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status'),
-        DTColumnBuilder.newColumn('po_code').withTitle('PO Number'),
+        DTColumnBuilder.newColumn('po_code').withTitle('PO Number').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('pr_code').withTitle('PR Number').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('ml_code').withTitle('ML Number').withOption('width', '10%'),
         DTColumnBuilder.newColumn('receive_status_name').withTitle('Delivery Status'),
         DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '15%'),
         DTColumnBuilder.newColumn('inv_no').withTitle('Inv#'),
