@@ -33,6 +33,9 @@ function($scope, $state, $sce, profileService, queryService, $localStorage, $com
     queryService.get(qstring,undefined)
     .then(function(result){
         $scope.user = result.data[0]
+		if($scope.user.image==null)
+			$scope.user.image='aaaa'
+
         //$scope.selected.department.selected = {id:result.data[0].department_id,name:result.data[0].department_name}
         $scope.selected.module.selected = {id:result.data[0].default_module,name:result.data[0].module_name}
         $scope.getMenu(result.data[0].default_module,result.data[0].default_menu)
@@ -69,8 +72,6 @@ function($scope, $state, $sce, profileService, queryService, $localStorage, $com
     })
 
     $scope.getMenu = function(module_id,menu_id){
-        console.log(module_id)
-        console.log(menu_id)
         var qStrMenu = 'select f.id,concat(d.name,\' - \',f.name) as name '+
             'from user a, role_user b, role_menu c, menu f, group_menu d, module e '+
             'where a.id = b.user_id '+

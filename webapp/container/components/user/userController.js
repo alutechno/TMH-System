@@ -150,6 +150,19 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
 	        },function(err){
 	            console.log(err)
 	        })
+			var qmenu=`select f.name module_name,c.name menu_name,GROUP_CONCAT( d.label)action
+				from role_menu a,menu c,menu_detail d,group_menu e,module f
+				where a.menu_id=c.id
+				and a.menu_detail_id=d.id
+				and c.group_id=e.id
+				and e.module_id=f.id
+				and a.role_id in (`+rid.join(',')+`) group by f.name, c.name`;
+			queryService.post(qmenu,undefined)
+	        .then(function(result){
+				$scope.menu_detail = result.data
+	        },function(err){
+	            console.log(err)
+	        })
 		}else{
 			$scope.menu_detail=[]
 		}
