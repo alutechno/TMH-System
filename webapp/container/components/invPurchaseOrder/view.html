@@ -118,7 +118,7 @@
             </tr>
             </tbody>
             <tfooter width="80%" border="1" align="center">
-				<tr>
+		<!--		<tr>
                     <td colspan="4" style="text-align: center;"><b>SubTotal</b></th>
                     <td style="text-align: right;"><span ><b>{{totalQty| number : fractionSize}}</b></span></th>
                     <td style="text-align: center;">&nbsp;</th>
@@ -129,12 +129,12 @@
                     <td style="text-align: center;">&nbsp;</th>
                     <td style="text-align: center;">&nbsp;</th>
                     <td style="text-align: right;"><span ><b>{{tAmt*0.1| number : fractionSize}}</b></span></th>
-                </tr>
+                </tr>-->
                 <tr>
                     <td colspan="4" style="text-align: center;"><b>Total</b></th>
                     <td style="text-align: right;"><span ><b>{{totalQty| number : fractionSize}}</b></span></th>
                     <td style="text-align: center;">&nbsp;</th>
-                    <td style="text-align: right;"><span ><b>{{tAmt+(tAmt*0.1)| number : fractionSize}}</b></span></th>
+                    <td style="text-align: right;"><span ><b>{{tAmt| number : fractionSize}}</b></span></th>
                 </tr>
             </tfooter>
         </table>
