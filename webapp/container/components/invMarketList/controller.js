@@ -543,7 +543,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 							timeout: 10000,
 							type: 'danger'
 						}).show();
-						queryService.post('update inv_market_list set ? where id=?',{approval_status:0})
+						$scope.disableAction = false;
+						queryService.post('update inv_market_list set ? where id='+$scope.pr.id,{approval_status:0})
 						.then(function (result){
 
 						})
