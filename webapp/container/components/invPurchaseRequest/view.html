@@ -205,7 +205,7 @@
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      
+
                       <h4 ng-if="stat.pr=='pr'">PR Document</h4>
                       <h4 ng-if="stat.pr=='non'">PR Non Inventory Item Document</h4>
                       <div class="row clearfix">
@@ -359,11 +359,12 @@
                               <th width="7%" ng-if="stat.pr=='pr'">Code</th>
                               <th width="20%">Product</th>
                               <th width="10%">Unit</th>
+                              <th width="21%">Supplier</th>
 							  <th width="10%">Notes</th>
                               <th width="8%">Qty</th>
                               <th width="8%">Price</th>
                               <th width="9%">Amount</th>
-                              <th width="21%">Supplier</th>
+
                           </tr>
                           </thead>
 
@@ -406,6 +407,24 @@
                                       {{ item.unit_name}}
                                   </span>
                               </td>
+                              <td style="vertical-align: middle;" ng-if="seqState>2">
+                                  <span editable-ui-select="item.supplier_name" theme="bootstrap" data-e-name="supplier_name" name="supplier_name" data-e-ng-model="selected.supplier.selected"
+                                  data-e-form="tableform" data-e-on-select="getProductPriceSupplier($item,item.id)" >
+                                  {{item.supplier_name}}
+                                        <editable-ui-select-match placeholder="Supplier..."  style="width: 300px;">
+                                            {{item.supplier_name}}
+                                        </editable-ui-select-match>
+                                        <editable-ui-select-choices repeat="item in suppliers[item.id-1] | filter: $select.search" refresh="funcAsync($select.search,item.id)" refresh-delay="0" style="width: 300px;">
+                                            <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                                            <small ng-bind-html="trustAsHtml((item.type_name | highlight: $select.search))"></small><br />
+                                            <small ng-bind-html="trustAsHtml((item.price_name | highlight: $select.search))"></small>
+                                        </editable-ui-select-choices>
+                                  </span>
+                                  <!--<span data-e-ng-if="seqState==1">{{item.supplier_name}}</span>-->
+                              </td>
+                              <td style="vertical-align: middle;" ng-if="seqState==1||seqState==2">
+                                      {{item.supplier_name}}
+                              </td>
 							  <td style="text-align: right;vertical-align: middle;">
                                   <span editable-textarea="item.order_notes" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updateNotes($event,item.id,$data)">
                                       {{ item.order_notes }}
@@ -436,37 +455,23 @@
                               <td style="text-align: right;vertical-align: middle;"  ng-if="seqState==1||seqState==2">
                                       {{ item.amount | number : fractionSize}}
                               </td>
-                              <td style="vertical-align: middle;" ng-if="seqState>2">
-                                  <span editable-ui-select="item.supplier_name" theme="bootstrap" data-e-name="supplier_name" name="supplier_name" data-e-ng-model="selected.supplier.selected"
-                                  data-e-form="tableform" data-e-on-select="getProductPriceSupplier($item,item.id)" >
-                                  {{item.supplier_name}}
-                                        <editable-ui-select-match placeholder="Supplier..."  style="width: 300px;">
-                                            {{item.supplier_name}}
-                                        </editable-ui-select-match>
-                                        <editable-ui-select-choices repeat="item in suppliers[item.id-1] | filter: $select.search" refresh="funcAsync($select.search,item.id)" refresh-delay="0" style="width: 300px;">
-                                            <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
-                                            <small ng-bind-html="trustAsHtml((item.type_name | highlight: $select.search))"></small><br />
-                                            <small ng-bind-html="trustAsHtml((item.price_name | highlight: $select.search))"></small>
-                                        </editable-ui-select-choices>
-                                  </span>
-                                  <!--<span data-e-ng-if="seqState==1">{{item.supplier_name}}</span>-->
-                              </td>
-                              <td style="vertical-align: middle;" ng-if="seqState==1||seqState==2">
-                                      {{item.supplier_name}}
-                              </td>
+
                           </tr>
                           </tbody>
                           <tfooter >
                               <tr>
+                                  
+
                                   <th width="7%" style="text-align: center;">Total</th>
                                   <th width="7%" ng-if="stat.pr=='pr'">&nbsp;</th>
-                                  <th width="25%">&nbsp;</th>
+                                  <th width="20%">&nbsp;</th>
 								  <th width="10%" >&nbsp;</th>
+                                  <th width="21%">&nbsp;</th>
                                   <th width="10%">&nbsp;</th>
                                   <th width="8%" style="text-align: right;"><span >{{child.totalQty | number : fractionSize}}</span></th>
                                   <th width="8%">&nbsp;</th>
                                   <th width="9%" style="text-align: right;"><span >{{child.tAmt | number : fractionSize}}</span></th>
-                                  <th width="26%">&nbsp;</th>
+
                               </tr>
                           </tfooter>
                       </table>
@@ -492,7 +497,7 @@
               <div class="row divider"></div>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction" ng-show="releaseState" ng-click="submit()" >Save</button>
-              <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false" ng-if="selected.doc_status.selected.id==3"><i class="fa fa-print"></i> Print</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false" ng-if="selected.doc_status.selected.id==3||pr.doc_status_id==7"><i class="fa fa-print"></i> Print</button>
               <button class="btn btn-default" ng-show="selected.doc_status.selected.id!=7"><i class="pg-close"></i> Clear</button>
           </form>
       </div>

@@ -45,7 +45,22 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
     var qwhere = '';
     var qstringdetail = 'select (select g.order_qty-sum(received_qty) from inv_receive_line_item where item_id=b.item_id)remaining_qty, '+
-		'b.item_id,b.id rcv_id,a.id,a.code,a.po_id,c.name,a.created_date,a.currency_id,e.name supplier_name,f.code,a.total_amount, b.item_id,IFNULL(b.received_qty,0)received_qty,g.order_qty,g.price,IFNULL(b.total_amount,0)amount,g.product_id,h.name product_name,b.received_price, '+
+		'b.item_id,b.id rcv_id,a.id,a.code,a.po_id,c.name,a.created_date,a.currency_id,e.name supplier_name,f.code,a.total_amount, b.item_id,'+
+        'IFNULL(b.received_qty,0)received_qty,g.order_qty,g.price,IFNULL(b.total_amount,0)amount,g.product_id,'+
+        'IF(h.id=0,b.product_name,h.name) product_name,b.received_price, '+
+        'h.unit_type_id,h.lowest_unit_conversion,h.recipe_unit_conversion,h.lowest_unit_type_id ,b.order_notes '+
+        'from inv_po_receive a,inv_receive_line_item b,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f, inv_po_line_item g ,mst_product h '+
+        'where a.id=b.receive_id  '+
+        'and c.table_name=\'inv_po_receive\'  '+
+        'and a.received_status=c.value  '+
+        'and a.po_id=d.id  '+
+        'and d.supplier_id=e.id  '+
+        'and a.currency_id=f.id  '+
+        'and b.item_id=g.id   '+
+        'and g.product_id = h.id ';
+    var qstringdetailnon = 'select (select g.order_qty-sum(received_qty) from inv_receive_line_item where item_id=b.item_id)remaining_qty, '+
+		'b.item_id,b.id rcv_id,a.id,a.code,a.po_id,c.name,a.created_date,a.currency_id,e.name supplier_name,f.code,a.total_amount, '+
+        'b.item_id,IFNULL(b.received_qty,0)received_qty,g.order_qty,g.price,IFNULL(b.total_amount,0)amount,g.product_id,b.product_name product_name,b.received_price, '+
         'h.unit_type_id,h.lowest_unit_conversion,h.recipe_unit_conversion,h.lowest_unit_type_id ,b.order_notes '+
         'from inv_po_receive a,inv_receive_line_item b,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f, inv_po_line_item g ,mst_product h '+
         'where a.id=b.receive_id  '+

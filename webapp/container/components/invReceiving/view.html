@@ -213,13 +213,13 @@
                                                 </td >
                                                 <td style="text-align: right;vertical-align: middle;"><span>{{item.qty | number : fractionSize}}</span></td>
                                                 <td style="text-align: right;vertical-align: middle;"><span>{{item.remaining_qty | number : fractionSize}}</span></td>
-                                                <td style="text-align: right;">
+                                                <td style="text-align: right;vertical-align: middle;">
                                                     <span editable-text="item.rcv_qty" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'qty')" >
                                                         {{ item.rcv_qty | number : fractionSize}}
                                                     </span>
                                                 </td >
                                                 <td style="text-align: right;vertical-align: middle;"><span>{{item.price | number : fractionSize}}</span></td>
-                                                <td style="text-align: right;">
+                                                <td style="text-align: right;vertical-align: middle;">
                                                     <span editable-text="item.rcv_price" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'price')">
                                                         {{ item.rcv_price| number : fractionSize }}
                                                     </span>

@@ -27,13 +27,13 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         "(select name from table_ref r where table_name = 'inv_purchase_order' and column_name = 'delivery_status' and value=a.delivery_status) as delivery_status_name , "+
         "if(a.pr_id,f.code,g.code) doc_prev_code,if(a.pr_id,f.created_name,g.created_name) prev_created_name, "+
         "date_format(if(a.pr_id,f.created_date,g.created_date),'%Y-%m-%d') prev_created_date,if(a.pr_id,f.dept_name,g.dept_name) prev_dept, "+
-        "f.code pr_code,g.code ml_code " +
+        "f.code pr_code,g.code ml_code,f.purchase_type " +
     "from inv_purchase_order a  "+
     "left join mst_supplier b on a.supplier_id=b.id  "+
     "left join mst_cost_center c on a.cost_center_id=c.id  "+
     "left join mst_warehouse d on a.warehouse_id = d.id  "+
     "left join (select m.id,m.name,n.name dept from user m,mst_department n where m.department_id=n.id) e on a.created_by=e.id  "+
-    "left join (select a.id,a.code,a.created_by, b.name created_name,a.created_date,c.name dept_name from inv_purchase_request a "+
+    "left join (select a.id,a.code,a.created_by, b.name created_name,a.created_date,c.name dept_name,a.purchase_type from inv_purchase_request a "+
     "	left join user b on a.created_by = b.id "+
     "	left join mst_department c on b.department_id = c.id) f on a.pr_id=f.id "+
     "left join (select a.id,a.code,a.created_by, b.name created_name,a.created_date,c.name dept_name from inv_market_list a "+
@@ -41,6 +41,10 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     "	left join mst_department c on b.department_id = c.id) g on a.ml_id = g.id"
     var qwhere = '';
     var qstringdetail = 'select a.id as p_id,a.product_id,b.code product_code, b.name as product_name,a.order_qty qty,a.price,a.amount,c.name unit_name,a.order_notes '+
+        'from inv_po_line_item a '+
+        'left join mst_product b on a.product_id = b.id '+
+        'left join ref_product_unit c on b.unit_type_id = c.id';
+    var qstringdetailnon = 'select a.id as p_id,a.product_id,\'\' product_code, a.product_name as product_name,a.order_qty qty,a.price,a.amount,a.product_unit unit_name,a.order_notes '+
         'from inv_po_line_item a '+
         'left join mst_product b on a.product_id = b.id '+
         'left join ref_product_unit c on b.unit_type_id = c.id';
@@ -234,7 +238,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 '</button>&nbsp;' ;
             }
             if ($scope.el.indexOf('buttonDelete')>-1){
-                html+='<button class="btn btn-default" title="Delete" ng-click="delete(\'' + data + '\')" )"="">' +
+                html+='<button class="btn btn-default" title="Delete" ng-click="delete(\'' + data + '\')">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
             }
@@ -695,7 +699,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                 $scope.item2Add.amount = $scope.item2Add.price * $scope.item2Add.qty
             }
 
-            queryService.post(qstringdetail + ' where a.po_id='+ids,undefined)
+            queryService.post(($scope.po.purchase_type=='NDN'||$scope.po.purchase_type=='DN'?qstringdetailnon:qstringdetail) + ' where a.po_id='+ids,undefined)
             .then(function(data){
                 console.log(data)
                 console.log($scope.items)
@@ -861,7 +865,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 
             $scope.items = []
             $scope.itemsOri = []
-            queryService.post(qstringdetail+' where a.po_id='+ids,undefined)
+            queryService.post(($scope.po.purchase_type=='NDN'||$scope.po.purchase_type=='DN'?qstringdetailnon:qstringdetail)+' where a.po_id='+ids,undefined)
             .then(function (result2){
                 $scope.totalQty = 0
                 $scope.tAmt = 0
