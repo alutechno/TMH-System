@@ -204,7 +204,8 @@
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <h4>PR Document</h4>
+                      <h4 ng-if="stat.pr=='pr'">Direct Purchase Document</h4>
+                      <h4 ng-if="stat.pr=='non'">Direct Purchase Non Inventory Item Document</h4>
                       <div class="row clearfix">
                           <div class="col-sm-12">
                               <div class="col-md-3">
