@@ -272,17 +272,17 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '7%'))
+        .renderWith($scope.actionsHtml).withOption('width', '5%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('code').withTitle('PO No').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('delivery_status_name').withTitle('Status').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('code').withTitle('PO No').withOption('width', '12%'),
+        DTColumnBuilder.newColumn('delivery_status_name').withTitle('Status').withOption('width', '5%'),
         DTColumnBuilder.newColumn('warehouse_name').withTitle('Store Location').withOption('width', '10%'),
         DTColumnBuilder.newColumn('cost_center_name').withTitle('Cost Center').withOption('width', '10%'),
         DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '12%'),
         DTColumnBuilder.newColumn('Total').withTitle('Total').withClass('text-right').withOption('width', '8%'),
-        DTColumnBuilder.newColumn('delivery_date').withTitle('Expected').withOption('width', '8%'),
-        DTColumnBuilder.newColumn('expired_date').withTitle('Expired').withOption('width', '7%'),
+        DTColumnBuilder.newColumn('delivery_date').withTitle('Expected').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('expired_date').withTitle('Expired').withOption('width', '5%'),
         DTColumnBuilder.newColumn('doc_prev_code').withTitle('PR/ML No').withOption('width', '9%'),
         DTColumnBuilder.newColumn('prev_created_date').withTitle('PR/ML Date').withOption('width', '7%'),
         DTColumnBuilder.newColumn('prev_created_name').withTitle('Created By').withOption('width', '7%'),
