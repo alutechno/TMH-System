@@ -354,7 +354,7 @@ module.exports = function(connection,jwt){
 
     app.post('/createUser', function(req,res){
 		var fs = require('fs');
-		if (req.body.image.indexOf('container/img/tmp')>-1){
+		if (req.body.image!=null && req.body.image.indexOf('container/img/tmp')>-1){
             var baseDir = req.body.image.split('/')[0]+'/'+req.body.image.split('/')[1]+ '/'
             try{
                 fs.renameSync(__dirname+'/../webapp/'+req.body.image,__dirname+'/../webapp/'+baseDir+'profile/'+req.body.username)
@@ -397,7 +397,7 @@ module.exports = function(connection,jwt){
 
     app.post('/updateUser', function(req,res){
 		var fs = require('fs');
-		if (req.body.image.indexOf('container/img/tmp')>-1){
+		if (req.body.image!=null && req.body.image.indexOf('container/img/tmp')>-1){
             var baseDir = req.body.image.split('/')[0]+'/'+req.body.image.split('/')[1]+ '/'
             try{
                 fs.renameSync(__dirname+'/../webapp/'+req.body.image,__dirname+'/../webapp/'+baseDir+'profile/'+req.body.username)
