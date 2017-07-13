@@ -530,7 +530,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     var po_stat = true
                     var po_msg = []
                     for (var i=0;i<$scope.items.length;i++){
-                        if ($scope.items[i].supplier_id==null || $scope.items[i].supplier_id.length==0){
+                        if (!$scope.items[i].isDeleted &&($scope.items[i].supplier_id==null || $scope.items[i].supplier_id.length==0)){
                             po_stat = false
                             po_msg.push($scope.items[i].product_name)
                         }
