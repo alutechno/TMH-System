@@ -353,13 +353,13 @@
                           <tr>
                               <th width="7%"><span ng-show="tableform.$visible">Action</span></th>
                               <th width="7%" ng-if="stat.pr=='pr'">Code</th>
-                              <th width="25%">Product</th>
-                              <th width="10%" ng-if="stat.pr=='pr'">Unit</th>
+                              <th width="20%">Product</th>
+                              <th width="10%">Unit</th>
 							  <th width="10%">Notes</th>
                               <th width="8%">Qty</th>
                               <th width="8%">Price</th>
                               <th width="9%">Amount</th>
-                              <th width="26%">Supplier</th>
+                              <th width="21%">Supplier</th>
                           </tr>
                           </thead>
 
@@ -397,6 +397,11 @@
                               </td>
 
                               <td style="vertical-align: middle;" ng-if="stat.pr=='pr'">{{ item.unit_name }}</td>
+                              <td style="vertical-align: middle;" ng-if="stat.pr=='non'">
+                                  <span editable-text="item.unit_name"  e-form="tableform" data-e-ng-keyup="updateUnit($event,item.id,$data)" >
+                                      {{ item.unit_name}}
+                                  </span>
+                              </td>
 							  <td style="text-align: right;vertical-align: middle;">
                                   <span editable-textarea="item.order_notes" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updateNotes($event,item.id,$data)">
                                       {{ item.order_notes }}
@@ -452,7 +457,7 @@
                                   <th width="7%" style="text-align: center;">Total</th>
                                   <th width="7%" ng-if="stat.pr=='pr'">&nbsp;</th>
                                   <th width="25%">&nbsp;</th>
-								  <th width="10%" ng-if="stat.pr=='pr'">&nbsp;</th>
+								  <th width="10%" >&nbsp;</th>
                                   <th width="10%">&nbsp;</th>
                                   <th width="8%" style="text-align: right;"><span >{{child.totalQty | number : fractionSize}}</span></th>
                                   <th width="8%">&nbsp;</th>
