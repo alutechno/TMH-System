@@ -420,6 +420,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             },
             function(err2){
 				$scope.disableAction = false;
+				queryService.post('rollback')
+				.then(function(result9){
+				})
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert Line Item: '+err2.code,

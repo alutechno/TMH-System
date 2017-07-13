@@ -201,7 +201,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             queryService.post('insert into inv_credit_to_cost set ?',param)
             .then(function (result){
                 var qstr = $scope.child.saveTable(result.data.insertId)
-                console.log(qstr)
                 queryService.post(qstr.join(';'),undefined)
                 .then(function (result2){
 					$scope.disableAction = false;
@@ -217,6 +216,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 },
                 function (err2){
                     console.log(err2)
+					queryService.post('rollback')
+					.then(function(result9){
+					})
 					$scope.disableAction = false;
                 })
 
@@ -231,7 +233,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                     type: 'danger'
                 }).show();
             })
-
         }
         else {
             //exec update
@@ -263,10 +264,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                     }).show();
                 },
                 function (err2){
+					queryService.post('rollback')
+					.then(function(result9){
+					})
                     console.log(err2)
 					$scope.disableAction = false;
                 })
-
             },
             function (err){
 				$scope.disableAction = false;
@@ -444,12 +447,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 
     // save edits
     $scope.child.saveTable = function(transfer_id) {
-        console.log('asd')
         var results = [];
-        console.log($scope.itemsOri)
 
-        console.log(JSON.stringify($scope.items,null,2))
-        var sqlitem = []
+        var sqlitem = ['start transaction']
 		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
             // actually delete user
@@ -510,8 +510,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             }
 
         }
-        console.log($scope.items)
-        console.log(sqlitem.join(';'))
+		sqlitem.push('commit')
         return sqlitem
         //return $q.all(results);
     };
