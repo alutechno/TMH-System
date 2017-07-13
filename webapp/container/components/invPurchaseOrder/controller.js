@@ -283,7 +283,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         DTColumnBuilder.newColumn('Total').withTitle('Total').withClass('text-right').withOption('width', '8%'),
         DTColumnBuilder.newColumn('delivery_date').withTitle('Expected').withOption('width', '5%'),
         DTColumnBuilder.newColumn('expired_date').withTitle('Expired').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('doc_prev_code').withTitle('PR/ML No').withOption('width', '9%'),
+        DTColumnBuilder.newColumn('doc_prev_code').withTitle('PR/ML No').withOption('width', '12%'),
         DTColumnBuilder.newColumn('prev_created_date').withTitle('PR/ML Date').withOption('width', '7%'),
         DTColumnBuilder.newColumn('prev_created_name').withTitle('Created By').withOption('width', '7%'),
         DTColumnBuilder.newColumn('prev_dept').withTitle('Dept').withOption('width', '7%')
