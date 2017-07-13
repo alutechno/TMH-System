@@ -189,7 +189,8 @@
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Purchase Request Information</div>
+       <div class="panel-title" ng-if="stat.pr=='pr'">Direct Purchase Information</div>
+       <div class="panel-title" ng-if="stat.pr=='non'">Direct Purchase Non Inventory Item Information</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -203,7 +204,8 @@
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <h4>PR Document</h4>
+                      <h4 ng-if="stat.pr=='pr'">Direct Purchase Document</h4>
+                      <h4 ng-if="stat.pr=='non'">Direct Purchase Non Inventory Item Document</h4>
                       <div class="row clearfix">
                           <div class="col-sm-12">
                               <div class="col-md-3">
@@ -344,7 +346,7 @@
               <div class="col-sm-12">
                   <h4>List of Item</h4>
 
-<div ng-controller="EditableTableCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()">
+<div ng-controller="EditableTableDirectCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()">
 
 
                       <!-- table -->
@@ -354,7 +356,7 @@
                               <th width="7%"><span ng-show="tableform.$visible">Action</span></th>
                               <th width="7%" ng-if="stat.pr=='pr'">Code</th>
                               <th width="20%">Product</th>
-                              <th width="10%" ng-if="stat.pr=='pr'">Unit</th>
+                              <th width="10%">Unit</th>
                               <th width="11%" >Cost Center</th>
 							  <th width="10%">Notes</th>
                               <th width="8%">Qty</th>
@@ -398,6 +400,11 @@
                               </td>
 
                               <td style="vertical-align: middle;" ng-if="stat.pr=='pr'">{{ item.unit_name }}</td>
+                              <td style="vertical-align: middle;" ng-if="stat.pr=='non'">
+                                  <span editable-text="item.unit_name" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updateUnit($event,item.id,$data)" >
+                                      {{ item.unit_name}}
+                                  </span>
+                              </td>
                               <td style="vertical-align: middle;" >
                                   <span editable-ui-select="item.cost_center_name" theme="bootstrap" data-e-name="cost_center_name" name="cost_center_name"
                                   data-e-form="tableform" data-e-on-select="getCostCenter($item,item.id)" >
@@ -419,7 +426,7 @@
                                   </span>
                               </td>
                               <td style="text-align: right;vertical-align: middle;">
-                                  <span editable-text="item.qty" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updatePriceQty($event,item.id,$data)" >
+                                  <span editable-text="item.qty" format="number" theme="bootstrap" e-form="tableform" data-e-ng-keyup="updatePriceQty($event,item.id,$data)" >
                                       {{ item.qty | number : fractionSize}}
                                   </span>
                               </td>
@@ -468,7 +475,7 @@
                                   <th width="7%" style="text-align: center;">Total</th>
                                   <th width="7%" ng-if="stat.pr=='pr'">&nbsp;</th>
                                   <th width="25%">&nbsp;</th>
-								  <th width="10%" ng-if="stat.pr=='pr'">&nbsp;</th>
+								  <th width="10%">&nbsp;</th>
                                   <th width="11%">&nbsp;</th>
                                   <th width="10%">&nbsp;</th>
                                   <th width="8%" style="text-align: right;"><span >{{child.totalQty | number : fractionSize}}</span></th>

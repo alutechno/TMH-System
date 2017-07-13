@@ -189,7 +189,9 @@
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Purchase Request Information</div>
+
+       <div class="panel-title" ng-if="stat.pr=='pr'">Purchase Request Information</div>
+       <div class="panel-title" ng-if="stat.pr=='non'">PR Non Inventory Item Information</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -203,7 +205,9 @@
           <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
               <div class="row clearfix">
                   <div class="col-sm-12">
-                      <h4>PR Document</h4>
+                      
+                      <h4 ng-if="stat.pr=='pr'">PR Document</h4>
+                      <h4 ng-if="stat.pr=='non'">PR Non Inventory Item Document</h4>
                       <div class="row clearfix">
                           <div class="col-sm-12">
                               <div class="col-md-3">
