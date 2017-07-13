@@ -331,7 +331,7 @@ module.exports = function(connection,jwt){
         'and b.id = c.role_id '+ where +
         ' group by a.name ';*/
 
-        var sqlstr = 'select a.default_menu,f.name menu_name,a.default_module,g.name module_name,a.password,a.name as username, full_name as fullname, GROUP_CONCAT(b.name) as roles, a.id , GROUP_CONCAT(CONVERT(b.id,char)) as rolesid, '+
+        var sqlstr = 'select a.default_menu,a.image,f.name menu_name,a.default_module,g.name module_name,a.password,a.name as username, full_name as fullname, GROUP_CONCAT(b.name) as roles, a.id , GROUP_CONCAT(CONVERT(b.id,char)) as rolesid, '+
                        'a.department_id, d.name department_name, a.status, e.name as status_name '+
                         'from user a '+
                         'join role_user c on a.id = c.user_id '+
@@ -343,7 +343,6 @@ module.exports = function(connection,jwt){
 						'left join module g on a.default_module=g.id '+
                         'where a.status <> \'2\' '+ where +
                         ' group by a.name ';
-console.log(sqlstr)
         connection(sqlstr , undefined,function(err2, rows2, fields2) {
 			console.log(rows2)
             if (!err2){
@@ -354,6 +353,17 @@ console.log(sqlstr)
     });
 
     app.post('/createUser', function(req,res){
+		var fs = require('fs');
+		if (req.body.image.indexOf('container/img/tmp')>-1){
+            var baseDir = req.body.image.split('/')[0]+'/'+req.body.image.split('/')[1]+ '/'
+            try{
+                fs.renameSync(__dirname+'/../webapp/'+req.body.image,__dirname+'/../webapp/'+baseDir+'profile/'+req.body.username)
+            }
+            catch(e){
+                fs.writeFileSync(__dirname+'/../webapp/'+baseDir+'profile/'+req.body.username, fs.readFileSync(__dirname+'/../webapp/'+baseDir+'profile/_default2x.jpg'));
+            }
+            req.body.image = baseDir+'profile/'+req.body.username
+        }
         var sqlstr = 'insert into user SET ?'
         var tokenuser = {username:req.body.username, password: req.body.password, roleid: req.body.roles};
         var sqlparam = {
@@ -361,12 +371,14 @@ console.log(sqlstr)
             password: req.body.password,
             token: jwt.sign(tokenuser, 'smrai.inc'),
             full_name: req.body.fullname,
+			image: req.body.image,
             default_menu: req.body.default_menu,
             default_module: req.body.default_module,
             mobile: req.body.mobile,
             email: req.body.email,
 			department_id:req.body.default_department
         }
+		console.log(sqlparam)
 
         connection(sqlstr, sqlparam,function(err, result) {
             if (err) throw err;
@@ -384,12 +396,24 @@ console.log(sqlstr)
     })
 
     app.post('/updateUser', function(req,res){
+		var fs = require('fs');
+		if (req.body.image.indexOf('container/img/tmp')>-1){
+            var baseDir = req.body.image.split('/')[0]+'/'+req.body.image.split('/')[1]+ '/'
+            try{
+                fs.renameSync(__dirname+'/../webapp/'+req.body.image,__dirname+'/../webapp/'+baseDir+'profile/'+req.body.username)
+            }
+            catch(e){
+                fs.writeFileSync(__dirname+'/../webapp/'+baseDir+'profile/'+req.body.username, fs.readFileSync(__dirname+'/../webapp/'+baseDir+'profile/_default2x.jpg'));
+            }
+            req.body.image = baseDir+'profile/'+req.body.username
+        }
         var sqlstr = 'update user SET ? WHERE id=' +req.body.id
         var tokenuser = {username:req.body.username, password: req.body.password, roleid: req.body.rolesid};
         var sqlparam = {
             name:req.body.username,
             password: req.body.password,
             token: jwt.sign(tokenuser, 'smrai.inc'),
+			image: req.body.image,
             full_name: req.body.fullname,
             default_menu: req.body.default_menu,
             default_module: req.body.default_module,

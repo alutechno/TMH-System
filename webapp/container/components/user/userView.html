@@ -155,6 +155,16 @@
                   </div>
 			  </div>
 			  <div class="row clearfix">
+			  <div class="col-md-3">
+				  <div class="thumbnail-wrapper d100 circular bordered b-white m-t-30 m-l-10 " >
+						<img ng-dropzone dropzone="dropzoneImage" dropzone-config="dropzoneConfigImage" event-handlers="dzCallbacks" name="image" width="100" height="100" ng-src="{{user.image}}" onerror="this.src='container/img/profile/_default2x.jpg'" id="dzid" />
+				  </div>
+				  <br />
+				  <span><i>click on image to change your avatar</i></span>
+
+			  </div>
+		  </div>
+			  <div class="row clearfix">
 				<table class="table border hover" border="1">
 				<tr >
 				<th  title="Module" class="text-center">Module</th>

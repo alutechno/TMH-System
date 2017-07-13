@@ -59,6 +59,7 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
         default_menu: '',
         default_module: '',
 		default_department: '',
+		image:'aaa'
     }
     $scope.modules = []
     $scope.menus = []
@@ -293,6 +294,23 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
         return $sce.trustAsHtml(value);
     };
 
+	$scope.dropzoneConfigImage = {
+		parallelUploads: 1,
+		maxFileSize: 10,
+		url: '/upload',
+		paramName: 'image',
+		autoProcessQueue : true
+	};
+	$scope.dzCallbacks = {
+		'addedfile' : function(file){
+			console.log(file);
+		},
+		'success' : function(file, xhr){
+			$scope.user.image = xhr.pth
+			console.log($scope.user)
+			$scope.$apply();
+		}
+	};
     $scope.submit = function(){
         if ($scope.user.id.length==0){
             //exec creation
@@ -305,6 +323,7 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
             $scope.user.default_module = $scope.selected.module.selected.id
             $scope.user.default_menu = $scope.selected.menu.selected.id
 			$scope.user.default_department = $scope.selected.department.selected.id
+			console.log($scope.user)
 			userService.createUser($scope.user)
             .then(function (result){
                 if (result.status = "200"){
@@ -322,6 +341,7 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
             for (var i=0;i<$scope.role.selected.length;i++){
                 arrRole.push($scope.role.selected[i].id)
             }
+			console.log($scope.user)
             $scope.user.rolesid = arrRole.toString()
 			$scope.user.default_module = $scope.selected.module.selected.id
             $scope.user.default_menu = $scope.selected.menu.selected.id
