@@ -89,7 +89,7 @@ function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope
 		}
 		//url=encodeURIComponent(url)
 		console.log(BIRT_URL+'/frameset?__report='+$scope.sub[name].report_file+url+'&user_id='+$scope.user)
-		$scope.urlReport = $sce.trustAsResourceUrl(BIRT_URL+'/frameset?__report='+$scope.sub[name].report_file+url+'&user_id='+$scope.user+"&__overwrite=true&dummyVar="+ (new Date()).getTime())
+		$scope.urlReport = $sce.trustAsResourceUrl(BIRT_URL+'/frameset?__report='+$scope.sub[name].report_file+ (new Date()).getTime()+url+'&user_id='+$scope.user+"&__overwrite=true&dummyVar="+ (new Date()).getTime())
 	}
 	$scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
