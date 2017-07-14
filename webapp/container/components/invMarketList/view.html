@@ -491,7 +491,7 @@
               <div class="row divider"></div>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction" ng-click="submit()" ng-show="releaseState">Save</button>
-              <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-if="!updateState&&selected.doc_status.selected.id==4" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-if="!updateState&&selected.doc_status.selected.id==4" ng-print print-element-id="printSection" ng-click="reformat();printing=false;"><i class="fa fa-print"></i> Print</button>
               <button class="btn btn-default" ng-show="selected.doc_status.selected.id!=4"><i class="pg-close"></i> Clear</button>
           </form>
       </div>
@@ -507,76 +507,6 @@
   <!-- /.modal-dialog -->
 </div>
 <!--END FORM INPUT-->
-
-<!-- START INPUT PRODUCT-->
-
-<div class="modal fade slide-right" id="form-input-item" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content-wrapper">
-        <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
-      <div class="panel-heading">
-       <div class="panel-title">Item Information</div>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
-        </button>
-       </div>
-        <div class="container-xs-height full-height">
-          <div class="row-xs-height">
-            <div class="modal-body col-xs-height col-top">
-
-      <!-- START FORM -->
-      <div class="panel panel-transparent m-t-20">
-          <form id="form-user" role="form" autocomplete="off" name="form-items" novalidate>
-              <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select required">
-                          <label class="">Product</label>
-                          <ui-select ng-model="selected.product.selected" theme="bootstrap" >
-                              <ui-select-match placeholder="Select Product">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in products | filter: $select.search">
-                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                              </ui-select-choices>
-                          </ui-select>
-                      </div>
-                  </div>
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : item.order_qty.$invalid && !item.order_qty.$pristine }">
-                          <label>Quantity</label>
-                          <input type="text" class="form-control" name="order_qty" ng-model="item.order_qty" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
-                      </div>
-                  </div>
-
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default form-group-default-select ">
-                          <label class="">Supplier</label>
-                          <ui-select ng-model="selected.supplier.selected" theme="bootstrap" >
-                              <ui-select-match placeholder="Select Supplier">{{$select.selected.name}}</ui-select-match>
-                              <ui-select-choices repeat="item in suplier | filter: $select.search">
-                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                              </ui-select-choices>
-                          </ui-select>
-                      </div>
-                  </div>
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : item.price.$invalid && !item.price.$pristine }">
-                          <label>Price</label>
-                          <input type="text" class="form-control" name="price" ng-model="item.price" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
-                      </div>
-                  </div>
-
-                  <div class="col-sm-12">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : item.total.$invalid && !item.total.$pristine }">
-                          <label>Total</label>
-                          <input type="text" class="form-control" name="total" ng-model="item.total" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
-                      </div>
-                  </div>
-
-              <br>
-              <div class="clearfix"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="form-items.$invalid||disableAction " ng-click="submit()" >Save</button>
-              <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
-          </form>
-      </div>
-      <!-- END FORM -->
 
             </div>
           </div>

@@ -368,6 +368,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.rejectState = false
     }
 
+	$scope.reformat = function(){
+		console.log('aaaa')
+		$scope.items=[];
+	}
+
     $scope.submit = function(){
 		$scope.disableAction = true;
         if ($scope.pr.id.length==0 ){
@@ -731,8 +736,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             ];
         })
     }
-
-
 
     $scope.update = function(ids){
         $('#form-input').modal('show');

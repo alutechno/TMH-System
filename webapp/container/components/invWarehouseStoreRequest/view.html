@@ -1,4 +1,56 @@
+<div id="printSection">
+    <div class="row">
+        <h2 align="center">G/L Transaction</h2>
+        <br>
+        <table width="90%">
+			<tr>
+				<td >
+					<span class="text-center">Code : {{sr.code}}</span>&nbsp;&nbsp;&nbsp;
+					<span class="text-center">Date : {{sr.date}}</span>&nbsp;&nbsp;&nbsp;
+					<span class="text-center">Status : {{selected.request_status.selected.name}}</span>&nbsp;&nbsp;&nbsp;
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<span class="text-center">Warehouse : {{selected.warehouse.selected.name}}</span>&nbsp;&nbsp;&nbsp;
+					<span class="text-center">Cost center : {{selected.cost_center.selected.name}}</span>&nbsp;&nbsp;&nbsp;
+					<span class="text-center">Notes : {{ap.notes}}</span>&nbsp;
+				</td>
+			</tr>
+        </table>
+        <br>
+        <table width="89%" cellpadding="5" border="1" align="center">
+            <thead>
+				<tr>
+					<th width="25%">Item</th>
+					<th width="10%">Stock in Hand</th>
+					<th width="10%">Qty</th>
+					<th width="10%">Unit</th>
+					<th width="10%">Notes</th>
+				</tr>
+				</thead>
+				<tbody>
 
+				<tr ng-repeat="item in items | filter:filterUser">
+					<td >
+						{{item.product_name}}
+					</td>
+					<td><span>{{item.stock_in_hand|number:fractionSize }}</span></td>
+					<td >
+							{{ item.request_qty|number:fractionSize  }}
+					</td>
+					<td style="text-align:right">
+							{{ item.unit_name}}
+					</td>
+					<td style="text-align:right">
+							{{ item.item_notes}}
+					</td>
+				</tr>
+				</tbody>
+        </table>
+        <br><br><br><br>
+    </div>
+</div>
 <div class="full-height m-t-40">
     <!-- TABLES VIEW -->
     <div class="container-fluid container-fixed-lg">
@@ -93,7 +145,7 @@
                 <div class="col-sm-6">
                     <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : sr.warehouse_id.$invalid && !sr.warehouse_id.$pristine }">
                         <label>Warehouse</label>
-                        <ui-select ng-model="selected.warehouse.selected" theme="bootstrap" >
+                        <ui-select ng-model="selected.warehouse.selected" theme="bootstrap" validate-attached-form-element required >
                             <ui-select-match placeholder="select warehouse">{{$select.selected.name}}</ui-select-match>
                             <ui-select-choices repeat="item in warehouse | filter: $select.search">
                                 <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -112,7 +164,7 @@
                 <div class="col-sm-6">
 					<div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : sr.dest_cost_center_id.$invalid && !sr.dest_cost_center_id.$pristine }">
                         <label>Cost Center</label>
-                        <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="sr.dest_cost_center_id=selected.cost_center.selected.id" >
+                        <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="sr.dest_cost_center_id=selected.cost_center.selected.id" validate-attached-form-element required >
 							<ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
 							<ui-select-choices repeat="item in cost_center | filter: $select.search">
 								<div ng-bind-html="trustAsHtml((item.name  | highlight: $select.search))"></div>
@@ -189,7 +241,8 @@
               <br>
               <div class="row divider"></div>
               <div class="clearfix"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction" ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid || disableAction" ng-click="submit()" >Save</button>
+			  <button class="btn btn-primary" type="submit" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>
       </div>
