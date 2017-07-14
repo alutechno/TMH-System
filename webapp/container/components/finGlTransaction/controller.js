@@ -827,10 +827,17 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
         if (filtered.length) {
             filtered[0].isDeleted = true;
         }
+		$scope.total_debit=0;
+		$scope.total_credit=0;
+		for (var i=0;i<$scope.items.length;i++){
+		    if($scope.items[i].isDeleted!==true){
+				$scope.total_debit= $scope.total_debit + (parseInt($scope.items[i].debit)>0?parseFloat($scope.items[i].debit):0)
+		        $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
+			}
+        }
     };
 
     // add user
-
     $scope.addUser = function() {
         $scope.item = {
             id:($scope.items.length+1),
@@ -872,20 +879,7 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
         var d=0,c=0;
         for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
-			// actually delete user
-            /*if (user.isDeleted) {
-                $scope.items.splice(i, 1);
-            }*/
-            // mark as not new
-            /*if (user.isNew) {
-                user.isNew = false;
-            }*/
-
-            // send on server
-            //results.push($http.post('/saveUser', user));
-            //d += (user.debit.length>0?parseFloat(user.debit):0);
-            //c += (user.credit.length>0?parseFloat(user.credit):0);
-            if (user.isNew && !user.isDeleted){
+			if (user.isNew && !user.isDeleted){
 
                 if (user.credit>0){
                     sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+

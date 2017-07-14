@@ -742,10 +742,17 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 
     // mark user as deleted
     $scope.deleteUser = function(id) {
-        console.log(id)
         var filtered = $filter('filter')($scope.items, {id: id});
         if (filtered.length) {
             filtered[0].isDeleted = true;
+        }
+		$scope.total_debit=0;
+		$scope.total_credit=0;
+		for (var i=0;i<$scope.items.length;i++){
+			if($scope.items[i].isDeleted!==true){
+				$scope.total_debit= $scope.total_debit + (parseInt($scope.items[i].debit)>0?parseFloat($scope.items[i].debit):0)
+		        $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
+			}
         }
     };
 
@@ -926,10 +933,8 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
             $scope.items[d-1].notes = p
         }
         for (var i=0;i<$scope.items.length;i++){
-            console.log('debit:'+$scope.items[i].debit+';credit:'+$scope.items[i].credit)
             $scope.total_debit= $scope.total_debit + (parseInt($scope.items[i].debit)>0?parseFloat($scope.items[i].debit):0)
             $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
-            console.log('totdebit:'+$scope.total_debit+';totcredit:'+$scope.total_debit)
         }
 
     }

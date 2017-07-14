@@ -1,6 +1,6 @@
 var userController = angular.module('app', []);
 userController
-.controller('PosReports',
+.controller('ReportsCtrl',
 function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope, globalFunction,API_URL,BIRT_URL) {
 	$scope.el = [];
     $scope.el = $state.current.data;
@@ -9,12 +9,13 @@ function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope
     $scope.buttonDelete = false;
 	$scope.popup=true;
 	$scope.user=$localStorage.currentUser.name.id;
-    var qstring = `select * from mst_report_params where group_id=6 order by seq_no`
+    var qstring = `select * from mst_report_params where group_id=8 order by seq_no`
 	$scope.sub={}
 	$scope.show={}
     queryService.get(qstring,undefined)
     .then(function(data){
         $scope.report = data.data
+
 		for(var i=0;i<data.data.length;i++){
 			var qparam = `select report_file,a.name report,param1_name name,b.name type,param1_source source,param1_mandatory mandatory from mst_report_params a left join ref_param_type b
 				on a.param1_type_id=b.id
@@ -62,6 +63,7 @@ function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope
 				$scope.sub[res.data[0].report].selected={}
 				for(var j=0;j<res.data.length;j++){
 					if(res.data[j].type=="list"){
+
 						$scope.sub[res.data[0].report].selected[res.data[j].name]={}
 						queryService.post(res.data[j].source,undefined)
 					    .then(function(list){
@@ -80,11 +82,13 @@ function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope
     })
 
 	$scope.submit = function(name){
+		console.log($scope.sub)
 		var url=''
 		for(var key in $scope.sub[name].param){
 			url+='&'+encodeURIComponent(key)+'='+encodeURIComponent($scope.sub[name].param[key])
 		}
 		//url=encodeURIComponent(url)
+		console.log(BIRT_URL+'/frameset?__report='+$scope.sub[name].report_file+url+'&user_id='+$scope.user)
 		$scope.urlReport = $sce.trustAsResourceUrl(BIRT_URL+'/frameset?__report='+$scope.sub[name].report_file+url+'&user_id='+$scope.user+"&dummyVar="+ (new Date()).getTime())
 	}
 	$scope.trustAsHtml = function(value) {

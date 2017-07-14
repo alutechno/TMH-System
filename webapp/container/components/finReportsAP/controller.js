@@ -9,7 +9,7 @@ function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope
     $scope.buttonDelete = false;
 	$scope.popup=true;
 	$scope.user=$localStorage.currentUser.name.id;
-    var qstring = `select * from mst_report_params where group_id=5 `
+    var qstring = `select * from mst_report_params where group_id=5 order by seq_no`
 	$scope.sub={}
 	$scope.show={}
     queryService.get(qstring,undefined)
@@ -31,7 +31,31 @@ function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope
 				union
 				select report_file,a.name report,param4_name name,b.name type,param4_source source,param4_mandatory mandatory from mst_report_params a left join ref_param_type b
 				on a.param4_type_id=b.id
-				where a.id=`+data.data[i].id+` and param4_name is not null`;
+				where a.id=`+data.data[i].id+` and param4_name is not null
+				union
+				select report_file,a.name report,param5_name name,b.name type,param5_source source,param4_mandatory mandatory from mst_report_params a left join ref_param_type b
+				on a.param5_type_id=b.id
+				where a.id=`+data.data[i].id+` and param5_name is not null
+				union
+				select report_file,a.name report,param6_name name,b.name type,param6_source source,param4_mandatory mandatory from mst_report_params a left join ref_param_type b
+				on a.param6_type_id=b.id
+				where a.id=`+data.data[i].id+` and param6_name is not null
+				union
+				select report_file,a.name report,param7_name name,b.name type,param7_source source,param4_mandatory mandatory from mst_report_params a left join ref_param_type b
+				on a.param7_type_id=b.id
+				where a.id=`+data.data[i].id+` and param7_name is not null
+				union
+				select report_file,a.name report,param8_name name,b.name type,param8_source source,param4_mandatory mandatory from mst_report_params a left join ref_param_type b
+				on a.param8_type_id=b.id
+				where a.id=`+data.data[i].id+` and param8_name is not null
+				union
+				select report_file,a.name report,param9_name name,b.name type,param9_source source,param4_mandatory mandatory from mst_report_params a left join ref_param_type b
+				on a.param9_type_id=b.id
+				where a.id=`+data.data[i].id+` and param9_name is not null
+				union
+				select report_file,a.name report,param10_name name,b.name type,param10_source source,param4_mandatory mandatory from mst_report_params a left join ref_param_type b
+				on a.param10_type_id=b.id
+				where a.id=`+data.data[i].id+` and param10_name is not null`;
 			queryService.post(qparam,undefined)
 		    .then(function(res){
 				$scope.sub[res.data[0].report]={param:{},report_file:res.data[0].report_file}
