@@ -423,7 +423,7 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
     $scope.clear = function(){
         $scope.user = {
             id: '',
-			image:'',
+			image:'aaa',
             username: '',
             fullname: '',
             password: '',
