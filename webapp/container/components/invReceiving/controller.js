@@ -1053,15 +1053,15 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 			);
 			sqlitem.push("set @id=(select last_insert_id())");
 			 sqlitem.push('insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes)'+
-				' values (next_item_code(\'GL\',\'AP\'), 1, @id, \'0\', \''+$scope.po.notes+'\') on duplicate KEY UPDATE '+
+				' values (next_item_code(\'GL\',\'AP\'), 1, @id, \'0\', \''+$scope.po.code+'\') on duplicate KEY UPDATE '+
 				'notes=\''+$scope.po.notes+'\'');
 				//debit dr cost center account
 			sqlitem.push("set @id=(select last_insert_id())");
-			sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
-				'@id,(select b.payable_account_id from mst_supplier a,ref_supplier_type b where a.supplier_type_id=b.id and a.id='+$scope.po.supplier_id+'),\'D\','+amt+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+			sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date) values("receiving "'+$scope.po.code+
+				'@id,(select b.payable_account_id from mst_supplier a,ref_supplier_type b where a.supplier_type_id=b.id and a.id='+$scope.po.supplier_id+'),\'C\','+amt+','+$localStorage.currentUser.name.id+',curdate())')
 				//credit supplier type
-			sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,amount,created_by,created_date) values('+
-				'@id,(select account_id from mst_cost_center where id='+$scope.selected.cost_center.selected.id+' union select account_id from mst_warehouse where id='+$scope.selected.warehouse.selected.id+' limit 1),\'C\','+amt+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+			sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date) values("receiving "'+$scope.po.code+
+				'@id,(select account_id from mst_cost_center where id='+$scope.selected.cost_center.selected.id+' union select account_id from mst_warehouse where id='+$scope.selected.warehouse.selected.id+' limit 1),\'D\','+amt+','+$localStorage.currentUser.name.id+',curdate())')
 		}
 		sqlitem.push("commit");
         return sqlitem
