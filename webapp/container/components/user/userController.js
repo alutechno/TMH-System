@@ -435,7 +435,7 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
         }
         $scope.role.selected = ''
         $scope.selected= {
-            //department: {selected:{}},
+            department: {selected:{}},
             module: {selected:{}},
             menu: {selected:{}}
         }
