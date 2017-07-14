@@ -388,7 +388,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
         $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
         //queryService.post('select cast(concat(\'PR/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'PR\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
-        queryService.post('select curr_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
+        queryService.post('select curr_document_no(\'DP\',\''+$scope.ym+'\') as code',undefined)
         .then(function(data){
             $scope.pr.code = data.data[0].code
         })
