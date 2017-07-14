@@ -360,6 +360,7 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
     }
 
     $scope.update = function(obj){
+		$scope.clear();
         $('#form-input').modal('show');
 		userService.getUser(obj)
         .then(function(result){
