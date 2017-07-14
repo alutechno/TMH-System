@@ -14,6 +14,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.releaseState = true;
     $scope.seqState = 1;
     $scope.disableAction = false;
+	$scope.supp={}
     for (var i=0;i<$scope.el.length;i++){
 
         if ($scope.el[i]=='approvalDeptHead'){
@@ -369,8 +370,20 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }
 
 	$scope.reformat = function(){
-		console.log('aaaa')
-		$scope.items=[];
+		$scope.supp={};
+		for(var i=0;i<$scope.items.length;i++){
+			if(!$scope.supp[$scope.items[i].supplier_id])
+				$scope.supp[$scope.items[i].supplier_id]=[$scope.items[i]]
+			else
+				$scope.supp[$scope.items[i].supplier_id].push($scope.items[i])
+		}
+		//$scope.apply;
+		setTimeout(function(){
+			var printSection = document.getElementById('printSection');
+			var domClone = printSection.cloneNode(true);
+	        printSection.appendChild(domClone);
+			window.print();
+		}, 100)
 	}
 
     $scope.submit = function(){

@@ -1,6 +1,6 @@
 <div id="printSection">
-    <div class="row" >
-        <h2 align="center">MARKET LIST</h2>
+	<div class="page-break" ng-repeat="(key, val) in supp">
+		<h2 align="center" class="pageBreak">MARKET LIST</h2>
         <br>
         <table width="98%">
             <tr>
@@ -68,7 +68,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="item in items | filter:filterUser">
+            <tr ng-repeat="item in supp[key] | filter:filterUser">
 
                 <td>{{item.product_name}}</td>
                 <td > {{item.unit_name}}</td>
@@ -93,11 +93,9 @@
                     <td width="10%">&nbsp;</th>
                     <td width="10%" style="text-align: right;"><span >{{child.tAmt| number : fractionSize}}</span></th>
                     <td width="30%">&nbsp;</th>
-
                 </tr>
             </tfooter>
         </table>
-        <br><br><br><br>
     </div>
 </div>
 
@@ -491,7 +489,7 @@
               <div class="row divider"></div>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction" ng-click="submit()" ng-show="releaseState">Save</button>
-              <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-if="!updateState&&selected.doc_status.selected.id==4" ng-print print-element-id="printSection" ng-click="reformat();printing=false;"><i class="fa fa-print"></i> Print</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-if="!updateState&&selected.doc_status.selected.id==4"  ng-click="reformat();printing=false;"><i class="fa fa-print"></i> Print</button>
               <button class="btn btn-default" ng-show="selected.doc_status.selected.id!=4"><i class="pg-close"></i> Clear</button>
           </form>
       </div>

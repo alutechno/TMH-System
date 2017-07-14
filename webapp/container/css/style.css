@@ -230,3 +230,14 @@ input[ng-disabled="disabled"]{
 .m-l-300 {
   margin-left: 300px;
 }
+
+.pageBreak {
+  page-break-before: always;
+}
+@media all {
+	.page-break	{ display: none; }
+}
+
+@media print {
+	.page-break	{ display: block; page-break-after: always; }
+}

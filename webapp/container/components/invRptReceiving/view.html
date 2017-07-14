@@ -8,9 +8,12 @@
 	<!--<div class="modal fade slide-up disable-scroll" id="myModal" tabindex="-1" role="dialog" aria-hidden="false" ng-show="popup">-->
 	<div class="inner-content medium-height m-t-40 m-l-300" id="{{item.name}}" ng-class="{ 'hidden': ! show[item.name] }">
             <div class="panel-body" >
-				<div ng-repeat="detail in sub[item.name].data">
-					<div class="btn-group dropdown-default pull-left  m-r-1">
-						<label>{{detail.name}}:</label>
+					<table >
+						<tr ng-repeat="detail in sub[item.name].data">
+						<td>
+							<label>{{detail.name}}:&nbsp;&nbsp;&nbsp;&nbsp;</label>
+						</td>
+						<td>
 						<input type="text" ng-required="detail.mandatory=='Y'" ng-if="detail.type=='date'" class="form-control required" ng-model="sub[item.name].param[detail.name]" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" style="width: 200px;">
 						<input type="text" ng-required="detail.mandatory=='Y'" ng-if="detail.type=='varchar'" class="form-control" ng-model="sub[item.name].param[detail.name]" style="width: 200px;">
 						<input type="text" ng-required="detail.mandatory=='Y'" ng-if="detail.type=='number'" format="number" class="form-control" ng-model="sub[item.name].param[detail.name]" style="width: 200px;">
@@ -21,8 +24,9 @@
 								{{x.name}}
 							</ui-select-choices>
 						</ui-select>
-						</br>
-					</div>
+						</td>
+						</tr>
+					</table>
 				</div>
 				<div>
 					<button class="btn btn-primary" type="submit" ng-click="submit(item.name)" >Submit</button>
