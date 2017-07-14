@@ -21,7 +21,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 
     var qstring = "select a.id,a.code,a.pr_id,a.ml_id,DATE_FORMAT(a.created_date,'%Y-%m-%d') created_date,DATE_FORMAT(a.delivery_date,'%Y-%m-%d') as delivery_date, "+
     	"a.po_source,a.supplier_id, a.warehouse_id, a.cost_center_id, a.notes, a.doc_submission_date, a.delivery_type,a.delivery_status,a.receive_status,  "+
-        "a.payment_type,a.due_days,a.currency_id, b.name supplier_name,c.name cost_center_name,d.name warehouse_name,e.dept, b.address supplier_address, "+
+        "a.payment_type,a.due_days,a.currency_id, b.name supplier_name,c.name cost_center_name,d.name warehouse_name,g.name dept, b.address supplier_address, "+
         "b.contact_person supplier_cp,b.phone_number supplier_phone,b.fax_number supplier_fax,date_format(date_add(released_date,interval due_days day),'%Y-%m-%d')expired_date, "+
         "format((SELECT SUM(amount) FROM inv_po_line_item item WHERE item.po_id = a.id),0) AS 'Total',  "+
         "(select name from table_ref r where table_name = 'inv_purchase_order' and column_name = 'delivery_status' and value=a.delivery_status) as delivery_status_name , "+
@@ -32,7 +32,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     "left join mst_supplier b on a.supplier_id=b.id  "+
     "left join mst_cost_center c on a.cost_center_id=c.id  "+
     "left join mst_warehouse d on a.warehouse_id = d.id  "+
-    "left join (select m.id,m.name,n.name dept from user m,mst_department n where m.department_id=n.id) e on a.created_by=e.id  "+
+    //"left join (select m.id,m.name,n.name dept from user m,mst_department n where m.department_id=n.id) e on a.created_by=e.id  "+
     "left join (select a.id,a.code,a.created_by, b.name created_name,a.created_date,c.name dept_name,a.purchase_type from inv_purchase_request a "+
     "	left join user b on a.created_by = b.id "+
     "	left join mst_department c on b.department_id = c.id) f on a.pr_id=f.id "+
