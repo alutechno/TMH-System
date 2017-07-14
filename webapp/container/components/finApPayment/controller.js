@@ -472,8 +472,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     .withOption('footerCallback', function (tfoot, data) {
         if (data.length > 0) {
 			$scope.data=data;
-			console.log($scope.data)
-            // Need to call $apply in order to call the next digest
+			// Need to call $apply in order to call the next digest
             $scope.$apply(function () {
                 var footer = $templateCache.get('tableFooter'),
                         $tfoot = angular.element(tfoot),
