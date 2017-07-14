@@ -1052,15 +1052,15 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 		        ','+($scope.po.home_currency_exchange*amt)+',0,\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+',"'+$scope.po.inv_no+'","'+$scope.po.faktur_no+'",'+amt+','+amt+')'
 			);
 			sqlitem.push("set @id=(select last_insert_id())");
-			 sqlitem.push('insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes)'+
-				' values (next_item_code(\'GL\',\'AP\'), 1, @id, \'0\', \''+$scope.po.code+'\') on duplicate KEY UPDATE '+
+			 sqlitem.push('insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes,bookkeeping_date)'+
+				' values (next_item_code(\'GL\',\'AP\'), 1, @id, \'0\', \''+$scope.po.code+'\',curdate()) on duplicate KEY UPDATE '+
 				'notes=\''+$scope.po.notes+'\'');
 				//debit dr cost center account
 			sqlitem.push("set @id=(select last_insert_id())");
-			sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date) values("receiving "'+$scope.po.code+
+			sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,bookkeeping_date) values("receiving "'+$scope.po.code+
 				'@id,(select b.payable_account_id from mst_supplier a,ref_supplier_type b where a.supplier_type_id=b.id and a.id='+$scope.po.supplier_id+'),\'C\','+amt+','+$localStorage.currentUser.name.id+',curdate())')
 				//credit supplier type
-			sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date) values("receiving "'+$scope.po.code+
+			sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,bookkeeping_date) values("receiving "'+$scope.po.code+
 				'@id,(select account_id from mst_cost_center where id='+$scope.selected.cost_center.selected.id+' union select account_id from mst_warehouse where id='+$scope.selected.warehouse.selected.id+' limit 1),\'D\','+amt+','+$localStorage.currentUser.name.id+',curdate())')
 		}
 		sqlitem.push("commit");
