@@ -945,6 +945,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         }
 		$scope.disableAction = false;
         $scope.updateState = false
+		$scope.stat = {pr:'pr'}
+		$scope.direct='non';
     }
 })
 .controller('EditableTableCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {
@@ -1205,4 +1207,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 	$scope.updateNotes = function(e,d,p){
 		$scope.items[d-1].order_notes = p
 	}
+	$scope.getCostCenter = function(e,d){
+        $scope.items[d-1].cost_center_id = e.id
+        $scope.items[d-1].cost_center_name = e.name
+    }
 });

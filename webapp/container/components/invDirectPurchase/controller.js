@@ -1,3 +1,4 @@
+
 var userController = angular.module('app', ["xeditable",'fcsa-number']);
 
 userController.run(function(editableOptions) {
@@ -56,6 +57,15 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         else $scope[$scope.el[i]] = true;
 
     }
+    /*var qstring = 'select a.id,a.code,a.purchase_notes, '+
+    	'a.doc_status_id,d.name as doc_status_name,  '+
+    	'DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date, cost_center_id,c.name as cost_center_name, '+
+        'revision_counter, warehouse_id, c.name as warehouse_name '+
+    'from inv_purchase_request a, mst_warehouse b, mst_cost_center c, ref_pr_document_status d  '+
+    'where a.warehouse_id = b.id '+
+    'and a.cost_center_id = c.id  '+
+    'and a.warehouse_id = b.id '+
+    'and a.doc_status_id = d.id';*/
     var qstring = 'select a.id,a.code,a.purchase_notes,a.doc_status_id, a.approval_status,a.revision_counter, '+
     	'b.name as doc_status_name,date_format(a.created_date,\'%Y-%m-%d %H:%i:%s\') created_date, e.name created_by, e.department_name,'+
         'DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date, '+
@@ -1303,6 +1313,19 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         var sqlitem = [];
 		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
+            //console.log(user.supplier_id)
+            //console.log(user.supplier_id.toString().length)
+            // actually delete user
+            /*if (user.isDeleted) {
+                $scope.items.splice(i, 1);
+            }*/
+            // mark as not new
+            /*if (user.isNew) {
+                user.isNew = false;
+            }*/
+
+            // send on server
+            //results.push($http.post('/saveUser', user));
             if (user.isNew && !user.isDeleted){
                 if (user.product_id.toString().length>0 && user.qty>0){
                     sqlitem.push('insert into inv_pr_line_item (pr_id,cost_center_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date,order_notes) values('+
@@ -1341,7 +1364,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             }
 
         }
+        //console.log($scope.items)
+        console.log(sqlitem.join(';'))
         return sqlitem
+        //return $q.all(results);
     };
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
@@ -1399,6 +1425,22 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     .then(function(data){
         $scope.cost_centers = data.data
     })
+    /*$scope.supplierUp = function(text,d) {
+        console.log('supplierUp')
+        var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
+            'from mst_supplier a '+
+            'left join inv_prod_price_contract b '+
+            'on a.id = b.supplier_id  '+
+            'and a.status=1  '+
+            'and b.product_id ='+$scope.items[d-1].product_id + ' '
+            'and lower(a.name) like \''+text.toLowerCase()+'%\'' +
+            ' order by price desc limit 50'
+        //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
+        queryService.post(sqlCtr,undefined)
+        .then(function(data){
+            $scope.suppliers = data.data
+        })
+    }*/
 
     $scope.getProductPrice = function(e,d){
         $scope.items[d-1].product_id = e.id
@@ -1432,6 +1474,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             //'and b.product_id ='+$scope.items[d-1].product_id + ' '+
             'and lower(a.name) like \''+e.toLowerCase()+'%\'' +
             ' order by price desc limit 50'
+        //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
         queryService.post(sqlCtr,undefined)
         .then(function(data){
             $scope.suppliers[d-1] = data.data
