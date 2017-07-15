@@ -1,4 +1,3 @@
-
 var userController = angular.module('app', ["xeditable",'fcsa-number']);
 
 userController.run(function(editableOptions) {
@@ -22,6 +21,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.seqState = 1;
     $scope.disableAction = false;
     $scope.stat = {pr:'pr'}
+	$scope.direct='non';
     for (var i=0;i<$scope.el.length;i++){
 
         if ($scope.el[i]=='approvalDeptHead'){
@@ -57,15 +57,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         else $scope[$scope.el[i]] = true;
 
     }
-    /*var qstring = 'select a.id,a.code,a.purchase_notes, '+
-    	'a.doc_status_id,d.name as doc_status_name,  '+
-    	'DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date, cost_center_id,c.name as cost_center_name, '+
-        'revision_counter, warehouse_id, c.name as warehouse_name '+
-    'from inv_purchase_request a, mst_warehouse b, mst_cost_center c, ref_pr_document_status d  '+
-    'where a.warehouse_id = b.id '+
-    'and a.cost_center_id = c.id  '+
-    'and a.warehouse_id = b.id '+
-    'and a.doc_status_id = d.id';*/
     var qstring = 'select a.id,a.code,a.purchase_notes,a.doc_status_id, a.approval_status,a.revision_counter, '+
     	'b.name as doc_status_name,date_format(a.created_date,\'%Y-%m-%d %H:%i:%s\') created_date, e.name created_by, e.department_name,'+
         'DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date, '+
@@ -196,21 +187,15 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
     /*START AD ServerSide*/
 
-    //define default option
-
     $scope.dtOptionsItem = DTOptionsBuilder.newOptions();
     //define colum
-    $scope.dtColumnsItem = [
-
-    ];
-    $scope.dtInstance = {} //Use for reloadData
+    $scope.dtColumnsItem = [];
+    $scope.dtInstance = {}
     $scope.nested = {};
     $scope.nested.dtInstance = {}
     $scope.actionsHtml = function(data, type, full, meta) {
         var html = ''
-		console.log(full)
-		console.log(data)
-        if ($scope.el.length>0){
+		if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
 
             if ($scope.el.indexOf('buttonUpdate')>-1){
@@ -230,7 +215,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }
 
     $scope.createdRow = function(row, data, dataIndex) {
-        // Recompiling so we can bind Angular directive to the DT
         $compile(angular.element(row).contents())($scope);
     }
     $scope.sums = 0
@@ -258,13 +242,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     .withOption('createdRow', $scope.createdRow)
     .withOption('footerCallback', function (tfoot, data) {
         if (data.length > 0) {
-            // Need to call $apply in order to call the next digest
             $scope.$apply(function () {
-                //$scope.sums = 100;
                 var footer = $templateCache.get('tableFooter'),
                         $tfoot = angular.element(tfoot),
                         content = $compile(footer)($scope);
-                //$tfoot.find('tr').html(content);
                 $tfoot.html(content)
             });
         }
@@ -281,7 +262,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         .renderWith($scope.actionsHtml).withOption('width', '7%'))
     }
     $scope.dtColumns.push(
-        //DTColumnBuilder.newColumn('id').withTitle('ID').withOption('width', '3%'),
         DTColumnBuilder.newColumn('code').withTitle('PR Number').withOption('width', '10%'),
         DTColumnBuilder.newColumn('doc_status_name').withTitle('PR Status').withOption('width', '7%'),
         DTColumnBuilder.newColumn('status').withTitle('Approval').withOption('width', '7%'),
@@ -290,7 +270,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         DTColumnBuilder.newColumn('warehouse_name').withTitle('Store Location').withOption('width','12%'),
         DTColumnBuilder.newColumn('cost_center_name').withTitle('Cost Center').withOption('width','12%'),
         DTColumnBuilder.newColumn('Total').withTitle('Total').withClass('text-right').withOption('width', '9%'),
-
         DTColumnBuilder.newColumn('created_by').withTitle('Created by').withOption('width', '9%'),
         DTColumnBuilder.newColumn('department_name').withTitle('Dept').withOption('width', '9%')
     );
@@ -308,8 +287,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 if ($scope.filterVal.search.length>0) qwhereobj.text = ' a.code like \'%'+$scope.filterVal.search+'%\' '
                 else qwhereobj.text = ''
                 qwhere = setWhere()
-                //if ($scope.filterVal.search.length>0) qwhere = ' and a.code like \'%'+$scope.filterVal.search+'%\' '
-                //else qwhere = ''
 
                 $scope.nested.dtInstance.reloadData(function(obj){
                 }, false)
@@ -319,7 +296,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }
     $scope.f = {filter_date : ''}
     $scope.applyFilter = function(){
-        //console.log($scope.selected.filter_status)
         var status = []
         if ($scope.selected.filter_status.length>0){
             for (var i=0;i<$scope.selected.filter_status.length;i++){
@@ -328,19 +304,15 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             qwhereobj.status = ' a.doc_status_id in('+status.join(',')+') '
         }
 
-        //console.log($scope.selected.filter_cost_center)
         if ($scope.selected.filter_cost_center.selected){
             qwhereobj.cost_center = ' a.cost_center_id = '+$scope.selected.filter_cost_center.selected.id+ ' '
         }
-        //console.log($scope.selected.filter_warehouse)
         if ($scope.selected.filter_warehouse.selected){
             qwhereobj.warehouse = ' a.warehouse_id = '+$scope.selected.filter_warehouse.selected.id+ ' '
         }
-        //console.log($scope.f.filter_date)
         if ($scope.f.filter_date1.length>0 && $scope.f.filter_date2.length>0){
             qwhereobj.date = ' a.created_date between \''+$scope.f.filter_date1+ ' 00:00:00\'  and \''+$scope.f.filter_date2+' 23:59:59\' '
         }
-        //console.log(setWhere())
         qwhere = setWhere()
         $scope.nested.dtInstance.reloadData(function(obj){
         }, false)
@@ -355,7 +327,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         if (arrWhere.length>0){
             strWhere = ' and ' + arrWhere.join(' and ')
         }
-        //console.log(strWhere)
         return strWhere
     }
 
@@ -385,14 +356,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         var dt = new Date()
 
         $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-        //queryService.post('select cast(concat(\'PR/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'PR\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
         queryService.post('select curr_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
         .then(function(data){
             $scope.pr.code = data.data[0].code
         })
     }
     $scope.openQuickViewItem = function(state){
-        //$scope.addDetail(1);
         $('#form-input-item').modal('show')
 
     }
@@ -403,16 +372,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
     $scope.submit = function(){
 		$scope.disableAction = true;
-        if ($scope.pr.id.length==0 ){
+		if ($scope.pr.id.length==0 ){
             //exec creation
             $scope.child.totalQty = 0
             for (var i=0;i<$scope.items.length;i++){
-                //console.log('debug',$scope.items[i].product_id.length,parseFloat($scope.items[i].qty))
-                //console.log($scope.items[i].product_id)
                 if ($scope.items[i].product_id.toString().length>0||$scope.items[i].product_name.length>0) $scope.child.totalQty += parseFloat($scope.items[i].qty)
             }
-            //console.log($scope.items)
-            //console.log($scope.items.length,$scope.child.totalQty)
 
             if ($scope.items.length>0 && $scope.child.totalQty>0){
                 var param = {}
@@ -459,13 +424,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                                 parseInt($scope.items[x].qty),parseInt($scope.items[x].price),parseInt($scope.items[x].amount),
                                 $localStorage.currentUser.name.id,globalFunction.currentDate()
                             ])
-
                         }
-                        //console.log(paramItem)
-                        //queryService.post('insert into inv_pr_line_item(pr_id,product_id,supplier_id,order_qty,net_price,order_amount,created_by,created_date) values ?',[paramItem])
                         $scope.addItemDetail(result.data.insertId)
                         .then(function (result3){
-                            //console.log(result.data.insertId)
                             $('#form-input').modal('hide')
 
                             $scope.nested.dtInstance.reloadData(function(obj){
@@ -512,7 +473,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         type: 'danger'
                     }).show();
                 })
-
             }
             else {
 				$scope.disableAction = false;
@@ -523,10 +483,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     timeout: 10000,
                     type: 'danger'
                 }).show();
-
             }
-
-
         }
         else {
             //exec update
@@ -551,7 +508,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
                 if ($scope.pr.doc_status_id==$scope.selected.doc_status.selected.id &&
                     $scope.pr.approval_status==$scope.selected.approval ){
-                    //Hanya Update inv_purchase_request, tidak doc_status_id atau approval yang berubah
                     $('#form-input').modal('hide')
                     result.data['insertId'] = $scope.pr.id
                     $scope.addItemDetail($scope.pr.id)
@@ -567,7 +523,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                             type: 'success'
                         }).show();
                         $scope.clear();
-
                     },
                     function (err3){
 						$scope.disableAction = false;
@@ -635,7 +590,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                                 approve_status:0
                             }
                         }
-                        //console.log(paramState)
                         if (queryState.length>0){
                             queryService.post(queryState,paramState)
                             .then(function (result){
@@ -651,9 +605,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                                     type: 'success'
                                 }).show();
                                 //Generate PO
-                                //console.log('generatePO:'+$scope.selected.doc_status.selected.id+';'+$scope.selected.approval)
                                 if ($scope.selected.doc_status.selected.id == 7 && $scope.selected.approval == 1){
-                                    //console.log('generatePO process:'+ 'CALL `pr-po`('+$scope.pr.id+','+$localStorage.currentUser.name.id+')')
                                     queryService.post('CALL `pr-po`('+$scope.pr.id+','+$localStorage.currentUser.name.id+')', undefined)
                                     .then(function (result){
                                         console.log(result)
@@ -706,7 +658,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }
     $scope.addItemDetail = function(pr_id){
         var sqli = $scope.child.saveTable(pr_id);
-
         var defer = $q.defer();
         var paramItem = []
         var sqlCtr = []
@@ -718,133 +669,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         function (err2){
             defer.reject(err2)
         })
-        /*for (var x=0;x<$scope.items.length;x++){
-            paramItem.push([
-                result.data.insertId,$scope.items[x].product_id,$scope.items[x].supplier_id,
-                parseInt($scope.items[x].qty),parseInt($scope.items[x].price),parseInt($scope.items[x].amount),
-                $localStorage.currentUser.name.id,globalFunction.currentDate()
-            ])
-            if ($scope.items[x].old_price == null && $scope.items[x].new_price!=undefined){
-                sqlCtr.push('insert into inv_prod_price_contract(product_id,supplier_id,contract_status,contract_start_date,contract_end_date,price,created_date,created_by)' +
-                    ' values('+$scope.items[x].product_id+', '+$scope.items[x].supplier_id+', \'1\', \''+globalFunction.currentDate()+'\', \''+globalFunction.endOfYear()+'\', '+
-                    ' '+$scope.items[x].new_price+', \''+globalFunction.currentDate()+'\', '+$localStorage.currentUser.name.id+')'
-                )
-            }
-            else if($scope.items[x].old_price != $scope.items[x].new_price){
-                sqlCtr.push('update inv_prod_price_contract set price='+$scope.items[x].new_price+', modified_date=\''+globalFunction.currentDate()+'\','+
-                    ' modified_by = '+$localStorage.currentUser.name.id+' where product_id='+$scope.items[x].product_id+' and supplier_id='+$scope.items[x].supplier_id
-                )
-            }
-        }
-        console.log(sqlCtr)
-        console.log(paramItem)
-        if (sqlCtr.length>0){
-            console.log('Execute update Contract')
-            queryService.post(sqlCtr.join(';'),undefined)
-            .then(function (result2){
-                console.log('Contract:'+JSON.stringify(result2))
-            },
-            function (err2){
-                console.log('Contract:'+JSON.stringify(err2))
-            })
-        }
-
-        queryService.post('delete from inv_pr_line_item where pr_id='+result.data.insertId,undefined)
-        .then(function (result2){
-            console.log(result2)
-            queryService.post('insert into inv_pr_line_item(pr_id,product_id,supplier_id,order_qty,net_price,order_amount,created_by,created_date) values ?',[paramItem])
-            .then(function (result3){
-                console.log(result.data.insertId)
-                defer.resolve(result3)
-            },
-            function (err3){
-                console.log(err3)
-                defer.reject(err3)
-            })
-        },
-        function (err2){
-            console.log(err2)
-            queryService.post('insert into inv_pr_line_item(pr_id,product_id,supplier_id,order_qty,net_price,order_amount,created_by,created_date) values ?',[paramItem])
-            .then(function (result3){
-                console.log(result.data.insertId)
-                defer.resolve(result3)
-            },
-            function (err3){
-                console.log(err3)
-                defer.reject(err3)
-            })
-        })*/
-
-
         return defer.promise;
     }
 
     $scope.addDetail = function(ids){
-        //$scope.show.prTable = false;
-        //$scope.show.itemTable = true;
         queryService.post(qstring+' and a.id='+ids,undefined)
         .then(function (result){
-
-            /*queryService.get('select id,name,last_order_price from mst_product order by id limit 50 ',undefined)
-            .then(function(data){
-                $scope.products = data.data
-            })
-            $scope.productUp = function(text) {
-                console.log(text.toLowerCase())
-                queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
-                .then(function(data){
-                    console.log(data)
-                    $scope.products = data.data
-                })
-
-
-            }
-            $scope.supplierUp = function(text) {
-                console.log(text.toLowerCase())
-                var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
-                    'from mst_supplier a '+
-                    'left join inv_prod_price_contract b '+
-                    'on a.id = b.supplier_id  '+
-                    'and a.status=1  '+
-                    'and b.product_id ='+e.id+ + ' '
-                    'and lower(a.name) like \''+text.toLowerCase()+'%\'' +
-                    ' order by price desc limit 50'
-                //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
-                queryService.post(sqlCtr,undefined)
-                .then(function(data){
-                    console.log(data)
-                    $scope.products = data.data
-                })
-
-
-            }
-
-            //$scope.pr = result.data[0]
-            //console.log($scope.pr)
-            $scope.getProductPrice = function(e){
-                $scope.item2Add.price = e.last_order_price
-                $scope.item2Add.amount = e.last_order_price * $scope.item2Add.qty
-                var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
-                    'from mst_supplier a '+
-                    'left join inv_prod_price_contract b '+
-                    'on a.id = b.supplier_id  '+
-                    'and a.status=1  '+
-                    'and b.product_id ='+e.id+' order by price desc limit 50'
-                //queryService.get('select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',b.price) as char)as price_name from mst_supplier a, inv_prod_price_contract b where a.id = b.supplier_id and a.status=1 and b.product_id ='+e.id+' order by id',undefined)
-                queryService.get(sqlCtr,undefined)
-                .then(function(data){
-                    console.log(data)
-                    $scope.suppliers = data.data
-                })
-            }
-            $scope.getProductPriceSupplier = function(e){
-                $scope.item2Add.price = e.price
-                $scope.item2Add.amount = e.price * $scope.item2Add.qty
-            }
-            $scope.updatePrice = function(e){
-                $scope.item2Add.amount = $scope.item2Add.price * $scope.item2Add.qty
-            }*/
-
             queryService.post(($scope.stat.pr=='pr'?qstringdetail:qstringdetailnon) + ' where a.pr_id='+ids,undefined)
             .then(function(data){
                 $scope.items = []
@@ -859,6 +689,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         p_id: data.data[i].p_id,
                         product_id:data.data[i].product_id,
                         product_code:data.data[i].product_code,
+						cost_center_id:data.data[i].cost_center_id,
+                        cost_center_name:data.data[i].cost_center_name,
                         product_name:data.data[i].product_name,
                         unit_name:data.data[i].unit_name,
 						order_notes: data.data[i].order_notes,
@@ -872,13 +704,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     $scope.child.totalQty += data.data[i].order_qty
                     $scope.child.tAmt += data.data[i].order_amount
                 }
-
                 $scope.itemsOri = angular.copy($scope.items)
-
-                //$scope.items = data.data
             })
             $scope.nested.dtInstanceItem = {}
-
             $scope.dtOptionsItem = DTOptionsBuilder.newOptions()
                 .withOption('bLengthChange', false)
                 .withOption('bFilter', false)
@@ -900,101 +728,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 DTColumnDefBuilder.newColumnDef(5).withOption('width', '35%'),
 				DTColumnDefBuilder.newColumnDef(6).withOption('width', '10%'),
             ];
-            /*$scope.item2Add = {
-                product_id:'',
-                qty: '',
-                price: '',
-                amount: '',
-                supplier_id: ''
-            }
-            $scope.items = _buildPerson2Add({
-                product_id:'',
-                qty: '',
-                price: '',
-                amount: '',
-                supplier_id: ''
-            });
-            /*$scope.addPerson = addPerson;
-            $scope.modifyPerson = modifyPerson;
-            $scope.removePerson = removePerson;*/
-
-            /*function _buildPerson2Add(d) {
-                return d;
-            }
-            $scope.addItem = function() {
-                console.log($scope.item2Add)
-                console.log($scope.selected.product)
-                console.log($scope.selected.supplier)
-                $scope.item2Add.product_id = $scope.selected.product.selected?$scope.selected.product.selected.id:null
-                $scope.item2Add.product_name = $scope.selected.product.selected?$scope.selected.product.selected.name:null
-                if ($scope.selected.supplier){
-                    $scope.item2Add.supplier_id = $scope.selected.supplier.selected?$scope.selected.supplier.selected.id:null
-                    $scope.item2Add.supplier_name = $scope.selected.supplier.selected?$scope.selected.supplier.selected.name:null
-                    $scope.item2Add.old_price = $scope.selected.supplier.selected?$scope.selected.supplier.selected.price:null
-                }
-                else {
-                    $scope.item2Add.supplier_id = null
-                    $scope.item2Add.supplier_name = null
-                    $scope.item2Add.old_price = null
-                }
-                $scope.item2Add.new_price = $scope.item2Add.price
-
-                if ($scope.item2Add.product_id!=null){
-                    $scope.items.push(angular.copy($scope.item2Add));
-                }
-
-                console.log($scope.items)
-                //$scope.nested.dtInstanceItem.reloadData();
-                $scope.item2Add = {
-                    product_id:'',
-                    product_name:'',
-                    qty: '',
-                    price: '',
-                    amount: '',
-                    supplier_id: '',
-                    supplier_name: '',
-                    old_price: '',
-                    new_price: ''
-                };
-            }
-            $scope.modifyItem = function(index) {
-                console.log(index)
-                console.log($scope.items[index])
-                $scope.selected.product.selected = {
-                    id: $scope.items[index].product_id,
-                    name: $scope.items[index].product_name
-                }
-                if ($scope.selected.supplier.selected){
-                    $scope.selected.supplier.selected = {
-                        id: $scope.items[index].supplier_id,
-                        name: $scope.items[index].supplier_name
-                    }
-                }
-
-                var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
-                    'from mst_supplier a '+
-                    'left join inv_prod_price_contract b '+
-                    'on a.id = b.supplier_id  '+
-                    'and a.status=1  '+
-                    'and b.product_id ='+$scope.items[index].product_id+' order by price desc limit 50'
-                queryService.get(sqlCtr,undefined)
-                //queryService.get('select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',b.price) as char)as price_name from mst_supplier a, inv_prod_price_contract b where a.id = b.supplier_id and a.status=1 and b.product_id ='+$scope.items[index].product_id+' order by id',undefined)
-                .then(function(data){
-                    console.log(data)
-                    $scope.suppliers = data.data
-                })
-                $scope.item2Add = $scope.items[index];
-                $scope.items.splice(index, 1);
-
-            }
-            $scope.removeItem = function(index) {
-                console.log(index)
-                $scope.items.splice(index, 1);
-            }*/
         })
     }
-
-
 
     $scope.update = function(ids){
         $('#form-input').modal('show');
@@ -1027,7 +762,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             else {
                 $scope.disableAction = false;
             }
-
             $scope.pr = result.data[0]
             $scope.selected.warehouse = {
                 selected: {
@@ -1053,39 +787,26 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 $scope.releaseState = false
             }
             if ($scope.el.indexOf('approvalDeptHead')>-1 && (result.data[0].doc_status_id == 1 && result.data[0].approval_status == 1)){
-                //$scope.doc_status.push($scope.doc_status_def[0])
                 $scope.doc_status.push($scope.doc_status_def[1])
             }
             if ($scope.el.indexOf('approvalPoManager')>-1 && (result.data[0].doc_status_id == 2 && result.data[0].approval_status == 1)){
-                //$scope.doc_status.push($scope.doc_status_def[1])
                 $scope.doc_status.push($scope.doc_status_def[2])
             }
             if ($scope.el.indexOf('approvalCostControl')>-1 && (result.data[0].doc_status_id == 3 && result.data[0].approval_status == 1)){
-                //$scope.doc_status.push($scope.doc_status_def[2])
                 $scope.doc_status.push($scope.doc_status_def[3])
             }
             if ($scope.el.indexOf('approvalFinance')>-1 && (result.data[0].doc_status_id == 4 && result.data[0].approval_status == 1)){
-                //$scope.doc_status.push($scope.doc_status_def[3])
                 $scope.doc_status.push($scope.doc_status_def[4])
             }
             if ($scope.el.indexOf('approvalGm')>-1 && (result.data[0].doc_status_id == 5 && result.data[0].approval_status == 1)){
-                //$scope.doc_status.push($scope.doc_status_def[4])
                 $scope.doc_status.push($scope.doc_status_def[5])
             }
             if ($scope.el.indexOf('prReleased')>-1 && (result.data[0].doc_status_id == 6 && result.data[0].approval_status == 1)){
-                //$scope.doc_status.push($scope.doc_status_def[4])
                 $scope.doc_status.push($scope.doc_status_def[6])
             }
             if ($scope.el.indexOf('buttonCreate')>-1 && (result.data[0].doc_status_id == 0 && result.data[0].approval_status == 1)){
-                //$scope.doc_status.push($scope.doc_status_def[4])
                 $scope.doc_status.push($scope.doc_status_def[0])
             }
-            //else $scope.doc_status.push($scope.doc_status_def[0])
-
-
-            /*for (var i=result.data[0].doc_status_id;i<(result.data[0].doc_status_id+1);i++){
-                $scope.doc_status.push($scope.doc_status_def[i])
-            }*/
             if ((result.data[0].approval_status==0||result.data[0].approval_status==2) && result.data[0].doc_status_id==1){
                 $scope.statusState=true
                 $scope.selected.approval = 0
@@ -1115,7 +836,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             else if (((result.data[0].doc_status_id==7&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==6 && result.data[0].approval_status==1)) && $scope.el.indexOf('prReleased')>-1) $scope.viewMode = false
             else $scope.viewMode = true
 
-            //console.log($scope.viewMode)
             if ($scope.pr.purchase_type == 'NDI') $scope.stat.pr = 'pr'
             else if ($scope.pr.purchase_type == 'NDN') $scope.stat.pr = 'non'
             $scope.addDetail(ids)
@@ -1129,12 +849,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 type: 'danger'
             }).show();
         })
-
     }
 
     $scope.delete = function(ids){
         $scope.pr.id = ids;
-        //$scope.customer.name = obj.name;
         var qstring = 'select * from inv_purchase_request where id='+ids
         queryService.post(qstring,undefined)
         .then(function (result){
@@ -1150,7 +868,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 type: 'danger'
             }).show();
         })
-
     }
 
     $scope.execDelete = function(){
@@ -1229,7 +946,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 		$scope.disableAction = false;
         $scope.updateState = false
     }
-
 })
 .controller('EditableTableCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {
     $scope.item = {
@@ -1308,27 +1024,15 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         var sqlitem = [];
 		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
-            //console.log(user.supplier_id)
-            //console.log(user.supplier_id.toString().length)
-            // actually delete user
-            /*if (user.isDeleted) {
-                $scope.items.splice(i, 1);
-            }*/
-            // mark as not new
-            /*if (user.isNew) {
-                user.isNew = false;
-            }*/
-
-            // send on server
             //results.push($http.post('/saveUser', user));
             if (user.isNew && !user.isDeleted){
                 if (user.product_id.toString().length>0 && user.qty>0){
-                    sqlitem.push('insert into inv_pr_line_item (pr_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date,order_notes) values('+
-                    pr_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+(user.price==null?0:user.price)+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
+                    sqlitem.push('insert into inv_pr_line_item (pr_id,cost_center_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date,order_notes) values('+
+                    pr_id+','+user.cost_center_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+(user.price==null?0:user.price)+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
                 }
                 else if(user.product_name.length>0 && user.qty>0){
-                    sqlitem.push('insert into inv_pr_line_item (pr_id,product_id,product_name,product_unit,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date,order_notes) values('+
-                    pr_id+',0,\''+user.product_name+'\',\''+user.unit_name+'\','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+(user.price==null?0:user.price)+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
+                    sqlitem.push('insert into inv_pr_line_item (pr_id,cost_center_id,product_id,product_name,product_unit,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date,order_notes) values('+
+                    pr_id+','+user.cost_center_id+',0,\''+user.product_name+'\',\''+user.unit_name+'\','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+(user.price==null?0:user.price)+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
                 }
             }
             else if(!user.isNew && user.isDeleted){
@@ -1342,6 +1046,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         if(d1 != d2){
                             sqlitem.push('update inv_pr_line_item set '+
                             ' product_id = '+user.product_id+',' +
+							' cost_center_id = '+user.cost_center_id+',' +
                             ' product_name = \''+user.product_name+'\',' +
                             ' product_unit = \''+user.unit_name+'\',' +
                             ' supplier_id = '+user.supplier_id+',' +
@@ -1356,12 +1061,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     }
                 }
             }
-
         }
-        //console.log($scope.items)
-        console.log(sqlitem.join(';'))
         return sqlitem
-        //return $q.all(results);
     };
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
@@ -1411,23 +1112,14 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             $scope.products = data.data
         })
     }
-    /*$scope.supplierUp = function(text,d) {
-        console.log('supplierUp')
-        var sqlCtr = 'select a.id,a.name,a.address,b.price,cast(concat(\'Price: \',ifnull(b.price,\' - \')) as char)as price_name  '+
-            'from mst_supplier a '+
-            'left join inv_prod_price_contract b '+
-            'on a.id = b.supplier_id  '+
-            'and a.status=1  '+
-            'and b.product_id ='+$scope.items[d-1].product_id + ' '
-            'and lower(a.name) like \''+text.toLowerCase()+'%\'' +
-            ' order by price desc limit 50'
-        //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
-        queryService.post(sqlCtr,undefined)
-        .then(function(data){
-            $scope.suppliers = data.data
-        })
-    }*/
-
+	$scope.cost_centers = [];
+	queryService.post('select a.id, a.code,upper(a.name) as name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+		'from mst_cost_center a, mst_department b '+
+		'where a.department_id = b.id and a.status=1 '+
+		'order by a.code asc',undefined)
+	.then(function(data){
+		$scope.cost_centers = data.data
+	})
     $scope.getProductPrice = function(e,d){
         $scope.items[d-1].product_id = e.id
         $scope.items[d-1].product_code = e.product_code
@@ -1460,7 +1152,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             //'and b.product_id ='+$scope.items[d-1].product_id + ' '+
             'and lower(a.name) like \''+e.toLowerCase()+'%\'' +
             ' order by price desc limit 50'
-        //queryService.post('select id,name,last_order_price from mst_product where lower(name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
         queryService.post(sqlCtr,undefined)
         .then(function(data){
             $scope.suppliers[d-1] = data.data
