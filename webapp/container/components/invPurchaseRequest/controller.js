@@ -1071,14 +1071,15 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
             //results.push($http.post('/saveUser', user));
+			console.log(user.cost_center_id)
             if (user.isNew && !user.isDeleted){
                 if (user.product_id.toString().length>0 && user.qty>0){
                     sqlitem.push('insert into inv_pr_line_item (pr_id,cost_center_id,product_id,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date,order_notes) values('+
-                    pr_id+','+user.cost_center_id+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+(user.price==null?0:user.price)+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
+                    pr_id+','+(user.cost_center_id==undefined?null:user.cost_center_id)+','+user.product_id+','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+(user.price==null?0:user.price)+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
                 }
                 else if(user.product_name.length>0 && user.qty>0){
                     sqlitem.push('insert into inv_pr_line_item (pr_id,cost_center_id,product_id,product_name,product_unit,'+(user.supplier_id.toString().length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date,order_notes) values('+
-                    pr_id+','+user.cost_center_id+',0,\''+user.product_name+'\',\''+user.unit_name+'\','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+(user.price==null?0:user.price)+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
+                    pr_id+','+(user.cost_center_id==undefined?null:user.cost_center_id)+',0,\''+user.product_name+'\',\''+user.unit_name+'\','+(user.supplier_id.toString().length>0?user.supplier_id+',':'')+''+user.qty+','+(user.price==null?0:user.price)+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+',"'+user.order_notes+'")')
                 }
             }
             else if(!user.isNew && user.isDeleted){
@@ -1092,7 +1093,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         if(d1 != d2){
                             sqlitem.push('update inv_pr_line_item set '+
                             ' product_id = '+user.product_id+',' +
-							' cost_center_id = '+user.cost_center_id+',' +
+							' cost_center_id = '+(user.cost_center_id==undefined?null:user.cost_center_id)+',' +
                             ' product_name = \''+user.product_name+'\',' +
                             ' product_unit = \''+user.unit_name+'\',' +
                             ' supplier_id = '+user.supplier_id+',' +
