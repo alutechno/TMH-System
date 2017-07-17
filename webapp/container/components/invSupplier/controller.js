@@ -262,7 +262,8 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
 			queryService.post('select next_item_code(\'supplier\',\''+$scope.selected.supplier_type.selected.code+'\') as code',undefined)
 			.then(function(data){
 			});
-	            $scope.supplier.code = $scope.selected.supplier_type.selected.code
+	            //$scope.supplier.code = $scope.selected.supplier_type.selected.code
+                $scope.supplier.code = $scope.supplier.code
 		        queryService.post('insert into mst_supplier SET ?',$scope.supplier)
 	            .then(function (result){
 					$scope.disableAction = false;
