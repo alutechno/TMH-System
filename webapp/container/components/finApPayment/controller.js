@@ -60,7 +60,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
            'a.supplier_id, d.name as supplier_name, a.currency_id,  '+
            'f.code as currency_code,f.name as currency_name,a.currency_exchange, a.total_amount, a.home_total_amount, a.bank_account_id, '+
            'format(a.total_amount,0) ta, format(a.home_total_amount,0) hta,'+
-           'g.name as bank_account,a.payment_method,h.name payment_method_name,g.bank_id,a.prepare_notes,DATE_FORMAT(a.prepared_date,\'%Y-%m-%d\') prepared_date, '+
+           'g.bank_account as bank_account,a.payment_method,h.name payment_method_name,g.bank_id,a.prepare_notes,DATE_FORMAT(a.prepared_date,\'%Y-%m-%d\') prepared_date, '+
            'DATE_FORMAT(a.issued_date,\'%Y-%m-%d\') issued_date,DATE_FORMAT(a.approved_date,\'%Y-%m-%d\') approved_date,DATE_FORMAT(a.created_date,\'%Y-%m-%d\')created_date, '+
            'i.name approved_by_name,j.name prepared_by_name,k.name issued_by_name,l.name created_by_name, '+
            'm.id gl_account_id,m.code gl_account_code,m.name gl_account_name, '+
