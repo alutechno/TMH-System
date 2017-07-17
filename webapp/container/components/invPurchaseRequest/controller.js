@@ -74,16 +74,20 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     'where a.doc_status_id=b.id '+
 	'and a.doc_status_id!=8 '
     var qwhere = '';
-    var qstringdetail = 'select a.id as p_id,a.product_id,b.code as product_code,d.name unit_name,b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,a.order_notes '+
+    var qstringdetail = 'select a.id as p_id,a.cost_center_id,e.name cost_center_name,concat(\'Department: \',f.name) dept_desc,a.product_id,b.code as product_code,d.name unit_name,b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,a.order_notes '+
         'from inv_pr_line_item a '+
         'left join mst_product b on a.product_id = b.id '+
         'left join mst_supplier c on a.supplier_id = c.id '+
-        'left join ref_product_unit d on b.unit_type_id=d.id '
-    var qstringdetailnon = 'select a.id as p_id,a.product_id,b.code as product_code,a.product_unit unit_name,a.product_name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,a.order_notes '+
+        'left join ref_product_unit d on b.unit_type_id=d.id '+
+		'left join mst_cost_center e on a.cost_center_id=e.id '+
+		'left join mst_department f on f.id=e.department_id '
+    var qstringdetailnon = 'select a.id as p_id,a.cost_center_id,e.name cost_center_name,concat(\'Department: \',f.name) dept_desc,a.product_id,b.code as product_code,a.product_unit unit_name,a.product_name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,a.order_notes '+
         'from inv_pr_line_item a '+
         'left join mst_product b on a.product_id = b.id '+
         'left join mst_supplier c on a.supplier_id = c.id '+
-        'left join ref_product_unit d on b.unit_type_id=d.id '
+        'left join ref_product_unit d on b.unit_type_id=d.id '+
+		'left join mst_cost_center e on a.cost_center_id=e.id '+
+		'left join mst_department f on f.id=e.department_id '
     $scope.users = []
 
     $scope.role = {
@@ -686,10 +690,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }
 
     $scope.addDetail = function(ids){
-        queryService.post(qstring+' and a.id='+ids,undefined)
-        .then(function (result){
-            queryService.post(($scope.stat.pr=='pr'?qstringdetail:qstringdetailnon) + ' where a.pr_id='+ids,undefined)
+        /*queryService.post(qstring+' and a.id='+ids,undefined)
+        .then(function (result){*/
+			queryService.post(($scope.stat.pr=='pr'?qstringdetail:qstringdetailnon) + ' where a.pr_id='+ids,undefined)
             .then(function(data){
+				console.log(data)
                 $scope.items = []
                 $scope.child.totalQty = 0
                 $scope.child.tAmt = 0
@@ -704,6 +709,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         product_code:data.data[i].product_code,
 						cost_center_id:data.data[i].cost_center_id,
                         cost_center_name:data.data[i].cost_center_name,
+						dept_desc:data.data[i].dept_desc,
                         product_name:data.data[i].product_name,
                         unit_name:data.data[i].unit_name,
 						order_notes: data.data[i].order_notes,
@@ -741,7 +747,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 DTColumnDefBuilder.newColumnDef(5).withOption('width', '35%'),
 				DTColumnDefBuilder.newColumnDef(6).withOption('width', '10%'),
             ];
-        })
+        //})
     }
 
     $scope.update = function(ids){
@@ -848,16 +854,15 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             else if (((result.data[0].doc_status_id==6&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==5 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalGm')>-1) $scope.viewMode = false
             else if (((result.data[0].doc_status_id==7&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==6 && result.data[0].approval_status==1)) && $scope.el.indexOf('prReleased')>-1) $scope.viewMode = false
             else $scope.viewMode = true
-
-            if ($scope.pr.purchase_type == 'NDI') {
+			if ($scope.pr.purchase_type == 'NDI') {
 				$scope.stat.pr = 'pr'
 				$scope.direct='non'
 			}else if ($scope.pr.purchase_type == 'NDN'){
-				$scope.stat.pr = 'non'
-				$scope.direct='non'
-			}else if($scope.pr.purchase_type == 'DI'){
 				$scope.stat.pr = 'pr'
 				$scope.direct='direct'
+			}else if($scope.pr.purchase_type == 'DI'){
+				$scope.stat.pr = 'non'
+				$scope.direct='non'
 			}else{
 				$scope.stat.pr = 'non'
 				$scope.direct='direct'
