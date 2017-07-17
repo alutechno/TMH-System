@@ -233,7 +233,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     .withOption('bLengthChange', false)
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
-    .withOption('order', [1, 'desc'])
+    .withOption('order', [0, 'desc'])
     .withDisplayLength(15)
     .withOption('scrollX',true)
     .withOption('createdRow', $scope.createdRow)
@@ -385,10 +385,17 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
             if ($scope.items.length>0 && $scope.child.totalQty>0){
                 var param = {}
-                queryService.post('select next_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
-                .then(function(data){
-                    $scope.pr.code = data.data[0].code
-                })
+				if($scope.direct=='non'){
+	                queryService.post('select next_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
+	                .then(function(data){
+	                    $scope.pr.code = data.data[0].code
+	                })
+				}else{
+					queryService.post('select next_document_no(\'DP\',\''+$scope.ym+'\') as code',undefined)
+	                .then(function(data){
+	                    $scope.pr.code = data.data[0].code
+	                })
+				}
 
                 param = {
                     code: $scope.pr.code,

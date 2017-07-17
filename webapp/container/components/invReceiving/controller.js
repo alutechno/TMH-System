@@ -400,7 +400,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 				po_id:$scope.po.po_id,
 				receive_date: globalFunction.currentDate(),
 				receive_notes:$scope.po.notes,
-				received_status:0,
+				received_status:$scope.selected.delivery_status.selected.id,
 				currency_id:$scope.po.currency_id,
 				home_currency_exchange:$scope.po.home_currency_exchange,
 				total_amount:$scope.po.total_amount,
