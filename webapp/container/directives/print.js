@@ -21,7 +21,7 @@
         function link(scope, element, attrs) {
             element.on('click', function () {
                 //var elemToPrint = document.getElementById('printSection');
-                //if (elemToPrint) {
+				//if (elemToPrint) {
                     printElement();
                     window.print();
                 //}

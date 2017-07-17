@@ -961,6 +961,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             }*/
             $scope.trans = []
             $scope.transOri = []
+			$scope.total_payment=0
+			$scope.total_due=0
+			$scope.total_paid=0
 
             queryService.post(qstringt+ ' and c.payment_id='+obj.id,undefined)
             .then(function(result2){
@@ -983,6 +986,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                             current_due_amount: d[i].current_due_amount
                         }
                     )
+					$scope.total_due+=parseInt(d[i].total_amount)
+					$scope.total_paid+=parseInt(d[i].paid_amount)
+		            $scope.total_payment += parseInt(d[i].current_due_amount)
                     queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,paid_amount,current_due_amount '+
                         'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
                             'and column_name = \'status\')b '+
@@ -1311,10 +1317,16 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
     }
     $scope.setPayment = function(e,d,p){
-        console.log('setPayment',$scope.ap.exchange)
         $scope.trans[d-1].current_due_amount = parseInt(p)*($scope.ap.exchange?$scope.ap.exchange:1)
+		$scope.total_payment=0
+		$scope.total_due=0
+		$scope.total_paid=0
+		for (var i=0;i<$scope.trans.length;i++){
+			$scope.total_due+=parseInt($scope.trans[i].total_amount)
+			$scope.total_paid+=parseInt($scope.trans[i].paid_amount)
+            $scope.total_payment += parseInt($scope.trans[i].current_due_amount)
+        }
     }
-
 })
 .controller('EditableTableAppgCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {
     $scope.item = {

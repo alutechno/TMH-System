@@ -20,7 +20,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     }
 
     var qstring = "select a.id,a.code,a.pr_id,a.ml_id,DATE_FORMAT(a.created_date,'%Y-%m-%d') created_date,DATE_FORMAT(a.delivery_date,'%Y-%m-%d') as delivery_date, "+
-    	"a.po_source,a.supplier_id, a.warehouse_id, a.cost_center_id, a.notes, a.doc_submission_date, a.delivery_type,a.delivery_status,a.receive_status,  "+
+    	"a.po_source,a.is_inventory_item,a.supplier_id, a.warehouse_id, a.cost_center_id, a.notes, a.doc_submission_date, a.delivery_type,a.delivery_status,a.receive_status,  "+
         "a.payment_type,a.due_days,a.currency_id, b.name supplier_name,c.name cost_center_name,d.name warehouse_name,g.dept_name dept, b.address supplier_address, "+
         "b.contact_person supplier_cp,b.phone_number supplier_phone,b.fax_number supplier_fax,date_format(date_add(released_date,interval due_days day),'%Y-%m-%d')expired_date, "+
         "format((SELECT SUM(amount) FROM inv_po_line_item item WHERE item.po_id = a.id),0) AS 'Total',  "+
@@ -40,15 +40,19 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
     "	left join user b on a.created_by = b.id "+
     "	left join mst_department c on b.department_id = c.id) g on a.ml_id = g.id"
     var qwhere = '';
-    var qstringdetail = 'select a.id as p_id,a.product_id,b.code product_code, b.name as product_name,a.order_qty qty,a.price,a.amount,c.name unit_name,a.order_notes '+
+    var qstringdetail = 'select a.id as p_id,a.product_id,a.cost_center_id,e.name cost_center_name,concat(\'Department: \',f.name) dept_desc,b.code product_code, b.name as product_name,a.order_qty qty,a.price,a.amount,c.name unit_name,a.order_notes '+
         'from inv_po_line_item a '+
         'left join mst_product b on a.product_id = b.id '+
-        'left join ref_product_unit c on b.unit_type_id = c.id';
-    var qstringdetailnon = 'select a.id as p_id,a.product_id,\'\' product_code, a.product_name as product_name,a.order_qty qty,a.price,a.amount,a.product_unit unit_name,a.order_notes '+
+        'left join ref_product_unit c on b.unit_type_id = c.id '+
+		'left join mst_cost_center e on a.cost_center_id=e.id '+
+		'left join mst_department f on f.id=e.department_id ';
+    var qstringdetailnon = 'select a.id as p_id,a.product_id,a.cost_center_id,e.name cost_center_name,concat(\'Department: \',f.name) dept_desc,\'\' product_code, a.product_name as product_name,a.order_qty qty,a.price,a.amount,a.product_unit unit_name,a.order_notes '+
         'from inv_po_line_item a '+
         'left join mst_product b on a.product_id = b.id '+
-        'left join ref_product_unit c on b.unit_type_id = c.id';
-    $scope.users = []
+        'left join ref_product_unit c on b.unit_type_id = c.id '+
+		'left join mst_cost_center e on a.cost_center_id=e.id '+
+		'left join mst_department f on f.id=e.department_id '
+	$scope.users = []
 
     $scope.role = {
         selected: []
@@ -397,8 +401,6 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 
     $scope.submit = function(){
 		$scope.disableAction = true;
-        console.log(JSON.stringify($scope.po))
-        console.log(JSON.stringify($scope.items))
         if ($scope.po.id.length==0 ){
             //exec creation
             if ($scope.items.length>0){
@@ -422,10 +424,8 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                     created_date: globalFunction.currentDate()
                 }
 
-                console.log(param)
                 queryService.post('insert into inv_purchase_order set ?',param)
                 .then(function (result){
-                    console.log(result.data.insertId)
                     var q = $scope.child.saveTable(result.data.insertId)
                     queryService.post(q.join(';'),undefined)
                     .then(function (result3){
@@ -478,8 +478,6 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             }
         }
         else {
-            console.log($scope.po)
-            console.log($scope.items)
             //exec update
             param = {
                 code: $scope.po.code,
@@ -506,10 +504,8 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 
             queryService.post('update inv_purchase_order set ? where id='+$scope.po.id,param)
             .then(function (result){
-                console.log(result)
                 result.data['insertId'] = $scope.po.id
                 if ($scope.po.delivery_status == 1){
-                    console.log('CALL `po-receive`('+$scope.po.id+','+$localStorage.currentUser.name.id+')')
                     queryService.post('CALL `po-receive`('+$scope.po.id+','+$localStorage.currentUser.name.id+')', undefined)
                     .then(function (result2){
                         console.log(result2)
@@ -876,6 +872,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
                         product_id:result2.data[i].product_id,
                         product_code:result2.data[i].product_code,
                         product_name: result2.data[i].product_name,
+						cost_center_name: result2.data[i].cost_center_name,
                         price:result2.data[i].price,
 						order_notes:result2.data[i].order_notes,
                         qty: result2.data[i].qty,
@@ -1182,4 +1179,12 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
 	$scope.updateNotes = function(e,d,p){
 		$scope.items[d-1].order_notes = p
 	}
+	$scope.cost_centers = [];
+	queryService.post('select a.id, a.code,upper(a.name) as name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
+		'from mst_cost_center a, mst_department b '+
+		'where a.department_id = b.id and a.status=1 '+
+		'order by a.code asc',undefined)
+	.then(function(data){
+		$scope.cost_centers = data.data
+	})
 });

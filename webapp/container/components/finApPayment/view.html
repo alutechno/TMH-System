@@ -5,6 +5,7 @@
 }
 
 </style>
+<!--
 <div id="printSection">
     <div class="row">
         <table width="98%">
@@ -128,6 +129,151 @@
         </table>
     </div>
 </div>
+-->
+<div id="printSection">
+    <div class="row">
+        <table width="98%">
+            <tr>
+                <td width="50%" align="center">
+                    <div class="brand inline text-center center">
+                        <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="200" height="40">
+                    </div>
+                    <br><br><br>
+                    <span class="text-center" style="align:center;">JL. GUNUNG SAHARI RAYA NO.3 JAKARTA 10720</span>
+                    <br>
+                    <span class="text-center">PHONE : (62-21) 626 3001</span>&nbsp;&nbsp;
+                    <span class="text-center">FAX : (62-21) 626 3024</span>
+                    <br><br>
+                    <span class="text-center">OWNED BY PT.GRAHASAHARI SURYAJAYA</span>
+                    <br>
+                    <span class="text-center">NPWP. 01.573.522.8-026.000</span>
+                </td>
+                <td width="50%" align="center">
+                    <table border="0" width="80%" align="center">
+                        <tr>
+                            <td align="left" ><b>DOCUMENT#</b></td>
+                            <td>
+                                {{ap.code}}<br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="left" ><b>BANK</b></td>
+                            <td>
+                                {{selected.bank.selected.name}}<br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="left" ><b>BANK ACCOUNT</b></td>
+                            <td>
+                                {{ap.bank_account}}<br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="left" ><b>CHECK NO</b></td>
+                            <td>
+                                {{ap.check_no}}<br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="left" ><b>OPEN DATE</b></td>
+                            <td>
+                                {{ap.open_date}}<br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="left" ><b>CHECK DUE DATE</b></td>
+                            <td>
+                                {{ap.due_date}}<br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="left" ><b>PREPARE DATE</b></td>
+                            <td>
+                                {{ap.prepared_date}}<br>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <br>
+            <tr>
+                <td>&nbsp;</td>
+                <td align="center"> <b>Direct Payment</b> </td>
+            </tr>
+
+        </table>
+        <br>
+        <table width="89%" cellpadding="5" border="1" align="center">
+            <thead>
+            <tr>
+				<td align="center">Voucher</td>
+                <td align="center">Open Date</td>
+                <td align="center">Due Date</td>
+                <td align="center">Source</td>
+                <td align="center">Total Due</td>
+                <td align="center">Paid</td>
+                <td align="center">Payment</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="item in trans | filter:filterUser">
+                <td>{{item.code}}</td>
+                <td> {{item.open_date}}</td>
+                <td>{{ item.due_date}}</td>
+                <td>{{ item.source}}</td>
+                <td style="text-align: right;">{{ item.total_amount| number : fractionSize}}</td>
+				<td style="text-align: right;">{{ item.paid_amount| number : fractionSize}}</td>
+				<td style="text-align: right;">{{ item.current_due_amount| number : fractionSize}}</td>
+
+            </tr>
+            </tbody>
+            <tfooter width="80%" border="1" align="center">
+                <tr>
+					<td border="0"></td>
+					<td></td>
+					<td></td>
+                    <td width="10%" style="text-align: center;">Total</td>
+                    <td width="10%" style="text-align: right;"><span >{{total_due| number : fractionSize}}</span></td>
+                    <td width="10%" style="text-align: right;"><span >{{total_paid| number : fractionSize}}</span></td>
+                    <td width="10%" style="text-align: right;"><span >{{total_payment| number : fractionSize}}</span></td>
+                </tr>
+            </tfooter>
+        </table>
+    </div>
+	<div class="footer">
+		<table width="89%">
+			<tr>
+				<td>prepared by</td>
+				<td>approved by</td>
+				<td>approved by</td>
+				<td>received by</td>
+			</tr>
+			<tr><td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td></tr>
+			<tr><td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td></tr>
+			<tr><td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td></tr>
+			<tr><td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td></tr>
+			<tr>
+				<td>AP</td>
+				<td>cost control</td>
+				<td>General manager</td>
+				<td>supplier</td>
+			</tr>
+		</table>
+	</div>
+</div>
+
 <div class="full-height m-t-40">
     <!-- TABLES VIEW -->
     <div class="container-fluid container-fixed-lg">
@@ -142,7 +288,7 @@
                     <span ng-click="exportExcel()">
                         <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
                     </span>
-					<button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
+					<!--<button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>-->
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Payment</button>
                     <!--<button class="btn btn-primary" ng-print print-element-id="printThisElement" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>-->
 
@@ -622,6 +768,7 @@
               <div class="clearfix"></div>
               <div class="divider"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction" ng-click="submit()" >Save</button>
+			  <button class="btn btn-primary" ng-click="test()" ng-print print-element-id="printSection"><i class="fa fa-print"></i> Print</button>
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>
       </div>

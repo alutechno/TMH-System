@@ -486,9 +486,10 @@
                                             <tr>
                                                 <th width="5%"><span ng-show="tableform.$visible">Action</span></th>
                                                 <th width="5%">Code</th>
-                                                <th width="20%">Product</th>
+                                                <th width="15%">Product</th>
                                                 <th width="5%">Unit</th>
-												<th width="20%">Notes</th>
+												<th width="15%" ng-if="po.po_source=='DP'">Cost center</th>
+												<th width="15%">Notes</th>
                                                 <th width="5%">Qty</th>
                                                 <th width="15%">Price</th>
                                                 <th width="15%">Amount</th>
@@ -504,19 +505,10 @@
                                                     </div>
                                                 </td>
                                                 <td><span>{{item.product_code}}</span></td>
-                                                <td >
-                                                    <span editable-ui-select="item.product_name" theme="bootstrap" data-e-name="product_name" name="account" data-e-ng-model="selected.account.selected"
-                                                    data-e-form="tableform" data-e-ng-keyup="productUp(item.id,$select.search)" data-e-on-select="getProduct($item,item.id)" >
-                                                    {{item.product_name}}
-                                                          <editable-ui-select-match placeholder="select product" style="width: 300px" >
-                                                              {{item.product_name || 'Empty'}}
-                                                          </editable-ui-select-match>
-                                                          <editable-ui-select-choices repeat="d in product[item.id] | filter: $select.search" style="width: 300px" >
-                                                              <div ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></div>
-                                                          </editable-ui-select-choices>
-                                                    </span>
-                                                </td>
+
+												<td><span>{{item.product_name}}</span></td>
                                                 <td><span>{{item.unit_name}}</span></td>
+												<td ng-if="po.po_source=='DP'"><span>{{item.cost_center_name}}</span></td>
 												<td>
                                                     <span editable-textarea="item.order_notes" e-form="tableform" data-e-ng-keyup="updateNotes($event,item.id,$data)">
                                                         {{ item.order_notes }}
