@@ -546,7 +546,7 @@ module.exports = function(connection,jwt){
 
     app.get('/getRoleMenus2', function (req, res) {
         //Handle Request From Angular DataTables
-        var dtParam = req.query
+		var dtParam = req.query
         var where = '';
         if (req.query.id){
             where = ' where id='+req.query.id
@@ -568,7 +568,7 @@ module.exports = function(connection,jwt){
 
     app.get('/getRoleMenus', function (req, res) {
         //Handle Request From Angular DataTables
-        var dtParam = req.query
+		var dtParam = req.query
         var where = '';
         if (req.query.id){
             where = ' where id='+req.query.id
@@ -585,14 +585,14 @@ module.exports = function(connection,jwt){
         '( '+
         'select a.*,b.label '+
         'from role_menu a,menu_detail b '+
-        'where a.menu_detail_id = b.id) b '+
+        'where a.menu_detail_id = b.id ) b '+
         'ON a.id = b.menu_id '+
         'group by a.id,b.menu_detail_id'
-        connection(sqlstr, undefined,function(err, rows, fields) {
+		connection(sqlstr, undefined,function(err, rows, fields) {
             if (err) throw err;
             var resObj = {}
             for (var i=0;i<rows.length;i++){
-                if (!resObj.hasOwnProperty(rows[i].id)){
+				if (!resObj.hasOwnProperty(rows[i].id)){
                     resObj[rows[i].id] = {
                         id: rows[i].id,
                         parent_id: rows[i].parent_id,

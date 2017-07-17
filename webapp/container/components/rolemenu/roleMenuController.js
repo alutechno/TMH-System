@@ -69,8 +69,7 @@ function($scope, $state, $sce, roleService, menuService, roleMenuService,
                 return html
             }
             $scope.actionsHtmlAccess = function(data, type, full, meta) {
-				console.log('test')
-                console.log(data)
+				console.log(data)
                 $scope.roles[data.id] = data;
                 var html = '<div class="btn-group btn-group-xs">'
                 for (var i=0;i<data.detail.length;i++){

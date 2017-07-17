@@ -377,11 +377,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 			else
 				$scope.supp[$scope.items[i].supplier_id].push($scope.items[i])
 		}
-		//$scope.apply;
+
 		setTimeout(function(){
-			var printSection = document.getElementById('printSection');
-			var domClone = printSection.cloneNode(true);
-	        printSection.appendChild(domClone);
 			window.print();
 		}, 100)
 	}
@@ -991,7 +988,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 		$scope.disableAction = false;
         $scope.updateState = false
     }
-
 })
 .controller('EditableTableMlCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {
     $scope.item = {

@@ -72,7 +72,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             'left join mst_department b on a.department_id = b.id) e  '+
         'on a.created_by = e.id '+
     'where a.doc_status_id=b.id '+
-	'and a.doc_status_id!=8 and a.purchase_type in (\'NDI\',\'NDN\') '
+	'and a.doc_status_id!=8 '
     var qwhere = '';
     var qstringdetail = 'select a.id as p_id,a.product_id,b.code as product_code,d.name unit_name,b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,a.order_notes '+
         'from inv_pr_line_item a '+
@@ -102,7 +102,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.totalPrice = 0
     $scope.child.tAmt = 0
 
-
     $scope.id = '';
     $scope.pr = {
         id: '',
@@ -111,7 +110,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         delivery_date: '',
         cost_center_id: ''
     }
-
 
     $scope.delivery_types = [
         {
@@ -155,7 +153,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
 	$scope.popup_history = function(){
 		$scope.popup=!$scope.popup;
-		console.log($scope.popup)
 	}
     queryService.get('select a.id, a.code,upper(a.name) as name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
         'from mst_cost_center a, mst_department b '+
@@ -372,6 +369,13 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
     $scope.submit = function(){
 		$scope.disableAction = true;
+		var purchase_type='DN'
+		if($scope.stat.pr=='pr' && $scope.direct=='non')
+			purchase_type='NDI'
+		else if($scope.stat.pr=='pr' && $scope.direct=='direct')
+			purchase_type='NDN'
+		else if($scope.stat.pr=='non' && $scope.direct=='non')
+			purchase_type='DI'
 		if ($scope.pr.id.length==0 ){
             //exec creation
             $scope.child.totalQty = 0
@@ -385,6 +389,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 .then(function(data){
                     $scope.pr.code = data.data[0].code
                 })
+
                 param = {
                     code: $scope.pr.code,
                     purchase_notes: $scope.pr.purchase_notes,
@@ -394,7 +399,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     cost_center_id: $scope.selected.cost_center.selected?$scope.selected.cost_center.selected.id:null,
                     created_by: $localStorage.currentUser.name.id,
                     created_date: globalFunction.currentDate(),
-                    purchase_type: $scope.stat.pr=='pr'?'NDI':'NDN',
+                    purchase_type: purchase_type,
                     approval_status:$scope.selected.approval
                 }
                 queryService.post('insert into inv_purchase_request set ?',param)
@@ -494,6 +499,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 doc_status_id:($scope.selected.approval==2?1:$scope.selected.doc_status.selected.id),
                 warehouse_id:$scope.selected.warehouse.selected.id,
                 cost_center_id:$scope.selected.cost_center.selected.id,
+				purchase_type: purchase_type,
                 revision_counter:($scope.pr.revision_counter+1),
                 modified_by:$localStorage.currentUser.name.id,
                 modified_date:globalFunction.currentDate(),
@@ -836,8 +842,19 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             else if (((result.data[0].doc_status_id==7&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==6 && result.data[0].approval_status==1)) && $scope.el.indexOf('prReleased')>-1) $scope.viewMode = false
             else $scope.viewMode = true
 
-            if ($scope.pr.purchase_type == 'NDI') $scope.stat.pr = 'pr'
-            else if ($scope.pr.purchase_type == 'NDN') $scope.stat.pr = 'non'
+            if ($scope.pr.purchase_type == 'NDI') {
+				$scope.stat.pr = 'pr'
+				$scope.direct='non'
+			}else if ($scope.pr.purchase_type == 'NDN'){
+				$scope.stat.pr = 'non'
+				$scope.direct='non'
+			}else if($scope.pr.purchase_type == 'DI'){
+				$scope.stat.pr = 'pr'
+				$scope.direct='direct'
+			}else{
+				$scope.stat.pr = 'non'
+				$scope.direct='direct'
+			}
             $scope.addDetail(ids)
         },
         function (err){
@@ -948,6 +965,21 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 		$scope.stat = {pr:'pr'}
 		$scope.direct='non';
     }
+
+	$scope.change = function(flag){
+		if(flag=='d'){
+			//queryService.post('select cast(concat(\'PR/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'PR\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+	        queryService.post('select curr_document_no(\'DP\',\''+$scope.ym+'\') as code',undefined)
+	        .then(function(data){
+	            $scope.pr.code = data.data[0].code
+	        })
+		}else{
+			queryService.post('select curr_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
+			.then(function(data){
+				$scope.pr.code = data.data[0].code
+			})
+		}
+	}
 })
 .controller('EditableTableCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {
     $scope.item = {
