@@ -44,14 +44,15 @@ span.ui-select-match-text.pull-left {
   position: absolute;
   right: 10px;
 }
-
+.table.table {
+	overflow-x: scroll !important;
+}
 .table.table-condensed tbody tr td {
     white-space: nowrap;
     vertical-align: middle;
     overflow: hidden;
     text-overflow: clip;
 }
-
 
 .itemtable tbody tr td {
     padding: 5px !important;

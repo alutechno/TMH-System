@@ -341,7 +341,7 @@
 
 <div ng-controller="EditableTableCtrl" ng-form editable-form name="tableform" onaftersave="child.saveTable()" oncancel="cancel()">
                       <!-- table -->
-                      <table class="table  table-hover itemtable">
+                      <table class="table" >
                           <thead>
                           <tr>
                               <th width="7%"><span ng-show="tableform.$visible">Action</span></th>
@@ -356,7 +356,7 @@
                               <th width="9%">Amount</th>
                           </tr>
                           </thead>
-                          <tbody>
+                          <tbody >
                           <tr ng-repeat="item in items | filter:filterUser">
                               <td style="vertical-align: middle;">
                                   <div class="btn-group btn-group-xs" ng-show="tableform.$visible">

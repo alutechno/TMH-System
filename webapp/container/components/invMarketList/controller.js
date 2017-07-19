@@ -1069,11 +1069,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.child.saveTable = function(pr_id) {
         var results = [];
         var sqlitem = []
-		console.log("items")
 		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
-			console.log(user)
-            // actually delete user
+		    // actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);
             }*/

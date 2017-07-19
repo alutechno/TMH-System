@@ -407,15 +407,16 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 				faktur_no:$scope.po.faktur_no,
 				created_by:$localStorage.currentUser.name.id
 			}
+			console.log(param)
 			var dt = new Date()
 	        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-			queryService.post('select curr_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
+			queryService.post('select next_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
 			.then(function(data){
-				$scope.pr.code = data.data[0].code
+				//$scope.po.code = data.data[0].code
 			})
 			var sql=`start transaction;
 			insert into inv_po_receive (code,po_id,receive_date,receive_notes,received_status,currency_id,home_currency_exchange,total_amount,inv_no,faktur_no,created_by)
-			values('`+$scope.po.code+`',`+$scope.po.po_id+`,'`+$scope.po.delivery_date+`','`+$scope.po.notes+`',0,`+$scope.po.currency_id+`,`+$scope.po.home_currency_exchange+`
+			values('`+$scope.po.code+`',`+$scope.po.po_id+`,'`+$scope.po.delivery_date+`','`+$scope.po.notes+`',`+$scope.selected.delivery_status.selected.id+`,`+$scope.po.currency_id+`,`+$scope.po.home_currency_exchange+`
 				,`+$scope.po.TotalSum+`,`+$scope.po.inv_no+`,`+$scope.po.faktur_no+`,`+$localStorage.currentUser.name.id+`);
 			set @id=(select last_insert_id());`
 			for (var i =0;i< $scope.items.length; i++) {
@@ -460,7 +461,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 inv_no: $scope.po.inv_no,
 				faktur_no: $scope.po.faktur_no,
                 modified_by: $localStorage.currentUser.name.id,
-                modified_date: globalFunction.currentDate()
+                modified_date: globalFunction.currentDatf
             }
 
             queryService.post('update inv_po_receive set ? where id='+$scope.po.id,param)
