@@ -1,23 +1,21 @@
 <div id="printSection">
-    <div class="header-inner ">
+	<div class="row" ng-repeat="(key, val) in supp">
         <h3 class="text-center">Purchase Request</h3>
         <!--<div class="brand inline text-center center">
             <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="156" height="32">
         </div>-->
-    </div>
-    <div>
         <table class="table  table-condensed">
             <thead>
             <tr>
-                <th width="30%">Product</th>
+                <th width="20%">Product</th>
                 <th width="10%">Qty</th>
                 <th width="15%">Price</th>
                 <th width="15%">Amount</th>
-                <th width="30%">Supplier</th>
+                <th width="20%">Supplier</th>
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="item in items | filter:filterUser">
+            <tr ng-repeat="item in supp[key]">
                 <td >{{item.product_name}}
                 </td>
                 <td style="text-align: right;">
@@ -36,11 +34,11 @@
             </tbody>
             <tfooter >
                 <tr>
-                    <th width="10%" style="text-align: center;">Total</th>
-                    <th width="10%" style="text-align: right;"><span >{{child.totalQty | number : fractionSize}}</span></th>
-                    <th width="10%">&nbsp;</th>
-                    <th width="10%" style="text-align: right;"><span >{{child.tAmt | number : fractionSize}}</span></th>
-                    <th width="30%">&nbsp;</th>
+                    <th width="20%" style="text-align: center;">Total</th>
+                    <th width="10%" style="text-align: right;"><span >{{tot_qty[key] | number : fractionSize}}</span></th>
+                    <th width="15%">&nbsp;</th>
+                    <th width="15%" style="text-align: right;"><span >{{tot_amt[key] | number : fractionSize}}</span></th>
+                    <th width="20%">&nbsp;</th>
                 </tr>
             </tfooter>
         </table>
@@ -484,7 +482,7 @@
               <div class="row divider"></div>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction" ng-show="releaseState" ng-click="submit()" >Save</button>
-              <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false" ng-if="selected.doc_status.selected.id==3||pr.doc_status_id==7"><i class="fa fa-print"></i> Print</button>
+			  <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-click="reformat()" ng-if="selected.doc_status.selected.id==3||pr.doc_status_id==7"><i class="fa fa-print"></i> Print</button>
               <button class="btn btn-default" ng-show="selected.doc_status.selected.id!=7"><i class="pg-close"></i> Clear</button>
           </form>
       </div>

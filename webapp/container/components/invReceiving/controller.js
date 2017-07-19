@@ -384,8 +384,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $('#form-input').modal('show')
         $scope.addDetail(0)
         var dt = new Date()
-
-        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
         queryService.post('select curr_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
         .then(function(data){
             $scope.po.code = data.data[0].code
@@ -408,6 +407,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 				faktur_no:$scope.po.faktur_no,
 				created_by:$localStorage.currentUser.name.id
 			}
+			var dt = new Date()
+	        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+			queryService.post('select curr_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
+			.then(function(data){
+				$scope.pr.code = data.data[0].code
+			})
 			var sql=`start transaction;
 			insert into inv_po_receive (code,po_id,receive_date,receive_notes,received_status,currency_id,home_currency_exchange,total_amount,inv_no,faktur_no,created_by)
 			values('`+$scope.po.code+`',`+$scope.po.po_id+`,'`+$scope.po.delivery_date+`','`+$scope.po.notes+`',0,`+$scope.po.currency_id+`,`+$scope.po.home_currency_exchange+`
