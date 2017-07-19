@@ -23,6 +23,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.stat = {pr:'pr'}
 	$scope.direct='non';
 	$scope.supp={};
+	$scope.tot_amt={};
+	$scope.tot_qty={};
     for (var i=0;i<$scope.el.length;i++){
 
         if ($scope.el[i]=='approvalDeptHead'){
@@ -379,15 +381,15 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 		for(var i=0;i<$scope.items.length;i++){
 			if(!$scope.supp[$scope.items[i].supplier_id]){
 				$scope.supp[$scope.items[i].supplier_id]=[$scope.items[i]]
-				$scope.tot_amt[$scope.items[i].supplier_id]=[$scope.items[i].price]
-				$scope.tot_qty[$scope.items[i].supplier_id]=[$scope.items[i].qty]
+				$scope.tot_amt[$scope.items[i].supplier_id]=$scope.items[i].price
+				$scope.tot_qty[$scope.items[i].supplier_id]=$scope.items[i].qty
 			}else{
 				$scope.supp[$scope.items[i].supplier_id].push($scope.items[i])
 				$scope.tot_amt[$scope.items[i].supplier_id]+=$scope.items[i].price
 				$scope.tot_qty[$scope.items[i].supplier_id]+=$scope.items[i].qty
 			}
 		}
-		console.log($scope.supp)
+		console.log($scope.tot_amt)
 		setTimeout(function(){
 			window.print();
 		}, 100)

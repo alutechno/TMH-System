@@ -15,6 +15,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.seqState = 1;
     $scope.disableAction = false;
 	$scope.supp={}
+	$scope.tot_amt={};
+	$scope.tot_qty={};
     for (var i=0;i<$scope.el.length;i++){
 
         if ($scope.el[i]=='approvalDeptHead'){
@@ -372,10 +374,15 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 	$scope.reformat = function(){
 		$scope.supp={};
 		for(var i=0;i<$scope.items.length;i++){
-			if(!$scope.supp[$scope.items[i].supplier_id])
+			if(!$scope.supp[$scope.items[i].supplier_id]){
 				$scope.supp[$scope.items[i].supplier_id]=[$scope.items[i]]
-			else
+				$scope.tot_amt[$scope.items[i].supplier_id]=$scope.items[i].price
+				$scope.tot_qty[$scope.items[i].supplier_id]=$scope.items[i].qty
+			}else{
 				$scope.supp[$scope.items[i].supplier_id].push($scope.items[i])
+				$scope.tot_amt[$scope.items[i].supplier_id]+=$scope.items[i].price
+				$scope.tot_qty[$scope.items[i].supplier_id]+=$scope.items[i].qty
+			}
 		}
 
 		setTimeout(function(){

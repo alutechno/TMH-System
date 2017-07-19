@@ -4,11 +4,11 @@
         <!--<div class="brand inline text-center center">
             <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="156" height="32">
         </div>-->
-        <table class="table  table-condensed">
+        <table border="1" width="89%" >
             <thead>
             <tr>
                 <th width="20%">Product</th>
-                <th width="10%">Qty</th>
+                <th width="5%">Qty</th>
                 <th width="15%">Price</th>
                 <th width="15%">Amount</th>
                 <th width="20%">Supplier</th>
@@ -35,7 +35,7 @@
             <tfooter >
                 <tr>
                     <th width="20%" style="text-align: center;">Total</th>
-                    <th width="10%" style="text-align: right;"><span >{{tot_qty[key] | number : fractionSize}}</span></th>
+                    <th width="10%" style="text-align: right;"><span >{{tot_qty | number : fractionSize}}</span></th>
                     <th width="15%">&nbsp;</th>
                     <th width="15%" style="text-align: right;"><span >{{tot_amt[key] | number : fractionSize}}</span></th>
                     <th width="20%">&nbsp;</th>
