@@ -359,5 +359,7 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
             discount2_percent: '',
             discount_amount: ''
         }
+        $scope.selected.supplier_id.selected = {}
+        $scope.selected.product_id.selected = {}
     }
 })
