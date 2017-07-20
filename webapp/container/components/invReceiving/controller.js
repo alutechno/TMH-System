@@ -1055,8 +1055,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 		        ','+($scope.po.home_currency_exchange*amt)+',0,\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+',"'+$scope.po.inv_no+'","'+$scope.po.faktur_no+'",'+amt+','+amt+')'
 			);
 			sqlitem.push("set @id=(select last_insert_id())");
-			 sqlitem.push('insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes,bookkeeping_date)'+
-				' values (next_item_code(\'GL\',\'AP\'), 1, @id, \'0\', \''+$scope.po.code+'\',curdate()) on duplicate KEY UPDATE '+
+			 sqlitem.push('insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes,bookkeeping_date,posted_by,created_by)'+
+				' values (next_item_code(\'GL\',\'AP\'), 1, @id, \'0\', \''+$scope.po.code+'\',curdate(),'+$localStorage.currentUser.name.id+','+$localStorage.currentUser.name.id+') on duplicate KEY UPDATE '+
 				'notes=\''+$scope.po.notes+'\'');
 
 			sqlitem.push("set @id=(select last_insert_id())");

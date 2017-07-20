@@ -591,8 +591,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                     }
                 }
 				if(sql2!=undefined){
-					var sql5=`insert into acc_gl_transaction (code,journal_type_id,sr_id,gl_status,notes,bookkeeping_date)
-						values("`+$scope.sr.code+`",15,`+$scope.sr.id+`,1,"`+$scope.sr.request_notes+`",curdate())`
+					var sql5=`insert into acc_gl_transaction (code,journal_type_id,sr_id,gl_status,notes,bookkeeping_date,posted_by,created_by)
+						values("`+$scope.sr.code+`",15,`+$scope.sr.id+`,1,"`+$scope.sr.request_notes+`",curdate(),`+$localStorage.currentUser.name.id+`,`+$localStorage.currentUser.name.id+`)`
 					var sql6='set @id=(select last_insert_id())'
 					var sql7=`insert into acc_gl_journal (gl_id,account_id,transc_type,amount,notes,bookkeeping_date)
 						values(@id,`+$scope.selected.cost_center.selected.account_id+`,'D',`+amount_tot+`,"`+$scope.sr.request_notes+`",curdate())`
