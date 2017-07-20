@@ -2,7 +2,7 @@
     <div class="row">
         <h2 align="center">G/L Transaction</h2>
         <br>
-        <table width="90%">
+        <table width="90%" style="margin-left:20px">
 			<tr>
 				<td >
 					<span class="text-center">Journal Code : {{selected.journal_type.selected.name}}</span>&nbsp;&nbsp;&nbsp;
@@ -25,11 +25,11 @@
         <table width="89%" cellpadding="5" border="1" align="center">
             <thead>
 				<tr>
-					<th width="15%">Account ID</th>
-					<th width="15%">Account Name</th>
-					<th width="20%">Notes</th>
-					<th width="10%">Debit</th>
-					<th width="10%">Credit</th>
+					<th width="15%" style="text-align:center">Account ID</th>
+					<th width="30%" style="text-align:center">Account Name</th>
+					<th width="30%" style="text-align:center">Notes</th>
+					<th width="10%" style="text-align:center">Debit</th>
+					<th width="10%" style="text-align:center">Credit</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -56,6 +56,31 @@
 					<td style="text-align:right"><span><b>{{total_credit|number:fractionSize}}</b></span></td>
 				</tr>
 				</tbody>
+        </table>
+        <table width="89%" border="0" align="center">
+            <tr height="150px">
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                </td>
+                <td>&nbsp;</td>
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                </td>
+                <td>&nbsp;</td>
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    Prepared by
+                </td>
+                <td>&nbsp;</td>
+                <td align="center">
+                    Posted by
+                </td>
+                <td>&nbsp;</td>
+                <td align="center">
+                    Approved by
+                </td>
+            </tr>
         </table>
         <br><br><br><br>
     </div>
