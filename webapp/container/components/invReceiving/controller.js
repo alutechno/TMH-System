@@ -384,7 +384,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $('#form-input').modal('show')
         $scope.addDetail(0)
         var dt = new Date()
-        $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        $scope.ym = dt.getFullYear()  + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
         queryService.post('select curr_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
         .then(function(data){
             $scope.po.code = data.data[0].code
@@ -409,7 +409,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 			}
 			console.log(param)
 			var dt = new Date()
-	        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+	        var ym = dt.getFullYear() + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
 			queryService.post('select next_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
 			.then(function(data){
 				//$scope.po.code = data.data[0].code
