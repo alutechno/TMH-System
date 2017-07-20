@@ -888,13 +888,13 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 			if (user.isNew && !user.isDeleted){
 
                 if (user.credit>0){
-                    $scope.total_credit += user.credit
+                    $scope.total_credit += parseFloat(user.credit)
                     sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
                     //pr_id+','+user.account_id+',\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
 					pr_id+',(select id from mst_ledger_account where code="' + user.account_code + '"),\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
 
                 }else{
-                    $scope.total_debit += user.debit
+                    $scope.total_debit += parseFloat(user.debit)
 					sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
                     //pr_id+','+user.account_id+',\'D\',\''+user.notes+'\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
 					pr_id+',(select id from mst_ledger_account where code="' + user.account_code + '"),\'D\',\''+user.notes+'\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
@@ -904,16 +904,16 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
             else if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from acc_gl_journal where id='+user.p_id)
                 if (user.credit>0){
-                    $scope.total_credit -= user.credit
+                    $scope.total_credit -= parseFloat(user.credit)
                 }else{
-                    $scope.total_debit -= user.debit
+                    $scope.total_debit -= parseFloat(user.debit)
 				}
             }
             else if(!user.isNew){
                 if (user.credit>0){
-                    $scope.total_credit += user.credit
+                    $scope.total_credit += parseFloat(user.credit)
                 }else{
-                    $scope.total_debit += user.debit
+                    $scope.total_debit += parseFloat(user.debit)
 				}
 				sqlitem.push('update acc_gl_journal set '+
 				' account_id = '+user.account_id+',' +
