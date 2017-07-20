@@ -1,3 +1,153 @@
+<div id="printSection">
+    <div class="row">
+        <table width="98%">
+            <tr>
+                <td width="50%" align="center">
+                    <div class="brand inline text-center center">
+                        <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="200" height="40">
+                    </div>
+
+                    <br><br><br>
+                    <span class="text-center" style="align:center;">JL. GUNUNG SAHARI RAYA NO.3 JAKARTA 10720</span>
+                    <br>
+                    <span class="text-center">PHONE : (62-21) 626 3001</span>&nbsp;&nbsp;
+                    <span class="text-center">FAX : (62-21) 626 3024</span>
+                    <br>
+                    <span class="text-center">NPWP. 01.573.522.8-026.000</span>
+                </td>
+                <td width="50%">
+					<span style="font-size:30px">
+						<b>Receiving</b>
+					</span>
+					<br>
+                    <br>
+					<span>
+						<b>DATE OF RECEIVE :</b> {{po.delivery_date}}
+					</span>
+					<br>
+					<span>
+						<b>PO NO. :</b> {{po.po_code}}
+					</span>
+
+					<br>
+					<span>
+						<b>RR NO. :</b> {{po.code}}
+					</span>
+					<br>
+					<span>
+						<b>Cost center :</b> {{selected.cost_center.selected.name}}
+					</span>
+					<br>
+					<span>
+						<b>Warehouse :</b> {{selected.warehouse.selected.name}}
+					</span>
+					<br>
+					<span>
+						<b>Supplier :</b> {{selected.supplier.selected.name}}
+					</span>
+                </td>
+            </tr>
+            <br>
+        </table>
+        <br>
+        <table width="89%" cellpadding="5" border="1" align="center">
+            <thead>
+            <tr>
+				<th width="15%">Product</th>
+				<th width="15%">Notes</th>
+				<th width="5%">Order Qty</th>
+				<th width="5%">Remaining</th>
+				<th width="10%">Rcv Qty</th>
+				<th width="15%">Price</th>
+				<th width="15%">Rcv Price</th>
+				<th width="15%">Amount</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="item in items | filter:filterUser">
+                <td>{{item.product_name}}</td>
+				<td>{{item.order_notes}}</td>
+                <td style="text-align: right;"> {{item.qty| number : fractionSize}}</td>
+                <td>
+                        {{ item.remaining_qty | number : fractionSize}}
+                </td>
+                <td style="text-align: right;">
+                        {{ item.rcv_qty | number : fractionSize}}
+                </td>
+                <td style="text-align: right;">
+                        {{ item.price | number : fractionSize}}
+                </td>
+				<td style="text-align: right;">
+                        {{ item.rcv_price | number : fractionSize}}
+                </td>
+				<td style="text-align: right;">
+                        {{ item.amount | number : fractionSize}}
+                </td>
+            </tr>
+            </tbody>
+            <tfooter width="80%" border="1" align="center">
+		        <tr>
+					<td></td>
+					<td style="text-align: right;">Total</td>
+					<td style="text-align: right;">{{order}}</td>
+					<td></td>
+					<td style="text-align: right;">{{rcv_qty}}</td>
+					<td></td>
+					<td></td>
+					<td style="text-align: right;">{{amount| number : fractionSize}}</td>
+                </tr>
+            </tfooter>
+        </table>
+		<span style="padding-left:87px;">
+			<i>Pengiriman ke The Media Hotel & Towers di tempat</i>
+		</span>
+		<br>
+		<span style="padding-left:87px;">
+			<i>penerimaan di Jalan Industri Entrance Weekdays - 8.30 AM to 3.00 PM</i>
+		</span>
+		<br><br>
+        <span width="89%" style="padding-left:87px;">
+            <b><i>Notes: This document is valid without a signature or the company stamp</i></b>
+        </span>
+		<br><br>
+		<br><br>
+		<br><br>
+
+        <table width="89%" cellpadding="5" border="0" align="center">
+            <tr>
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                </td>
+                <td>&nbsp;</td>
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                </td>
+                <td>&nbsp;</td>
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                </td>
+                <td>&nbsp;</td>
+                <td valign="top">
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    Purchasing Manager
+                </td>
+                <td>&nbsp;</td>
+                <td align="center">
+                    Financial Controller
+                </td>
+                <td>&nbsp;</td>
+                <td align="center">
+                    General Manager
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
 <div class="full-height m-t-40">
     <div class="container-fluid container-fixed-lg">
         <div class="panel panel-transparent">
@@ -255,6 +405,7 @@
               <div class="row divider"></div>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid || flag==true||disableAction " ng-click="submit()" >Save</button>
+			  <button class="btn btn-primary" type="submit" ng-show="finalState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>
       </div>
