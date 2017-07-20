@@ -1,6 +1,6 @@
 var userController = angular.module('app', []);
 userController
-.controller('PosReports',
+.controller('PosReportsGl',
 function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope, globalFunction,API_URL,BIRT_URL) {
 	$scope.el = [];
     $scope.el = $state.current.data;
