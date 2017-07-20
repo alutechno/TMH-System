@@ -519,8 +519,10 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 		                notes: $scope.ap.notes,
 		                ref_account: $scope.ap.ref_account
 		            }
-					if($scope.selected.status.selected.id==1)
+					if($scope.selected.status.selected.id==1){
 						param.posted_by=$localStorage.currentUser.name.id
+						param.posting_date=new Date()
+					}
 		            //queryService.post('insert into acc_ap_voucher SET ?',param)
 		            queryService.post('update acc_gl_transaction SET ? WHERE id='+$scope.ap.id ,param)
 		            .then(function (result){
@@ -598,8 +600,10 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 	                notes: $scope.ap.notes,
 	                ref_account: $scope.ap.ref_account
 	            }
-				if($scope.selected.status.selected.id==1)
+				if($scope.selected.status.selected.id==1){
 					param.posted_by=$localStorage.currentUser.name.id
+					param.posting_date=new Date()
+				}
 				//queryService.post('insert into acc_ap_voucher SET ?',param)
 	            queryService.post('update acc_gl_transaction SET ? WHERE id='+$scope.ap.id ,param)
 	            .then(function (result){
