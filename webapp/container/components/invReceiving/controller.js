@@ -407,7 +407,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 				faktur_no:$scope.po.faktur_no,
 				created_by:$localStorage.currentUser.name.id
 			}
-			console.log(param)
 			var dt = new Date()
 	        var ym = dt.getFullYear() + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
 			queryService.post('select next_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
