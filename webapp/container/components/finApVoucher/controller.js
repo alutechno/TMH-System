@@ -691,8 +691,8 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             queryService.post('update acc_ap_voucher SET ? WHERE id='+$scope.ap.id ,param)
             .then(function (result){
                 if ($scope.selected.status.selected.id=="1"){
-					var qq = 'insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes)'+
-                        ' values (\''+$scope.ap.code+'\', 1, '+$scope.ap.id+', \'0\', \''+$scope.ap.notes+'\') on duplicate KEY UPDATE '+
+					var qq = 'insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes,created_by)'+
+                        ' values (\''+$scope.ap.code+'\', 1, '+$scope.ap.id+', \'0\', \''+$scope.ap.notes+'\','+$localStorage.currentUser.name.id+') on duplicate KEY UPDATE '+
 						'notes=\''+$scope.ap.notes+'\''
                     queryService.post(qq ,undefined)
                     .then(function (result2){
@@ -753,7 +753,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 }
                 else if($scope.selected.status.selected.id=="2"){
 					var qs = 'update acc_ap_voucher set status ='+$scope.selected.status.selected.id+', open_date=\''+$scope.ap.open_date+'\' where id ='+$scope.ap.id+';'+
-                    'update acc_gl_transaction set bookkeeping_date=\''+$scope.ap.open_date+'\', gl_status = \'1\' where voucher_id ='+$scope.ap.id
+                    'update acc_gl_transaction set bookkeeping_date=\''+$scope.ap.open_date+'\', gl_status = \'1\',posted_by='+$localStorage.currentUser.name.id+' where voucher_id ='+$scope.ap.id
                     queryService.post(qs ,undefined)
                     .then(function (result3){
                             $('#form-input').modal('hide')
