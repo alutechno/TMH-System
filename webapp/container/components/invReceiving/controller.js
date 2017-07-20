@@ -783,7 +783,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 					$scope.amount=0;
 					$scope.rcv_qty=0;
 					$scope.po.delivery_date = date.getFullYear()+'-'+((date.getMonth() + 1)>9?(date.getMonth() + 1):'0'+(date.getMonth() + 1) )+ '-' + (date.getDate()>9?date.getDate():'0'+date.getDate())
-					$scope.ym = date.getFullYear() + '/' + (date.getMonth()<9?'0':'') + (date.getMonth()+1)
+					$scope.ym = date.getFullYear() + (date.getMonth()<9?'0':'') + (date.getMonth()+1)
 					queryService.post('select curr_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
 					.then(function(data){
 						console.log(data)
