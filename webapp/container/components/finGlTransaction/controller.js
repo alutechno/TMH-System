@@ -441,7 +441,8 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
                 bookkeeping_date: $scope.ap.bookkeeping_date,
                 gl_status: $scope.selected.status.selected.id,
                 notes: $scope.ap.notes,
-                ref_account: $scope.ap.ref_account
+                ref_account: $scope.ap.ref_account,
+				created_by: $localStorage.currentUser.name.id
             }
 			queryService.post('select next_item_code(\'GL\',\''+$scope.selected.journal_type.selected.code+'\') as code',undefined)
 			.then(function (data){
@@ -518,6 +519,8 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 		                notes: $scope.ap.notes,
 		                ref_account: $scope.ap.ref_account
 		            }
+					if($scope.selected.status.selected.id==1)
+						param.posted_by=$localStorage.currentUser.name.id
 		            //queryService.post('insert into acc_ap_voucher SET ?',param)
 		            queryService.post('update acc_gl_transaction SET ? WHERE id='+$scope.ap.id ,param)
 		            .then(function (result){
@@ -595,6 +598,8 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 	                notes: $scope.ap.notes,
 	                ref_account: $scope.ap.ref_account
 	            }
+				if($scope.selected.status.selected.id==1)
+					param.posted_by=$localStorage.currentUser.name.id
 				//queryService.post('insert into acc_ap_voucher SET ?',param)
 	            queryService.post('update acc_gl_transaction SET ? WHERE id='+$scope.ap.id ,param)
 	            .then(function (result){
