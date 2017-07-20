@@ -1,4 +1,32 @@
-<nav class="secondary-sidebar padding-0 " style="width:250px;">
+<nav class="secondary-sidebar padding-30 " style="width:250px;">
+    <p class="menu-title">MAIN</p>
+	<ul class="main-menu" id="mm">
+		<li ng-repeat="report in report">
+			<a href="javascript:void(0)" ng-click="setActive(report.name,report.id)" id="rpt_{{report.id}}"><b>{{report.name}}</b></a>
+		</li>
+    </ul>
+    <!--<ul class="main-menu">
+        <li ng-class="activeClass.all">
+            <a href="javascript:void(0)" ng-click="setActiveForm('all')">All</a>
+        </li>
+        <li ng-class="activeClass.reservation">
+            <a href="javascript:void(0)" ng-click="setActiveForm('reservation')">Reservation</a>
+        </li>
+        <li ng-class="activeClass.inhouse">
+            <a href="javascript:void(0)" ng-click="setActiveForm('inhouse')">In House</a>
+        </li>
+        <li ng-class="activeClass.checkout">
+            <a href="javascript:void(0)" ng-click="setActiveForm('checkout')">Check Out</a>
+        </li>
+        <li ng-class="activeClass.house">
+            <a href="javascript:void(0)" ng-click="setActiveForm('house')">House</a>
+        </li>
+        <li ng-class="activeClass.canceled">
+            <a href="javascript:void(0)" ng-click="setActiveForm('canceled')">Canceled</a>
+        </li>
+    </ul>-->
+</nav>
+<!--<nav class="secondary-sidebar padding-0 " style="width:250px;">
 	</br>
 	</br>
 	</br>
@@ -7,38 +35,42 @@
     <ul class="main-menu">
 		<li ng-repeat="report in report"><a href="javascript:void(0)" ng-click="setActive(report.name)"><b>{{report.name}}</b></a></li>
     </ul>
-</nav>
-<div ng-repeat="item in report">
-	<!--<div class="modal fade slide-up disable-scroll" id="myModal" tabindex="-1" role="dialog" aria-hidden="false" ng-show="popup">-->
-	<div class="inner-content medium-height m-t-40 m-l-300" id="{{item.name}}" ng-class="{ 'hidden': ! show[item.name] }">
-            <div class="panel-body" >
-				<table >
-					<tr ng-repeat="detail in sub[item.name].data">
-					<td>
-						<label>{{detail.name}}:&nbsp;&nbsp;&nbsp;&nbsp;</label>
-					</td>
-					<td>
-						<input type="text" ng-required="detail.mandatory=='Y'" ng-if="detail.type=='date'" class="form-control required" ng-model="sub[item.name].param[detail.name]" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" style="width: 200px;">
-						<input type="text" ng-required="detail.mandatory=='Y'" ng-if="detail.type=='varchar'" class="form-control" ng-model="sub[item.name].param[detail.name]" style="width: 200px;">
-						<input type="text" ng-required="detail.mandatory=='Y'" ng-if="detail.type=='number'" format="number" class="form-control" ng-model="sub[item.name].param[detail.name]" style="width: 200px;">
-						<ui-select ng-model="sub[item.name].selected[detail.name]" ng-if="detail.type=='list'" theme="select2" style="width: 150px;"
-						on-select="sub[item.name].param[detail.name]=sub[item.name].selected[detail.name].id">
-							<ui-select-match placeholder="Filter">{{sub[item.name].selected[detail.name].name}}</ui-select-match>
-							<ui-select-choices repeat="x in sub[item.name][detail.name] | filter:$select.search">
-								{{x.name}}
-							</ui-select-choices>
-						</ui-select>
-					</td>
-					</tr>
-				</table>
-				<div>
-					<button class="btn btn-primary" type="submit" ng-click="submit(item.name)" >Submit</button>
-				</div>
-				<div class="panel-body">
-	                <iframe data-ng-src="{{urlReport}}" align="middle" width="100%" height="800" frameborder="1">
-	                    <p>Your browser does not support iframes.</p>
-	                </iframe>
-	            </div>
-			</div>
-    </div>
+</nav>-->
+<div class="inner-content full-height m-t-40">
+    <div class="container-fluid container-fixed-lg">
+		<div ng-repeat="item in report">
+			<!--<div class="modal fade slide-up disable-scroll" id="myModal" tabindex="-1" role="dialog" aria-hidden="false" ng-show="popup">-->
+			<div class="inner-content medium-height m-t-20 m-l-100" id="{{item.name}}" ng-class="{ 'hidden': ! show[item.name] }">
+		            <div class="panel-body" >
+						<table >
+							<tr ng-repeat="detail in sub[item.name].data">
+							<td>
+								<label>{{detail.name}}:&nbsp;&nbsp;&nbsp;&nbsp;</label>
+							</td>
+							<td>
+								<input type="text" ng-required="detail.mandatory=='Y'" ng-if="detail.type=='date'" class="form-control required" ng-model="sub[item.name].param[detail.name]" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" style="width: 200px;">
+								<input type="text" ng-required="detail.mandatory=='Y'" ng-if="detail.type=='varchar'" class="form-control" ng-model="sub[item.name].param[detail.name]" style="width: 200px;">
+								<input type="text" ng-required="detail.mandatory=='Y'" ng-if="detail.type=='number'" format="number" class="form-control" ng-model="sub[item.name].param[detail.name]" style="width: 200px;">
+								<ui-select ng-model="sub[item.name].selected[detail.name]" ng-if="detail.type=='list'" theme="select2" style="width: 150px;"
+								on-select="sub[item.name].param[detail.name]=sub[item.name].selected[detail.name].id">
+									<ui-select-match placeholder="Filter">{{sub[item.name].selected[detail.name].name}}</ui-select-match>
+									<ui-select-choices repeat="x in sub[item.name][detail.name] | filter:$select.search">
+										{{x.name}}
+									</ui-select-choices>
+								</ui-select>
+							</td>
+							</tr>
+						</table>
+						<div>
+							<button class="btn btn-primary" type="submit" ng-click="submit(item.name)" >Submit</button>
+						</div>
+						<div class="panel-body p-l-0">
+			                <iframe data-ng-src="{{urlReport}}" align="middle" width="100%" height="800" frameborder="1">
+			                    <p>Your browser does not support iframes.</p>
+			                </iframe>
+			            </div>
+					</div>
+		    </div>
+		</div>
+	</div>
 </div>
