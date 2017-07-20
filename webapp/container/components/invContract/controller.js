@@ -63,7 +63,8 @@ function($scope, $state, $sce, queryService, supplierContractService, supplierSe
 		console.log($scope.selected.supplier_id.selected)
 		var dt = new Date()
         $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1);
-		queryService.post('select curr_item_code(\'contract-'+$scope.selected.supplier_id.selected.sup_code+'\',\''+$scope.ym+'\') as code',undefined)
+		//queryService.post('select curr_item_code(\'contract-'+$scope.selected.supplier_id.selected.sup_code+'\',\''+$scope.ym+'\') as code',undefined)
+        queryService.post('select next_item_code(\'contract-'+$scope.selected.supplier_id.selected.sup_code+'\',\''+$scope.ym+'\') as code',undefined)
 		.then(function(data){
 			console.log(data)
             $scope.contract.code = data.data[0].code
