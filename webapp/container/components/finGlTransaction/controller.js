@@ -441,7 +441,8 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
                 bookkeeping_date: $scope.ap.bookkeeping_date,
                 gl_status: $scope.selected.status.selected.id,
                 notes: $scope.ap.notes,
-                ref_account: $scope.ap.ref_account
+                ref_account: $scope.ap.ref_account,
+				created_by: $localStorage.currentUser.name.id
             }
 			queryService.post('select next_item_code(\'GL\',\''+$scope.selected.journal_type.selected.code+'\') as code',undefined)
 			.then(function (data){
@@ -518,6 +519,10 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 		                notes: $scope.ap.notes,
 		                ref_account: $scope.ap.ref_account
 		            }
+					if($scope.selected.status.selected.id==1){
+						param.posted_by=$localStorage.currentUser.name.id
+						param.posting_date=new Date()
+					}
 		            //queryService.post('insert into acc_ap_voucher SET ?',param)
 		            queryService.post('update acc_gl_transaction SET ? WHERE id='+$scope.ap.id ,param)
 		            .then(function (result){
@@ -595,6 +600,10 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 	                notes: $scope.ap.notes,
 	                ref_account: $scope.ap.ref_account
 	            }
+				if($scope.selected.status.selected.id==1){
+					param.posted_by=$localStorage.currentUser.name.id
+					param.posting_date=new Date()
+				}
 				//queryService.post('insert into acc_ap_voucher SET ?',param)
 	            queryService.post('update acc_gl_transaction SET ? WHERE id='+$scope.ap.id ,param)
 	            .then(function (result){
@@ -835,6 +844,10 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 		        $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
 			}
         }
+        $scope.ap.debit = $scope.total_debit;
+        $scope.ap.credit = $scope.total_credit;
+        $scope.ap.balance = $scope.ap.debit-$scope.ap.credit;
+
     };
 
     // add user
@@ -877,16 +890,20 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
         var results = [];
         var sqlitem = []
         var d=0,c=0;
+        $scope.total_debit = 0
+        $scope.total_credit = 0
         for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
 			if (user.isNew && !user.isDeleted){
 
                 if (user.credit>0){
+                    $scope.total_credit += parseFloat(user.credit)
                     sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
                     //pr_id+','+user.account_id+',\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
 					pr_id+',(select id from mst_ledger_account where code="' + user.account_code + '"),\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
 
                 }else{
+                    $scope.total_debit += parseFloat(user.debit)
 					sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
                     //pr_id+','+user.account_id+',\'D\',\''+user.notes+'\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
 					pr_id+',(select id from mst_ledger_account where code="' + user.account_code + '"),\'D\',\''+user.notes+'\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
@@ -895,8 +912,18 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
             }
             else if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from acc_gl_journal where id='+user.p_id)
+                if (user.credit>0){
+                    $scope.total_credit -= parseFloat(user.credit)
+                }else{
+                    $scope.total_debit -= parseFloat(user.debit)
+				}
             }
             else if(!user.isNew){
+                if (user.credit>0){
+                    $scope.total_credit += parseFloat(user.credit)
+                }else{
+                    $scope.total_debit += parseFloat(user.debit)
+				}
 				sqlitem.push('update acc_gl_journal set '+
 				' account_id = '+user.account_id+',' +
 				' transc_type = \''+(user.debit>0?'D':'C')+'\',' +
@@ -1006,6 +1033,6 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
             $scope.total_debit= $scope.total_debit + (parseInt($scope.items[i].debit)>0?parseFloat($scope.items[i].debit):0)
             $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
         }
-		console.log($scope.total_debit)
+		//console.log($scope.total_debit)
     }
 });

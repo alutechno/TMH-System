@@ -1,6 +1,6 @@
 var userController = angular.module('app', []);
 userController
-.controller('PosReports',
+.controller('PosReportsAp',
 function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope, globalFunction,API_URL,BIRT_URL) {
 	$scope.el = [];
     $scope.el = $state.current.data;
@@ -95,9 +95,11 @@ function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope
         return $sce.trustAsHtml(value);
     };
 
-	$scope.setActive = function(name){
+	$scope.setActive = function(name,r){
 		for(var key in $scope.show)
 			$scope.show[key]=false;
 		$scope.show[name]=!$scope.show[name]
+		$('#mm').find('li').removeClass('active');
+		$('#rpt_'+r).parent().addClass('active');
 	}
 })
