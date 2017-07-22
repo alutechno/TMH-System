@@ -574,7 +574,7 @@
               <br>
               <div class="clearfix"></div>
               <div class="divider"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction" ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction||!(total.debit==total.credit)" ng-click="submit()" >Save</button>
               <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection2" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>
@@ -598,7 +598,7 @@
         <div class="modal-content-wrapper">
             <div class="modal-content">
                 <div class="modal-body text-center m-t-20">
-                    <h4 class="no-margin p-b-10">Are you sure want to delete {{cat.name}} ?</h4>
+                    <h4 class="no-margin p-b-10">Are you sure want to delete {{ap.code}} ?</h4>
                     <div >
                         <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execDelete()">Yes</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
