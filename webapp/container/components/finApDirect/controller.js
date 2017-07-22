@@ -63,7 +63,36 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             last:month[i].last
         })
     }
-    var qstring = "select a.id, a.code, c.id as 'voucher_id', c.code as 'voucher_doc_no', "+
+    var qstring = "select a.id, a.code, '-' as 'voucher_id', '-' as 'voucher_doc_no', "+
+    	"DATE_FORMAT(a.open_date,'%Y-%m-%d')open_date, DATE_FORMAT(a.check_due_date,'%Y-%m-%d')due_date, a.check_no, a.status, e.name as status_name,  "+
+    	"DATE_FORMAT(a.prepared_date,'%Y-%m-%d') prepared_date,a.supplier_id, d.name as 'supplier_name', a.currency_id,a.currency_exchange,  "+
+    	"f.code as 'currency_code', f.name as currency_name, a.total_amount ,a.home_total_amount, g.bank_id,a.bank_account_id,  "+
+    	"g.name as 'bank_account', (select format(sum(x.amount),0) amount "+
+                 "from acc_gl_journal x, acc_gl_transaction y "+
+				"where x.gl_id = y.id "+
+                  "and x.transc_type = 'C' "+
+                  "and y.payment_id=a.id)ta,format(a.home_total_amount,0)hta, prepare_notes,  "+
+        "g.gl_account_id,h.code gl_account_code,h.name gl_account_name, "+
+        "g.ap_clearance_account_id,i.code ap_clearance_account_code,i.name ap_clearance_account_name,  "+
+        "k.id supplier_account_id,k.code supplier_account_code,k.name supplier_account_name,l.name approved_by,DATE_FORMAT(a.approved_date,'%Y-%m-%d') approved_date,m.name prepared_by,n.name issued_by,DATE_FORMAT(a.issued_date,'%Y-%m-%d') issued_date,o.name created_by,DATE_FORMAT(a.created_date,'%Y-%m-%d') created_date  "+
+    "from acc_cash_payment a  "+
+    "left join mst_supplier d on a.supplier_id = d.id  "+
+    "left join (select value, name from table_ref  "+
+    "where table_name = 'acc_cash_payment'  "+
+    "and column_name = 'status') e on a.status = e.value  "+
+    "left join ref_currency f on a.currency_id = f.id  "+
+    "left join mst_cash_bank_account g on a.bank_account_id = g.id  "+
+    "left join mst_ledger_account h on g.gl_account_id=h.id  "+
+    "left join mst_ledger_account i on g.ap_clearance_account_id=i.id  "+
+    "left join ref_supplier_type j on d.supplier_type_id=j.id  "+
+    "left join mst_ledger_account k on j.payable_account_id=k.id  "+
+	"left join user l on a.approved_by=l.id  "+
+	"left join user m on a.prepared_by=m.id  "+
+	"left join user n on a.issued_by=n.id  "+
+	"left join user o on a.created_by=o.id  "+
+    "where a.payment_method = '1' "
+
+    /*var qstring = "select a.id, a.code, c.id as 'voucher_id', c.code as 'voucher_doc_no', "+
     	"DATE_FORMAT(a.open_date,'%Y-%m-%d')open_date, DATE_FORMAT(a.check_due_date,'%Y-%m-%d')due_date, a.check_no, a.status, e.name as status_name, "+
     	"DATE_FORMAT(a.prepared_date,'%Y-%m-%d') prepared_date,a.supplier_id, d.name as 'supplier_name', a.currency_id,a.currency_exchange, "+
     	"f.code as 'currency_code', f.name as currency_name, a.total_amount ,a.home_total_amount, g.bank_id,a.bank_account_id, "+
@@ -88,7 +117,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 	"left join user m on a.prepared_by=m.id "+
 	"left join user n on a.issued_by=n.id "+
 	"left join user o on a.created_by=o.id "+
-    "where a.payment_method = '1' "
+    "where a.payment_method = '1' "*/
     var qwhere = ''
 	/*var qstringt = 'select a.id,a.code, '+
               'from acc_ap_voucher a '+
@@ -400,10 +429,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '5%'))
+        .renderWith($scope.actionsHtml).withOption('width', '4%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('Transc No').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('id').withTitle('Transc No').withOption('width', '4%'),
         DTColumnBuilder.newColumn('code').withTitle('Doc No').withOption('width', '10%'),
         DTColumnBuilder.newColumn('check_no').withTitle('Check No').withOption('width', '10%'),
         DTColumnBuilder.newColumn('open_date').withTitle('Open Date').withOption('width', '5%'),
@@ -413,8 +442,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         //DTColumnBuilder.newColumn('age').withTitle('Age'),
         DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account').withOption('width', '15%'),
         DTColumnBuilder.newColumn('currency_code').withTitle('Currency').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('ta').withTitle('Total amount (IDR)').withOption('width', '5%').withClass('text-right'),
-        DTColumnBuilder.newColumn('hta').withTitle('Total Amount').withOption('width', '5%').withClass('text-right')
+        DTColumnBuilder.newColumn('ta').withTitle('Total amount (IDR)').withOption('width', '7%').withClass('text-right')
+        //DTColumnBuilder.newColumn('hta').withTitle('Total Amount').withOption('width', '5%').withClass('text-right')
     );
     queryService.post('select sum(total_amount)as sm,sum(home_total_amount)as sm2 from ('+qstring+qwhere+')a',undefined)
     .then(function(data){
