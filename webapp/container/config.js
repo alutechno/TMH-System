@@ -3686,7 +3686,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
 		.state("app.fin.rpt_gl", {
 			url: "/reports_gl",
 			templateUrl: "container/components/finReportsGL/view.html",
-			controller: "PosReports",
+			controller: "PosReportsGl",
 			resolve: {
 				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
 					return $ocLazyLoad.load([
@@ -3708,7 +3708,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
 		.state("app.fin.rpt_ap", {
 			url: "/reports_ap",
 			templateUrl: "container/components/finReportsAP/view.html",
-			controller: "PosReports",
+			controller: "PosReportsAp",
 			resolve: {
 				deps: ["$ocLazyLoad", function ($ocLazyLoad) {
 					return $ocLazyLoad.load([
@@ -3730,7 +3730,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
         .state("app.inv.rpt_rcv", {
             url: "/rpt_rcv",
             templateUrl: "container/components/invRptReceiving/view.html",
-            controller: "ReportsCtrl",
+            controller: "ReportsCtrlRcv",
             resolve: {
                 deps: ["$ocLazyLoad", function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
@@ -3752,7 +3752,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
         .state("app.inv.rpt_prc", {
             url: "/rpt_prc",
             templateUrl: "container/components/invRptPurchasing/view.html",
-            controller: "ReportsCtrl",
+            controller: "ReportsCtrlPrc",
             resolve: {
                 deps: ["$ocLazyLoad", function ($ocLazyLoad) {
                     return $ocLazyLoad.load([

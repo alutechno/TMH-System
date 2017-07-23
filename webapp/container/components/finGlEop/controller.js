@@ -234,7 +234,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                    "a.account_type_id, d.name account_type,  "+
                    "ifnull(b.closing_balance,0) as opening_balance, "+
                    "ifnull(c.debit_amount,0) debit_amount, ifnull(c.credit_amount,0) credit_amount, "+
-                   "(ifnull(b.closing_balance,0) + ifnull(c.credit_amount,0) - ifnull(debit_amount,0)) as closing_balance "+
+                   "if(d.saldo_normal='C',(ifnull(b.closing_balance,0) + ifnull(c.credit_amount,0) - ifnull(c.debit_amount,0)),"+
+                   "(ifnull(b.closing_balance,0) - ifnull(c.credit_amount,0) + ifnull(c.debit_amount,0))) as closing_balance "+
               "from mst_ledger_account a "+
               "left join (select account_id, closing_balance from acc_trial_balance  "+
                    "where period = '"+period+"') b on b.account_id = a.id "+

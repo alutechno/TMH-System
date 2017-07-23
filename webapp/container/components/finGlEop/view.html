@@ -46,7 +46,7 @@
                 </div>
             </div>
             <div class="panel-body">
-<!--                
+<!--
                 <ul class="nav nav-tabs nav-tabs-fillup" pg-tab-dropdownfx>
                     <li class="active">
                         <a data-toggle="tab" pg-tab href="#tab-fillup1" ng-click="nested.reloadReceivingTable()"><span>Receiving</span></a>
@@ -162,16 +162,16 @@
                         <div class="btn-group ">
                             <div class="btn-group form-group-default-select pull-right  m-r-5">
                                 <ui-select ng-model="selected.current_year.selected" theme="bootstrap" style="width:100px;"  >
-                                    <ui-select-match placeholder=" Month">{{$select.selected.name}}</ui-select-match>
-                                    <ui-select-choices repeat="item in listMonth | filter: $select.search">
+                                    <ui-select-match placeholder=" Year">{{$select.selected.name}}</ui-select-match>
+                                    <ui-select-choices repeat="item in listYear | filter: $select.search">
                                         <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                    </ui-select-choices>
+                                    </ui-select-choices>                                    
                                 </ui-select>
                             </div>
                             <div class="btn-group form-group-default-select pull-right  m-r-5">
                                 <ui-select ng-model="selected.current_month.selected" theme="bootstrap" style="width:70px;"  >
-                                    <ui-select-match placeholder=" Year">{{$select.selected.name}}</ui-select-match>
-                                    <ui-select-choices repeat="item in listYear | filter: $select.search">
+                                    <ui-select-match placeholder=" Month">{{$select.selected.name}}</ui-select-match>
+                                    <ui-select-choices repeat="item in listMonth | filter: $select.search">
                                         <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                     </ui-select-choices>
                                 </ui-select>
@@ -185,16 +185,16 @@
                         <div class="btn-group ">
                             <div class="btn-group form-group-default-select pull-right  m-r-5">
                                 <ui-select ng-model="selected.next_year.selected" theme="bootstrap" style="width:100px;" >
-                                    <ui-select-match placeholder=" Month">{{$select.selected.name}}</ui-select-match>
-                                    <ui-select-choices repeat="item in listMonth | filter: $select.search">
+                                    <ui-select-match placeholder=" Year">{{$select.selected.name}}</ui-select-match>
+                                    <ui-select-choices repeat="item in listYear | filter: $select.search">
                                         <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
-                                    </ui-select-choices>
+                                    </ui-select-choices>                                    
                                 </ui-select>
                             </div>
                             <div class="btn-group form-group-default-select pull-right  m-r-5">
                                 <ui-select ng-model="selected.next_month.selected" theme="bootstrap"  style="width:70px;" >
-                                    <ui-select-match placeholder=" Year">{{$select.selected.name}}</ui-select-match>
-                                    <ui-select-choices repeat="item in listYear | filter: $select.search">
+                                    <ui-select-match placeholder=" Month">{{$select.selected.name}}</ui-select-match>
+                                    <ui-select-choices repeat="item in listMonth | filter: $select.search">
                                         <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                     </ui-select-choices>
                                 </ui-select>
