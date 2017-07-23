@@ -15,8 +15,6 @@ module.exports = function(connection,jwt){
 
     app.get('/getAccountTypes', function (req, res) {
         //Handle Request From Angular DataTables
-        console.log(req.query)
-        console.log(req.headers)
 
         var dtParam = req.query
         var where = '';
@@ -36,12 +34,8 @@ module.exports = function(connection,jwt){
         var sqlstr = 'select id,name,code,description,status '+
             ' from ref_ledger_account_type '+where
 
-        console.log(sqlstr)
-
         connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
             if (!err){
-                console.log('rowsCnt')
-                console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
                 connection(sqlstr + order + limit,undefined, function(err2, rows2, fields2) {
                     if (!err2){
@@ -77,7 +71,6 @@ module.exports = function(connection,jwt){
     });
 
     app.post('/createAccountType', function(req,res){
-        console.log(req.body);
         var sqlstr = 'insert into ref_ledger_account_type SET ?'
         var sqlparam = {
             code:req.body.code,
@@ -87,8 +80,6 @@ module.exports = function(connection,jwt){
         }
 
         connection(sqlstr, sqlparam,function(err, result) {
-            console.log(err)
-            console.log(result)
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -100,9 +91,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/updateAccountType', function(req,res){
-        console.log(req.body);
         var sqlstr = 'update ref_ledger_account_type SET ? WHERE id=' +req.body.id
-        console.log(sqlstr)
         var sqlparam = {
             code:req.body.code,
             name:req.body.name,
@@ -123,9 +112,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/deleteAccountType', function(req,res){
-        console.log(req.body);
         var sqlstr = 'delete from ref_ledger_account_type where id='+req.body.id
-        console.log(sqlstr)
 
         connection(sqlstr,undefined,function(err, result) {
             if (err){
@@ -140,8 +127,6 @@ module.exports = function(connection,jwt){
 
     app.get('/getDepartments', function (req, res) {
         //Handle Request From Angular DataTables
-        console.log(req.query)
-        console.log(req.headers)
 
         var dtParam = req.query
         var where = '';
@@ -161,12 +146,8 @@ module.exports = function(connection,jwt){
         var sqlstr = 'select id,code,name,short_name,description,status '+
             ' from mst_department '+where
 
-        console.log(sqlstr)
-
         connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
             if (!err){
-                console.log('rowsCnt')
-                console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
                 connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
                     if (!err2){
@@ -202,7 +183,6 @@ module.exports = function(connection,jwt){
     });
 
     app.post('/createDepartment', function(req,res){
-        console.log(req.body);
         var sqlstr = 'insert into mst_department SET ?'
         var sqlparam = {
             code:req.body.code,
@@ -213,8 +193,6 @@ module.exports = function(connection,jwt){
         }
 
         connection(sqlstr, sqlparam,function(err, result) {
-            console.log(err)
-            console.log(result)
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -226,9 +204,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/updateDepartment', function(req,res){
-        console.log(req.body);
         var sqlstr = 'update mst_department SET ? WHERE id=' +req.body.id
-        console.log(sqlstr)
         var sqlparam = {
             code:req.body.code,
             name:req.body.name,
@@ -250,9 +226,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/deleteDepartment', function(req,res){
-        console.log(req.body);
         var sqlstr = 'delete from mst_department where id='+req.body.id
-        console.log(sqlstr)
 
         connection(sqlstr,undefined,function(err, result) {
             if (err){
@@ -267,9 +241,6 @@ module.exports = function(connection,jwt){
 
     app.get('/getCcTypes', function (req, res) {
         //Handle Request From Angular DataTables
-        console.log(req.query)
-        console.log(req.headers)
-
         var dtParam = req.query
         var where = '';
         if (req.query.id){
@@ -288,12 +259,8 @@ module.exports = function(connection,jwt){
         var sqlstr = 'select id,code,name,description,status '+
             ' from ref_cost_center_type '+where
 
-        console.log(sqlstr)
-
         connection('select count(1) as cnt from('+sqlstr+') a', undefined,function(err, rows, fields) {
             if (!err){
-                console.log('rowsCnt')
-                console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
                 connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
                     if (!err2){
@@ -329,7 +296,6 @@ module.exports = function(connection,jwt){
     });
 
     app.post('/createCcType', function(req,res){
-        console.log(req.body);
         var sqlstr = 'insert into ref_cost_center_type SET ?'
         var sqlparam = {
             code:req.body.code,
@@ -339,8 +305,6 @@ module.exports = function(connection,jwt){
         }
 
         connection(sqlstr, sqlparam,function(err, result) {
-            console.log(err)
-            console.log(result)
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -352,9 +316,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/updateCcType', function(req,res){
-        console.log(req.body);
         var sqlstr = 'update ref_cost_center_type SET ? WHERE id=' +req.body.id
-        console.log(sqlstr)
         var sqlparam = {
             code:req.body.code,
             name:req.body.name,
@@ -375,9 +337,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/deleteCcType', function(req,res){
-        console.log(req.body);
         var sqlstr = 'delete from ref_cost_center_type where id='+req.body.id
-        console.log(sqlstr)
 
         connection(sqlstr,undefined,function(err, result) {
             if (err){
@@ -392,9 +352,6 @@ module.exports = function(connection,jwt){
 
     app.get('/getCostCenters', function (req, res) {
         //Handle Request From Angular DataTables
-        console.log(req.query)
-        console.log(req.headers)
-
         var dtParam = req.query
         var where = '';
         if (req.query.id){
@@ -414,12 +371,8 @@ module.exports = function(connection,jwt){
             'from mst_cost_center a, ref_cost_center_type b '+
             'where a.category_id = b.id '+where
 
-        console.log(sqlstr)
-
         connection('select count(1) as cnt from('+sqlstr+') a', undefined,function(err, rows, fields) {
             if (!err){
-                console.log('rowsCnt')
-                console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
                 connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
                     if (!err2){
@@ -456,7 +409,6 @@ module.exports = function(connection,jwt){
     });
 
     app.post('/createCostCenter', function(req,res){
-        console.log(req.body);
         var sqlstr = 'insert into mst_cost_center SET ?'
         var sqlparam = {
             code:req.body.code,
@@ -467,8 +419,6 @@ module.exports = function(connection,jwt){
         }
 
         connection(sqlstr, sqlparam,function(err, result) {
-            console.log(err)
-            console.log(result)
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -480,9 +430,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/updateCostCenter', function(req,res){
-        console.log(req.body);
         var sqlstr = 'update mst_cost_center SET ? WHERE id=' +req.body.id
-        console.log(sqlstr)
         var sqlparam = {
             code:req.body.code,
             name:req.body.name,
@@ -490,7 +438,6 @@ module.exports = function(connection,jwt){
             status: req.body.status,
             category_id: req.body.category_id
         }
-
 
         connection(sqlstr, sqlparam,function(err, result) {
             if (err){
@@ -504,9 +451,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/deleteCostCenter', function(req,res){
-        console.log(req.body);
         var sqlstr = 'delete from mst_cost_center where id='+req.body.id
-        console.log(sqlstr)
 
         connection(sqlstr,undefined,function(err, result) {
             if (err){
@@ -521,9 +466,6 @@ module.exports = function(connection,jwt){
 
     app.get('/getCoas', function (req, res) {
         //Handle Request From Angular DataTables
-        console.log(req.query)
-        console.log(req.headers)
-
         var dtParam = req.query
         var where = '';
         if (req.query.id){
@@ -546,12 +488,8 @@ module.exports = function(connection,jwt){
             'and a.cost_center_id = c.id '+
             'and a.account_type_id = d.id '+where
 
-        console.log(sqlstr)
-
         connection('select count(1) as cnt from('+sqlstr+') a', undefined,function(err, rows, fields) {
             if (!err){
-                console.log('rowsCnt')
-                console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
                 connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
                     if (!err2){
@@ -591,7 +529,6 @@ module.exports = function(connection,jwt){
     });
 
     app.post('/createCoa', function(req,res){
-        console.log(req.body);
         var sqlstr = 'insert into mst_ledger_account SET ?'
         var sqlparam = {
             code:req.body.code,
@@ -606,8 +543,6 @@ module.exports = function(connection,jwt){
         }
 
         connection(sqlstr, sqlparam,function(err, result) {
-            console.log(err)
-            console.log(result)
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -619,9 +554,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/updateCoa', function(req,res){
-        console.log(req.body);
         var sqlstr = 'update mst_ledger_account SET ? WHERE id=' +req.body.id
-        console.log(sqlstr)
         var sqlparam = {
             code:req.body.code,
             name:req.body.name,
@@ -633,7 +566,6 @@ module.exports = function(connection,jwt){
             cost_center_id: req.body.cost_center_id,
             account_type_id: req.body.account_type_id
         }
-
 
         connection(sqlstr, sqlparam,function(err, result) {
             if (err){
@@ -647,10 +579,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/deleteCoa', function(req,res){
-        console.log(req.body);
-        var sqlstr = 'delete from mst_ledger_account where id='+req.body.id
-        console.log(sqlstr)
-
+        var sqlstr = 'delete from mst_ledger_account where id='+req.body.id        
         connection(sqlstr,undefined,function(err, result) {
             if (err){
                 res.status('404').send({
@@ -662,7 +591,5 @@ module.exports = function(connection,jwt){
         });
     });
 
-
     return app;
-
 }

@@ -224,14 +224,11 @@ module.exports = function(connection,jwt){
         }
         connection('SELECT id,name from role'+where, undefined,function(err, rows, fields) {
             if (err) throw err;
-            console.log('getRole')
-            console.log(rows)
             res.send(rows)
         });
     });
 
     app.post('/createRole', function(req,res){
-        console.log(req.body);
         var sqlstr = 'insert into role SET ?'
         var sqlparam = {
             name:req.body.name
@@ -259,7 +256,7 @@ module.exports = function(connection,jwt){
 
         connection(sqlstr,undefined,function(err, result) {
             if (err) throw err;
-            console.log('Success Delete with Results:'+JSON.stringify(result));
+            
         });
         res.send({status:'200'})
     });
@@ -299,14 +296,12 @@ module.exports = function(connection,jwt){
                 			'on e.value = a.status '+
                         'where a.status <> \'2\' '+ where +
                         'group by a.name '
-        console.log(sqlstr);
 
         connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
             if (!err){
                 dtParam['recordsFiltered'] = rows[0].cnt
                 connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
-					console.log(rows)
-                    if (!err2){
+					if (!err2){
                         dtParam['recordsTotal'] = rows2.length
                         dtParam['data'] = rows2
                         res.send(dtParam)
@@ -319,8 +314,7 @@ module.exports = function(connection,jwt){
     app.get('/getUser', function (req, res) {
 
 		var dtParam = req.query
-		console.log(dtParam)
-        var where = '';
+		var where = '';
         if (req.query.id){
             where += ' and a.id='+req.query.id
         }
@@ -344,8 +338,7 @@ module.exports = function(connection,jwt){
                         'where a.status <> \'2\' '+ where +
                         ' group by a.name ';
         connection(sqlstr , undefined,function(err2, rows2, fields2) {
-			console.log(rows2)
-            if (!err2){
+			if (!err2){
                 dtParam['data'] = rows2
                 res.send(dtParam)
             }
@@ -378,7 +371,6 @@ module.exports = function(connection,jwt){
             email: req.body.email,
 			department_id:req.body.default_department
         }
-		console.log(sqlparam)
 
         connection(sqlstr, sqlparam,function(err, result) {
             if (err) throw err;
@@ -539,7 +531,7 @@ module.exports = function(connection,jwt){
 
         connection(sqlstr,undefined,function(err, result) {
             if (err) throw err;
-            console.log('Success Delete with Results:'+JSON.stringify(result));
+
         });
         res.send({status:'200'})
     });
@@ -560,7 +552,6 @@ module.exports = function(connection,jwt){
         'group by a.id,a.name,a.module,b.menu_id,b.role_id'
         connection(sqlstr,undefined, function(err, rows, fields) {
             if (err) throw err;
-            console.log(rows)
             dtParam['data'] = rows
             res.send(dtParam)
         });
@@ -681,7 +672,7 @@ module.exports = function(connection,jwt){
 
                 connection(sqlInsert,[req.body.insert],function(err3, result3) {
                     if (err3) throw err3;
-                    console.log('insert:'+JSON.stringify(result3))
+
                 });
             });
         });

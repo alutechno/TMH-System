@@ -8,9 +8,6 @@ module.exports = function(connection,jwt){
 
     app.get('/getCustomers', function (req, res) {
         //Handle Request From Angular DataTables
-        console.log(req.query)
-        console.log(req.headers)
-
         var dtParam = req.query
         var where = '';
         if (req.query.id){
@@ -19,8 +16,6 @@ module.exports = function(connection,jwt){
         if (req.query.customSearch.length>0){
             where += ' and a.name="'+req.query.customSearch + '" '
         }
-
-
 
         var limit = ' limit '+req.query.start+','+req.query.length
         var order = '';
@@ -31,25 +26,18 @@ module.exports = function(connection,jwt){
             ' customer_mobile as mobile, customer_fax as fax, customer_email as email, customer_tax_id as tax, customer_active as active'+
             ' from customer where customer_is_customer = 1 '+where
 
-        console.log(sqlstr)
-
         connection('select count(1) as cnt from('+sqlstr+') a', undefined,function(err, rows, fields) {
             if (!err){
-                console.log('rowsCnt')
-                console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
                 connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
                     if (!err2){
                         dtParam['recordsTotal'] = rows2.length
-
                         dtParam['data'] = rows2
                         res.send(dtParam)
                     }
                 });
             }
         });
-
-
     });
 
     app.get('/getCustomer', function (req, res) {
@@ -75,7 +63,6 @@ module.exports = function(connection,jwt){
     });
 
     app.post('/createCustomer', function(req,res){
-        console.log(req.body);
         'select customer_id as code, customer_name as name, customer_type as type, customer_address as address, customer_city as city, '+
             ' customer_postal_code as postal, customer_state as state, customer_country as country, customer_website as website, customer_phone as phone, '+
             ' customer_mobile as mobile, customer_fax as fax, customer_email as email, customer_tax_id as tax, customer_active as active'
@@ -101,8 +88,6 @@ module.exports = function(connection,jwt){
         }
 
         connection(sqlstr, sqlparam,function(err, result) {
-            console.log(err)
-            console.log(result)
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -114,9 +99,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/updateCustomer', function(req,res){
-        console.log(req.body);
         var sqlstr = 'update customer SET ? WHERE customer_id=' +req.body.id
-        console.log(sqlstr)
         var sqlparam = {
             customer_name:req.body.name,
             customer_type:req.body.type,
@@ -148,9 +131,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/deleteCustomer', function(req,res){
-        console.log(req.body);
         var sqlstr = 'delete from customer where customer_id="'+req.body.id+'"'
-        console.log(sqlstr)
 
         connection(sqlstr,undefined,function(err, result) {
             if (err){
@@ -165,9 +146,6 @@ module.exports = function(connection,jwt){
 
     app.get('/getCustomerContracts', function (req, res) {
         //Handle Request From Angular DataTables
-        console.log(req.query)
-        console.log(req.headers)
-
         var dtParam = req.query
         var where = '';
         if (req.query.id){
@@ -185,17 +163,12 @@ module.exports = function(connection,jwt){
             ' from customer a, customer_contract b '+
             ' where a.customer_id = b.customer_id '+where
 
-        console.log(sqlstr)
-
         connection('select count(1) as cnt from('+sqlstr+') a',undefined, function(err, rows, fields) {
             if (!err){
-                console.log('rowsCnt')
-                console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
                 connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
                     if (!err2){
                         dtParam['recordsTotal'] = rows2.length
-
                         dtParam['data'] = rows2
                         res.send(dtParam)
                     }
@@ -225,7 +198,6 @@ module.exports = function(connection,jwt){
     });
 
     app.post('/createCustomerContract', function(req,res){
-        console.log(req.body);
         var sqlstr = 'insert into customer_contract SET ?'
         var sqlparam = {
             cust_contract_id:req.body.code,
@@ -235,8 +207,6 @@ module.exports = function(connection,jwt){
         }
 
         connection(sqlstr, sqlparam,function(err, result) {
-            console.log(err)
-            console.log(result)
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -248,9 +218,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/updateCustomerContract', function(req,res){
-        console.log(req.body);
         var sqlstr = 'update customer_contract SET ? WHERE cust_contract_id="' +req.body.id +'"'
-        console.log(sqlstr)
         var sqlparam = {
             customer_id:req.body.customerId,
             cust_contract_from:req.body.startDate,
@@ -269,10 +237,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/deleteCustomerContract', function(req,res){
-        console.log(req.body);
         var sqlstr = 'delete from customer_contract where cust_contract_id="'+req.body.id+'"'
-        console.log(sqlstr)
-
         connection(sqlstr,undefined,function(err, result) {
             if (err){
                 res.status('404').send({
@@ -286,9 +251,6 @@ module.exports = function(connection,jwt){
 
     app.get('/getRoomTypes', function (req, res) {
         //Handle Request From Angular DataTables
-        console.log(req.query)
-        console.log(req.headers)
-
         var dtParam = req.query
         var where = '';
         if (req.query.customSearch.length>0){
@@ -300,18 +262,13 @@ module.exports = function(connection,jwt){
         //order = ' order by ' +req.query.columns[req.query.order[0].column].data +' '+ req.query.order[0].dir
 
         var sqlstr = 'select room_type_id as id,room_type_name as name,room_type_active as active from room_type '+where
-        console.log(sqlstr)
 
         connection('select count(1) as cnt from('+sqlstr+') a', undefined,function(err, rows, fields) {
             if (!err){
-                console.log('rowsCnt')
-                console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
                 connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
-                    console.log(err2)
                     if (!err2){
                         dtParam['recordsTotal'] = rows2.length
-
                         dtParam['data'] = rows2
                         res.send(dtParam)
                     }
@@ -339,7 +296,6 @@ module.exports = function(connection,jwt){
     });
 
     app.post('/createRoomType', function(req,res){
-        console.log(req.body);
         var sqlstr = 'insert into room_type SET ?'
         var sqlparam = {
             room_type_name:req.body.name,
@@ -347,8 +303,6 @@ module.exports = function(connection,jwt){
         }
 
         connection(sqlstr, sqlparam,function(err, result) {
-            console.log(err)
-            console.log(result)
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -360,9 +314,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/updateRoomType', function(req,res){
-        console.log(req.body);
         var sqlstr = 'update room_type SET ? WHERE room_type_id=' +req.body.id
-        console.log(sqlstr)
         var sqlparam = {
             room_type_name:req.body.name,
             room_type_active:req.body.active
@@ -380,9 +332,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/deleteRoomType', function(req,res){
-        console.log(req.body);
         var sqlstr = 'delete from room_type where room_type_id='+req.body.id
-        console.log(sqlstr)
 
         connection(sqlstr,undefined,function(err, result) {
             if (err){
@@ -397,9 +347,6 @@ module.exports = function(connection,jwt){
 
     app.get('/getRooms', function (req, res) {
         //Handle Request From Angular DataTables
-        console.log(req.query)
-        console.log(req.headers)
-
         var dtParam = req.query
         var where = '';
         if (req.query.customSearch.length>0){
@@ -413,17 +360,13 @@ module.exports = function(connection,jwt){
         var sqlstr = 'select a.room_id as id,a.room_id as code, a.room_name as name, a.room_type_id as typeId, a.room_active as active, b.room_type_name as typeName '+
             'from room a, room_type b '+
             'where a.room_type_id = b.room_type_id '+where
-        console.log(sqlstr)
 
         connection('select count(1) as cnt from('+sqlstr+') a', undefined,function(err, rows, fields) {
             if (!err){
-                console.log('rowsCnt')
-                console.log(rows)
                 dtParam['recordsFiltered'] = rows[0].cnt
                 connection(sqlstr + order + limit, undefined,function(err2, rows2, fields2) {
                     if (!err2){
                         dtParam['recordsTotal'] = rows2.length
-
                         dtParam['data'] = rows2
                         res.send(dtParam)
                     }
@@ -453,7 +396,6 @@ module.exports = function(connection,jwt){
     });
 
     app.post('/createRoom', function(req,res){
-        console.log(req.body);
         var sqlstr = 'insert into room SET ?'
         var sqlparam = {
             room_id:req.body.code,
@@ -463,8 +405,6 @@ module.exports = function(connection,jwt){
         }
 
         connection(sqlstr, sqlparam,function(err, result) {
-            console.log(err)
-            console.log(result)
             if (err){
                 res.status('404').send({
                     status: '404',
@@ -476,9 +416,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/updateRoom', function(req,res){
-        console.log(req.body);
         var sqlstr = 'update room SET ? WHERE room_id="' +req.body.code + '"'
-        console.log(sqlstr)
         var sqlparam = {
             room_name:req.body.name,
             room_type_id: req.body.typeId,
@@ -497,9 +435,7 @@ module.exports = function(connection,jwt){
     })
 
     app.post('/deleteRoom', function(req,res){
-        console.log(req.body);
         var sqlstr = 'delete from room where room_id="'+req.body.id + '"'
-        console.log(sqlstr)
 
         connection(sqlstr,undefined,function(err, result) {
             if (err){
@@ -513,7 +449,6 @@ module.exports = function(connection,jwt){
     });
 
     return app;
-
 }
 
 function onlyUnique(value, index, self) {
