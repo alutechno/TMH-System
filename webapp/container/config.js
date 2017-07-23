@@ -3807,8 +3807,16 @@ angular.module('app').run(['$rootScope', '$state', '$stateParams', 'authorizatio
     function ($rootScope, $state, $stateParams, authorization, principal) {
         $rootScope['currentModule'] = ''
         $rootScope['currentMenu'] = {}
+        $rootScope.$on('$locationChangeStart', function(event, newUrl, oldUrl) {
+            //Handle Back Button when oldUrl is /login
+             if(newUrl.indexOf('login')>-1 && oldUrl.indexOf('login')==-1) {
+                event.preventDefault();
+            }
+        })
         $rootScope.$on('$stateChangeStart',
             function (event, toState, toStateParams) {
+                //Remove backdrop(if any) when state change
+                $('.modal-backdrop').remove();
                 //Set state that dont need authentication
                 var bypass = ['login', 'access.500', 'access.404', 'logout']
                 // track the state the user wants to go to;
