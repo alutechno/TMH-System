@@ -400,9 +400,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 		var purchase_type='DN'
 		if($scope.stat.pr=='pr' && $scope.direct=='non')
 			purchase_type='NDI'
-		else if($scope.stat.pr=='pr' && $scope.direct=='direct')
-			purchase_type='NDN'
 		else if($scope.stat.pr=='non' && $scope.direct=='non')
+			purchase_type='NDN'
+		else if($scope.stat.pr=='pr' && $scope.direct=='direct')
 			purchase_type='DI'
 		if ($scope.pr.id.length==0 ){
             //exec creation

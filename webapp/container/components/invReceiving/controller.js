@@ -1103,7 +1103,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 					'",@id,(select account_id from mst_cost_center where id='+$scope.selected.cost_center.selected.id+' union select account_id from mst_warehouse where id='+$scope.selected.warehouse.selected.id+' limit 1),\'D\','+amt+','+$localStorage.currentUser.name.id+',curdate())')
 			}
 		}
-console.log(JSON.stringify(sqlitem))
 		sqlitem.push("commit");
 
         return sqlitem
