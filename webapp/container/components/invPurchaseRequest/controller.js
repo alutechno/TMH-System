@@ -1006,6 +1006,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 	$scope.change = function(flag){
 		if(flag=='d'){
 			//queryService.post('select cast(concat(\'PR/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'PR\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
+			$scope.selected.warehouse.selected={}
+			$scope.selected.cost_center.selected={}
 	        queryService.post('select curr_document_no(\'DP\',\''+$scope.ym+'\') as code',undefined)
 	        .then(function(data){
 	            $scope.pr.code = data.data[0].code

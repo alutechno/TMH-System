@@ -197,7 +197,7 @@
                               </div>
                               <div class="col-md-3" ng-if="stat.pr=='pr' && direct!='direct'">
                                   <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : selected.warehouse.selected.$invalid && !selected.warehouse.selected.$pristine }" >
-                                      <label>Store Location</label>
+                                      <label>Warehouse</label>
                                       <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode" validate-attached-form-element required >
                                           <ui-select-match placeholder="Select Location">{{$select.selected.name}}</ui-select-match>
                                           <ui-select-choices repeat="item in warehouse | filter: $select.search">
