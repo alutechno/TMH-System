@@ -488,7 +488,7 @@
               <div class="row divider"></div>
               <div class="clearfix"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction" ng-click="submit()" ng-show="releaseState">Save</button>
-              <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-if="!updateState&&selected.doc_status.selected.id==4"  ng-click="reformat();printing=false;"><i class="fa fa-print"></i> Print</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-if="!updateState&&selected.doc_status.selected.id==4"  ng-click="reformat()"><i class="fa fa-print"></i> Print</button>
               <button class="btn btn-default" ng-show="selected.doc_status.selected.id!=4"><i class="pg-close"></i> Clear</button>
           </form>
       </div>
