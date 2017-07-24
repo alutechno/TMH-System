@@ -1,5 +1,5 @@
 <div id="printSection">
-    <div class="row">
+    <div class="row" ng-repeat="(key, val) in supp">
         <table width="98%">
             <tr>
                 <td width="50%" align="center">
@@ -17,82 +17,51 @@
                 </td>
                 <td width="50%">
 					<span style="font-size:30px">
-						<b>Purchase Order</b>
+						<b>Purchase Request</b>
 					</span>
 					<br>
                     <br>
 					<span>
-						<b>DATE OF ORDER :</b> {{po.created_date}}
+						<b>Date of Order :</b> {{pr.created_date}}
 					</span>
 					<br>
 					<span>
-						<b>DATE REQUIRED :</b> {{po.delivery_date}}
+						<b>Date Required :</b> {{pr.delivery_date}}
 					</span>
 					<br>
 					<span>
-						<b>PO NO. :</b> {{po.code}}
+						<b>PO NO. :</b> {{pr.code}}
+					</span>
+					<br>
+                    <span>
+                        <b>Supplier:</b>{{supp[key][0].supplier_name}}
+                    </span>
+
+					<br>
+					<span>
+						<b>Requested by :</b> {{pr.dept}}
 					</span>
 					<br>
 					<span>
-						<b>REQUESTED BY :</b> {{po.dept}}
+						<b>Cost Center :</b> {{selected.cost_center.selected.name}}
 					</span>
 					<br>
 					<span>
-						<b>Cost center :</b> {{selected.cost_center.selected.name}}
+						<b>Warehouse :</b> {{selected.warehouse.selected.name}}
 					</span>
                 </td>
             </tr>
             <br>
-            <tr>
-                <td>
-                    <table border="1" width="80%" align="center">
-                        <tr>
-                            <td align="center" style="background-color: #000000;color: white;"><b>SUPPLIER ADDRESS</b></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                {{po.supplier_name}}<br>
-                                {{po.supplier_address}}<br>
-                                Contact Person: {{po.supplier_cp}}<br>
-								PHONE NO : {{po.supplier_phone}}<br>
-								FAX NO : {{po.supplier_fax}}
-                            </td>
-                        </tr>
-                    </table>
-                    <br>
-                </td>
-                <td>
-                    <!--<table border="1" width="80%" align="center">
-                        <tr>
-                            <td align="center" style="background-color: #000000;color: white;"><b>DATE OF ORDER :</b> {{po.created_date}}</td>
-                            <td align="center" style="background-color: #000000;color: white;"><b>DATE REQUIRED :</b> {{po.delivery_date}}</td>
-                            <td align="center" style="background-color: #000000;color: white;"><b>PO NO. :</b> {{po.code}}</td>
-                        </tr>
-                        <tr>
-                            <td align="center">{{po.created_date}}</td>
-                            <td align="center">{{po.delivery_date}}</td>
-                            <td align="center">{{po.code}}</td>
-                        </tr>
-                    </table>
-                    <br>
-                    <table border="1" width="80%" align="center">
-                        <tr>
-                            <td align="center" style="background-color: #000000;color: white;"><b>REQUESTED BY DEPT</b></td>
-                        </tr>
-                        <tr>
-                            <td align="center" >{{po.dept}}</td>
-                        </tr>
-                    </table>-->
-                </td>
-            </tr>
+
         </table>
         <br>
         <table width="89%" cellpadding="5" border="1" align="center">
             <thead>
             <tr>
                 <td width="5%" align="center"><b>Code</b></th>
-                <td width="25%" align="center"><b>Product</b></th>
-				<td width="25%" align="center"><b>Notes</b></th>
+                <td width="20%" align="center"><b>Product</b></th>
+				<td width="20%" ng-if="direct =='direct'"><b>Costcenter</b></th>
+				<td width="20%" align="center"><b>Notes</b></th>
                 <td width="5%" align="center"><b>Unit</b></th>
                 <td width="5%" align="center"><b>Qty</b></th>
                 <td width="10%" align="center"><b>Price</b></th>
@@ -100,10 +69,11 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="item in items | filter:filterUser">
+            <tr ng-repeat="item in supp[key] | filter:filterUser">
 
                 <td>{{item.product_code}}</td>
                 <td>{{item.product_name}}</td>
+				<td width="20%" ng-if="direct =='direct'"><b>{{item.cost_center_name}}</b></th>
 				<td>{{item.order_notes}}</td>
                 <td > {{item.unit_name}}</td>
                 <td style="text-align: right;">
@@ -131,7 +101,7 @@
                     <td style="text-align: right;"><span ><b>{{tAmt*0.1| number : fractionSize}}</b></span></th>
                 </tr>-->
                 <tr>
-                    <td colspan="4" style="text-align: center;"><b>Total</b></th>
+                    <td colspan="5" style="text-align: center;"><b>Total</b></th>
                     <td style="text-align: right;"><span ><b>{{tot_qty[key]| number : fractionSize}}</b></span></th>
                     <td style="text-align: center;">&nbsp;</th>
                     <td style="text-align: right;"><span ><b>{{tot_amt[key]| number : fractionSize}}</b></span></th>

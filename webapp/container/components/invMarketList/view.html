@@ -30,6 +30,10 @@
                     <span>
                         <b>Doc No:{{pr.code}}</b>
                     </span>
+					<br>
+                    <span>
+                        <b>Supplier:{{supp[key][0].supplier_name}}</b>
+                    </span>
                     <br>
                     <span>
                         <b>Request Date:{{pr.created_date}}</b>
@@ -49,6 +53,8 @@
                     <br>
                 </td>
             </tr>
+			<br>
+
             <br>
             <tr>
                 <td>&nbsp;</td>
@@ -64,7 +70,6 @@
                 <td width="10%" align="center">QTY</th>
                 <td width="10%" align="center">PRICE</th>
                 <td width="10%" align="center">AMOUNT</th>
-                <td width="30%" align="center">SUPPLIER</th>
             </tr>
             </thead>
             <tbody>
@@ -80,7 +85,6 @@
                 <td style="text-align: right;">
                         {{ item.amount | number : fractionSize}}
                 </td>
-                <td>{{item.supplier_name}}</td>
 
             </tr>
             </tbody>
@@ -91,7 +95,6 @@
                     <td width="10%" style="text-align: right;"><span >{{tot_qty[key]| number : fractionSize}}</span></th>
                     <td width="10%">&nbsp;</th>
                     <td width="10%" style="text-align: right;"><span >{{tot_amt[key]| number : fractionSize}}</span></th>
-                    <td width="30%">&nbsp;</th>
                 </tr>
             </tfooter>
         </table>

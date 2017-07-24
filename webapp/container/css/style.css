@@ -103,7 +103,7 @@ span.ui-select-match-text.pull-left {
     height: 35px;
     padding: 9px 12px;
     line-height: normal;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: normal;
     vertical-align: middle;
     min-height: 35px;
@@ -159,6 +159,9 @@ span.ui-select-match-text.pull-left {
         width: 210mm;
         min-height: 297mm;
         border: 1px #D3D3D3 solid;
+		font-family: Arial, sans-serif;
+		font-size: 12px;
+	    font-weight: normal;
     }
     .center {
         display: flex;

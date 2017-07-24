@@ -384,7 +384,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 				$scope.tot_qty[$scope.items[i].supplier_id]+=$scope.items[i].qty
 			}
 		}
-
+console.log($scope.supp)
         var psParent = document.createElement('div');
         var printSection = window.document.getElementById('printSection');
         psParent.id = 'printSectionParent';
