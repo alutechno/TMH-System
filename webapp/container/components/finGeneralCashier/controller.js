@@ -206,7 +206,10 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     $scope.ap = {
         id: '',
         code: '',
-        notes: ''
+        notes: '',
+		debit:0,
+		credit:0,
+		balance:0
     }
 
     $scope.selected = {
@@ -706,9 +709,12 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 		$scope.ap = {
 	        id: '',
 	        code: '',
-	        notes: ''
+	        notes: '',
+			debit:0,
+			credit:0,
+			balance:0
 	    }
-
+		$scope.items=[];
 	    $scope.selected = {
 	        status: {},
 	        journal_type: {},
@@ -797,16 +803,12 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 
     // save edits
     $scope.child.saveTable = function(pr_id) {
-        console.log('asd')
         var results = [];
-        console.log($scope.itemsOri)
 
-        console.log(JSON.stringify($scope.items,null,2))
         var sqlitem = []
         var d=0,c=0;
 		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
-            console.log(user)
             // actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);

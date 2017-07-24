@@ -588,9 +588,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     /*END AD ServerSide*/
 
     $scope.openQuickView = function(state){
-        if (state == 'add'){
-            $scope.clear()
-        }
+        $scope.clear()
         $scope.statusShow.push($scope.status[0])
         $scope.selected.status['selected'] = $scope.status[0]
         $('#form-input').modal('show')
@@ -1136,6 +1134,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             description: '',
             status: ''
         }
+		$scope.trans=[];
     }
 
 })

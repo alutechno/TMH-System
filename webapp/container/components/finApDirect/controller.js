@@ -1192,7 +1192,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         $scope.selected.bank_account = {}
         $scope.selected.currency = {}
         $scope.selected.supplier = {}
-
+		$scope.items=[];
     }
 
 })

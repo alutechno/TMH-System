@@ -796,7 +796,7 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 			credit:0,
 			balance:0
 	    }
-
+		$scope.items=[];
 	    $scope.selected = {
 	        status: {},
 	        journal_type: {},
