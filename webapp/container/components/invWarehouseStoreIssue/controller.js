@@ -559,7 +559,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                                 'issued_qty = '+(parseInt(user.issued_qty)+parseInt(user.issued_qty_n))+','+
                                 'request_notes = "'+user.item_notes+'",'+
                                 ' modified_by = '+$localStorage.currentUser.name.id+',' +
-                                ' modified_date = \''+globalFunction.currentDate()+'\'' +
+                                ' modified_date = \''+globalFunction.currentDate()+'\',' +
+								' price='+user.price_per_lowest_unit+','+
+								' amount='+(user.price_per_lowest_unit*user.issued_qty_n)+''+
                                 ' where id='+user.p_id
 							sqlitem.push(sql1)
 							if(user.issued_qty_n>0){
@@ -590,18 +592,19 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                         }
                     }
                 }
-				if(sql2!=undefined){
-					var sql5=`insert into acc_gl_transaction (code,journal_type_id,sr_id,gl_status,notes,bookkeeping_date,posted_by,posting_date,created_by)
-						values(next_item_code("GL","SR"),15,`+$scope.sr.id+`,1,"SR issuing "`+$scope.sr.code+`,curdate(),`+$localStorage.currentUser.name.id+`,curdate(),`+$localStorage.currentUser.name.id+`)`
-					var sql6='set @id=(select last_insert_id())'
-					var sql7=`insert into acc_gl_journal (gl_id,account_id,transc_type,amount,notes,bookkeeping_date)
-						values(@id,`+$scope.selected.cost_center.selected.account_id+`,'D',`+amount_tot+`,"SR issuing "`+$scope.sr.code+`,curdate())`
-					var sql8=`insert into acc_gl_journal (gl_id,account_id,transc_type,amount,notes,bookkeeping_date)
-						values(@id,`+$scope.selected.warehouse.selected.account_id+`,'C',`+amount_tot+`,"SR issuing "`+$scope.sr.code+`,curdate())`
-					sqlitem.push(sql5,sql6,sql7,sql8)
-				}
+
             }
         }
+		if(sql2!=undefined){
+			var sql5=`insert into acc_gl_transaction (code,journal_type_id,sr_id,gl_status,notes,bookkeeping_date,posted_by,posting_date,created_by)
+				values(next_item_code("GL","SR"),15,`+$scope.sr.id+`,1,"SR issuing "`+$scope.sr.code+`,curdate(),`+$localStorage.currentUser.name.id+`,curdate(),`+$localStorage.currentUser.name.id+`)`
+			var sql6='set @id=(select last_insert_id())'
+			var sql7=`insert into acc_gl_journal (gl_id,account_id,transc_type,amount,notes,bookkeeping_date)
+				values(@id,`+$scope.selected.cost_center.selected.account_id+`,'D',`+amount_tot+`,"SR issuing "`+$scope.sr.code+`,curdate())`
+			var sql8=`insert into acc_gl_journal (gl_id,account_id,transc_type,amount,notes,bookkeeping_date)
+				values(@id,`+$scope.selected.warehouse.selected.account_id+`,'C',`+amount_tot+`,"SR issuing "`+$scope.sr.code+`,curdate())`
+			sqlitem.push(sql5,sql6,sql7,sql8)
+		}
 		sqlitem.push('COMMIT')
         return sqlitem
         //return $q.all(results);

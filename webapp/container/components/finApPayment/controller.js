@@ -755,15 +755,17 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     .then(function(data){
                         var qq = ''
                         if(data.data.length==0){
-                            qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
-                             'values(\''+$scope.ap.open_date+'\',next_item_code("GL","PV"),'+$scope.ap.id+',\'0\',18,\''+$scope.ap.notes+'\');'
+                            qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes,posted_by,posting_date,created_by) '+
+                             'values(\''+$scope.ap.open_date+'\',next_item_code("GL","PV"),'+$scope.ap.id+',\'0\',18,\''+$scope.ap.notes+'\','+$localStorage.currentUser.name.id+',curdate(),'+$localStorage.currentUser.name.id+');'
                         }
                         else {
                             qq = 'update acc_gl_transaction set '+
                                 'bookkeeping_date = \''+$scope.ap.open_date+'\', '+
                                 'code = \''+$scope.ap.code+'\', '+
                                 //'journal_type_id = '+$scope.journal_type_id+','+
-                                'notes = \''+$scope.ap.notes+'\' '+
+                                'notes = \''+$scope.ap.notes+'\', '+
+								'modified_by='+$localStorage.currentUser.name.id+','+
+								'modified_date=curdate() '+
                                 'where id='+data.data[0].id
                         }
                         queryService.post(qq ,undefined)
