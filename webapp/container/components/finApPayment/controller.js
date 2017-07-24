@@ -92,7 +92,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     /*var qstringt = 'select a.id,a.code, '+
               'from acc_ap_voucher a '+
               'inner join acc_payment_line_item b on a.id = b.voucher_id '*/
-  var qstringt ='select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name, '+
+  var qstringt ='select c.id,a.id voucher_id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name, '+
     'format(a.total_amount,0)ta,format(a.home_total_amount,0)hta,a.paid_amount,c.payment_amount current_due_amount '+
       'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
       	'and column_name = \'status\')b, acc_payment_line_item c '+
@@ -749,6 +749,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
             queryService.post('update acc_cash_payment SET ? WHERE id='+$scope.ap.id ,param)
             .then(function (result){
+
                 if ($scope.selected.status.selected.id=='1'){
                     queryService.get('select id from acc_gl_transaction where payment_id= '+$scope.ap.id,undefined)
                     .then(function(data){
@@ -771,7 +772,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                             var ids = '';
                             if (result2.data.insertId) ids = result2.data.insertId
                             else ids = data.data[0].id
-                            var q2 = $scope.child.saveTable(ids)
+							var q2 = $scope.child.saveTable(ids)
                             if (q2.length>0){
                                 queryService.post(q2.join(';') ,undefined)
                                 .then(function (result3){
@@ -859,18 +860,34 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
                 }
                 else {
-					$scope.disableAction = false;
-                    $('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){
-                        // console.log(obj)
-                    }, false)
-                    $('body').pgNotification({
-                        style: 'flip',
-                        message: 'Success Update '+$scope.ap.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'success'
-                    }).show();
+					var qstr = $scope.child.saveTableT($scope.ap.id)
+					console.log(JSON.stringify(qstr))
+	                queryService.post(qstr.join(';'),undefined)
+	                .then(function (result2){
+
+						$scope.disableAction = false;
+	                    $('#form-input').modal('hide')
+	                    $scope.dtInstance.reloadData(function(obj){
+	                        // console.log(obj)
+	                    }, false)
+	                    $('body').pgNotification({
+	                        style: 'flip',
+	                        message: 'Success Update '+$scope.ap.code,
+	                        position: 'top-right',
+	                        timeout: 2000,
+	                        type: 'success'
+	                    }).show();
+					},
+					function (err){
+						$scope.disableAction = false;
+		                $('#form-input').pgNotification({
+		                    style: 'flip',
+		                    message: 'Error Update: '+err.code,
+		                    position: 'top-right',
+		                    timeout: 2000,
+		                    type: 'danger'
+		                }).show();
+					})
                 }
 
             },
@@ -972,6 +989,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                         {
                             id:(ii),
                             p_id: d[i].id,
+							voucher_id: d[i].voucher_id,
                             code:d[i].code,
                             open_date:d[i].open_date,
                             due_date:d[i].due_date,
@@ -1152,7 +1170,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
     // mark user as deleted
     $scope.deleteUser = function(id) {
-        var filtered = $filter('filter')($scope.items, {id: id});
+        var filtered = $filter('filter')($scope.trans, {id: id});
         if (filtered.length) {
             filtered[0].isDeleted = true;
         }
@@ -1211,6 +1229,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         var sqlitem = []
 		for (var i =0;i< $scope.trans.length; i++) {
             var user = $scope.trans[i];
+			console.log(user)
             // actually delete user
             /*if (user.isDeleted) {
                 $scope.items.splice(i, 1);
@@ -1224,7 +1243,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             //results.push($http.post('/saveUser', user));
             if (user.isNew && !user.isDeleted){
                 sqlitem.push('insert into acc_payment_line_item (payment_id,voucher_id,home_payment_amount,payment_amount,created_by,created_date) values('+
-                pr_id+','+user.p_id+','+user.current_due_amount+','+user.current_due_amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                pr_id+','+user.voucher_id+','+user.current_due_amount+','+user.current_due_amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
             }
             else if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from acc_payment_line_item where id='+user.p_id)
@@ -1248,9 +1267,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             }
 
         }
-        console.log(sqlitem)
-        console.log($scope.trans)
-
         return sqlitem
         //return $q.all(results);
     };
@@ -1294,6 +1310,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
     $scope.getVoucher = function(e,d){
         $scope.trans[d-1].code = e.code
+		$scope.trans[d-1].voucher_id = e.id
         $scope.trans[d-1].p_id = e.id
         $scope.trans[d-1].open_date = e.open_date
         $scope.trans[d-1].due_date = e.due_date
@@ -1303,7 +1320,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         $scope.trans[d-1].home_total_amount = e.home_total_amount
         $scope.trans[d-1].total_amount = e.total_amount
         $scope.trans[d-1].current_due_amount = e.current_due_amount
-
     }
 
     $scope.setValue = function(e,d,p){

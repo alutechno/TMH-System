@@ -437,9 +437,9 @@
                       </div>
                   </div>
                   <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.prepared_date.$invalid && !ap.prepared_date.$pristine }">
+                      <div pg-form-group class="form-group form-group-default " ng-class="{ 'has-error' : ap.prepared_date.$invalid && !ap.prepared_date.$pristine }">
                           <label>Prepared Date</label>
-                          <input type="text" class="form-control" ng-model="ap.prepared_date" name="prepared_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker"  data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required >
+                          <input type="text" class="form-control" ng-model="ap.prepared_date" name="prepared_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker"  data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" >
                       </div>
                   </div>
 
@@ -487,9 +487,9 @@
                   </div>
 
                 <div class="col-sm-8">
-                    <div pg-form-group class="form-group form-group-default required" >
+                    <div pg-form-group class="form-group form-group-default " >
                         <label>Notes</label>
-                        <input type="text" class="form-control" name="notes" ng-model="ap.notes" validate-attached-form-element required >
+                        <input type="text" class="form-control" name="notes" ng-model="ap.notes" >
                     </div>
                 </div>
               </div>
@@ -580,9 +580,7 @@
                                                       <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
                                                       <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
                                                     </div>
-
                               </div>
-
                           </div>
                       </div>
                       <div class="tab-pane" id="tab-fillup2">
