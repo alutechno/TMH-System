@@ -389,7 +389,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 				$scope.tot_qty[$scope.items[i].supplier_id]+=$scope.items[i].qty
 			}
 		}
-		console.log($scope.tot_amt)
 		setTimeout(function(){
 			window.print();
 		}, 100)

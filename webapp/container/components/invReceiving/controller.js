@@ -419,7 +419,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 			var sql=`start transaction;
 			insert into inv_po_receive (code,po_id,receive_date,receive_notes,received_status,currency_id,home_currency_exchange,total_amount,inv_no,faktur_no,created_by)
 			values('`+$scope.po.code+`',`+$scope.po.po_id+`,'`+$scope.po.delivery_date+`','`+$scope.po.notes+`',`+$scope.selected.delivery_status.selected.id+`,`+$scope.po.currency_id+`,`+$scope.po.home_currency_exchange+`
-				,`+$scope.po.TotalSum+`,`+$scope.po.inv_no+`,`+$scope.po.faktur_no+`,`+$localStorage.currentUser.name.id+`);
+				,`+$scope.po.TotalSum+`,'`+$scope.po.inv_no+`','`+$scope.po.faktur_no+`',`+$localStorage.currentUser.name.id+`);
 			set @id=(select last_insert_id());`
 			for (var i =0;i< $scope.items.length; i++) {
 				var user = $scope.items[i];
