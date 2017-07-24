@@ -22,6 +22,9 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     $scope.total_credit = 0
     var qstring = 'select a.id, a.code, a.journal_type_id, date_format(a.bookkeeping_date,\'%Y-%m-%d\')bookkeeping_date, a.gl_status status, c.name as status_name, '+
          'a.notes, a.ref_account,d.code journal_type_code, d.name journal_type_name, '+
+         'format(sum(case when b.transc_type = \'D\' then b.amount else 0 end),0) as debit_amount_f, '+
+         'format(sum(case when b.transc_type = \'C\' then b.amount else 0 end),0) as credit_amount_f, '+
+         'format((sum(case when b.transc_type = \'D\' then b.amount else 0 end) - sum(case when b.transc_type = \'C\' then b.amount else 0 end)),0) balance_f, '+
          'sum(case when b.transc_type = \'D\' then b.amount else 0 end) as debit_amount, '+
          'sum(case when b.transc_type = \'C\' then b.amount else 0 end) as credit_amount, '+
          '(sum(case when b.transc_type = \'D\' then b.amount else 0 end) - sum(case when b.transc_type = \'C\' then b.amount else 0 end)) balance '+
@@ -90,7 +93,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     $scope.fileName = "Journal Entry";
     $scope.exportExcel = function(){
 
-        queryService.post('select id,code,journal_type_code,bookkeeping_date,status_name,notes,ref_account,debit_amount,credit_amount,balance from('+qstring + qwhere+qgroup+')aa order by id desc',undefined)
+        queryService.post('select id,code,journal_type_code,bookkeeping_date,status_name,notes,ref_account,debit_amount_f,credit_amount_f,balance_f from('+qstring + qwhere+qgroup+')aa order by id desc',undefined)
         .then(function(data){
             $scope.exportData = [];
             //Header
@@ -358,9 +361,9 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '7%'),
         DTColumnBuilder.newColumn('notes').withTitle('Notes'),
         DTColumnBuilder.newColumn('ref_account').withTitle('Ref Account'),
-        DTColumnBuilder.newColumn('debit_amount').withTitle('Total Debit'),
-        DTColumnBuilder.newColumn('credit_amount').withTitle('Total Credit').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('balance').withTitle('Balance').withOption('width', '10%')
+        DTColumnBuilder.newColumn('debit_amount_f').withTitle('Total Debit').withClass('text-right'),
+        DTColumnBuilder.newColumn('credit_amount_f').withTitle('Total Credit').withOption('width', '10%').withClass('text-right'),
+        DTColumnBuilder.newColumn('balance_f').withTitle('Balance').withOption('width', '10%').withClass('text-right')
     );
 
     var qwhereobj = {
