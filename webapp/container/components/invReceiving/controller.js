@@ -423,7 +423,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 			set @id=(select last_insert_id());`
 			for (var i =0;i< $scope.items.length; i++) {
 				var user = $scope.items[i];
-				sql+='insert into inv_receive_line_item (item_id,receive_id,product_id,received_qty,received_price,total_amount,created_by,order_notes) values('+user.item_id+',@id,'+user.product_id+','+user.rcv_qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+',"'+user.order_notes+'");'
+				sql+='insert into inv_receive_line_item (cost_center_id,item_id,receive_id,product_id,received_qty,received_price,total_amount,created_by,order_notes) values('+user.cost_center_id+','+user.item_id+',@id,'+user.product_id+','+user.rcv_qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+',"'+user.order_notes+'");'
 			}
 			sql+='commit;'
 			queryService.post(sql,param)
