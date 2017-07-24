@@ -202,7 +202,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     .then(function(data){
         $scope.bank = data.data
     })
-    queryService.get("select id from ref_journal_type where code = 'AP' ",undefined)
+    queryService.get("select id from ref_journal_type where code = 'DP' ",undefined)
     .then(function(data){
         $scope.journal_type_id = data.data[0].id
     })
@@ -591,7 +591,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     if (q2.length > 0){
                             var qq = ''
                             qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
-                             'values(\''+$scope.ap.open_date+'\',next_item_code("GL","DP"),'+result.data.insertId+',\'0\','+$scope.journal_type_id+',\''+($scope.ap.notes?$scope.ap.notes:'')+'\');'
+                             'values(\''+$scope.ap.open_date+'\',next_item_code("GL","DP"),'+result.data.insertId+',\'0\',19,\''+($scope.ap.notes?$scope.ap.notes:'')+'\');'
                             queryService.post(qq ,undefined)
                             .then(function (result2){
                                 var ids = '';
@@ -732,13 +732,13 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                             var qq = ''
                             if(data.data.length==0){
                                 qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
-                                 'values(\''+$scope.ap.open_date+'\',next_item_code("GL","DP"),'+$scope.ap.id+',\'0\','+$scope.journal_type_id+',\''+$scope.ap.notes+'\');'
+                                 'values(\''+$scope.ap.open_date+'\',next_item_code("GL","DP"),'+$scope.ap.id+',\'0\',19,\''+$scope.ap.notes+'\');'
                             }
                             else {
                                 qq = 'update acc_gl_transaction set '+
                                     'bookkeeping_date = \''+$scope.ap.open_date+'\', '+
                                     'code = \''+$scope.ap.code+'\', '+
-                                    'journal_type_id = '+$scope.journal_type_id+','+
+                                    'journal_type_id = 19,'+
                                     'notes = \''+$scope.ap.notes+'\' '+
                                     'where id='+data.data[0].id
                             }
