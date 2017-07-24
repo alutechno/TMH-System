@@ -385,6 +385,14 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 			}
 		}
 
+        var psParent = document.createElement('div');
+        var printSection = window.document.getElementById('printSection');
+        psParent.id = 'printSectionParent';
+        document.body.appendChild(psParent);
+        psParent.appendChild(printSection)
+        psParent.innerHTML = '';
+        psParent.appendChild(printSection);
+
 		setTimeout(function(){
 			window.print();
 		}, 100)
