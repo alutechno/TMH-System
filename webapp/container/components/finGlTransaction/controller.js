@@ -850,8 +850,6 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 		$scope.ap.debit = $scope.total_debit;
         $scope.ap.credit = $scope.total_credit;
         $scope.ap.balance = $scope.ap.debit-$scope.ap.credit;
-		if ($scope.total_debit!=$scope.total_credit) $scope.balanceStatus.status=false
-        else $scope.balanceStatus.status=true
     };
 
     // add user

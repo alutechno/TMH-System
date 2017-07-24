@@ -361,6 +361,7 @@
                                         Modify Item List
                                       </button>
                                     </div>
+									<p ng-if="ap.balance!=0" class="small" style="color:red"><i>(*) Cannot Save,Debit and Credit is not Balance</i></p>
                                     <div class="btn-form" ng-show="tableform.$visible">
                                       <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();" class="btn btn-primary"> Save Item</button>
                                       <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
@@ -387,7 +388,7 @@
 				 </div>
 			  </div>
 
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction " ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="ap.balance!=0||dodol.$invalid||disableAction " ng-click="submit()" >Save</button>
               <button class="btn btn-primary" type="submit"  ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
               <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
           </form>

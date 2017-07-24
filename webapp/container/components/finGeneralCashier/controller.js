@@ -439,6 +439,10 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         }
         $scope.statusShow.push($scope.status[0])
         $scope.selected.status['selected']=$scope.status[0]
+		$scope.items = []
+        $scope.itemsOri = []
+        $scope.total_debit = 0;
+        $scope.total_credit = 0;
         $('#form-input').modal('show')
 		queryService.post('select curr_item_code(\'GL\',\'BB\') as code',undefined)
         //queryService.post("select cast(concat('BB',lpad(seq('BB','BB'),8,'0')) as char) as code ",undefined)
@@ -763,6 +767,9 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 		        $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
 			}
         }
+		$scope.ap.debit = $scope.total_debit;
+        $scope.ap.credit = $scope.total_credit;
+        $scope.ap.balance = $scope.ap.debit-$scope.ap.credit;
     };
 
     // add user
@@ -825,10 +832,13 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
             if (user.isNew && !user.isDeleted){
 
                 if (user.debit>0){
+					$scope.total_debit += parseFloat(user.debit)
+
                     sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
                     pr_id+','+user.account_id+',\'D\',\''+user.notes+'\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }
                 else if (user.credit>0){
+					$scope.total_credit += parseFloat(user.credit)
                     sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
                     pr_id+','+user.account_id+',\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }
@@ -838,7 +848,11 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
                 sqlitem.push('delete from acc_gl_journal where id='+user.p_id)
             }
             else if(!user.isNew){
-                console.log(user)
+				if (user.credit>0){
+                    $scope.total_credit += parseFloat(user.credit)
+                }else{
+                    $scope.total_debit += parseFloat(user.debit)
+				}
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
                         var d1 = $scope.itemsOri._id+$scope.itemsOri[j].account_id+$scope.itemsOri[j].debit+$scope.itemsOri[j].credit+$scope.itemsOri[j].notes
@@ -858,12 +872,10 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
             }
 
         }
-        console.log($scope.items)
-        console.log(sqlitem.join(';'))
         $scope.ap.debit = $scope.total_debit;
         $scope.ap.credit = $scope.total_credit;
         $scope.ap.balance = $scope.ap.debit-$scope.ap.credit;
-        return sqlitem
+		return sqlitem
         //return $q.all(results);
     };
     $scope.trustAsHtml = function(value) {
@@ -943,7 +955,9 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
 		        $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
 			}
         }
-
+		$scope.ap.debit = $scope.total_debit;
+        $scope.ap.credit = $scope.total_credit;
+        $scope.ap.balance = $scope.ap.debit-$scope.ap.credit;
     }
 
 });
