@@ -878,15 +878,16 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             else if (((result.data[0].doc_status_id==6&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==5 && result.data[0].approval_status==1)) && $scope.el.indexOf('approvalGm')>-1) $scope.viewMode = false
             else if (((result.data[0].doc_status_id==7&&result.data[0].approval_status!=1) || (result.data[0].doc_status_id==6 && result.data[0].approval_status==1)) && $scope.el.indexOf('prReleased')>-1) $scope.viewMode = false
             else $scope.viewMode = true
+
 			if ($scope.pr.purchase_type == 'NDI') {
 				$scope.stat.pr = 'pr'
 				$scope.direct='non'
 			}else if ($scope.pr.purchase_type == 'NDN'){
-				$scope.stat.pr = 'pr'
-				$scope.direct='direct'
-			}else if($scope.pr.purchase_type == 'DI'){
 				$scope.stat.pr = 'non'
 				$scope.direct='non'
+			}else if($scope.pr.purchase_type == 'DI'){
+				$scope.stat.pr = 'pr'
+				$scope.direct='direct'
 			}else{
 				$scope.stat.pr = 'non'
 				$scope.direct='direct'
