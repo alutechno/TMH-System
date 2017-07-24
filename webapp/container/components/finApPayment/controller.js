@@ -643,11 +643,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 total_amount += $scope.trans[i].total_amount
                 home_total_amount += $scope.trans[i].home_total_amount
             }
-			/*queryService.post('select next_document_no(\'PMT\',\''+$scope.ym+'\')',undefined)
-			.then(function(data){
-				$scope.pr.code = data.data[0].code
-			})*/
-            var param = {
+			var param = {
                 code: $scope.ap.code,
             	check_no: $scope.ap.check,
             	bank_account_id: $scope.selected.bank_account.selected.id,
@@ -668,6 +664,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
             queryService.post('insert into acc_cash_payment SET ?',param)
             .then(function (result){
+				queryService.post('select next_document_no(\'PMT\',\''+$scope.ym+'\')',undefined)
+				.then(function(data){
+					$scope.pr.code = data.data[0].code
+				})
                 var qstr = $scope.child.saveTableT(result.data.insertId)
                 queryService.post(qstr.join(';'),undefined)
                 .then(function (result2){
