@@ -3810,7 +3810,7 @@ angular.module('app').run(['$rootScope', '$state', '$stateParams', 'authorizatio
         $rootScope.$on('$locationChangeStart', function(event, newUrl, oldUrl) {
             //Handle Back Button when oldUrl is /login
              if(newUrl.indexOf('login')>-1 && oldUrl.indexOf('login')==-1) {
-                event.preventDefault();
+                 if (oldUrl.split('/')[(oldUrl.split('/').length-1)]!='') event.preventDefault();
             }
         })
         $rootScope.$on('$stateChangeStart',
