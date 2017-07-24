@@ -850,7 +850,6 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
         $scope.ap.debit = $scope.total_debit;
         $scope.ap.credit = $scope.total_credit;
         $scope.ap.balance = $scope.ap.debit-$scope.ap.credit;
-
     };
 
     // add user
@@ -1033,8 +1032,10 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
             $scope.items[d-1].notes = p
         }
         for (var i=0;i<$scope.items.length;i++){
-            $scope.total_debit= $scope.total_debit + (parseInt($scope.items[i].debit)>0?parseFloat($scope.items[i].debit):0)
-            $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
+			if($scope.items[i].isDeleted!=true){
+	            $scope.total_debit= $scope.total_debit + (parseInt($scope.items[i].debit)>0?parseFloat($scope.items[i].debit):0)
+	            $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
+			}
         }
 		//console.log($scope.total_debit)
     }

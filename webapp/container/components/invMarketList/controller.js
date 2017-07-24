@@ -373,7 +373,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
 	$scope.reformat = function(){
 		$scope.supp={};
-		printSection.innerHTML = '';
 		for(var i=0;i<$scope.items.length;i++){
 			if(!$scope.supp[$scope.items[i].supplier_id]){
 				$scope.supp[$scope.items[i].supplier_id]=[$scope.items[i]]
@@ -388,10 +387,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
 		setTimeout(function(){
 			window.print();
-			window.onafterprint = function () {
-                // clean the print section before adding new content
-                printSection.innerHTML = '';
-            }
 		}, 100)
 	}
 
