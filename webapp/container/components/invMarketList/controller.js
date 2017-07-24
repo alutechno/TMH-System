@@ -373,6 +373,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
 	$scope.reformat = function(){
 		$scope.supp={};
+		printSection.innerHTML = '';
 		for(var i=0;i<$scope.items.length;i++){
 			if(!$scope.supp[$scope.items[i].supplier_id]){
 				$scope.supp[$scope.items[i].supplier_id]=[$scope.items[i]]
@@ -495,7 +496,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     }).show();
 					$scope.disableAction = false;
                 })
-
             }
             else {
                 $('#form-input').pgNotification({
@@ -614,7 +614,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                                 approve_status:0
                             }
                         }
-                        //console.log(paramState)
                         if (queryState.length>0){
                             queryService.post(queryState,paramState)
                             .then(function (result){
@@ -702,7 +701,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         .then(function (result){
             queryService.post(qstringdetail + ' where a.ml_id='+ids,undefined)
             .then(function(data){
-
                 $scope.items = []
                 $scope.child.totalQty = 0
                 $scope.child.tAmt = 0
@@ -731,7 +729,6 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 				$scope.itemsOri = angular.copy($scope.items)
             })
             $scope.nested.dtInstanceItem = {}
-
             $scope.dtOptionsItem = DTOptionsBuilder.newOptions()
                 .withOption('bLengthChange', false)
                 .withOption('bFilter', false)
