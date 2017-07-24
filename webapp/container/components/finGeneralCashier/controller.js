@@ -936,8 +936,10 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
             $scope.items[d-1].notes = p
         }
         for (var i=0;i<$scope.items.length;i++){
-            $scope.total_debit= $scope.total_debit + (parseInt($scope.items[i].debit)>0?parseFloat($scope.items[i].debit):0)
-            $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
+			if($scope.items[i].isDeleted!=true){
+		        $scope.total_debit= $scope.total_debit + (parseInt($scope.items[i].debit)>0?parseFloat($scope.items[i].debit):0)
+		        $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
+			}
         }
 
     }
