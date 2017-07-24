@@ -387,6 +387,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
 		setTimeout(function(){
 			window.print();
+			window.onafterprint = function () {
+                // clean the print section before adding new content
+                printSection.innerHTML = '';
+            }
 		}, 100)
 	}
 
