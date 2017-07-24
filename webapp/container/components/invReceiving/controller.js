@@ -972,9 +972,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 		if(param.create==false){
 			sqlitem.push('update inv_po_receive set received_status='+param.received_status
 				+',receive_date="'+$scope.po.delivery_date+'"'
-				+',receive_notes="'+param.receive_notes+'"'
-				+',inv_no="'+param.inv_no+'"'
-				+',faktur_no="'+param.faktur_no+'"'
+				+',receive_notes="IFNULL('+param.receive_notes+',"")"'
+				+',inv_no="IFNULL('+param.inv_no+',"")"'
+				+',faktur_no="IFNULL('+param.faktur_no+',"")"'
 				+',modified_by='+param.modified_by
 				+',modified_date=CURRENT_TIMESTAMP'
 				+' where id='+$scope.po.id)
@@ -983,9 +983,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 	        var ym = dt.getFullYear() + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
 			sqlitem.push('update inv_po_receive set received_status='+param.received_status
 				+',receive_date="'+$scope.po.delivery_date+'"'
-				+',receive_notes="'+param.receive_notes+'"'
-				+',inv_no="'+param.inv_no+'"'
-				+',faktur_no="'+param.faktur_no+'"'
+				+',receive_notes="IFNULL('+param.receive_notes+',"")"'
+				+',inv_no="IFNULL('+param.inv_no+',"")"'
+				+',faktur_no="IFNULL('+param.faktur_no+',"")"'
 				+',modified_by='+param.modified_by
 				+',modified_date=CURRENT_TIMESTAMP'
 				+',code=(select curr_document_no(\'RR\',\''+$scope.ym+'\') as code) where id='+$scope.po.id)
