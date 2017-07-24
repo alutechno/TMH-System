@@ -1,50 +1,147 @@
 <div id="printSection">
-	<div class="row" ng-repeat="(key, val) in supp">
-        <h3 class="text-center">Purchase Request</h3>
-        <!--<div class="brand inline text-center center">
-            <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="156" height="32">
-        </div>-->
-        <table border="1" width="89%" >
+    <div class="row">
+        <table width="98%">
+            <tr>
+                <td width="50%" align="center">
+                    <div class="brand inline text-center center">
+                        <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="200" height="40">
+                    </div>
+
+                    <br><br><br>
+                    <span class="text-center" style="align:center;">JL. GUNUNG SAHARI RAYA NO.3 JAKARTA 10720</span>
+                    <br>
+                    <span class="text-center">PHONE : (62-21) 626 3001</span>&nbsp;&nbsp;
+                    <span class="text-center">FAX : (62-21) 626 3024</span>
+                    <br>
+                    <span class="text-center">NPWP. 01.573.522.8-026.000</span>
+                </td>
+                <td width="50%">
+					<span style="font-size:30px">
+						<b>Purchase Order</b>
+					</span>
+					<br>
+                    <br>
+					<span>
+						<b>DATE OF ORDER :</b> {{po.created_date}}
+					</span>
+					<br>
+					<span>
+						<b>DATE REQUIRED :</b> {{po.delivery_date}}
+					</span>
+					<br>
+					<span>
+						<b>PO NO. :</b> {{po.code}}
+					</span>
+					<br>
+					<span>
+						<b>REQUESTED BY :</b> {{po.dept}}
+					</span>
+					<br>
+					<span>
+						<b>Cost center :</b> {{selected.cost_center.selected.name}}
+					</span>
+                </td>
+            </tr>
+            <br>
+            <tr>
+                <td>
+                    <table border="1" width="80%" align="center">
+                        <tr>
+                            <td align="center" style="background-color: #000000;color: white;"><b>SUPPLIER ADDRESS</b></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                {{po.supplier_name}}<br>
+                                {{po.supplier_address}}<br>
+                                Contact Person: {{po.supplier_cp}}<br>
+								PHONE NO : {{po.supplier_phone}}<br>
+								FAX NO : {{po.supplier_fax}}
+                            </td>
+                        </tr>
+                    </table>
+                    <br>
+                </td>
+                <td>
+                    <!--<table border="1" width="80%" align="center">
+                        <tr>
+                            <td align="center" style="background-color: #000000;color: white;"><b>DATE OF ORDER :</b> {{po.created_date}}</td>
+                            <td align="center" style="background-color: #000000;color: white;"><b>DATE REQUIRED :</b> {{po.delivery_date}}</td>
+                            <td align="center" style="background-color: #000000;color: white;"><b>PO NO. :</b> {{po.code}}</td>
+                        </tr>
+                        <tr>
+                            <td align="center">{{po.created_date}}</td>
+                            <td align="center">{{po.delivery_date}}</td>
+                            <td align="center">{{po.code}}</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <table border="1" width="80%" align="center">
+                        <tr>
+                            <td align="center" style="background-color: #000000;color: white;"><b>REQUESTED BY DEPT</b></td>
+                        </tr>
+                        <tr>
+                            <td align="center" >{{po.dept}}</td>
+                        </tr>
+                    </table>-->
+                </td>
+            </tr>
+        </table>
+        <br>
+        <table width="89%" cellpadding="5" border="1" align="center">
             <thead>
             <tr>
-                <th width="20%">Product</th>
-                <th width="5%">Qty</th>
-                <th width="15%">Price</th>
-                <th width="15%">Amount</th>
-                <th width="20%">Supplier</th>
+                <td width="5%" align="center"><b>Code</b></th>
+                <td width="25%" align="center"><b>Product</b></th>
+				<td width="25%" align="center"><b>Notes</b></th>
+                <td width="5%" align="center"><b>Unit</b></th>
+                <td width="5%" align="center"><b>Qty</b></th>
+                <td width="10%" align="center"><b>Price</b></th>
+                <td width="10%" align="center"><b>Amount</b></th>
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="item in supp[key]">
-                <td >{{item.product_name}}
+            <tr ng-repeat="item in items | filter:filterUser">
+
+                <td>{{item.product_code}}</td>
+                <td>{{item.product_name}}</td>
+				<td>{{item.order_notes}}</td>
+                <td > {{item.unit_name}}</td>
+                <td style="text-align: right;">
+                        {{ item.qty | number : fractionSize}}
                 </td>
                 <td style="text-align: right;">
-                    {{ item.qty | number : fractionSize }}
+                        {{ item.price | number : fractionSize}}
                 </td>
                 <td style="text-align: right;">
-                    {{ item.price | number : fractionSize }}
-                </td>
-                <td style="text-align: right;">
-                    {{ item.amount | number : fractionSize }}
-                </td>
-                <td >
-                    {{item.supplier_name}}
+                        {{ item.amount | number : fractionSize}}
                 </td>
             </tr>
             </tbody>
-            <tfooter >
+            <tfooter width="80%" border="1" align="center">
+		<!--		<tr>
+                    <td colspan="4" style="text-align: center;"><b>SubTotal</b></th>
+                    <td style="text-align: right;"><span ><b>{{totalQty| number : fractionSize}}</b></span></th>
+                    <td style="text-align: center;">&nbsp;</th>
+                    <td style="text-align: right;"><span ><b>{{tAmt| number : fractionSize}}</b></span></th>
+                </tr>
+				<tr>
+                    <td colspan="4" style="text-align: center;"><b>TAX</b></th>
+                    <td style="text-align: center;">&nbsp;</th>
+                    <td style="text-align: center;">&nbsp;</th>
+                    <td style="text-align: right;"><span ><b>{{tAmt*0.1| number : fractionSize}}</b></span></th>
+                </tr>-->
                 <tr>
-                    <th width="20%" style="text-align: center;">Total</th>
-                    <th width="10%" style="text-align: right;"><span >{{tot_qty | number : fractionSize}}</span></th>
-                    <th width="15%">&nbsp;</th>
-                    <th width="15%" style="text-align: right;"><span >{{tot_amt[key] | number : fractionSize}}</span></th>
-                    <th width="20%">&nbsp;</th>
+                    <td colspan="4" style="text-align: center;"><b>Total</b></th>
+                    <td style="text-align: right;"><span ><b>{{tot_qty[key]| number : fractionSize}}</b></span></th>
+                    <td style="text-align: center;">&nbsp;</th>
+                    <td style="text-align: right;"><span ><b>{{tot_amt[key]| number : fractionSize}}</b></span></th>
                 </tr>
             </tfooter>
         </table>
-    </div>
 
+    </div>
 </div>
+
 <div class="full-height m-t-40">
     <!-- TABLES VIEW -->
     <div class="container-fluid container-fixed-lg">
