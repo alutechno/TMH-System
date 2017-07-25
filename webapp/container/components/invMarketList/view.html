@@ -157,7 +157,7 @@
                            <!--<span class="add-on input-group-addon bDate"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i></span>-->
                        </div>
                         <div class="btn-group form-group-default-select pull-left  m-r-5">
-                            <label>Store Location:</label><br />
+                            <label>Warehouse:</label><br />
                             <ui-select ng-model="selected.filter_warehouse.selected" theme="bootstrap"  >
                                 <ui-select-match placeholder="Select Location">{{$select.selected.name}}</ui-select-match>
                                 <ui-select-choices repeat="item in warehouse | filter: $select.search">
@@ -249,7 +249,7 @@
                           </div>
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default form-group-default-select " >
-                                  <label>Store Location</label>
+                                  <label>Warehouse</label>
                                   <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode">
                                       <ui-select-match placeholder="Select Location">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in warehouse | filter: $select.search">

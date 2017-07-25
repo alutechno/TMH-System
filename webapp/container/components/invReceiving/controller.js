@@ -22,7 +22,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     }
 
     var qstring = "select * from ( "+
-    	"select aa.*,g.name warehouse_name,h.name cost_center_name,i.code pr_code,j.code ml_code "+
+    	"select aa.*,g.name warehouse_name,h.name cost_center_name,case when i.code is null then j.code else i.code end pr_code "+
         "from(  "+
     	"	select a.id,a.code,a.po_id,a.received_status status_id,c.name status_name,DATE_FORMAT(a.created_date,'%Y-%m-%d') as created_date, "+
     	"		a.currency_id,d.supplier_id,e.name supplier_name,f.code currency_code,format(a.total_amount,0)total_amount,a.total_amount TotalSum,a. "+
@@ -352,8 +352,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         DTColumnBuilder.newColumn('code').withTitle('RR Number').withOption('width', '10%'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status'),
         DTColumnBuilder.newColumn('po_code').withTitle('PO Number').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('pr_code').withTitle('PR Number').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('ml_code').withTitle('ML Number').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('pr_code').withTitle('PR/ML Number').withOption('width', '10%'),
+        //DTColumnBuilder.newColumn('ml_code').withTitle('ML Number').withOption('width', '10%'),
         DTColumnBuilder.newColumn('receive_status_name').withTitle('Delivery Status'),
         DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '10%'),
         DTColumnBuilder.newColumn('inv_no').withTitle('Inv#'),
@@ -362,10 +362,46 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         DTColumnBuilder.newColumn('total_amount').withTitle('Amount').withClass('text-right'),
         DTColumnBuilder.newColumn('po_created_date').withTitle('PO Created'),
         DTColumnBuilder.newColumn('po_released_date').withTitle('PO Released'),
-        DTColumnBuilder.newColumn('created_date').withTitle('Created At'),
+        DTColumnBuilder.newColumn('delivery_date').withTitle('Expected date'),
         DTColumnBuilder.newColumn('receive_date').withTitle('Receive Date')
     );
+	$scope.f = {po:'',pr:'',filter_date1:'',filter_date2:''}
+	var qwhereobj={}
+	$scope.applyFilter = function(){
+		var status = []
 
+		if ($scope.f.pr.length>0 ){
+			qwhereobj.pr_code = ' pr_code like "%'+$scope.f.pr+ '%" '
+		}
+		if ($scope.f.po.length>0 ){
+			qwhereobj.po_code = ' po_code like "%'+$scope.f.po+ '%" '
+		}
+		if ($scope.f.filter_date1.length>0 ){
+			qwhereobj.date = ' delivery_date = \''+$scope.f.filter_date1+'\' '
+		}
+		if ($scope.f.filter_date2.length>0 ){
+			qwhereobj.date = ' receive_date = \''+$scope.f.filter_date2+'\' '
+		}
+		qwhere = setWhere()
+		$scope.nested.dtInstance.reloadData(function(obj){
+		}, false)
+
+	}
+	$scope.openAdvancedFilter = function(val){
+        $scope.showAdvance = val
+    }
+	function setWhere(){
+        var arrWhere = []
+        var strWhere = ''
+        for (var key in qwhereobj){
+            if (qwhereobj[key].length>0) arrWhere.push(qwhereobj[key])
+        }
+        if (arrWhere.length>0){
+            strWhere = ' where '+ arrWhere.join(' and ')
+        }
+		console.log(strWhere)
+        return strWhere
+    }
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){

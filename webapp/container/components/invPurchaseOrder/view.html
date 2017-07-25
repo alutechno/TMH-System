@@ -227,7 +227,7 @@
                                 </ui-select>
                              </div>
                             <div class="btn-group form-group-default-select pull-left  m-r-5">
-                                <label>Store Location:</label><br />
+                                <label>Warehouse:</label><br />
                                 <ui-select ng-model="selected.filter_warehouse.selected" theme="bootstrap"  >
                                     <ui-select-match placeholder="Select Location">{{$select.selected.name}}</ui-select-match>
                                     <ui-select-choices repeat="item in warehouse | filter: $select.search">
@@ -331,7 +331,7 @@
                           </div>
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default form-group-default-select " >
-                                  <label>Delivered To</label>
+                                  <label>Warehouse</label>
                                   <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  on-select="po.warehouse_id=selected.warehouse.selected.id" ng-disabled="true">
                                       <ui-select-match placeholder="Select Location">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in warehouse | filter: $select.search">
