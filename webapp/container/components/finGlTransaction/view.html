@@ -186,10 +186,10 @@
                           </div>
                         <div class="btn-group dropdown-default pull-left  m-r-5">
                             <label>Status:</label><br />
-                            <ui-select ng-model="selected.filter_status" theme="select2" ng-disabled="disabled" style="width: 300px;" >
-                                <ui-select-match placeholder="Filter Status...">{{$item.name}}</ui-select-match>
-                                <ui-select-choices repeat="item in status | filter:$select.search">
-                                    {{item.name}}
+                            <ui-select ng-model="selected.filter_status.selected" theme="select2" style="width: 200px;" >
+                                <ui-select-match placeholder="Filter Status...">{{$select.selected.name}}</ui-select-match>
+                                <ui-select-choices repeat="item in status | filter: $select.search">
+                                    <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
                                 </ui-select-choices>
                             </ui-select>
                          </div>

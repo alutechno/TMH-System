@@ -83,13 +83,11 @@ function($scope, $state, $sce, queryService, $localStorage, $compile, $rootScope
     })
 
 	$scope.submit = function(name){
-		console.log($scope.sub)
 		var url=''
 		for(var key in $scope.sub[name].param){
 			url+='&'+encodeURIComponent(key)+'='+encodeURIComponent($scope.sub[name].param[key])
 		}
 		//url=encodeURIComponent(url)
-		console.log(BIRT_URL+'/frameset?__report='+$scope.sub[name].report_file+url+'&user_id='+$scope.user)
 		$scope.urlReport = $sce.trustAsResourceUrl(BIRT_URL+'/frameset?__report='+$scope.sub[name].report_file+url+'&user_id='+$scope.user+"&dummyVar="+ (new Date()).getTime())
 	}
 	$scope.trustAsHtml = function(value) {

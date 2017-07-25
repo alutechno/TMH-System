@@ -21,9 +21,6 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
     $scope.total_credit = 0
 	$scope.change=false
 	$scope.updateflag=false
-    $scope.balanceStatus = {
-        status:true
-    }
     var qstring = 'select a.id, a.code, a.journal_type_id, date_format(a.bookkeeping_date,\'%Y-%m-%d\')bookkeeping_date, a.gl_status status, c.name as status_name, '+
          'a.notes, a.ref_account,d.code journal_type_code, d.name journal_type_name, '+
          'format(sum(case when b.transc_type = \'D\' then b.amount else 0 end),0) as debit_amount_f, '+
@@ -387,11 +384,8 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 
     $scope.applyFilter = function(){
         var status = []
-        if ($scope.selected.filter_status.length>0){
-            for (var i=0;i<$scope.selected.filter_status.length;i++){
-                status.push($scope.selected.filter_status[i].id)
-            }
-            qwhereobj.status = ' a.gl_status in('+status.join(',')+') '
+        if ($scope.selected.filter_status.selected){
+            qwhereobj.status = ' a.gl_status ='+$scope.selected.filter_status.selected.id+' '
         }
 
         if ($scope.selected.filter_journal.selected){
@@ -400,8 +394,8 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 
         qwhereobj.period = ' (a.bookkeeping_date between \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-01\' and '+
         ' \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-'+$scope.selected.filter_month.selected.last+'\') '
-        qwhere = setWhere()
-        $scope.dtInstance.reloadData(function(obj){
+		qwhere = setWhere()
+		$scope.dtInstance.reloadData(function(obj){
             console.log(obj)
         }, false)
 
