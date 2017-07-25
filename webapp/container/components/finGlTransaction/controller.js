@@ -696,6 +696,7 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
     }
 
     $scope.update = function(obj){
+		$scope.clear();
 		$scope.updateflag=true
         queryService.post(qstring+ ' where a.id='+obj.id,undefined)
         .then(function(result){
