@@ -101,7 +101,8 @@
                     <td style="text-align: right;"><span ><b>{{tAmt*0.1| number : fractionSize}}</b></span></th>
                 </tr>-->
                 <tr>
-                    <td colspan="5" style="text-align: center;"><b>Total</b></th>
+                    <td colspan="5" ng-if="direct =='direct'" style="text-align: center;"><b>Total</b></th>
+					<td colspan="4" ng-if="direct =='non'" style="text-align: center;"><b>Total</b></th>
                     <td style="text-align: right;"><span ><b>{{tot_qty[key]| number : fractionSize}}</b></span></th>
                     <td style="text-align: center;">&nbsp;</th>
                     <td style="text-align: right;"><span ><b>{{tot_amt[key]| number : fractionSize}}</b></span></th>
