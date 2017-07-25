@@ -684,10 +684,9 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
                 d1 += d[i].transc_type=='D'?d[i].amount:0
                 c1 += d[i].transc_type=='C'?d[i].amount:0
                 $scope.account[i+1] = $scope.accounts
-
             }
             $scope.total_debit = d1
-            $scope.total_credit = c1
+			$scope.total_credit = c1
             $scope.ap.debit = d1
             $scope.ap.credit = c1
             $scope.ap.balance = d1-c1
@@ -804,8 +803,11 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 		$scope.updateflag=false
 		$scope.change=false;
 		$scope.total_debit = 0;
+		$scope.ap.debit = 0;
+		$scope.ap.credit = 0;
         $scope.total_credit = 0;
 		$scope.balance = 0;
+		$scope.apply
     }
 
 })
@@ -883,7 +885,6 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
             }
         };
     };
-
 
     // save edits
     $scope.child.saveTable = function(pr_id) {
