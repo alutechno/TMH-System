@@ -827,6 +827,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
             }
 
             $scope.po = result.data[0]
+			console.log($scope.po)
             $scope.selected.warehouse = {
                 selected: {
                     id:result.data[0].warehouse_id,

@@ -62,27 +62,6 @@
                     <br>
                 </td>
                 <td>
-                    <!--<table border="1" width="80%" align="center">
-                        <tr>
-                            <td align="center" style="background-color: #000000;color: white;"><b>DATE OF ORDER :</b> {{po.created_date}}</td>
-                            <td align="center" style="background-color: #000000;color: white;"><b>DATE REQUIRED :</b> {{po.delivery_date}}</td>
-                            <td align="center" style="background-color: #000000;color: white;"><b>PO NO. :</b> {{po.code}}</td>
-                        </tr>
-                        <tr>
-                            <td align="center">{{po.created_date}}</td>
-                            <td align="center">{{po.delivery_date}}</td>
-                            <td align="center">{{po.code}}</td>
-                        </tr>
-                    </table>
-                    <br>
-                    <table border="1" width="80%" align="center">
-                        <tr>
-                            <td align="center" style="background-color: #000000;color: white;"><b>REQUESTED BY DEPT</b></td>
-                        </tr>
-                        <tr>
-                            <td align="center" >{{po.dept}}</td>
-                        </tr>
-                    </table>-->
                 </td>
             </tr>
         </table>
@@ -121,19 +100,7 @@
             </tr>
             </tbody>
             <tfooter width="80%" border="1" align="center">
-		<!--		<tr>
-                    <td colspan="4" style="text-align: center;"><b>SubTotal</b></th>
-                    <td style="text-align: right;"><span ><b>{{totalQty| number : fractionSize}}</b></span></th>
-                    <td style="text-align: center;">&nbsp;</th>
-                    <td style="text-align: right;"><span ><b>{{tAmt| number : fractionSize}}</b></span></th>
-                </tr>
-				<tr>
-                    <td colspan="4" style="text-align: center;"><b>TAX</b></th>
-                    <td style="text-align: center;">&nbsp;</th>
-                    <td style="text-align: center;">&nbsp;</th>
-                    <td style="text-align: right;"><span ><b>{{tAmt*0.1| number : fractionSize}}</b></span></th>
-                </tr>-->
-                <tr>
+		        <tr>
                     <td colspan="4" style="text-align: center;"><b>Total</b></th>
                     <td style="text-align: right;"><span ><b>{{totalQty| number : fractionSize}}</b></span></th>
                     <td style="text-align: center;">&nbsp;</th>
@@ -152,19 +119,21 @@
         <span width="89%" style="padding-left:87px;">
             <b><i>Notes: This document is valid without a signature or the company stamp</i></b>
         </span>
-        <table width="89%" cellpadding="5" border="0" align="center">
+		<br><br><br><br><br><br>
+        <table width="89%" cellpadding="1" border="0" align="center">
             <tr>
-                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                <td width="20%" style="border-bottom:1pt solid black;padding-right:1px;padding-left:1px;">
 
                 </td>
-                <td>&nbsp;</td>
-                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                <td >&nbsp;</td>
+                <td width="20%" ng-if="po.pr_id!=null" style="border-bottom:1pt solid black;padding-right:1px;padding-left:1px;">
 
                 </td>
-                <td>&nbsp;</td>
-                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
-
+				<td width="20%" ng-if="po.ml_id!=null">&nbsp;</td>
+                <td >&nbsp;</td>
+                <td width="20%" ng-if="po.pr_id!=null" style="border-bottom:1pt solid black;padding-right:1px;padding-left:1px;">
                 </td>
+				<td width="20%" ng-if="po.ml_id!=null">&nbsp;</td>
                 <td>&nbsp;</td>
                 <td valign="top">
                 </td>
@@ -174,11 +143,13 @@
                     Purchasing Manager
                 </td>
                 <td>&nbsp;</td>
-                <td align="center">
+				<td ng-if="po.ml_id!=null">&nbsp;</td>
+                <td align="center" ng-if="po.pr_id!=null">
                     Financial Controller
                 </td>
                 <td>&nbsp;</td>
-                <td align="center">
+				<td ng-if="po.ml_id!=null">&nbsp;</td>
+                <td align="center" ng-if="po.pr_id!=null">
                     General Manager
                 </td>
                 <td>&nbsp;</td>
