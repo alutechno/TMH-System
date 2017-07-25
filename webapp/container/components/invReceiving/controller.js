@@ -1100,7 +1100,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 				}
 			}else{
 				sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,bookkeeping_date) values("receiving '+$scope.po.code+
-					'",@id,(select case when is_has_store=\'Y\' then inv_account_id else account_id end code from mst_cost_center where id='+$scope.selected.cost_center.selected.id+' union select account_id from mst_warehouse where id='+$scope.selected.warehouse.selected.id+' limit 1),\'D\','+amt+','+$localStorage.currentUser.name.id+',curdate())')
+					'",@id,(select case when is_has_store="Y" then inv_account_id else account_id end code from mst_cost_center where id='+$scope.selected.cost_center.selected.id+' union select account_id from mst_warehouse where id='+$scope.selected.warehouse.selected.id+' limit 1),\'D\','+amt+','+$localStorage.currentUser.name.id+',curdate())')
 			}
 		}
 		sqlitem.push("commit");
