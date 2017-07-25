@@ -63,15 +63,21 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             last:month[i].last
         })
     }
-    var qstring = "select a.id, a.code, '-' as 'voucher_id', '-' as 'voucher_doc_no', "+
+    var qstring = "select id, code, voucher_id, voucher_doc_no, open_date, due_date, check_no, status, status_name, "+
+                  "prepared_date, supplier_id, supplier_name, currency_id, currency_exchange, currency_code, currency_name, "+
+                  "total_amount, home_total_amount, bank_id, bank_account_id, bank_account, format(a.total_amount,0) ta, format(a.home_total_amount,0) hta, "+
+                  "prepare_notes, gl_account_id, gl_account_code, gl_account_name, ap_clearance_account_id, ap_clearance_account_code, ap_clearance_account_name, "+
+                  "supplier_account_id, supplier_account_code, supplier_account_name, approved_by, approved_date, prepared_by, issued_by, issued_date, created_by, created_date " +
+        "from ( "+
+        "select a.id, a.code, '-' as 'voucher_id', '-' as 'voucher_doc_no', "+
     	"DATE_FORMAT(a.open_date,'%Y-%m-%d')open_date, DATE_FORMAT(a.check_due_date,'%Y-%m-%d')due_date, a.check_no, a.status, e.name as status_name,  "+
     	"DATE_FORMAT(a.prepared_date,'%Y-%m-%d') prepared_date,a.supplier_id, d.name as 'supplier_name', a.currency_id,a.currency_exchange,  "+
-    	"f.code as 'currency_code', f.name as currency_name, a.total_amount ,a.home_total_amount, g.bank_id,a.bank_account_id,  "+
-    	"g.name as 'bank_account', (select format(sum(x.amount),0) amount "+
+    	"f.code as 'currency_code', f.name as currency_name, (select sum(x.amount) amount "+
                  "from acc_gl_journal x, acc_gl_transaction y "+
-				"where x.gl_id = y.id "+
+                "where x.gl_id = y.id "+
                   "and x.transc_type = 'C' "+
-                  "and y.payment_id=a.id)ta,format(a.home_total_amount,0)hta, prepare_notes,  "+
+                  "and y.payment_id=a.id) total_amount ,a.home_total_amount, g.bank_id,a.bank_account_id,  "+
+    	"g.name as 'bank_account', 0 ta,0 hta, prepare_notes,  "+
         "g.gl_account_id,h.code gl_account_code,h.name gl_account_name, "+
         "g.ap_clearance_account_id,i.code ap_clearance_account_code,i.name ap_clearance_account_name,  "+
         "k.id supplier_account_id,k.code supplier_account_code,k.name supplier_account_name,l.name approved_by,DATE_FORMAT(a.approved_date,'%Y-%m-%d') approved_date,m.name prepared_by,n.name issued_by,DATE_FORMAT(a.issued_date,'%Y-%m-%d') issued_date,o.name created_by,DATE_FORMAT(a.created_date,'%Y-%m-%d') created_date  "+
@@ -90,7 +96,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 	"left join user m on a.prepared_by=m.id  "+
 	"left join user n on a.issued_by=n.id  "+
 	"left join user o on a.created_by=o.id  "+
-    "where a.payment_method = '1' "
+    "where a.payment_method = '1' " +
+    ") a where id > 0 "
 
     /*var qstring = "select a.id, a.code, c.id as 'voucher_id', c.code as 'voucher_doc_no', "+
     	"DATE_FORMAT(a.open_date,'%Y-%m-%d')open_date, DATE_FORMAT(a.check_due_date,'%Y-%m-%d')due_date, a.check_no, a.status, e.name as status_name, "+
@@ -340,12 +347,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.focusinControl = {};
     $scope.fileName = "Direct Payment";
     $scope.exportExcel = function(){
-        queryService.post('select id,code,check_no,open_date,due_date,status_name,supplier_name,bank_account,currency_code,total_amount,home_total_amount from('+qstring + qwhere+')aa order by id desc',undefined)
+        queryService.post('select id,code,check_no,open_date,due_date,status_name,supplier_name,bank_account,currency_code,total_amount from('+qstring + qwhere+')aa order by id desc',undefined)
         .then(function(data){
             $scope.exportData = [];
             //Header
             $scope.exportData.push(["ID","Doc No", 'Check No',"Open Date",'Due Date', 'Status','Supplier', 'Bank Account','Currency',
-                'Total Amount (IDR)','Total Amount']);
+                'Total Amount']);
             //Data
             for(var i=0;i<data.data.length;i++){
                 var arr = []
@@ -429,20 +436,20 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '4%'))
+        .renderWith($scope.actionsHtml).withOption('width', '5%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('Transc No').withOption('width', '4%'),
-        DTColumnBuilder.newColumn('code').withTitle('Doc No').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('check_no').withTitle('Check No').withOption('width', '10%'),
-        DTColumnBuilder.newColumn('open_date').withTitle('Open Date').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('due_date').withTitle('Due Date').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '15%'),
+        DTColumnBuilder.newColumn('id').withTitle('Trans#').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('code').withTitle('Doc No').withOption('width', '8%'),
+        DTColumnBuilder.newColumn('check_no').withTitle('Check No').withOption('width', '6%'),
+        DTColumnBuilder.newColumn('open_date').withTitle('Open Date').withOption('width', '6%'),
+        DTColumnBuilder.newColumn('due_date').withTitle('Due Date').withOption('width', '6%'),
+        DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '6%'),
+        DTColumnBuilder.newColumn('supplier_name').withTitle('Supplier').withOption('width', '13%'),
         //DTColumnBuilder.newColumn('age').withTitle('Age'),
-        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account').withOption('width', '15%'),
+        DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account').withOption('width', '10%'),
         DTColumnBuilder.newColumn('currency_code').withTitle('Currency').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('ta').withTitle('Total amount (IDR)').withOption('width', '7%').withClass('text-right')
+        DTColumnBuilder.newColumn('ta').withTitle('Total Amount').withOption('width', '7%').withClass('text-right')
         //DTColumnBuilder.newColumn('hta').withTitle('Total Amount').withOption('width', '5%').withClass('text-right')
     );
     queryService.post('select sum(total_amount)as sm,sum(home_total_amount)as sm2 from ('+qstring+qwhere+')a',undefined)
