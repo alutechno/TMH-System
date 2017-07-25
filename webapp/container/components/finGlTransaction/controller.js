@@ -425,7 +425,7 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
         $scope.itemsOri = []
         $scope.total_debit = 0;
         $scope.total_credit = 0;
-        $scope.balanceStatus.status = true
+		$scope.balance = 0;
     }
 
     $scope.submit = function(){
@@ -802,6 +802,9 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 	    }
 		$scope.updateflag=false
 		$scope.change=false;
+		$scope.total_debit = 0;
+        $scope.total_credit = 0;
+		$scope.balance = 0;
     }
 
 })
