@@ -530,7 +530,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
         var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
         //queryService.post('select cast(concat(\'DMT/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'DMT\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
-		queryService.post('select curr_document_no(\'DP\',\''+$scope.ym+'\') as code',undefined)
+		queryService.post('select curr_document_no(\'DMT\',\''+$scope.ym+'\') as code',undefined)
         .then(function(data){
             $scope.ap.code = data.data[0].code
         });
@@ -590,7 +590,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     if (q2.length > 0){
                             var qq = ''
                             qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
-                             'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+result.data.insertId+',\'0\','+$scope.journal_type_id+',\''+($scope.ap.notes?$scope.ap.notes:'')+'\');'
+                             'values(\''+$scope.ap.open_date+'\',next_item_code("GL","GP"),'+result.data.insertId+',\'0\','+$scope.journal_type_id+',\''+($scope.ap.notes?$scope.ap.notes:'')+'\');'
                             queryService.post(qq ,undefined)
                             .then(function (result2){
                                 var ids = '';
@@ -731,12 +731,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                             var qq = ''
                             if(data.data.length==0){
                                 qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
-                                 'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+$scope.ap.id+',\'0\','+$scope.journal_type_id+',\''+$scope.ap.notes+'\');'
+                                 'values(\''+$scope.ap.open_date+'\',next_item_code("GL","GP"),'+$scope.ap.id+',\'0\','+$scope.journal_type_id+',\''+$scope.ap.notes+'\');'
                             }
                             else {
                                 qq = 'update acc_gl_transaction set '+
                                     'bookkeeping_date = \''+$scope.ap.open_date+'\', '+
-                                    'code = \''+$scope.ap.code+'\', '+
+                                    //'code = \''+$scope.ap.code+'\', '+
                                     'journal_type_id = '+$scope.journal_type_id+','+
                                     'notes = \''+$scope.ap.notes+'\' '+
                                     'where id='+data.data[0].id
