@@ -518,6 +518,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                               'where a.po_id='+$scope.po.po_id+
                           ')a group by po_id',undefined)
                         .then(function(data){
+							$scope.disableAction = false;
 							var paramPo = {
                                 receive_status: null
                             }

@@ -690,8 +690,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             var home_total_amount = 0
             var statDetail = true
             for (var i=0;i<$scope.items.length;i++){
-                if($scope.items[i].account_id.length==0) statDetail = false
-                if(($scope.items[i].debit+$scope.items[i].credit)==0) statDetail = false
+				console.log($scope.items[i])
+                if(!$scope.items[i].isDeleted && $scope.items[i].account_id.length==0) statDetail = false
+                if(!$scope.items[i].isDeleted && ($scope.items[i].debit+$scope.items[i].credit)==0) statDetail = false
             }
             if (statDetail == true){
                 var param = {
@@ -732,6 +733,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 queryService.post('update acc_cash_payment SET ? WHERE id='+$scope.ap.id ,param)
                 .then(function (result){
                     var q2 = $scope.child.saveTable(0)
+					console.log(q2)
                     if (q2.length > 0){
                         queryService.get('select id from acc_gl_transaction where payment_id= '+$scope.ap.id,undefined)
                         .then(function(data){
