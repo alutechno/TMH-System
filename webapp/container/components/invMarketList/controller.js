@@ -376,11 +376,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 		for(var i=0;i<$scope.items.length;i++){
 			if(!$scope.supp[$scope.items[i].supplier_id]){
 				$scope.supp[$scope.items[i].supplier_id]=[$scope.items[i]]
-				$scope.tot_amt[$scope.items[i].supplier_id]=$scope.items[i].price
+				$scope.tot_amt[$scope.items[i].supplier_id]=($scope.items[i].price*$scope.items[i].qty)
 				$scope.tot_qty[$scope.items[i].supplier_id]=$scope.items[i].qty
 			}else{
 				$scope.supp[$scope.items[i].supplier_id].push($scope.items[i])
-				$scope.tot_amt[$scope.items[i].supplier_id]+=$scope.items[i].price
+				$scope.tot_amt[$scope.items[i].supplier_id]+=($scope.items[i].price*$scope.items[i].qty)
 				$scope.tot_qty[$scope.items[i].supplier_id]+=$scope.items[i].qty
 			}
 		}
