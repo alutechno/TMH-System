@@ -590,7 +590,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     if (q2.length > 0){
                             var qq = ''
                             qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
-                             'values(\''+$scope.ap.open_date+'\',next_item_code("GL","GP"),'+result.data.insertId+',\'0\','+$scope.journal_type_id+',\''+($scope.ap.notes?$scope.ap.notes:'')+'\');'
+                             'values(\''+$scope.ap.open_date+'\',next_item_code("GL","DP"),'+result.data.insertId+',\'0\','+$scope.journal_type_id+',\''+($scope.ap.notes?$scope.ap.notes:'')+'\');'
                             queryService.post(qq ,undefined)
                             .then(function (result2){
                                 var ids = '';
@@ -731,7 +731,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                             var qq = ''
                             if(data.data.length==0){
                                 qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
-                                 'values(\''+$scope.ap.open_date+'\',next_item_code("GL","GP"),'+$scope.ap.id+',\'0\','+$scope.journal_type_id+',\''+$scope.ap.notes+'\');'
+                                 'values(\''+$scope.ap.open_date+'\',next_item_code("GL","DP"),'+$scope.ap.id+',\'0\','+$scope.journal_type_id+',\''+$scope.ap.notes+'\');'
                             }
                             else {
                                 qq = 'update acc_gl_transaction set '+
