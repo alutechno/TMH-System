@@ -3211,7 +3211,8 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
 							"datepicker",
 							"daterangepicker",
 							"tagsInput",
-							"autonumeric"
+							"autonumeric",
+							'dropzone'
 						], {
 							insertBefore: "#lazyload_placeholder"
 						})
