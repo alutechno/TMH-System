@@ -734,7 +734,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 .then(function (result){
                     var q2 = $scope.child.saveTable(0)
 					console.log(q2)
-                    if (q2.length > 0){
+					if (q2.length > 0){
+console.log(q2)
                         queryService.get('select id from acc_gl_transaction where payment_id= '+$scope.ap.id,undefined)
                         .then(function(data){
                             //console.log(data)
@@ -753,12 +754,14 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 									'modified_date=curdate() '+
                                     'where id='+data.data[0].id
                             }
+							console.log(qq)
                             queryService.post(qq ,undefined)
                             .then(function (result2){
                                 var ids = '';
                                 if (result2.data.insertId) ids = result2.data.insertId
                                 else ids = data.data[0].id
                                 var q2 = $scope.child.saveTable(ids)
+								console.log(q2)
                                 if (q2.length>0){
                                     queryService.post(q2.join(';') ,undefined)
                                     .then(function (result3){
@@ -797,6 +800,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
                             },
                             function(err2){
+								console.log(err2)
                                 console.log(err2)
         						$scope.disableAction = false;
                             })
@@ -1481,7 +1485,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             // send on server
             //results.push($http.post('/saveUser', user));
             if (user.isNew && !user.isDeleted){
-
                 if (user.debit>0){
                     sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
                     pr_id+','+user.account_id+',\'D\',\''+user.notes+'\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
@@ -1490,17 +1493,19 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
                     pr_id+','+user.account_id+',\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }
-
             }
             else if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from acc_gl_journal where id='+user.p_id)
             }
             else if(!user.isNew){
-                for (var j=0;j<$scope.itemsOri.length;j++){
+				console.log('user')
+				console.log(user)
+				/*for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
                         var d1 = $scope.itemsOri._id+$scope.itemsOri[j].account_id+$scope.itemsOri[j].debit+$scope.itemsOri[j].credit+$scope.itemsOri[i].notes
                         var d2 = user.pid+user.account_id+user.debit+user.credit+user.notes
-                        if(d1 != d2){
+                        if(d1 != d2){*/
+							//console.log(user)
                             sqlitem.push('update acc_gl_journal set '+
                             ' account_id = '+user.account_id+',' +
                             ' notes = \''+user.notes+'\','+
@@ -1509,16 +1514,16 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                             ' modified_by = '+$localStorage.currentUser.name.id+',' +
                             ' modified_date = \''+globalFunction.currentDate()+'\'' +
                             ' where id='+user.p_id)
-                        }
+                        /*}
                     }
-                }
+                }*/
             }
             $scope.total.debit += (!isNaN(parseInt(user.debit))?parseInt(user.debit):0)
             $scope.total.credit += (!isNaN(parseInt(user.credit))?parseInt(user.credit):0)
             $scope.total.debit_f += (user.transc_type=='D'?(parseInt(user.debit)/$scope.ap.exchange):0)
             $scope.total.credit_f += (user.transc_type=='C'?(parseInt(user.credit)/$scope.ap.exchange):0)
-
         }
+		console.log(sqlitem)
         return sqlitem
     };
     $scope.trustAsHtml = function(value) {
