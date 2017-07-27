@@ -3,34 +3,34 @@
         <h2 align="center">Store Issued</h2>
         <br>
         <table width="90%">
-    			<tr>
-    				<td >
-    					&nbsp;&nbsp;&nbsp;<span class="text-center">Code</span>&nbsp;
+		<tr>
+			<td >
+				&nbsp;&nbsp;&nbsp;<span class="text-center">Code</span>&nbsp;
             </td>
             <td>:&nbsp;<span class="text-center">{{sr.code}}</span>&nbsp;&nbsp;&nbsp;</td>
             <td>
-    					<span class="text-center">Date</span>&nbsp;
-    				</td>
+				<span class="text-center">Date</span>&nbsp;
+			</td>
             <td>:&nbsp;<span class="text-center">{{sr.date}}</span>&nbsp;&nbsp;&nbsp;</td>
             <td>
               <span class="text-center">Status</span>&nbsp;
-    				</td>
+			</td>
             <td>:&nbsp;<span class="text-center">{{selected.request_status.selected.name}}</span>&nbsp;&nbsp;&nbsp;</td>
-    			</tr>
-    			<tr>
-    				<td>
-    					&nbsp;&nbsp;&nbsp;<span class="text-center">Warehouse</span>&nbsp;
-    				</td>
+		</tr>
+		<tr>
+			<td>
+				&nbsp;&nbsp;&nbsp;<span class="text-center">Warehouse</span>&nbsp;
+			</td>
             <td>:&nbsp;<span class="text-center">{{selected.warehouse.selected.name}}</span>&nbsp;&nbsp;&nbsp;</td>
             <td>
               <span class="text-center">Cost center</span>&nbsp;
-    				</td>
+			</td>
             <td>:&nbsp;<span class="text-center">{{selected.cost_center.selected.name}}</span>&nbsp;&nbsp;&nbsp;</td>
             <td>
               <span class="text-center">Notes</span>&nbsp;
-    				</td>
+			</td>
             <td>:&nbsp;<span class="text-center">{{ap.notes}}</span>&nbsp;</td>
-    			</tr>
+		</tr>
         </table>
         <br>
         <table width="89%" cellpadding="5" border="1" align="center">
@@ -46,7 +46,6 @@
 				</tr>
 				</thead>
 				<tbody>
-
 				<tr ng-repeat="item in items | filter:filterUser">
 					<td >
 						{{item.product_name}}
@@ -70,15 +69,12 @@
         <table width="89%" cellpadding="5" border="0" align="center">
             <tr>
                 <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
-
                 </td>
                 <td>&nbsp;</td>
                 <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
-
                 </td>
                 <td>&nbsp;</td>
                 <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
-
                 </td>
                 <td>&nbsp;</td>
                 <td valign="top">
@@ -114,11 +110,9 @@
                 </div>
                 <div class="pull-right" style="width: 60%;">
                     <!--<button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add SR</button>-->
-
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
                     </div>
-
                 </div>
                 <div class="clearfix"></div>
                 <div class="tools">
@@ -151,7 +145,6 @@
         <div class="container-xs-height full-height">
           <div class="row-xs-height">
             <div class="modal-body col-xs-height col-top">
-
       <!-- START FORM -->
       <div class="panel panel-transparent m-t-20">
           <form id="form-user" role="form" autocomplete="off" name="dodol" validate>
@@ -242,7 +235,6 @@
                             <th width="10%">Notes</th>
                         </tr>
                         </thead>
-
                         <tbody>
                         <tr ng-repeat="item in items | filter:filterUser">
                             <td >
@@ -287,7 +279,6 @@
 					  <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
                       <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
                     </div>
-
               </div>
               <br>
               <div class="row divider"></div>
