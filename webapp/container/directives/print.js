@@ -2,7 +2,7 @@
     'use strict';
 
     function printDirective() {
-        var printSection = document.getElementById('printSection');
+        /*var printSection = document.getElementById('printSection');
         var psParent;
 
         // if there is no printing section, create one
@@ -16,6 +16,20 @@
             psParent.id = 'printSectionParent';
             document.body.appendChild(psParent);
             psParent.appendChild(printSection)
+        }*/
+        var printSection = window.document.getElementById('printSection');
+        var printSectionParent = window.document.getElementById('printSectionParent');
+        //psParent.id = 'printSectionParent';
+        if (printSectionParent){
+            printSectionParent.innerHTML = '';
+            printSectionParent.appendChild(printSection);
+        }
+        else {
+            printSectionParent = document.createElement('div');
+            printSectionParent.id = 'printSectionParent';
+            document.body.appendChild(printSectionParent);
+            printSectionParent.appendChild(printSection)
+
         }
 
         function link(scope, element, attrs) {
