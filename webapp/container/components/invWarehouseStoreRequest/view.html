@@ -40,6 +40,7 @@
 					<th width="10%">Stock in Hand</th>
 					<th width="10%">Qty</th>
 					<th width="10%">Unit</th>
+					<th width="10%">Issued</th>
 					<th width="10%">Notes</th>
 				</tr>
 				</thead>
@@ -56,6 +57,7 @@
 					<td style="text-align:right">
 							{{ item.unit_name}}
 					</td>
+					<td>&nbsp;</td>
 					<td style="text-align:right">
 							{{ item.item_notes}}
 					</td>
@@ -194,7 +196,7 @@
                 <div class="col-sm-6">
                     <div pg-form-group class="form-group form-group-default form-group-default-select required" ng-class="{ 'has-error' : sr.warehouse_id.$invalid && !sr.warehouse_id.$pristine }">
                         <label>Warehouse</label>
-                        <ui-select ng-model="selected.warehouse.selected" theme="bootstrap" validate-attached-form-element required >
+                        <ui-select ng-model="selected.warehouse.selected" theme="bootstrap" validate-attached-form-element required ng-disabled="!new" ng-change="refresh()">
                             <ui-select-match placeholder="select warehouse">{{$select.selected.name}}</ui-select-match>
                             <ui-select-choices repeat="item in warehouse | filter: $select.search">
                                 <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -275,7 +277,7 @@
                     </table>
                     <!-- buttons -->
                     <div class="btn-edit">
-                      <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()" ng-disabled=" !selected.warehouse.selected || selected.request_status.selected.id!=0 || selected.issued_status.selected.id!=0">
+                      <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()" ng-disabled=" !selected.warehouse.selected || selected.request_status.selected.id!=0">
                         Modify Item List
                       </button>
                     </div>

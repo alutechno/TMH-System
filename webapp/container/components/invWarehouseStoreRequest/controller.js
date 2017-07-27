@@ -14,6 +14,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
+	$scope.new=false
 	var qstring = 'select concat(\'Department: \',f.name)  dept_desc,e.code cc_code,a.id,a.code,a.request_status,c.name request_status_name,a.issued_status,b.name issued_status_name,DATE_FORMAT(a.required_date,\'%Y-%m-%d\') required_date,a.origin_warehouse_id,d.name warehouse_name,d.account_id coa_wr,a.dest_cost_center_id,e.name cost_center_name,e.account_id,a.request_notes '+
         'from inv_store_request a,(select value,name from table_ref where table_name=\'store_request\' and column_name=\'issued_status\') b, '+
         '(select value,name from table_ref where table_name=\'store_request\' and column_name=\'request_status\') c,mst_warehouse d,mst_cost_center e, mst_department f '+
@@ -203,6 +204,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         if (state == 'add'){
             $scope.clear()
         }
+		$scope.new=true
         $scope.items = []
         $scope.itemsOri = []
         $('#form-input').modal('show')
@@ -338,6 +340,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.update = function(ids){
+		$scope.new=false;
         queryService.post(qstring+ ' and a.id='+ids,undefined)
         .then(function(result){
             $('#form-input').modal('show');
@@ -380,9 +383,22 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 type: 'danger'
             }).show();
         })
-
-
     }
+
+	$scope.refresh = function(){
+		$scope.items=[];
+		var ss = 'select a.id,a.product_id,b.name product_name,a.stock_qty_l,b.lowest_unit_type_id unit_id,c.name unit_name '+
+            'from inv_warehouse_stock a,mst_product b,ref_product_unit c '+
+            'where a.product_id=b.id '+
+            'and b.lowest_unit_type_id=c.id '+
+            'and warehouse_id='+$scope.selected.warehouse.selected.id +
+            //' and lower(b.name) like \''+text.toLowerCase()+'%\' '+
+            ' order by id limit 50 '
+        queryService.post(ss,undefined)
+        .then(function(data){
+            $scope.products = data.data
+        })
+	}
 
     $scope.delete = function(obj){
 		$scope.sr.id = obj.id;
@@ -416,6 +432,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     $scope.clear = function(){
+		$scope.new=false
         $scope.sr = {
             id: '',
             code: '',
@@ -426,6 +443,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             date: '',
             notes: ''
         }
+		$scope.selected = {
+	        request_status: {},
+	        issued_status: {},
+	        warehouse: {},
+	        cost_center: {}
+	    }
     }
 })
 
