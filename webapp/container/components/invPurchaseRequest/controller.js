@@ -389,6 +389,19 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 				$scope.tot_qty[$scope.items[i].supplier_id]+=$scope.items[i].qty
 			}
 		}
+        var printSection = window.document.getElementById('printSection');
+        var printSectionParent = window.document.getElementById('printSectionParent');
+        if (printSectionParent){
+            printSectionParent.innerHTML = '';
+            printSectionParent.appendChild(printSection);
+        }
+        else {
+            printSectionParent = document.createElement('div');
+            printSectionParent.id = 'printSectionParent';
+            document.body.appendChild(printSectionParent);
+            printSectionParent.appendChild(printSection)
+
+        }
 		setTimeout(function(){
 			window.print();
 		}, 100)
