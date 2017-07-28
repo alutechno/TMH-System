@@ -2,30 +2,47 @@
     <div class="row">
         <h2 align="center">G/L Transaction</h2>
         <br>
-        <table width="90%" style="margin-left:20px">
-			<tr>
-				<td >
-					<span class="text-center">Journal Code : {{selected.journal_type.selected.name}}</span>&nbsp;&nbsp;&nbsp;
-					<span class="text-center">Document NO : {{ap.code}}</span>&nbsp;&nbsp;&nbsp;
-					<span class="text-center">Date : {{ap.bookkeeping_date}}</span>&nbsp;&nbsp;&nbsp;
-					<span class="text-center">Status : {{selected.status.selected.name}}</span>&nbsp;&nbsp;&nbsp;
-					<span class="text-center">Ref Account : {{ap.ref_account}}</span>&nbsp;&nbsp;&nbsp;
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<span class="text-center">Debit : {{ap.debit}}</span>&nbsp;&nbsp;&nbsp;
-					<span class="text-center">Credit : {{ap.credit}}</span>&nbsp;&nbsp;&nbsp;
-					<span class="text-center">Balance : {{ap.balance}}</span>&nbsp;&nbsp;&nbsp;
-					<span class="text-center">Notes : {{ap.notes}}</span>&nbsp;
-				</td>
-			</tr>
-        </table>
+        <table width="98%" align="center">
+          <tr>
+            <td style="text-align:left" width="15%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Journal Code</td>
+            <td style="text-align:right" width="1%">:</td>
+            <td style="text-align:left" width="25%">{{selected.journal_type.selected.name}}</td>
+            <td style="text-align:left" width="15%">Document No</td>
+            <td style="text-align:right" width="1%">:</td>
+            <td style="text-align:left" width="25%">{{ap.code}}</td>
+          </tr>
+          <tr>
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date</td>
+            <td>:</td>
+            <td>{{ap.bookkeeping_date}}</td>
+            <td>Status</td>
+            <td>:</td>
+            <td>{{selected.status.selected.name}}</td>
+          </tr>
+          <tr>
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ref Account</td>
+            <td>:</td> 
+            <td>{{ap.ref_account}}</td>          
+            <td>Notes</td>
+            <td>:</td>
+            <td>{{ap.notes}}</td>
+            </td>
+          </tr>
+          <tr>
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Debit</td>
+            <td>:</td> 
+            <td>{{ap.debit|number: fractionSize}}</td>          
+            <td>Credit</td>
+            <td>:</td>
+            <td>{{ap.credit|number: fractionSize}}</td>
+            </td>
+          </tr>
+        </table>       
         <br>
         <table width="89%" cellpadding="5" border="1" align="center">
             <thead>
-				<tr>
-					<th width="15%" style="text-align:center">Account ID</th>
+				<tr>        
+					<th width="10%" style="text-align:center">Account ID</th>
 					<th width="30%" style="text-align:center">Account Name</th>
 					<th width="30%" style="text-align:center">Notes</th>
 					<th width="10%" style="text-align:center">Debit</th>
@@ -58,29 +75,43 @@
 				</tbody>
         </table>
         <table width="89%" border="0" align="center">
-            <tr height="150px">
-                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
-                </td>
-                <td>&nbsp;</td>
-                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
-                </td>
-                <td>&nbsp;</td>
-                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
-                </td>
-            </tr>
+            <br>
             <tr>
                 <td align="center">
                     Prepared by
                 </td>
                 <td>&nbsp;</td>
                 <td align="center">
-                    Posted by
+                    Reviewed by
                 </td>
                 <td>&nbsp;</td>
                 <td align="center">
                     Approved by
                 </td>
             </tr>
+            <tr height="100px">
+                <td style="border-bottom:1pt solid black;padding-right:15px;padding-left:15px;">
+                </td>
+                <td>&nbsp;</td>
+                <td style="border-bottom:1pt solid black;padding-right:15px;padding-left:15px;">
+                </td>
+                <td>&nbsp;</td>
+                <td style="border-bottom:1pt solid black;padding-right:15px;padding-left:15px;">
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    General Cashier
+                </td>
+                <td>&nbsp;</td>
+                <td align="center">
+                    Chief Accountant
+                </td>
+                <td>&nbsp;</td>
+                <td align="center">
+                    Fincancial Controller
+                </td>
+            </tr>            
         </table>
         <br><br><br><br>
     </div>
