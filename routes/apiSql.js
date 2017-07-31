@@ -20,8 +20,7 @@ module.exports = function (connection, jwt, log) {
                 }))
             }
             else {
-				connection('rollback',undefined,function(e,r,f){});
-                console.error(req.path + '|' + JSON.stringify(err))
+				console.error(req.path + '|' + JSON.stringify(err))
             }
 
             //res.send(JSON.stringify({err:err,rows:rows,fields:fields}))

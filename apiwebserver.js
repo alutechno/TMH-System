@@ -66,20 +66,25 @@ if (cluster.isMaster) {
             } else {
                 if (typeof data === "undefined") {
                     connection.query(sql, function (err, rows, fields) {
-                        connection.release();
                         if (err) {
+							connection.query("rollback", function (err, rows, fields) {});
                             callback(err, rows, fields);
+							connection.release();
                         } else {
                             callback(err, rows, fields);
+							connection.release();
                         }
                     });
                 } else {
                     connection.query(sql, data, function (err, rows, fields) {
                         connection.release();
                         if (err) {
+							connection.query("rollback", function (err, rows, fields) {});
                             callback(err, rows, fields);
+							connection.release();
                         } else {
                             callback(err, rows, fields);
+							connection.release();
                         }
                     });
                 }
