@@ -600,9 +600,9 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 				values(next_item_code("GL","SR"),15,`+$scope.sr.id+`,1,"SR issuing "`+$scope.sr.code+`,curdate(),`+$localStorage.currentUser.name.id+`,curdate(),`+$localStorage.currentUser.name.id+`)`
 			var sql6='set @id=(select last_insert_id())'
 			var sql7=`insert into acc_gl_journal (gl_id,account_id,transc_type,amount,notes,bookkeeping_date)
-				values(@id,`+$scope.selected.cost_center.selected.account_id+`,'D',`+amount_tot+`,"SR issuing "`+$scope.sr.code+`,curdate())`
+				values(@id,`+$scope.selected.cost_center.selected.account_id+`,'D',`+amount_tot+`,"SR issuing `+$scope.sr.code+`",curdate())`
 			var sql8=`insert into acc_gl_journal (gl_id,account_id,transc_type,amount,notes,bookkeeping_date)
-				values(@id,`+$scope.selected.warehouse.selected.account_id+`,'C',`+amount_tot+`,"SR issuing "`+$scope.sr.code+`,curdate())`
+				values(@id,`+$scope.selected.warehouse.selected.account_id+`,'C',`+amount_tot+`,"SR issuing `+$scope.sr.code+`",curdate())`
 			sqlitem.push(sql5,sql6,sql7,sql8)
 		}
 		sqlitem.push('COMMIT')
