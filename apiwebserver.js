@@ -69,7 +69,6 @@ if (cluster.isMaster) {
                         if (err) {
 							connection.query("rollback", function (err, rows, fields) {});
                             callback(err, rows, fields);
-							connection.release();
                         } else {
                             callback(err, rows, fields);
 							connection.release();
@@ -81,7 +80,6 @@ if (cluster.isMaster) {
                         if (err) {
 							connection.query("rollback", function (err, rows, fields) {});
                             callback(err, rows, fields);
-							connection.release();
                         } else {
                             callback(err, rows, fields);
 							connection.release();
