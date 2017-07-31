@@ -1,14 +1,13 @@
-
 var userController = angular.module('app', []);
 userController
 .controller('FinGeneralCashierCtrl',
-function($scope,$stateParams, $state, $sce, productCategoryService, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
+function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, $localStorage, $compile, $rootScope, globalFunction,API_URL) {
     $scope.el = [];
     $scope.el = $state.current.data;
     $scope.buttonCreate = false;
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
-	$scope.disableAction = false;
+    $scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
@@ -20,6 +19,8 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     $scope.accounts = []
     $scope.total_debit = 0
     $scope.total_credit = 0
+    $scope.change=false
+    $scope.updateflag=false
     var qstring = 'select a.id, a.code, a.journal_type_id, date_format(a.bookkeeping_date,\'%Y-%m-%d\')bookkeeping_date, a.gl_status status, c.name as status_name, '+
          'a.notes, a.ref_account,d.code journal_type_code, d.name journal_type_name, '+
          'format(sum(case when b.transc_type = \'D\' then b.amount else 0 end),0) as debit_amount_f, '+
@@ -33,19 +34,16 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     'left join (select * from table_ref '+
                 'where table_name = \'acc_gl_transaction\'  '+
                   'and column_name = \'gl_status\') c on a.gl_status = c.value '+
-	'left join ref_journal_type d on a.journal_type_id = d.id  '+
-    'where a.journal_type_id = 3 '
+    'join ref_journal_type d on a.journal_type_id = d.id  and d.id in (3,6) '
         //'where a.status in (:status1,:status2,:status3)  '+
         //'and a.open_date beetween :date1 and :date2  '+
         //'and a.due_date between :date1and :date2'
     var qwhere = ''
     var qgroup = ' group by a.id, a.code, a.journal_type_id, a.bookkeeping_date, a.gl_status, c.name, a.notes, a.ref_account '
     if ($stateParams.status!=null){
-
         var firstDay = $stateParams.currentYear+'-'+$stateParams.currentMonth+'-01 00:00:00'
         var ld = new Date($stateParams.nextYear, parseInt($stateParams.nextMonth)+1, 0);
         var lastDay = ld.getFullYear()+'-'+ (("0" + (ld.getMonth() + 1)).slice(-2)) + '-'+(("0" + ld.getDate()).slice(-2))+' 23:59:59'
-
         qwhere = "where a.gl_status=0 and a.bookkeeping_date between '"+firstDay+"' and '"+lastDay+"'"
     }
 
@@ -83,8 +81,15 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         })
     }
 
-    $scope.generateCode = function(a){
+    /*$scope.generateCode = function(a){
         queryService.post("select cast(concat('"+a.code+"',lpad(seq('"+a.code+"','"+a.code+"'),8,'0')) as char) as code ",undefined)
+        .then(function(data){
+            $scope.ap.code = data.data[0].code
+        })
+    }*/
+    $scope.generateCode=function (a){
+        $scope.change=true
+        queryService.post('select curr_item_code(\'GL\',\''+a.code+'\') as code',undefined)
         .then(function(data){
             $scope.ap.code = data.data[0].code
         })
@@ -115,87 +120,85 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
             $scope.period.push({id:year[i]+month[j],name:year[i]+'-'+month[j]})
         }
     }*/
-	$scope.setFiles = function(element){
-		$scope.$apply(function(scope) {
-	      //console.log('files:', element.files);
-	        $scope.files = []
-	        for (var i = 0; i < element.files.length; i++) {
-	          $scope.files.push(element.files[i])
-	        }
-	      $scope.progressVisible = false
-      	});
+    $scope.setFiles = function(element){
+        $scope.$apply(function(scope) {
+            $scope.files = []
+            for (var i = 0; i < element.files.length; i++) {
+              $scope.files.push(element.files[i])
+            }
+          $scope.progressVisible = false
+        });
     };
 
-	$scope.uploadFile = function() {
+    $scope.uploadFile = function() {
         var fd = new FormData()
         for (var i=0; i<$scope.files.length;i++) {
             fd.append("file", $scope.files[i])
         }
         var xhr = new XMLHttpRequest()
-		xhr.upload.addEventListener("progress", uploadProgress, false)
+        xhr.upload.addEventListener("progress", uploadProgress, false)
         xhr.addEventListener("load", uploadComplete, false)
         xhr.addEventListener("error", uploadFailed, false)
         xhr.addEventListener("abort", uploadCanceled, false)
         xhr.open("POST", "/uploadJurnal",true);
-		xhr.setRequestHeader("authorization", 'Basic ' + $localStorage.mediaToken);
+        xhr.setRequestHeader("authorization", 'Basic ' + $localStorage.mediaToken);
         $scope.progressVisible = true;
-		xhr.send(fd);
+        xhr.send(fd);
     }
 
-	function uploadProgress(evt) {
-		$scope.$apply(function(){
-			if (evt.lengthComputable) {
-				$scope.progress = Math.round(evt.loaded * 100 / evt.total)
-			} else {
-				$scope.progress = 'unable to compute'
-			}
-		})
-	}
+    function uploadProgress(evt) {
+        $scope.$apply(function(){
+            if (evt.lengthComputable) {
+                $scope.progress = Math.round(evt.loaded * 100 / evt.total)
+            } else {
+                $scope.progress = 'unable to compute'
+            }
+        })
+    }
 
-	function uploadComplete(evt) {
-		/* This event is raised when the server send back a response */
-		var d=JSON.parse(evt.target.response)
-		var d1=0
-		var c1=0
-		$scope.$apply(function() {
-			for(var i=0;i<d.length;i++){
-				$scope.items.push(
-					{
-						id:$scope.items.length+i,
-						isNew: true,
-						p_id:1,
-						account_id:d[i].id,
-						account_code:d[i].code,
-						account_name: d[i].name,
+    function uploadComplete(evt) {
+        /* This event is raised when the server send back a response */
+        var d=JSON.parse(evt.target.response)
+        var d1=0
+        var c1=0
+        $scope.$apply(function() {
+            for(var i=0;i<d.length;i++){
+                $scope.items.push(
+                    {
+                        id:$scope.items.length+i,
+                        isNew: true,
+                        p_id:1,
+                        account_id:d[i].id,
+                        account_code:d[i].code,
+                        account_name: d[i].name,
                         notes: d[i].notes,
-						debit: d[i].debit,
-						credit: d[i].credit
-					}
-				)
-				d1+=d[i].debit!=undefined?d[i].debit:0
-				c1+=d[i].credit!=undefined?d[i].credit:0
-			}
-			$scope.total_debit += d1
-			$scope.total_credit += c1
-			$scope.ap.debit += d1
-			$scope.ap.credit += c1
-			$scope.ap.balance = $scope.total_debit-$scope.total_credit
-			$scope.itemsOri = angular.copy($scope.items)
-			console.log($scope)
-		})
-		alert('Upload sukses')
-	}
+                        debit: d[i].debit,
+                        credit: d[i].credit
+                    }
+                )
+                d1+=d[i].debit!=undefined?d[i].debit:0
+                c1+=d[i].credit!=undefined?d[i].credit:0
+            }
+            $scope.total_debit += d1
+            $scope.total_credit += c1
+            $scope.ap.debit += d1
+            $scope.ap.credit += c1
+            $scope.ap.balance = $scope.total_debit-$scope.total_credit
+            $scope.itemsOri = angular.copy($scope.items)
+        })
+        alert('Upload sukses')
+    }
 
-	function uploadFailed(evt) {
-		alert("There was an error attempting to upload the file.")
-	}
+    function uploadFailed(evt) {
+        alert("There was an error attempting to upload the file.")
+    }
 
-	function uploadCanceled(evt) {
-		$scope.$apply(function(){
-			$scope.progressVisible = false
-		})
-		alert("The upload has been canceled by the user or the browser dropped the connection.")
-	}
+    function uploadCanceled(evt) {
+        $scope.$apply(function(){
+            $scope.progressVisible = false
+        })
+        alert("The upload has been canceled by the user or the browser dropped the connection.")
+    }
 
     $scope.role = {
         selected: []
@@ -206,10 +209,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     $scope.ap = {
         id: '',
         code: '',
-        notes: '',
-		debit:0,
-		credit:0,
-		balance:0
+        notes: ''
     }
 
     $scope.selected = {
@@ -257,28 +257,19 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     })*/
 
     $scope.journal_type = []
-    queryService.get('select * from ref_journal_type where status = \'1\' order by id ',undefined)
+    queryService.get('select * from ref_journal_type where id in (3,6) and status = \'1\' order by id ',undefined)
     .then(function(data){
         $scope.journal_type = data.data
     })
-
-
-
 
     $scope.filterVal = {
         search: ''
     }
 
-
-
     $scope.showAdvance = false
     $scope.openAdvancedFilter = function(val){
-        console.log(val)
         $scope.showAdvance = val
     }
-
-
-
 
     $scope.trustAsHtml = function(value) {
         return $sce.trustAsHtml(value);
@@ -287,7 +278,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     /*START AD ServerSide*/
     $scope.dtInstance = {} //Use for reloadData
     $scope.actionsHtml = function(data, type, full, meta) {
-        $scope.cats[data] = {id:data};
+        $scope.cats[data] = {id:data,code:full.code};
         var html = ''
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
@@ -297,10 +288,10 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
-            if ($scope.el.indexOf('buttonDelete')>-1){
-                /*html+='<button class="btn btn-default" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
+            if ($scope.el.indexOf('buttonDelete')>-1 && full.status==0){
+                html+='<button class="btn btn-default" ng-click="delete(cats[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
-                '</button>';*/
+                '</button>';
             }
             html += '</div>'
         }
@@ -308,7 +299,6 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     }
 
     $scope.createdRow = function(row, data, dataIndex) {
-        // Recompiling so we can bind Angular directive to the DT
         $compile(angular.element(row).contents())($scope);
     }
 
@@ -357,14 +347,14 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         .renderWith($scope.actionsHtml).withOption('width', '7%'))
     }
     $scope.dtColumns.push(
-        DTColumnBuilder.newColumn('id').withTitle('Transc#').withOption('width', '7%'),
-        DTColumnBuilder.newColumn('code').withTitle('Document#').withOption('width', '15%'),
-        DTColumnBuilder.newColumn('journal_type_code').withTitle('Type').withOption('width', '5%'),
+        DTColumnBuilder.newColumn('id').withTitle('Transc#').withOption('width', '8%'),
+        DTColumnBuilder.newColumn('code').withTitle('Document#').withOption('width', '8%'),
+        DTColumnBuilder.newColumn('journal_type_code').withTitle('Journal').withOption('width', '7%'),
         DTColumnBuilder.newColumn('bookkeeping_date').withTitle('Date').withOption('width', '7%'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '7%'),
-        DTColumnBuilder.newColumn('notes').withTitle('Notes'),
-        DTColumnBuilder.newColumn('ref_account').withTitle('Ref Account'),
-        DTColumnBuilder.newColumn('debit_amount_f').withTitle('Total Debit').withClass('text-right'),
+        DTColumnBuilder.newColumn('notes').withTitle('Notes').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('ref_account').withTitle('Ref Account').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('debit_amount_f').withTitle('Total Debit').withOption('width', '10%').withClass('text-right'),
         DTColumnBuilder.newColumn('credit_amount_f').withTitle('Total Credit').withOption('width', '10%').withClass('text-right'),
         DTColumnBuilder.newColumn('balance_f').withTitle('Balance').withOption('width', '10%').withClass('text-right')
     );
@@ -393,26 +383,18 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     }
 
     $scope.applyFilter = function(){
-        console.log($scope.selected.filter_month)
         var status = []
-        if ($scope.selected.filter_status.length>0){
-            for (var i=0;i<$scope.selected.filter_status.length;i++){
-                status.push($scope.selected.filter_status[i].id)
-            }
-            qwhereobj.status = ' a.gl_status in('+status.join(',')+') '
+        if ($scope.selected.filter_status.selected){
+            qwhereobj.status = ' a.gl_status ='+$scope.selected.filter_status.selected.id+' '
         }
 
-        //console.log($scope.selected.filter_cost_center)
         if ($scope.selected.filter_journal.selected){
             qwhereobj.journal = ' a.journal_type_id = '+$scope.selected.filter_journal.selected.id+ ' '
         }
-        //console.log($scope.selected.filter_warehouse)
 
         qwhereobj.period = ' (a.bookkeeping_date between \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-01\' and '+
         ' \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-'+$scope.selected.filter_month.selected.last+'\') '
-        //console.log(setWhere())
         qwhere = setWhere()
-        console.log(qwhere)
         $scope.dtInstance.reloadData(function(obj){
             console.log(obj)
         }, false)
@@ -425,9 +407,8 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
             if (qwhereobj[key].length>0) arrWhere.push(qwhereobj[key])
         }
         if (arrWhere.length>0){
-            strWhere = ' and ' + arrWhere.join(' and ')
+            strWhere = ' where ' + arrWhere.join(' and ')
         }
-        //console.log(strWhere)
         return strWhere
     }
 
@@ -437,45 +418,40 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         if (state == 'add'){
             $scope.clear()
         }
-        $scope.statusShow.push($scope.status[0])
+        $scope.statusShow=[$scope.status[0]]
         $scope.selected.status['selected']=$scope.status[0]
-		$scope.items = []
+        $('#form-input').modal('show')
+        $scope.items = []
         $scope.itemsOri = []
         $scope.total_debit = 0;
         $scope.total_credit = 0;
-        $('#form-input').modal('show')
-		queryService.post('select curr_item_code(\'GL\',\'BB\') as code',undefined)
-        //queryService.post("select cast(concat('BB',lpad(seq('BB','BB'),8,'0')) as char) as code ",undefined)
-        .then(function(data){
-            $scope.ap.code = data.data[0].code
-        })
+        $scope.balance = 0;
     }
 
     $scope.submit = function(){
-		$scope.disableAction = true;
+        $scope.disableAction = true;
         if ($scope.ap.id.length==0){
             //exec creation
-
             var param = {
                 code: $scope.ap.code,
-                journal_type_id: 3, //journal type id for BB
+                journal_type_id: $scope.selected.journal_type.selected.id,
                 bookkeeping_date: $scope.ap.bookkeeping_date,
                 gl_status: $scope.selected.status.selected.id,
                 notes: $scope.ap.notes,
-                ref_account: $scope.ap.ref_account
+                ref_account: $scope.ap.ref_account,
+                created_by: $localStorage.currentUser.name.id
             }
-			queryService.post('select next_item_code(\'GL\',\'BB\') as code',undefined)
-			.then(function (data){
-			});
+            queryService.post('select next_item_code(\'GL\',\''+$scope.selected.journal_type.selected.code+'\') as code',undefined)
+            .then(function (data){
+            });
             queryService.post('insert into acc_gl_transaction SET ?',param)
             .then(function (result){
-
                 var qd = $scope.child.saveTable(result.data.insertId);
-                console.log(qd)
-                if (qd.length>0){
+                if(qd.length>0){
+                    console.log(qd.join(';'))
                     queryService.post(qd.join(';') ,undefined)
                     .then(function (result3){
-						$scope.disableAction = false;
+                        $scope.disableAction = false;
                             $('#form-input').modal('hide')
                             $scope.dtInstance.reloadData(function(obj){
                                 // console.log(obj)
@@ -487,9 +463,10 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
                                 timeout: 2000,
                                 type: 'success'
                             }).show();
+                            $scope.clear();
                     },
                     function (err3){
-						$scope.disableAction = false;
+                        $scope.disableAction = false;
                         $('#form-input').pgNotification({
                             style: 'flip',
                             message: 'Error Update: '+err3.code,
@@ -498,9 +475,8 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
                             type: 'danger'
                         }).show();
                     })
-                }
-                else {
-					$scope.disableAction = false;
+                }else{
+                    $scope.disableAction = false;
                     $('#form-input').modal('hide')
                     $scope.dtInstance.reloadData(function(obj){
                         // console.log(obj)
@@ -512,12 +488,11 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
                         timeout: 2000,
                         type: 'success'
                     }).show();
+                    $scope.clear();
                 }
-
-
             },
             function (err){
-				$scope.disableAction = false;
+                $scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -530,24 +505,54 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         }
         else {
             //exec update
-            var param = {
-                code: $scope.ap.code,
-                journal_type_id: 3,
-                bookkeeping_date: $scope.ap.bookkeeping_date,
-                gl_status: $scope.selected.status.selected.id,
-                notes: $scope.ap.notes,
-                ref_account: $scope.ap.ref_account
-            }
-            console.log(param)
-            //queryService.post('insert into acc_ap_voucher SET ?',param)
-            queryService.post('update acc_gl_transaction SET ? WHERE id='+$scope.ap.id ,param)
-            .then(function (result){
-                var qd = $scope.child.saveTable($scope.ap.id);
-                console.log(qd)
-                if (qd.length>0){
-                    queryService.post(qd.join(';') ,undefined)
-                    .then(function (result3){
-						$scope.disableAction = false;
+            if($scope.change==true){
+                queryService.post('select next_item_code(\'GL\',\''+$scope.selected.journal_type.selected.code+'\') as code',undefined)
+                .then(function (data){
+                    var param = {
+                        code: data.data[0].code,
+                        journal_type_id: $scope.selected.journal_type.selected.id,
+                        bookkeeping_date: $scope.ap.bookkeeping_date,
+                        gl_status: $scope.selected.status.selected.id,
+                        notes: $scope.ap.notes,
+                        ref_account: $scope.ap.ref_account
+                    }
+                    if($scope.selected.status.selected.id==1){
+                        param.posted_by=$localStorage.currentUser.name.id
+                        param.posting_date=new Date()
+                    }
+                    //queryService.post('insert into acc_ap_voucher SET ?',param)
+                    queryService.post('update acc_gl_transaction SET ? WHERE id='+$scope.ap.id ,param)
+                    .then(function (result){
+                        var qd = $scope.child.saveTable($scope.ap.id);
+                        if(qd.length>0){
+                            queryService.post(qd.join(';') ,undefined)
+                            .then(function (result3){
+                                $scope.disableAction = false;
+                                    $('#form-input').modal('hide')
+                                    $scope.dtInstance.reloadData(function(obj){
+                                        // console.log(obj)
+                                    }, false)
+                                    $('body').pgNotification({
+                                        style: 'flip',
+                                        message: 'Success Update '+$scope.ap.code,
+                                        position: 'top-right',
+                                        timeout: 2000,
+                                        type: 'success'
+                                    }).show();
+                                    $scope.clear();
+                            },
+                            function (err3){
+                                $scope.disableAction = false;
+                                $('#form-input').pgNotification({
+                                    style: 'flip',
+                                    message: 'Error Update: '+err3.code,
+                                    position: 'top-right',
+                                    timeout: 2000,
+                                    type: 'danger'
+                                }).show();
+                            })
+                        }else{
+                            $scope.disableAction = false;
                             $('#form-input').modal('hide')
                             $scope.dtInstance.reloadData(function(obj){
                                 // console.log(obj)
@@ -559,49 +564,140 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
                                 timeout: 2000,
                                 type: 'success'
                             }).show();
+                            $scope.clear();
+                        }
                     },
-                    function (err3){
-						$scope.disableAction = false;
+                    function (err){
+                        $scope.disableAction = false;
                         $('#form-input').pgNotification({
                             style: 'flip',
-                            message: 'Error Update: '+err3.code,
+                            message: 'Error Update: '+err.code,
                             position: 'top-right',
                             timeout: 2000,
                             type: 'danger'
                         }).show();
                     })
-                }
-                else {
-					$scope.disableAction = false;
-                    $('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){
-                        // console.log(obj)
-                    }, false)
-                    $('body').pgNotification({
+                },
+                function (err){
+                    $scope.disableAction = false;
+                    $('#form-input').pgNotification({
                         style: 'flip',
-                        message: 'Success Update '+$scope.ap.code,
+                        message: 'Error Update: '+err.code,
                         position: 'top-right',
                         timeout: 2000,
-                        type: 'success'
+                        type: 'danger'
                     }).show();
+                })
+            }else{
+                var param = {
+                    code: $scope.ap.code,
+                    journal_type_id: $scope.selected.journal_type.selected.id,
+                    bookkeeping_date: $scope.ap.bookkeeping_date,
+                    gl_status: $scope.selected.status.selected.id,
+                    notes: $scope.ap.notes,
+                    ref_account: $scope.ap.ref_account
                 }
+                if($scope.selected.status.selected.id==1){
+                    param.posted_by=$localStorage.currentUser.name.id
+                    param.posting_date=new Date()
+                }
+                //queryService.post('insert into acc_ap_voucher SET ?',param)
+                queryService.post('update acc_gl_transaction SET ? WHERE id='+$scope.ap.id ,param)
+                .then(function (result){
+                    var qd = $scope.child.saveTable($scope.ap.id);
+                    if(qd.length>0){
+                        queryService.post(qd.join(';') ,undefined)
+                        .then(function (result3){
+                            $scope.disableAction = false;
+                                $('#form-input').modal('hide')
+                                $scope.dtInstance.reloadData(function(obj){
+                                    // console.log(obj)
+                                }, false)
+                                $('body').pgNotification({
+                                    style: 'flip',
+                                    message: 'Success Update '+$scope.ap.code,
+                                    position: 'top-right',
+                                    timeout: 2000,
+                                    type: 'success'
+                                }).show();
+                                $scope.clear();
+                        },
+                        function (err3){
+                            $scope.disableAction = false;
+                            $('#form-input').pgNotification({
+                                style: 'flip',
+                                message: 'Error Update: '+err3.code,
+                                position: 'top-right',
+                                timeout: 2000,
+                                type: 'danger'
+                            }).show();
+                        })
+                    }else{
+                        $scope.disableAction = false;
+                        $('#form-input').modal('hide')
+                        $scope.dtInstance.reloadData(function(obj){
+                            // console.log(obj)
+                        }, false)
+                        $('body').pgNotification({
+                            style: 'flip',
+                            message: 'Success Update '+$scope.ap.code,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'success'
+                        }).show();
+                        $scope.clear();
+                    }
+                },
+                function (err){
 
-            },
-            function (err){
-				$scope.disableAction = false;
-                $('#form-input').pgNotification({
-                    style: 'flip',
-                    message: 'Error Update: '+err.code,
-                    position: 'top-right',
-                    timeout: 2000,
-                    type: 'danger'
-                }).show();
-            })
+                    $scope.disableAction = false;
+                    $('#form-input').pgNotification({
+                        style: 'flip',
+                        message: 'Error Update: '+err.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'danger'
+                    }).show();
+                })
+            }
         }
+    }
+    function setItems(d){
+        //$scope.$apply(function(){
+            var d1 = 0,c1=0
+            $scope.items = []
+            $scope.itemsOri = []
+
+            for (var i=0;i<d.length;i++){
+                $scope.items.push(
+                    {
+                        id:(i+1),
+                        p_id: d[i].id,
+                        account_id:d[i].account_id,
+                        account_code:d[i].account_code,
+                        account_name: d[i].account_name,
+                        notes: d[i].notes,
+                        debit: d[i].transc_type=='D'?d[i].amount:'',
+                        credit: d[i].transc_type=='C'?d[i].amount:''
+                    }
+                )
+                d1 += d[i].transc_type=='D'?d[i].amount:0
+                c1 += d[i].transc_type=='C'?d[i].amount:0
+                $scope.account[i+1] = $scope.accounts
+            }
+            $scope.total_debit = d1
+            $scope.total_credit = c1
+            $scope.ap.debit = d1
+            $scope.ap.credit = c1
+            $scope.ap.balance = d1-c1
+            $scope.itemsOri = angular.copy($scope.items)
+        //});
     }
 
     $scope.update = function(obj){
-        queryService.post(qstring+ ' and a.id='+obj.id,undefined)
+        $scope.clear();
+        $scope.updateflag=true
+        queryService.post(qstring+ ' where a.id='+obj.id,undefined)
         .then(function(result){
             $('#form-input').modal('show');
             $scope.ap = result.data[0]
@@ -610,54 +706,33 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
                 name: result.data[0].journal_type_name
             }
 
-            for (var i=0;i<$scope.status.length;i++){
+            /*for (var i=0;i<$scope.status.length;i++){
                 if ($scope.status[i].id==result.data[0].status){
                     $scope.selected.status['selected'] = $scope.status[i]
                 }
-            }
+            }*/
+
             $scope.statusShow = []
-            if (result.data[0].status=="0"){
-                $scope.statusShow.push($scope.status[1])
+            if($scope.ap.status==0){
+                $scope.statusShow=[$scope.status[0],$scope.status[1],$scope.status[2]]
             }
-            else if(result.data[0].status=="1"){
-                $scope.statusShow.push($scope.status[2])
+            else if($scope.ap.status==1){
+                $scope.statusShow=[$scope.status[0],$scope.status[1],$scope.status[3]]
+            }else if($scope.ap.status==2){
+                $scope.statusShow=[$scope.status[0],$scope.status[2]]
+            }else{
+                $scope.statusShow=[$scope.status[3]]
             }
-            $scope.items = []
-            $scope.itemsOri = []
+
+            $scope.selected.status.selected={id:$scope.ap.status,value:$scope.ap.status,name:$scope.ap.status_name}
             var qd = 'select a.*, b.name account_name,b.code account_code '+
                   'from acc_gl_journal a '+
                   'left join mst_ledger_account b on a.account_id = b.id '+
                   'where gl_id='+$scope.ap.id
             queryService.get(qd,undefined)
             .then(function(result2){
-                console.log(result2)
                 var d = result2.data
-                var d1 = 0,c1=0
-
-                for (var i=0;i<d.length;i++){
-                    $scope.items.push(
-                        {
-                            id:(i+1),
-                            p_id: d[i].id,
-                            account_id:d[i].account_id,
-                            account_code:d[i].account_code,
-                            account_name: d[i].account_name,
-                            notes: d[i].notes,
-                            debit: d[i].transc_type=='D'?d[i].amount:'',
-                            credit: d[i].transc_type=='C'?d[i].amount:''
-                        }
-                    )
-                    d1 += d[i].transc_type=='D'?d[i].amount:0
-                    c1 += d[i].transc_type=='C'?d[i].amount:0
-                    $scope.account[i+1] = $scope.accounts
-
-                }
-                $scope.total_debit = d1
-                $scope.total_credit = c1
-                $scope.ap.debit = d1
-                $scope.ap.credit = c1
-                $scope.ap.balance = d1-c1
-                $scope.itemsOri = angular.copy($scope.items)
+                setItems(d);
             },
             function(err2){
                 console.log(err2)
@@ -674,17 +749,14 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     }
 
     $scope.delete = function(obj){
+        $scope.cat={};
         $scope.cat.id = obj.id;
-        //$scope.customer.name = obj.name;
-        productCategoryService.get(obj.id)
-        .then(function(result){
-            $scope.cat.name = result.data[0].name;
-            $('#modalDelete').modal('show')
-        })
+        $scope.cat.code = obj.code;
+        $('#modalDelete').modal('show')
     }
 
     $scope.execDelete = function(){
-        queryService.post('update ref_product_category set status=2 where id='+$scope.cat.id,undefined)
+        queryService.post('delete from acc_gl_journal where gl_id='+$scope.cat.id+';delete from acc_gl_transaction where id='+$scope.cat.id,undefined)
         .then(function (result){
                 $('#form-input').modal('hide')
                 $scope.dtInstance.reloadData(function(obj){
@@ -692,7 +764,7 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
                 }, false)
                 $('body').pgNotification({
                     style: 'flip',
-                    message: 'Success Delete '+$scope.cat.name,
+                    message: 'Success Delete '+$scope.cat.code,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'success'
@@ -710,24 +782,32 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     }
 
     $scope.clear = function(){
-		$scope.ap = {
-	        id: '',
-	        code: '',
-	        notes: '',
-			debit:0,
-			credit:0,
-			balance:0
-	    }
-		$scope.items=[];
-	    $scope.selected = {
-	        status: {},
-	        journal_type: {},
-	        filter_year: {},
-	        filter_month: {},
-	        filter_status: [],
-	        filter_journal: {},
-	        filter_source: {}
-	    }
+        $scope.ap = {
+            id: '',
+            code: '',
+            notes: '',
+            debit:0,
+            credit:0,
+            balance:0
+        }
+        $scope.items=[];
+        $scope.selected = {
+            status: {},
+            journal_type: {},
+            filter_year: {},
+            filter_month: {},
+            filter_status: [],
+            filter_journal: {},
+            filter_source: {}
+        }
+        $scope.updateflag=false
+        $scope.change=false;
+        $scope.total_debit = 0;
+        $scope.ap.debit = 0;
+        $scope.ap.credit = 0;
+        $scope.total_credit = 0;
+        $scope.balance = 0;
+        $scope.apply
     }
 
 })
@@ -759,21 +839,20 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         if (filtered.length) {
             filtered[0].isDeleted = true;
         }
-		$scope.total_debit=0;
-		$scope.total_credit=0;
-		for (var i=0;i<$scope.items.length;i++){
-			if($scope.items[i].isDeleted!==true){
-				$scope.total_debit= $scope.total_debit + (parseInt($scope.items[i].debit)>0?parseFloat($scope.items[i].debit):0)
-		        $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
-			}
+        $scope.total_debit=0;
+        $scope.total_credit=0;
+        for (var i=0;i<$scope.items.length;i++){
+            if($scope.items[i].isDeleted!==true){
+                $scope.total_debit= $scope.total_debit + (parseInt($scope.items[i].debit)>0?parseFloat($scope.items[i].debit):0)
+                $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
+            }
         }
-		$scope.ap.debit = $scope.total_debit;
+        $scope.ap.debit = $scope.total_debit;
         $scope.ap.credit = $scope.total_credit;
         $scope.ap.balance = $scope.ap.debit-$scope.ap.credit;
     };
 
     // add user
-
     $scope.addUser = function() {
         $scope.item = {
             id:($scope.items.length+1),
@@ -807,53 +886,54 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         };
     };
 
-
     // save edits
     $scope.child.saveTable = function(pr_id) {
         var results = [];
-
         var sqlitem = []
         var d=0,c=0;
-		for (var i =0;i< $scope.items.length; i++) {
+        $scope.total_debit = 0
+        $scope.total_credit = 0
+        for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
-            // actually delete user
-            /*if (user.isDeleted) {
-                $scope.items.splice(i, 1);
-            }*/
-            // mark as not new
-            /*if (user.isNew) {
-                user.isNew = false;
-            }*/
-
-            // send on server
-            //results.push($http.post('/saveUser', user));
-            //d += (user.debit.length>0?parseFloat(user.debit):0);
-            //c += (user.credit.length>0?parseFloat(user.credit):0);
             if (user.isNew && !user.isDeleted){
 
-                if (user.debit>0){
-					$scope.total_debit += parseFloat(user.debit)
+                if (user.credit>0){
+                    $scope.total_credit += parseFloat(user.credit)
+                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
+                    //pr_id+','+user.account_id+',\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    pr_id+',(select id from mst_ledger_account where code="' + user.account_code + '"),\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
 
+                }else{
+                    $scope.total_debit += parseFloat(user.debit)
                     sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
-                    pr_id+','+user.account_id+',\'D\',\''+user.notes+'\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
-                }
-                else if (user.credit>0){
-					$scope.total_credit += parseFloat(user.credit)
-                    sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
-                    pr_id+','+user.account_id+',\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    //pr_id+','+user.account_id+',\'D\',\''+user.notes+'\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    pr_id+',(select id from mst_ledger_account where code="' + user.account_code + '"),\'D\',\''+user.notes+'\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }
 
             }
             else if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from acc_gl_journal where id='+user.p_id)
+                if (user.credit>0){
+                    $scope.total_credit -= parseFloat(user.credit)
+                }else{
+                    $scope.total_debit -= parseFloat(user.debit)
+                }
             }
             else if(!user.isNew){
-				if (user.credit>0){
+                if (user.credit>0){
                     $scope.total_credit += parseFloat(user.credit)
                 }else{
                     $scope.total_debit += parseFloat(user.debit)
-				}
-                for (var j=0;j<$scope.itemsOri.length;j++){
+                }
+                sqlitem.push('update acc_gl_journal set '+
+                ' account_id = '+user.account_id+',' +
+                ' transc_type = \''+(user.debit>0?'D':'C')+'\',' +
+                ' notes = \''+user.notes+'\',' +
+                ' amount = '+(user.credit>0?user.credit:user.debit)+',' +
+                ' modified_by = '+$localStorage.currentUser.name.id+',' +
+                ' modified_date = \''+globalFunction.currentDate()+'\'' +
+                ' where id='+user.p_id)
+                /*for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
                         var d1 = $scope.itemsOri._id+$scope.itemsOri[j].account_id+$scope.itemsOri[j].debit+$scope.itemsOri[j].credit+$scope.itemsOri[j].notes
                         var d2 = user.pid+user.account_id+user.debit+user.credit+user.notes
@@ -868,14 +948,20 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
                             ' where id='+user.p_id)
                         }
                     }
-                }
+                }*/
             }
 
         }
         $scope.ap.debit = $scope.total_debit;
         $scope.ap.credit = $scope.total_credit;
         $scope.ap.balance = $scope.ap.debit-$scope.ap.credit;
-		return sqlitem
+        /*setTimeout(function () {
+            $scope.$apply(function () {
+                $scope.balanceStatus.status= $scope.balanceStatus.status;
+                console.log('balanceStatus3',$scope.balanceStatus)
+            });
+        },100)*/
+        return sqlitem
         //return $q.all(results);
     };
     $scope.trustAsHtml = function(value) {
@@ -909,15 +995,12 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
     }*/
 
     $scope.getAccount = function(e,d){
-        console.log(e)
         $scope.items[d-1].account_id = e.id
         $scope.items[d-1].account_code = e.code
         $scope.items[d-1].account_name = e.name
-
     }
 
     $scope.getProductPriceSupplier = function(e,d){
-        console.log(e)
         $scope.items[d-1].supplier_id = e.id
         $scope.items[d-1].supplier_name = e.name
         $scope.items[d-1].price = e.price
@@ -932,10 +1015,6 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
         $scope.items[d-1].amount = q * $scope.items[d-1].price
     }
     $scope.setValue = function(e,d,p,t){
-        console.log(e)
-        console.log(d)
-        console.log(p)
-        console.log(t)
         $scope.total_debit = 0
         $scope.total_credit = 0
         if (t=='debit') {
@@ -950,14 +1029,15 @@ function($scope,$stateParams, $state, $sce, productCategoryService, queryService
             $scope.items[d-1].notes = p
         }
         for (var i=0;i<$scope.items.length;i++){
-			if($scope.items[i].isDeleted!=true){
-		        $scope.total_debit= $scope.total_debit + (parseInt($scope.items[i].debit)>0?parseFloat($scope.items[i].debit):0)
-		        $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
-			}
+            if($scope.items[i].isDeleted!=true){
+                $scope.total_debit= $scope.total_debit + (parseInt($scope.items[i].debit)>0?parseFloat($scope.items[i].debit):0)
+                $scope.total_credit= $scope.total_credit+ (parseInt($scope.items[i].credit)>0?parseFloat($scope.items[i].credit):0)
+            }
         }
-		$scope.ap.debit = $scope.total_debit;
+        $scope.ap.debit = $scope.total_debit;
         $scope.ap.credit = $scope.total_credit;
         $scope.ap.balance = $scope.ap.debit-$scope.ap.credit;
+        //console.log($scope.total_debit)
     }
-
 });
+
