@@ -280,7 +280,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             .then(function(data){
                 $scope.ap.code = data.data[0].code
             })*/
-			queryService.post('select curr_item_code(\'GL\',\'AP\') as code',undefined)
+			queryService.post('select curr_item_code(\'AP\',concat("AP/MT",date_format(curdate(),"%y"))) as code',undefined)
 			.then(function(data){
 				$scope.ap.code = data.data[0].code
 			})
@@ -608,6 +608,10 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             	home_total_amount: $scope.ap.total_home,
 				faktur_no: $scope.ap.faktur_no
             }
+			queryService.post('select next_item_code("AP",concat("AP/MT",date_format(curdate(),"%y"))) as code',undefined)
+			.then(function(data){
+				//$scope.po.code = data.data[0].code
+			})
             queryService.post('insert into acc_ap_voucher SET ?',param)
             .then(function (result){
                 if ($scope.selected.deposit.selected){
@@ -691,8 +695,9 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             queryService.post('update acc_ap_voucher SET ? WHERE id='+$scope.ap.id ,param)
             .then(function (result){
                 if ($scope.selected.status.selected.id=="1"){
+
 					var qq = 'insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes,created_by)'+
-                        ' values (\''+$scope.ap.code+'\', 1, '+$scope.ap.id+', \'0\', \''+$scope.ap.notes+'\','+$localStorage.currentUser.name.id+') on duplicate KEY UPDATE '+
+                        ' values (next_item_code("GL",concat("AP",date_format(curdate(),"%y"))), 1, '+$scope.ap.id+', \'0\', \''+$scope.ap.notes+'\','+$localStorage.currentUser.name.id+') on duplicate KEY UPDATE '+
 						'notes=\''+$scope.ap.notes+'\''
                     queryService.post(qq ,undefined)
                     .then(function (result2){

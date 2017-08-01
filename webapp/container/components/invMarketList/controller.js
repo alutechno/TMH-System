@@ -343,11 +343,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.approveState = false
         $scope.rejectState = true
         $scope.selected.approval = 0
-        var dt = new Date()
-        $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        //var dt = new Date()
+        //$scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
         //queryService.post('select cast(concat(\'ML/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(currval(\'ML'+ym+'\'),4,\'0\')) as char) as code ',undefined)
-        //console.log('select curr_document_no(\'ML\',\''+$scope.ym+'\') as code');
-        queryService.post('select curr_document_no(\'ML\',\''+$scope.ym+'\') as code',undefined)
+        //queryService.post('select curr_document_no(\'ML\',\''+$scope.ym+'\') as code',undefined)
+		queryService.post('select curr_item_code("INV",concat("ML",date_format(curdate(),"%y"))) as code',undefined)
         .then(function(data){
             console.log('data',data);
             $scope.pr.code = data.data[0].code
@@ -407,7 +407,8 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         if ($scope.pr.id.length==0 ){
             if ($scope.items.length>0){
                 var param = {}
-                queryService.post('select next_document_no(\'ML\',\''+$scope.ym+'\')',undefined)
+                //queryService.post('select next_document_no(\'ML\',\''+$scope.ym+'\')',undefined)
+				queryService.post('select next_item_code("INV",concat("ML",date_format(curdate(),"%y"))) as code',undefined)
                 .then(function(data){
                     $scope.pr.code = data.data[0].code
                 })

@@ -453,12 +453,12 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
         $scope.statusShow.push($scope.status[0])
         $scope.selected.status['selected'] = $scope.status[0]
         $('#form-input').modal('show')
-        var dt = new Date()
-
-        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        //var dt = new Date()
+        //var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
         //queryService.post('select cast(concat(\'AP/DP/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'APDP\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
-		queryService.post('select curr_document_no(\'AP/DP\',\''+$scope.ym+'\') as code',undefined)
-        .then(function(data){
+		//queryService.post('select curr_document_no(\'AP/DP\',\''+$scope.ym+'\') as code',undefined)
+		queryService.post('select curr_item_code("AP",concat("AP/DP",date_format(curdate(),"%y"))) as code',undefined)
+		.then(function(data){
             $scope.ap.code = data.data[0].code
         })
     }
@@ -474,7 +474,8 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
             //exec creation
             var applied_amount = 0
             var applied_amount_home = 0
-			queryService.post('select next_document_no(\'AP/DP\',\''+$scope.ym+'\')',undefined)
+			//queryService.post('select next_document_no(\'AP/DP\',\''+$scope.ym+'\')',undefined)
+			queryService.post('select next_item_code("AP",concat("AP/DP",date_format(curdate(),"%y"))) as code',undefined)
 			.then(function(data){
 				$scope.ap.code = data.data[0].code
 			})

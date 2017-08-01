@@ -526,11 +526,11 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         $scope.statusShow.push($scope.status[0])
         $scope.selected.status['selected'] = $scope.status[0]
         $('#form-input').modal('show')
-        var dt = new Date()
-
-        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        //var dt = new Date()
+        //var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
         //queryService.post('select cast(concat(\'DMT/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'DMT\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
-		queryService.post('select curr_document_no(\'DMT\',\''+$scope.ym+'\') as code',undefined)
+		//queryService.post('select curr_document_no(\'DMT\',\''+$scope.ym+'\') as code',undefined)
+		queryService.post('select curr_item_code("AP",concat("DMT",date_format(curdate(),"%y"))) as code',undefined)
         .then(function(data){
             $scope.ap.code = data.data[0].code
         });
@@ -560,7 +560,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 if($scope.items[i].account_id.length==0) statDetail = false
                 if(($scope.items[i].debit+$scope.items[i].credit)==0) statDetail = false
             }
-			queryService.post('select next_document_no(\'DP\',\''+$scope.ym+'\')',undefined)
+			//queryService.post('select next_document_no(\'DP\',\''+$scope.ym+'\')',undefined)
+			queryService.post('select next_item_code("AP",concat("DMT",date_format(curdate(),"%y"))) as code',undefined)
 			.then(function(data){
                 $scope.pr.code = data.data[0].code
 			})
@@ -590,7 +591,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     if (q2.length > 0){
                             var qq = ''
                             qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
-                             'values(\''+$scope.ap.open_date+'\',next_item_code("GL","DP"),'+result.data.insertId+',\'0\','+$scope.journal_type_id+',\''+($scope.ap.notes?$scope.ap.notes:'')+'\');'
+                             'values(\''+$scope.ap.open_date+'\',next_item_code("GL",concat("DP",date_format(curdate(),"%y"))),'+result.data.insertId+',\'0\','+$scope.journal_type_id+',\''+($scope.ap.notes?$scope.ap.notes:'')+'\');'
                             queryService.post(qq ,undefined)
                             .then(function (result2){
                                 var ids = '';
@@ -731,7 +732,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                             var qq = ''
                             if(data.data.length==0){
                                 qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
-                                 'values(\''+$scope.ap.open_date+'\',next_item_code("GL","DP"),'+$scope.ap.id+',\'0\','+$scope.journal_type_id+',\''+$scope.ap.notes+'\');'
+                                 'values(\''+$scope.ap.open_date+'\',next_item_code("GL",concat("DP",date_format(curdate(),"%y"))),'+$scope.ap.id+',\'0\','+$scope.journal_type_id+',\''+$scope.ap.notes+'\');'
                             }
                             else {
                                 qq = 'update acc_gl_transaction set '+

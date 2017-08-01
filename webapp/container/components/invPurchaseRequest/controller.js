@@ -357,10 +357,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.approveState = false
         $scope.rejectState = true
         $scope.selected.approval = 0
-        var dt = new Date()
+        //var dt = new Date()
 
-        $scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-        queryService.post('select curr_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
+        //$scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        //queryService.post('select curr_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
+		queryService.post('select curr_item_code("INV",concat("PR",date_format(curdate(),"%y"))) as code',undefined)
         .then(function(data){
             $scope.pr.code = data.data[0].code
         })
@@ -426,12 +427,14 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             if ($scope.items.length>0 && $scope.child.totalQty>0){
                 var param = {}
 				if($scope.direct=='non'){
-	                queryService.post('select next_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
+	                //queryService.post('select next_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
+					queryService.post('select next_item_code("INV",concat("PR",date_format(curdate(),"%y"))) as code',undefined)
 	                .then(function(data){
 	                    $scope.pr.code = data.data[0].code
 	                })
 				}else{
-					queryService.post('select next_document_no(\'DP\',\''+$scope.ym+'\') as code',undefined)
+					//queryService.post('select next_document_no(\'DP\',\''+$scope.ym+'\') as code',undefined)
+					queryService.post('select next_item_code("INV",concat("DP",date_format(curdate(),"%y"))) as code',undefined)
 	                .then(function(data){
 	                    $scope.pr.code = data.data[0].code
 	                })
@@ -1020,12 +1023,14 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 			//queryService.post('select cast(concat(\'PR/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'PR\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
 			$scope.selected.warehouse.selected={}
 			$scope.selected.cost_center.selected={}
-	        queryService.post('select curr_document_no(\'DP\',\''+$scope.ym+'\') as code',undefined)
+	        //queryService.post('select curr_document_no(\'DP\',\''+$scope.ym+'\') as code',undefined)
+			queryService.post('select curr_item_code("INV",concat("DP",date_format(curdate(),"%y"))) as code',undefined)
 	        .then(function(data){
 	            $scope.pr.code = data.data[0].code
 	        })
 		}else{
-			queryService.post('select curr_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
+			//queryService.post('select curr_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
+			queryService.post('select curr_item_code("INV",concat("PR",date_format(curdate(),"%y"))) as code',undefined)
 			.then(function(data){
 				$scope.pr.code = data.data[0].code
 			})

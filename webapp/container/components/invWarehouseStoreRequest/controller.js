@@ -208,10 +208,11 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope.items = []
         $scope.itemsOri = []
         $('#form-input').modal('show')
-		var dt = new Date()
-		$scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+		//var dt = new Date()
+		//$scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
         //queryService.post('select cast(concat(\'PR/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'PR\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
-        queryService.post('select curr_document_no(\'SR\',\''+$scope.ym+'\') as code',undefined)
+        //queryService.post('select curr_document_no(\'SR\',\''+$scope.ym+'\') as code',undefined)
+		queryService.post('select curr_item_code("INV",concat("SR",date_format(curdate(),"%y"))) as code',undefined)
         .then(function(data){
             $scope.sr.code = data.data[0].code
         })
@@ -221,7 +222,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 		$scope.disableAction = true;
 		if ($scope.sr.id.length==0){
             //exec creation
-			queryService.post('select next_document_no(\'SR\',\''+$scope.ym+'\') as code',undefined)
+			//queryService.post('select next_document_no(\'SR\',\''+$scope.ym+'\') as code',undefined)
+			queryService.post('select next_item_code("INV",concat("SR",date_format(curdate(),"%y"))) as code',undefined)
 			.then(function(data){
 				$scope.sr.code = data.data[0].code
 			})

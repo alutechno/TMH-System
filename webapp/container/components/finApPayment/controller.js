@@ -592,11 +592,11 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         $scope.statusShow.push($scope.status[0])
         $scope.selected.status['selected'] = $scope.status[0]
         $('#form-input').modal('show')
-        var dt = new Date()
-
-        var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        //var dt = new Date()
+        //var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
         //queryService.post('select cast(concat(\'PMT/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'PMT\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
-		queryService.post('select curr_document_no(\'PMT\',\''+$scope.ym+'\') as code',undefined)
+		//queryService.post('select curr_document_no(\'PMT\',\''+$scope.ym+'\') as code',undefined)
+		queryService.post('select curr_item_code("AP",concat("PMT",date_format(curdate(),"%y"))) as code',undefined)
         .then(function(data){
             $scope.ap.code = data.data[0].code
         })
@@ -662,7 +662,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
             queryService.post('insert into acc_cash_payment SET ?',param)
             .then(function (result){
-				queryService.post('select next_document_no(\'PMT\',\''+$scope.ym+'\')',undefined)
+				//queryService.post('select next_document_no(\'PMT\',\''+$scope.ym+'\')',undefined)
+				queryService.post('select next_item_code("AP",concat("PMT",date_format(curdate(),"%y"))) as code',undefined)
 				.then(function(data){
 					$scope.pr.code = data.data[0].code
 				})
@@ -756,7 +757,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                         var qq = ''
                         if(data.data.length==0){
                             qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes,posted_by,posting_date,created_by) '+
-                             'values(\''+$scope.ap.open_date+'\',next_item_code("GL","PV"),'+$scope.ap.id+',\'0\',18,\''+$scope.ap.notes+'\','+$localStorage.currentUser.name.id+',curdate(),'+$localStorage.currentUser.name.id+');'
+                             'values(\''+$scope.ap.open_date+'\',next_item_code("GL",concat("PV",date_format(curdate(),"%y"))),'+$scope.ap.id+',\'0\',18,\''+$scope.ap.notes+'\','+$localStorage.currentUser.name.id+',curdate(),'+$localStorage.currentUser.name.id+');'
                         }
                         else {
                             qq = 'update acc_gl_transaction set '+

@@ -76,7 +76,6 @@ if (cluster.isMaster) {
                     });
                 } else {
                     connection.query(sql, data, function (err, rows, fields) {
-                        connection.release();
                         if (err) {
 							connection.query("rollback", function (err, rows, fields) {});
                             callback(err, rows, fields);

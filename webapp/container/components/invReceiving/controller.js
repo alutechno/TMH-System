@@ -422,9 +422,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.finalState = false;
         $('#form-input').modal('show')
         $scope.addDetail(0)
-        var dt = new Date()
-        $scope.ym = dt.getFullYear()  + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-        queryService.post('select curr_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
+        //var dt = new Date()
+        //$scope.ym = dt.getFullYear()  + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+        //queryService.post('select curr_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
+		queryService.post('select curr_item_code("INV",concat("RR",date_format(curdate(),"%y"))) as code',undefined)
         .then(function(data){
             $scope.po.code = data.data[0].code
         })
@@ -446,9 +447,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 				faktur_no:$scope.po.faktur_no,
 				created_by:$localStorage.currentUser.name.id
 			}
-			var dt = new Date()
-	        var ym = dt.getFullYear() + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-			queryService.post('select next_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
+			//var dt = new Date()
+	        //var ym = dt.getFullYear() + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
+			//queryService.post('select next_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
+			queryService.post('select next_item_code("INV",concat("RR",date_format(curdate(),"%y"))) as code',undefined)
 			.then(function(data){
 				//$scope.po.code = data.data[0].code
 			})
@@ -830,8 +832,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 					$scope.amount=0;
 					$scope.rcv_qty=0;
 					$scope.po.delivery_date = date.getFullYear()+'-'+((date.getMonth() + 1)>9?(date.getMonth() + 1):'0'+(date.getMonth() + 1) )+ '-' + (date.getDate()>9?date.getDate():'0'+date.getDate())
-					$scope.ym = date.getFullYear() + (date.getMonth()<9?'0':'') + (date.getMonth()+1)
-					queryService.post('select curr_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
+					//$scope.ym = date.getFullYear() + (date.getMonth()<9?'0':'') + (date.getMonth()+1)
+					//queryService.post('select curr_document_no(\'RR\',\''+$scope.ym+'\') as code',undefined)
+					queryService.post('select curr_item_code("INV",concat("RR",date_format(curdate(),"%y"))) as code',undefined)
 					.then(function(data){
 						console.log(data)
 						$scope.po.code = data.data[0].code
@@ -1025,8 +1028,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 				+',faktur_no="'+param.faktur_no+'"'
 				+',modified_by='+param.modified_by
 				+',modified_date=CURRENT_TIMESTAMP'
-				+',code=(select curr_document_no(\'RR\',\''+$scope.ym+'\') as code) where id='+$scope.po.id)
-			sqlitem.push('select next_document_no(\'RR\',\''+$scope.ym+'\') as code')
+				+',code=(select curr_item_code("INV",concat("RR",date_format(curdate(),"%y"))) as code) where id='+$scope.po.id)
+
+			sqlitem.push('select next_item_code("INV",concat("RR",date_format(curdate(),"%y"))) as code')
+
 		}
 		var amt = 0
         for (var i =0; i<$scope.items.length; i++) {
@@ -1120,12 +1125,13 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 			var dt = new Date()
 			var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
 	        sqlitem.push('insert into acc_ap_voucher(code,source,receive_id,supplier_id,currency_id,total_amount,home_total_amount,status,open_date,created_by,inv_no,faktur_no,total_due_amount,current_due_amount)'+
-		        'values(next_document_no("AP/RR","'+ym+'"),\'RR\','+pr_id+','+$scope.selected.supplier.selected.id+','+$scope.po.currency_id+','+amt+
-		        ','+($scope.po.home_currency_exchange*amt)+',0,\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+',"'+$scope.po.inv_no+'","'+$scope.po.faktur_no+'",'+amt+','+amt+')'
+		        'values(next_item_code("AP",concat("AP/RR",date_format(curdate(),"%y"))),\'RR\','+pr_id+','+$scope.selected.supplier.selected.id+','+$scope.po.currency_id+','+amt+
+		        ','+($scope.po.home_currency_exchange*amt)+',2,\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+',"'+$scope.po.inv_no+'","'+$scope.po.faktur_no+'",'+amt+','+amt+')'
 			);
+
 			sqlitem.push("set @id=(select last_insert_id())");
 			 sqlitem.push('insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes,bookkeeping_date,posted_by,posting_date,created_by)'+
-				' values (next_item_code(\'GL\',\'AP\'), 1, @id, \'0\', \''+$scope.po.code+'\',curdate(),'+$localStorage.currentUser.name.id+',curdate(),'+$localStorage.currentUser.name.id+') on duplicate KEY UPDATE '+
+				' values (next_item_code(\'GL\',concat("AP",date_format(curdate(),"%y"))), 1, @id, \'0\', \''+$scope.po.code+'\',curdate(),'+$localStorage.currentUser.name.id+',curdate(),'+$localStorage.currentUser.name.id+') on duplicate KEY UPDATE '+
 				'notes=\''+$scope.po.notes+'\'');
 			sqlitem.push("set @id=(select last_insert_id())");
 			sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,bookkeeping_date) values("receiving '+$scope.po.code+
