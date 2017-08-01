@@ -561,26 +561,13 @@
 
                                                         </tr>
 														<tr>
-														<th></th>
-														<th></th>
-														<th></th>
-														<th></th>
-														<th></th>
-														<th></th>
-														<th></th>
-														<th></th>
-														<th></th>
-														<th class="text-right">Total:</th>
-														<th class="text-right">{{ sums1| number : fractionSize }}</th>
-														<th class="text-right">{{ sums2| number : fractionSize }}</th>
-														<th></th>
-														<th></th>
-														<th></th>
-														<th></th>
-														<th></th>
-														<th></th>
-														<th></th>
-														<th></th>
+															<td border="0"></td>
+															<td></td>
+															<td></td>
+										                    <td width="10%" style="text-align: center;">Total</td>
+										                    <td width="10%" style="text-align: right;"><span >{{total_due| number : fractionSize}}</span></td>
+										                    <td width="10%" style="text-align: right;"><span >{{total_paid| number : fractionSize}}</span></td>
+										                    <td width="10%" style="text-align: right;"><span >{{total_payment| number : fractionSize}}</span></td>
 														</tr>
                                                         </tbody>
                                                     </table>
