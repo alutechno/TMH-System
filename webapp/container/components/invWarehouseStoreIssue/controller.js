@@ -649,8 +649,13 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 				e.target.value=$scope.items[d-1].issued_qty_n
 			}
 		}else{
-			$scope.items[d-1].issued_qty_n=f
-			e.target.value = f
+			if($scope.items[d-1].stock_in_hand<f){
+				$scope.items[d-1].issued_qty_n=$scope.items[d-1].stock_in_hand
+				e.target.value = $scope.items[d-1].stock_in_hand
+			}else{
+				$scope.items[d-1].issued_qty_n=f
+				e.target.value = f
+			}
 		}
     }
 	$scope.update = function(e,d,f){

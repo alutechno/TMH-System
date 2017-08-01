@@ -17,17 +17,17 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstringCostCenter = 'select cast(concat(\'C-\',a.id) as char) _id,a.id,a.name,DATE_FORMAT(a.modified_date,\'%Y-%m-%d\') last_stock_opname,count(b.product_id) items,format(sum(b.stock_qty*c.price_per_unit),0) amount '+
-        'from (select a.id,a.name,max(b.created_date)modified_date from mst_cost_center a '+
-        'left join inv_stock_opname b on a.id = b.cost_center_id '+
+    var qstringCostCenter = 'select cast(concat(\'C-\',a.id) as char) _id,a.id,a.name,DATE_FORMAT(a.modified_date,\'%Y-%m-%d\') last_stock_opname,count(b.product_id) items,format(sum(b.stock_qty*c.price_per_unit),0) amount,if(a.status=1,"active","opname") status '+
+        'from (select a.id,a.name,max(b.created_date)modified_date,a.status from mst_cost_center a '+
+        'left join inv_stock_opname b on a.id = b.cost_center_id where a.status <>2 '+
         'group by a.id,a.name) a,inv_cost_center_stock b,mst_product c '+
         'where a.id=b.cost_center_id '+
         'and lower(a.name) not like \'%kitchen%\' '+
         'and b.product_id=c.id '+
         'group by a.id,a.name,a.modified_date '
-    var qstringWarehouse = 'select cast(concat(\'W-\',a.id) as char) _id,a.id,a.name,DATE_FORMAT(a.modified_date,\'%Y-%m-%d\') last_stock_opname,count(b.product_id) items,format(sum(b.stock_qty*c.price_per_unit),0) amount '+
-        'from (select a.id,a.name,max(b.created_date)modified_date from mst_warehouse a '+
-        'left join inv_stock_opname b on a.id = b.warehouse_id '+
+    var qstringWarehouse = 'select cast(concat(\'W-\',a.id) as char) _id,a.id,a.name,DATE_FORMAT(a.modified_date,\'%Y-%m-%d\') last_stock_opname,count(b.product_id) items,format(sum(b.stock_qty*c.price_per_unit),0) amount,if(a.status=1,"active","opname") status '+
+        'from (select a.id,a.name,max(b.created_date)modified_date,a.status from mst_warehouse a '+
+        'left join inv_stock_opname b on a.id = b.warehouse_id where a.status <>2 '+
         'group by a.id,a.name) a,inv_warehouse_stock b,mst_product c '+
         'where a.id=b.warehouse_id '+
         'and lower(a.name) not like \'%kitchen%\' '+
@@ -77,6 +77,10 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 '<button class="btn btn-default" title="Opname" ng-click="opname(\'' + data + '\')">' +
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
+				html +=
+                '<button class="btn btn-default" title="Print" ng-click="print(\'' + data + '\')">' +
+                '   <i class="fa fa-print"></i>' +
+                '</button>&nbsp;' ;
             }
             html += '</div>'
         }
@@ -117,7 +121,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('id').withTitle('id').withOption('width', '5%'),
-        DTColumnBuilder.newColumn('name').withTitle('Warehouse').withOption('width', '30%'),
+        DTColumnBuilder.newColumn('name').withTitle('Warehouse').withOption('width', '20%'),
+		DTColumnBuilder.newColumn('status').withTitle('Status').withOption('width', '20%'),
         DTColumnBuilder.newColumn('last_stock_opname').withTitle('last stock opname date').withOption('width', '20%'),
         DTColumnBuilder.newColumn('amount').withTitle('amount').withClass('text-right')
     );
@@ -278,6 +283,78 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         })
         $('#form-input').modal('show')
     }
+
+	$scope.print = function(_ids){
+		var q = ''
+		$scope.items = []
+		$scope.so.id = _ids.split('-')[1]
+        $scope.so._id = _ids
+		console.log('ids')
+		console.log(_ids)
+		$scope.selected.cost_center['selected']={}
+		$scope.selected.warehouse['selected']={}
+		if ($scope.so._id.indexOf('C')>-1){
+			for(var x=0;x<$scope.cost_center.length;x++){
+				if($scope.cost_center[x].id==$scope.so.id)
+					$scope.selected.cost_center['selected']=$scope.cost_center[x]
+			}
+			qdetail = 'select a.id w_id,b.name item,a.stock_qty,c.name stock_unit,a.stock_qty_l,d.name stock_unit2,b.recipe_unit_conversion unit_conversion,b.unit_type_id unit_id,b.recipe_unit_type_id unit_id2,b.price_per_unit,b.id product_id '+
+				'from inv_cost_center_stock a,mst_product b,ref_product_unit c,ref_product_unit d '+
+				'where a.cost_center_id= '+$scope.so.id+' '+
+				'and a.product_id=b.id '+
+				'and b.unit_type_id=c.id '+
+				'and b.recipe_unit_type_id=d.id ';
+		}
+		else if($scope.so._id.indexOf('W')>-1){
+			for(var x=0;x<$scope.warehouse.length;x++){
+				if($scope.warehouse[x].id==$scope.so.id)
+					$scope.selected.warehouse['selected']=$scope.warehouse[x]
+			}
+			qdetail = 'select a.id w_id,b.name item,a.stock_qty,c.name stock_unit,a.stock_qty_l,d.name stock_unit2,b.lowest_unit_conversion unit_conversion,b.unit_type_id unit_id,b.lowest_unit_type_id unit_id2,b.price_per_unit,b.id product_id '+
+				'from inv_warehouse_stock a,mst_product b,ref_product_unit c,ref_product_unit d '+
+				'where a.warehouse_id= '+$scope.so.id+ ' ' +
+				'and a.product_id=b.id '+
+				'and b.unit_type_id=c.id '+
+				'and b.lowest_unit_type_id=d.id ';
+		}
+		console.log(qdetail)
+		console.log($scope.so)
+		queryService.post(qdetail,undefined)
+		.then(function (result){
+			for (var i=0;i<result.data.length;i++){
+				result.data[i]['id'] = i+1
+				result.data[i]['real_stock'] = null
+				result.data[i]['real_stock_l'] = null
+				$scope.items.push(result.data[i])
+			}
+				//$scope.items = result.data;
+			console.log($scope.items)
+			var printSection = window.document.getElementById('printSection');
+	        var printSectionParent = window.document.getElementById('printSectionParent');
+	        if (printSectionParent){
+	            printSectionParent.innerHTML = '';
+	            printSectionParent.appendChild(printSection);
+	        }
+	        else {
+	            printSectionParent = document.createElement('div');
+	            printSectionParent.id = 'printSectionParent';
+	            document.body.appendChild(printSectionParent);
+	            printSectionParent.appendChild(printSection)
+	        }
+			setTimeout(function(){
+				window.print();
+			}, 100)
+		},
+		function (err){
+			$('#form-input').pgNotification({
+				style: 'flip',
+				message: 'Error Getting Items: '+err.code,
+				position: 'top-right',
+				timeout: 2000,
+				type: 'danger'
+			}).show();
+		})
+	}
 
     $scope.submit = function(){
 		$scope.disableAction = true;

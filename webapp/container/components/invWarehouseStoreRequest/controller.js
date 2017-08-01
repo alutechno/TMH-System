@@ -641,7 +641,13 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         $scope.items[d-1].unit_name = e.unit_name
     }
     $scope.updaterl = function(e,d,f,g){
-        $scope.items[d-1].request_qty = f
+		if($scope.items[d-1].stock_in_hand>=f){
+        	$scope.items[d-1].request_qty = f
+			e.target.value=f
+		}else{
+			$scope.items[d-1].request_qty=angular.copy($scope.items[d-1].stock_in_hand)
+			e.target.value=$scope.items[d-1].stock_in_hand
+		}
     }
 	$scope.update = function(e,d,f){
 		$scope.items[d-1].item_notes=f

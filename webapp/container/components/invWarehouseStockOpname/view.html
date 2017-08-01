@@ -1,4 +1,73 @@
-
+<div id="printSection">
+    <div class="row">
+        <h2 align="center">Stock Opname</h2>
+        <br>
+        <table width="90%">
+		<tr>
+			<td>
+				&nbsp;&nbsp;&nbsp;<span class="text-center">Warehouse</span>&nbsp;
+			</td>
+            <td>:&nbsp;<span class="text-center">{{selected.warehouse.selected.name}}</span>&nbsp;&nbsp;&nbsp;</td>
+            <td>
+              <span class="text-center">Cost center</span>&nbsp;
+			</td>
+            <td>:&nbsp;<span class="text-center">{{selected.cost_center.selected.name}}</span>&nbsp;&nbsp;&nbsp;</td>
+            <td>
+              <span class="text-center">Notes</span>&nbsp;
+			</td>
+            <td>:&nbsp;<span class="text-center">{{ap.notes}}</span>&nbsp;</td>
+		</tr>
+        </table>
+        <br>
+        <table width="89%" cellpadding="5" border="1" align="center">
+            <thead>
+				<tr>
+					<th width="5%">ID</th>
+					<th width="25%">Item</th>
+					<th width="10%">stock inventory</th>
+					<th width="10%">stock inventory unit</th>
+					<th width="10%">real stock</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="item in items | filter:filterUser">
+					<td style="vertical-align: middle;"><span>{{item.w_id}}</span></td>
+					<td style="vertical-align: middle;"><span>{{item.item}}</span></td>
+					<!--<td style="text-align: right;vertical-align: middle;"><span>{{item.stock_qty| number : fractionSize}}</span></td>
+					<td style="vertical-align: middle;"><span>{{item.stock_unit}}</span></td>-->
+					<td style="text-align: right;vertical-align: middle;"><span>{{item.stock_qty_l| number : fractionSize}}</span></td>
+					<td style="vertical-align: middle;"><span>{{item.stock_unit2}}</span></td>
+					<td style="text-align: right;vertical-align: middle;">
+						<span >
+							{{ item.real_stock | number : fractionSize}}
+						</span>
+					</td>
+				</tr>
+				</tbody>
+        </table>
+        <br><br><br><br>
+        <table width="89%" cellpadding="5" border="0" align="center">
+            <tr>
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                </td>
+                <td>&nbsp;</td>
+                <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td align="center">
+                    Store admin
+                </td>
+                <td>&nbsp;</td>
+                <td align="center">
+                    Cost control
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+    </div>
+</div>
 <div class="full-height m-t-40">
     <!-- TABLES VIEW -->
     <div class="container-fluid container-fixed-lg">
