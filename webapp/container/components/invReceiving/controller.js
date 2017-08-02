@@ -365,9 +365,10 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         DTColumnBuilder.newColumn('delivery_date').withTitle('Expected date'),
         DTColumnBuilder.newColumn('receive_date').withTitle('Receive Date')
     );
-	$scope.f = {po:'',pr:'',filter_date1:'',filter_date2:''}
+	$scope.f = {po:'',pr:'',filter_date1:'',filter_date2:'', filter_supplier:{}}
 	var qwhereobj={}
 	$scope.applyFilter = function(){
+        console.log('FILTER',$scope.f)
 		var status = []
 
 		if ($scope.f.pr.length>0 ){
@@ -382,6 +383,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 		if ($scope.f.filter_date2.length>0 ){
 			qwhereobj.date = ' receive_date = \''+$scope.f.filter_date2+'\' '
 		}
+        if ($scope.f.filter_supplier.selected){
+            qwhereobj.supplier = ' supplier_id =' +$scope.f.filter_supplier.selected.id+' '
+        }
 		qwhere = setWhere()
 		$scope.nested.dtInstance.reloadData(function(obj){
 		}, false)
@@ -389,6 +393,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 	}
 	$scope.openAdvancedFilter = function(val){
         $scope.showAdvance = val
+        if (val == false){
+            $scope.f = {po:'',pr:'',filter_date1:'',filter_date2:'', filter_supplier:''}
+        }
     }
 	function setWhere(){
         var arrWhere = []

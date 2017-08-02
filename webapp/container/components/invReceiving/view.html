@@ -168,11 +168,11 @@
                         </div>
                     </div>
                     <div class="panel-body" >
-                         <div class="input-prepend input-group pull-left lDate m-r-1" >
+                         <div class="input-prepend input-group pull-left lDate m-r-5" >
                             <label>Expected Date:</label><br />
                             <input type="text" class="form-control" ng-model="f.filter_date1" name="filter_date1" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" >
                         </div>
-                        <div class="input-prepend input-group pull-left lDate m-r-1" >
+                        <div class="input-prepend input-group pull-left lDate m-r-5" >
                           <label>Received Date</label><br />
                           <input type="text" class="form-control" ng-model="f.filter_date2" name="filter_date2" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" >
                        </div>
@@ -184,6 +184,15 @@
 							  <label>PO code</label><br />
                               <input type="text" id="search-table" class="form-control pull-right" placeholder="Search PO" ng-model="f.po">
                            </div>
+                           <div class="btn-group form-group-default-select pull-left  m-r-5">
+                               <label>Supplier:</label><br />
+                               <ui-select ng-model="f.filter_supplier.selected" theme="bootstrap" ng-keyup="supplierUp($select.search)" style="width:250px">
+                                   <ui-select-match placeholder="Pick Supplier">{{$select.selected.name}}</ui-select-match>
+                                   <ui-select-choices repeat="item in supplier | filter: $select.search">
+                                       <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                   </ui-select-choices>
+                               </ui-select>
+                            </div>
                          <div class="btn-group dropdown-default  m-r-5" >
                              <label>&nbsp;</label><br />
                            <button id="show-modal" class="btn btn-primary pull-right" ng-click="applyFilter()" ><i class="fa fa-search"></i> Apply</button>
