@@ -18,6 +18,10 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     $scope.itemsOri = []
     $scope.child = {}
     $scope.updateState = false;
+    $scope.total = {
+        debit: 0,
+        credit:0
+    }
     $scope.totaldebit = 0
     $scope.totalkredit = 0
 	$scope.disableAction = false;
@@ -968,6 +972,8 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 var d = result2.data
                 $scope.items = []
                 $scope.itemsOri = []
+                $scope.total.debit = 0;
+                $scope.total.credit = 0;
                 for (var i=0;i<d.length;i++){
 					console.log(d[i])
 					if(d[i].gl_id!=null)
@@ -985,6 +991,8 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                             credit: d[i].transc_type=='C'?d[i].amount:''
                         }
                     )
+                    if (d[i].transc_type=='D') $scope.total.debit += d[i].amount
+                    else if (d[i].transc_type=='C') $scope.total.credit += d[i].amount
                 }
                 $scope.itemsOri = angular.copy($scope.items)
             },
@@ -1363,13 +1371,13 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         $scope.items[d-1].amount = q * $scope.items[d-1].price
     }
     $scope.setValue = function(e,d,p,t){
-        $scope.totaldebit = 0
-        $scope.totalcredit = 0
+        $scope.total.debit = 0
+        $scope.total.credit = 0
         if (t=='debit') $scope.items[d-1].debit = p
         if (t=='credit') $scope.items[d-1].credit = p
         for(var i=0;i<$scope.items.length;i++){
-            $scope.totaldebit += (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
-            $scope.totalcredit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
+            $scope.total.debit += (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
+            $scope.total.credit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
         }
     }
 	$scope.notes = function(e,d,p){

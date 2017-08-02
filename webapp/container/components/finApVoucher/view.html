@@ -641,19 +641,20 @@
                                                     {{ item.notes }}
                                                 </span>
                                             </td>
-                                            <td >
+                                            <td style="text-align: right;">
                                                 <span editable-text="item.debit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')">
-                                                    {{ item.debit }}
+                                                    {{ item.debit| number : fractionSize }}
                                                 </span>
                                             </td>
-                                            <td >
+                                            <td style="text-align: right;">
                                                 <span editable-text="item.credit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')">
-                                                    {{ item.credit }}
+                                                    {{ item.credit| number : fractionSize }}
                                                 </span>
                                             </td>
 
                                         </tr>
                                         <tr>
+                                            <td>&nbsp;</td>
                                             <td>&nbsp;</td>
                                             <td>&nbsp;</td>
                                             <td>Tax</td>
@@ -667,9 +668,10 @@
                                         <tr ng-show="items.length>0">
                                             <td>&nbsp;</td>
                                             <td>&nbsp;</td>
+                                            <td>&nbsp;</td>
                                             <td>Total</td>
-                                            <td><span>{{totaldebit}}</span></td>
-                                            <td><span>{{totalcredit}}</span></td>
+                                            <td style="text-align: right;"><span>{{total.debit | number : fractionSize}}</span></td>
+                                            <td style="text-align: right;"><span>{{total.credit | number : fractionSize}}</span></td>
                                         </tr>
                                         </tbody>
                                     </table>

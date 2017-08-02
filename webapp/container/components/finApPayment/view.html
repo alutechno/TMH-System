@@ -564,6 +564,7 @@
 															<td border="0"></td>
 															<td></td>
 															<td></td>
+                                                            <td></td>
 										                    <td width="10%" style="text-align: center;">Total</td>
 										                    <td width="10%" style="text-align: right;"><span >{{total_due| number : fractionSize}}</span></td>
 										                    <td width="10%" style="text-align: right;"><span >{{total_paid| number : fractionSize}}</span></td>
@@ -635,12 +636,12 @@
                                                                 </span>
                                                             </td>
                                                             <td >
-                                                                <span editable-text="item.debit" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')">
+                                                                <span editable-text="item.debit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')">
                                                                     {{ item.debit }}
                                                                 </span>
                                                             </td>
                                                             <td >
-                                                                <span editable-text="item.credit" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')">
+                                                                <span editable-text="item.credit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')">
                                                                     {{ item.credit }}
                                                                 </span>
                                                             </td>
