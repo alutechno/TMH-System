@@ -340,12 +340,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.focusinControl = {};
     $scope.fileName = "Direct Payment";
     $scope.exportExcel = function(){
-        queryService.post('select id,code,check_no,open_date,due_date,status_name,supplier_name,bank_account,currency_code,total_amount,home_total_amount from('+qstring + qwhere+')aa order by id desc',undefined)
+        queryService.post('select id,code,check_no,open_date,due_date,status_name,supplier_name,bank_account,currency_code,home_total_amount from('+qstring + qwhere+')aa order by id desc',undefined)
         .then(function(data){
             $scope.exportData = [];
             //Header
             $scope.exportData.push(["ID","Doc No", 'Check No',"Open Date",'Due Date', 'Status','Supplier', 'Bank Account','Currency',
-                'Total Amount (IDR)','Total Amount']);
+                'Total Amount']);
             //Data
             for(var i=0;i<data.data.length;i++){
                 var arr = []
@@ -855,7 +855,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 $scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
-                    message: 'Error Update Payment, Account ID must be Filled ',
+                    message: 'Error Update Payment, Account ID must be Filled or D/C must > 0',
                     position: 'top-right',
                     timeout: 2000,
                     type: 'danger'
@@ -1479,12 +1479,20 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
                     pr_id+','+user.account_id+',\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }
+                $scope.total.debit += (!isNaN(parseInt(user.debit))?parseInt(user.debit):0)
+                $scope.total.credit += (!isNaN(parseInt(user.credit))?parseInt(user.credit):0)
+                $scope.total.debit_f += (user.transc_type=='D'?(parseInt(user.debit)/$scope.ap.exchange):0)
+                $scope.total.credit_f += (user.transc_type=='C'?(parseInt(user.credit)/$scope.ap.exchange):0)
 
             }
             else if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from acc_gl_journal where id='+user.p_id)
             }
             else if(!user.isNew){
+                $scope.total.debit += (!isNaN(parseInt(user.debit))?parseInt(user.debit):0)
+                $scope.total.credit += (!isNaN(parseInt(user.credit))?parseInt(user.credit):0)
+                $scope.total.debit_f += (user.transc_type=='D'?(parseInt(user.debit)/$scope.ap.exchange):0)
+                $scope.total.credit_f += (user.transc_type=='C'?(parseInt(user.credit)/$scope.ap.exchange):0)
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
                         var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].account_id+$scope.itemsOri[j].debit+$scope.itemsOri[j].credit+$scope.itemsOri[i].notes
@@ -1502,10 +1510,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     }
                 }
             }
-            $scope.total.debit += (!isNaN(parseInt(user.debit))?parseInt(user.debit):0)
-            $scope.total.credit += (!isNaN(parseInt(user.credit))?parseInt(user.credit):0)
-            $scope.total.debit_f += (user.transc_type=='D'?(parseInt(user.debit)/$scope.ap.exchange):0)
-            $scope.total.credit_f += (user.transc_type=='C'?(parseInt(user.credit)/$scope.ap.exchange):0)
+
 
         }
         console.log(sqlitem)
