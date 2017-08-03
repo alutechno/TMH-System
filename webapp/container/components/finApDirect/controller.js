@@ -904,7 +904,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
 
         }
-        else if ($scope.selected.status.selected.id==3&&par==1){
+        /*else if ($scope.selected.status.selected.id==3&&par==1){
             var v = 0,v_gl_id=null;
 
             for (var i=0;i<$scope.items.length;i++){
@@ -944,7 +944,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
 
 
-        }
+        }*/
         //console.log($scope.items)
     }
 
