@@ -1,6 +1,6 @@
 <div id="printSection">
     <div class="row">
-        <h2 align="center">Stock Opname</h2>
+        <h2 align="center">Form Stock Opname</h2>
         <br>
         <table width="90%">
 		<tr>
@@ -54,6 +54,9 @@
                 <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
                 </td>
                 <td>&nbsp;</td>
+				<td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;" ng-if="selected.cost_center.selected.name!=undefined">
+                </td>
+                <td ng-if="selected.cost_center.selected.name!=undefined">&nbsp;</td>
             </tr>
             <tr>
                 <td align="center">
@@ -64,6 +67,10 @@
                     Cost control
                 </td>
                 <td>&nbsp;</td>
+				<td align="center" ng-if="selected.cost_center.selected.name!=undefined">
+                    Outlet
+                </td>
+                <td ng-if="selected.cost_center.selected.name!=undefined">&nbsp;</td>
             </tr>
         </table>
     </div>

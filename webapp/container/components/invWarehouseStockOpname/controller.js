@@ -19,7 +19,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     $scope.users = []
     var qstringCostCenter = 'select cast(concat(\'C-\',a.id) as char) _id,a.id,a.name,DATE_FORMAT(a.modified_date,\'%Y-%m-%d\') last_stock_opname,count(b.product_id) items,format(sum(b.stock_qty*c.price_per_unit),0) amount,if(a.status=1,"active","opname") status '+
         'from (select a.id,a.name,max(b.created_date)modified_date,a.status from mst_cost_center a '+
-        'left join inv_stock_opname b on a.id = b.cost_center_id where a.status <>2 '+
+        'left join inv_stock_opname b on a.id = b.cost_center_id where a.status <>2 and a.is_has_store="Y" '+
         'group by a.id,a.name) a,inv_cost_center_stock b,mst_product c '+
         'where a.id=b.cost_center_id '+
         'and lower(a.name) not like \'%kitchen%\' '+

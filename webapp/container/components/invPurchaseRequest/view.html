@@ -254,9 +254,9 @@
                               </div>
                               <div class="col-md-3" ng-if="stat.pr=='non' && direct!='direct'">
                                   <div pg-form-group class="form-group form-group-default form-group-default-select ">
-                                      <label>Store Location</label>
-                                      <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode" >
-                                          <ui-select-match placeholder="Select Location">{{$select.selected.name}}</ui-select-match>
+                                      <label>Warehouse</label>
+                                      <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode" on-select="selected.cost_center.selected={}">
+                                          <ui-select-match placeholder="Select Warehouse">{{$select.selected.name}}</ui-select-match>
                                           <ui-select-choices repeat="item in warehouse | filter: $select.search">
                                               <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                           </ui-select-choices>
@@ -266,8 +266,8 @@
                               <div class="col-md-3" ng-if="stat.pr=='pr' && direct!='direct'">
                                   <div pg-form-group class="form-group form-group-default form-group-default-select " ng-class="{ 'has-error' : selected.warehouse.selected.$invalid && !selected.warehouse.selected.$pristine }" >
                                       <label>Warehouse</label>
-                                      <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode" validate-attached-form-element >
-                                          <ui-select-match placeholder="Select Location">{{$select.selected.name}}</ui-select-match>
+                                      <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode" validate-attached-form-element on-select="selected.cost_center.selected={}">
+                                          <ui-select-match placeholder="Select Warehouse">{{$select.selected.name}}</ui-select-match>
                                           <ui-select-choices repeat="item in warehouse | filter: $select.search">
                                               <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                           </ui-select-choices>
@@ -277,7 +277,7 @@
                               <div class="col-md-3" ng-if="direct!='direct'">
                                   <div pg-form-group class="form-group form-group-default form-group-default-select ">
                                       <label>Cost Center</label>
-                                      <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
+                                      <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id;selected.warehouse.selected={}" >
 										  <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
 	                                      <ui-select-choices repeat="item in cost_center | filter: $select.search">
 	                                          <div ng-bind-html="trustAsHtml((item.name  | highlight: $select.search))"></div>
