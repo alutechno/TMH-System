@@ -20,7 +20,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
+	var date = new Date();
+	date.setDate(date.getDate());
 
+	$('#startDate').datepicker({
+	    startDate: date
+	});
     var qstring = "select * from ( "+
     	"select aa.*,g.name warehouse_name,h.name cost_center_name,case when i.code is null then j.code else i.code end pr_code "+
         "from(  "+

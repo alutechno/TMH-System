@@ -60,7 +60,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         warehouse: {},
         cost_center: {}
     }
+	var date = new Date();
+	date.setDate(date.getDate());
 
+	$('#startDate').datepicker({
+		startDate: date
+	});
     $scope.cost_center = []
 	queryService.get('select a.id, a.code,upper(a.name) name,a.status,b.name as department_name, concat(\'Department: \',b.name)  dept_desc '+
         'from mst_cost_center a, mst_department b '+
