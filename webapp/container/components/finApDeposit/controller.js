@@ -12,6 +12,12 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
+	var date = new Date();
+	date.setDate(date.getDate());
+
+	$('#openDate').datepicker({
+	    startDate: date
+	});
     $scope.users = []
     $scope.items = []
     $scope.itemsOri = []

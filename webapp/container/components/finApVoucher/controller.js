@@ -22,6 +22,15 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         debit: 0,
         credit:0
     }
+	var date = new Date();
+	date.setDate(date.getDate());
+
+	$('#openDate').datepicker({
+	    startDate: date
+	});
+	$('#dueDate').datepicker({
+	    startDate: date
+	});
     $scope.totaldebit = 0
     $scope.totalkredit = 0
 	$scope.disableAction = false;

@@ -24,6 +24,18 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         debit:0,
         credit:0
     }
+	var date = new Date();
+	date.setDate(date.getDate());
+
+	$('#openDate').datepicker({
+	    startDate: date
+	});
+	$('#dueDate').datepicker({
+	    startDate: date
+	});
+	$('#prepDate').datepicker({
+	    startDate: date
+	});
 	$scope.disableAction = false;
     var year = ['2015','2016','2017','2018','2019']
     var month = [

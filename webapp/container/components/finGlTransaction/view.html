@@ -21,8 +21,8 @@
           </tr>
           <tr>
             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ref Account</td>
-            <td>:</td> 
-            <td>{{ap.ref_account}}</td>          
+            <td>:</td>
+            <td>{{ap.ref_account}}</td>
             <td>Notes</td>
             <td>:</td>
             <td>{{ap.notes}}</td>
@@ -30,18 +30,18 @@
           </tr>
           <tr>
             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Debit</td>
-            <td>:</td> 
-            <td>{{ap.debit|number: fractionSize}}</td>          
+            <td>:</td>
+            <td>{{ap.debit|number: fractionSize}}</td>
             <td>Credit</td>
             <td>:</td>
             <td>{{ap.credit|number: fractionSize}}</td>
             </td>
           </tr>
-        </table>       
+        </table>
         <br>
         <table width="89%" cellpadding="5" border="1" align="center">
             <thead>
-				<tr>        
+				<tr>
 					<th width="10%" style="text-align:center">Account ID</th>
 					<th width="30%" style="text-align:center">Account Name</th>
 					<th width="30%" style="text-align:center">Notes</th>
@@ -111,7 +111,7 @@
                 <td align="center">
                     Fincancial Controller
                 </td>
-            </tr>            
+            </tr>
         </table>
         <br><br><br><br>
     </div>
@@ -301,7 +301,7 @@
                   <div class="col-sm-4">
                       <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.bookkeeping_date.$invalid && !ap.bookkeeping_date.$pristine }">
                           <label>Date</label>
-                          <input type="text" class="form-control" ng-model="ap.bookkeeping_date" name="bookkeeping_date" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required >
+                          <input type="text" class="form-control" ng-model="ap.bookkeeping_date" id="openDate" name="bookkeeping_date" placeholder="Pick a date" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required >
                       </div>
                   </div>
               </div>
