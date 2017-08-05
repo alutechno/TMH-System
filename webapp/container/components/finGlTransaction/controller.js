@@ -14,9 +14,9 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 	var date = new Date();
 	date.setDate(date.getDate());
 
-	$('#openDate').datepicker({
+	/*$('#openDate').datepicker({
 	    startDate: date
-	});
+	});*/
     $scope.users = []
     $scope.items = []
     $scope.itemsOri = []

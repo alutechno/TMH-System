@@ -25,12 +25,12 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 	var date = new Date();
 	date.setDate(date.getDate());
 
-	$('#openDate').datepicker({
+	/*$('#openDate').datepicker({
 	    startDate: date
 	});
 	$('#dueDate').datepicker({
 	    startDate: date
-	});
+	});*/
     $scope.totaldebit = 0
     $scope.totalkredit = 0
 	$scope.disableAction = false;

@@ -15,9 +15,9 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
 	var date = new Date();
 	date.setDate(date.getDate());
 
-	$('#openDate').datepicker({
+	/*$('#openDate').datepicker({
 	    startDate: date
-	});
+	});*/
     $scope.users = []
     $scope.items = []
     $scope.itemsOri = []
