@@ -1,4 +1,3 @@
-
 var userController = angular.module('app', []);
 userController
 .controller('PosTablesCtrl',
@@ -12,16 +11,10 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
-
-    var qstring = "select a.id,a.code,a.name,a.description,a.status,b.status_name from ref_room_type a, "+
-        "(select id as status_id, value as status_value,name as status_name  "+
-            "from table_ref  "+
-            "where table_name = 'ref_product_category' and column_name='status')b "+
-        "where a.status = b.status_value and a.status!=2 "
+    var qstring = "select a.*,b.name,c.name status_name from mst_pos_tables a,mst_outlet b,table_ref c where a.outlet_id=b.id and c.table_name = 'ref_product_category' and c.column_name='status' and a.status=c.value and a.status<>2 "
     var qwhere = ''
 
     $scope.users = []
-
     $scope.role = {
         selected: []
     };
@@ -30,28 +23,27 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.id = '';
     $scope.coa = {
         id: '',
-        code: '',
-        name: '',
-        description: '',
-        status: ''
+        table_no: '',
+        cover: '',
+        section: '',
+        outlet_id: ''
     }
-
     $scope.selected = {
         status: {},
-        filter_department: {},
-        filter_account_type: {}
+		outlet:{}
     }
-
-    queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1) order by name asc',undefined)
+	queryService.get('select value as id,name from table_ref where table_name = \'ref_product_category\' and column_name=\'status\' and value in (0,1) order by name asc',undefined)
     .then(function(data){
         $scope.arrActive = data.data
         $scope.selected.status['selected'] = $scope.arrActive[0]
     })
-
+	queryService.get('select * from mst_outlet where status=1 order by name asc',undefined)
+    .then(function(data){
+        $scope.outlet = data.data
+    })
     $scope.focusinControl = {};
-    $scope.fileName = "Room Type Reference";
+    $scope.fileName = "Table Outlet";
     $scope.exportExcel = function(){
-
         queryService.post('select code,name,description,status_name from('+qstring + qwhere+')aa order by code',undefined)
         .then(function(data){
             $scope.exportData = [];
@@ -68,7 +60,6 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             $scope.focusinControl.downloadExcel()
         })
     }
-
 
     $scope.filterVal = {
         search: ''
@@ -123,20 +114,20 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
     .withDisplayLength(10)
-    .withOption('order', [0, 'asc'])
+    .withOption('order', [0, 'desc'])
     .withOption('createdRow', $scope.createdRow);
 
     $scope.dtColumns = [];
     if ($scope.el.length>0){
         $scope.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        .renderWith($scope.actionsHtml))
     }
     $scope.dtColumns.push(
         //DTColumnBuilder.newColumn('code').withTitle('Code Ori').notVisible(),
-        DTColumnBuilder.newColumn('code').withTitle('Code'),
-        DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%'),
-        DTColumnBuilder.newColumn('description').withTitle('Description'),
-        DTColumnBuilder.newColumn('status_name').withTitle('Status')
+        DTColumnBuilder.newColumn('table_no').withTitle('Table'),
+        DTColumnBuilder.newColumn('cover').withTitle('Capacity'),
+        DTColumnBuilder.newColumn('name').withTitle('Outlet'),
+        DTColumnBuilder.newColumn('created_date').withTitle('Created Date')
     );
 
     var qwhereobj = {
@@ -147,10 +138,9 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.filter = function(type,event) {
         if (type == 'search'){
             if (event.keyCode == 13){
-                if ($scope.filterVal.search.length>0) qwhereobj.text = ' lower(a.name) like \'%'+$scope.filterVal.search+'%\' '
+                if ($scope.filterVal.search.length>0) qwhereobj.text = ' lower(b.name) like \'%'+$scope.filterVal.search+'%\' '
                 else qwhereobj.text = ''
                 qwhere = setWhere()
-
                 //if ($scope.filterVal.search.length>0) qwhere = ' and lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%"'
                 //else qwhere = ''
                 $scope.dtInstance.reloadData(function(obj){
@@ -165,23 +155,6 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         }
     }
 
-    $scope.applyFilter = function(){
-        //console.log($scope.selected.filter_status)
-
-        //console.log($scope.selected.filter_cost_center)
-        if ($scope.selected.filter_department.selected){
-            qwhereobj.department = ' a.dept_id = '+$scope.selected.filter_department.selected.id+ ' '
-        }
-        if ($scope.selected.filter_account_type.selected){
-            qwhereobj.account_type = ' a.account_type_id = '+$scope.selected.filter_account_type.selected.id+ ' '
-        }
-        //console.log(setWhere())
-        qwhere = setWhere()
-        $scope.dtInstance.reloadData(function(obj){
-            console.log(obj)
-        }, false)
-
-    }
     function setWhere(){
         var arrWhere = []
         var strWhere = ''
@@ -197,7 +170,6 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
     /*END AD ServerSide*/
     $scope.openAdvancedFilter = function(val){
-
         $scope.showAdvance = val
         if (val==false){
             $scope.selected.filter_account_type = {}
@@ -215,18 +187,16 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 		$scope.disableAction = true;
         if ($scope.coa.id.length==0){
             //exec creation
-
             var param = {
-                code: $scope.coa.code,
-                name: $scope.coa.name,
-                description: $scope.coa.description,
-                status: $scope.selected.status.selected.id,
-                created_date: globalFunction.currentDate(),
+                outlet_id: $scope.selected.outlet.selected.id,
+                table_no: $scope.coa.table_no,
+                cover: $scope.coa.cover,
+                section: $scope.coa.section,
+				status:$scope.selected.status.selected.id,
                 created_by: $localStorage.currentUser.name.id
             }
-            console.log(param)
 
-            queryService.post('insert into ref_room_type SET ?',param)
+            queryService.post('insert into mst_pos_tables SET ?',param)
             .then(function (result){
 				$scope.disableAction = false;
                     $('#form-input').modal('hide')
@@ -241,74 +211,68 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                         type: 'success'
                     }).show();
                     $scope.clear()
-
             },
             function (err){
                 $scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
-                    message: 'Error Insert: '+err.code,
+                    message: 'Error Insert: '+err.message,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'danger'
                 }).show();
             })
-
         }
         else {
             //exec update
-
-            var param = {
-                code: $scope.coa.code,
-                name: $scope.coa.name,
-                description: $scope.coa.description,
-                status: $scope.selected.status.selected.id,
-                modified_date: globalFunction.currentDate(),
-                modified_by: $localStorage.currentUser.name.id
+			var param = {
+				outlet_id: $scope.selected.outlet.selected.id,
+                table_no: $scope.coa.table_no,
+                cover: $scope.coa.cover,
+                section: $scope.coa.section,
+				status:$scope.selected.status.selected.id,
+                modified_by: $localStorage.currentUser.name.id,
+				modified_date: new Date()
             }
-            console.log(param)
-            queryService.post('update ref_room_type SET ? WHERE id='+$scope.coa.id ,param)
+            queryService.post('update mst_pos_tables SET ? WHERE id='+$scope.coa.id ,param)
             .then(function (result){
 				$scope.disableAction = false;
-                if (result.status = "200"){
-                    console.log('Success Update')
-                    $('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){
-                        console.log(obj)
-                    }, false)
-                    $('body').pgNotification({
-                        style: 'flip',
-                        message: 'Success Update '+$scope.coa.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'success'
-                    }).show();
-                    $scope.clear()
-                }
-                else {
-                    console.log('Failed Update')
-                }
+                $('#form-input').modal('hide')
+                $scope.dtInstance.reloadData(function(obj){
+                    console.log(obj)
+                }, false)
+                $('body').pgNotification({
+                    style: 'flip',
+                    message: 'Success Update '+$scope.coa.code,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'success'
+                }).show();
+                $scope.clear()
+            },
+            function (err){
+                $scope.disableAction = false;
+                $('#form-input').pgNotification({
+                    style: 'flip',
+                    message: 'Error Insert: '+err.message,
+                    position: 'top-right',
+                    timeout: 2000,
+                    type: 'danger'
+                }).show();
             })
         }
     }
 
     $scope.update = function(obj){
         $('#form-input').modal('show');
-        //$('#coa_code').prop('disabled', true);
-
-        // console.log(obj)
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-            console.log(result)
-
-            $scope.coa.id = result.data[0].id
-            $scope.coa.code = result.data[0].code
-            $scope.coa.name = result.data[0].name
-            $scope.coa.description = result.data[0].description
-            $scope.coa.status = result.data[0].status
-            $scope.coa.status = result.data[0].status
+			$scope.coa.id = result.data[0].id
+            $scope.coa.table_no = result.data[0].table_no
+            $scope.coa.cover = result.data[0].cover
+            $scope.coa.section = result.data[0].section
             $scope.selected.status.selected = {id: result.data[0].status,name:result.data[0].status_name}
-
+			$scope.selected.outlet.selected = {id: result.data[0].outlet_id,name:result.data[0].name}
         })
     }
 
@@ -316,13 +280,13 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope.coa.id = obj.id;
         queryService.get(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
-            $scope.coa.name = result.data[0].name;
+            $scope.coa.table_no = result.data[0].table_no;
             $('#modalDelete').modal('show')
         })
     }
 
     $scope.execDelete = function(){
-        queryService.post('update ref_room_type SET status=\'2\', '+
+        queryService.post('update mst_pos_tables SET status=\'2\', '+
         ' modified_by='+$localStorage.currentUser.name.id+', ' +
         ' modified_date=\''+globalFunction.currentDate()+'\' ' +
         ' WHERE id='+$scope.coa.id ,undefined)
@@ -335,7 +299,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 }, false)
                 $('body').pgNotification({
                     style: 'flip',
-                    message: 'Success Delete '+$scope.coa.name,
+                    message: 'Success Delete '+$scope.coa.table_no,
                     position: 'top-right',
                     timeout: 2000,
                     type: 'success'
@@ -349,13 +313,16 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     }
 
     $scope.clear = function(){
-        $scope.coa = {
-            id: '',
-            code: '',
-            name: '',
-            description: '',
-            status: ''
-        }
+		$scope.coa = {
+	        id: '',
+	        table_no: '',
+	        cover: '',
+	        section: '',
+	        outlet_id: ''
+	    }
+		$scope.selected = {
+	        status: {},
+			outlet:{}
+	    }
     }
-
 })

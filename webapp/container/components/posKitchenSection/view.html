@@ -9,10 +9,10 @@
                 </div>
                 <div class="pull-right" style="width: 60%;">
                     <!--<button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>-->
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Type</button>
-                    <span ng-click="exportExcel()">
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Kitchen Section</button>
+                    <!--<span ng-click="exportExcel()">
                         <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
-                    </span>
+                    </span>-->
 
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search name..." ng-keyup="filter('search',$event)" ng-model="filterVal.search">
@@ -83,7 +83,7 @@
     <div class="modal-content-wrapper">
       <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
       <div class="panel-heading">
-       <div class="panel-title">Room Type Information</div>
+       <div class="panel-title">Kitchen Section Information</div>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
         </button>
        </div>
@@ -120,6 +120,19 @@
                       </div>
                   </div>
               </div>
+			  <div class="row clearfix">
+                <div class="col-sm-12">
+                    <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.kitchen.selected.$invalid && !selected.kitchen.selected.$pristine }">
+                        <label>Kitchen</label>
+                        <ui-select ng-model="selected.kitchen.selected" theme="bootstrap" validate-attached-form-element required>
+                            <ui-select-match placeholder="select kitchen">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in kitchen | filter: $select.search">
+                                <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
               <div class="row clearfix">
                 <div class="col-sm-12">
                     <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.status.selected.$invalid && !selected.status.selected.$pristine }">

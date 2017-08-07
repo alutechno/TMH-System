@@ -3377,7 +3377,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
 			}
 		})
         .state("app.pos.mealTime", {
-			url: "/payment-method",
+			url: "/mealtime",
 			templateUrl: "container/components/posMealTime/view.html",
 			controller: "PosMealTimeCtrl",
 			resolve: {

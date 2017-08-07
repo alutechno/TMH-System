@@ -28,7 +28,7 @@ module.exports = function (connection, jwt, log) {
         });
     });
     app.post('/query', function (req, res) {
-        log(req.headers, req.path, 'query-request', JSON.stringify(req.query), JSON.stringify(req.body), 'POST - Prepare query')
+		log(req.headers, req.path, 'query-request', JSON.stringify(req.query), JSON.stringify(req.body), 'POST - Prepare query')
         connection(req.body.query, req.body.values, function (err, rows, fields) {
             if (!err) {
                 log(req.headers, req.path, 'query-response', JSON.stringify(req.query), JSON.stringify(req.body), JSON.stringify({
@@ -40,7 +40,7 @@ module.exports = function (connection, jwt, log) {
             else {
                 console.error(req.path + '|' + JSON.stringify(err))
             }
-            res.send(JSON.stringify({err: err, rows: rows, fields: fields}))
+			res.send(JSON.stringify({err: err, rows: rows, fields: fields}))
         });
     });
     app.get('/datatable', function (req, res) {

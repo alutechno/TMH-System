@@ -268,6 +268,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 					$scope.disableAction = false;
 					$('#form-input').modal('hide')
 					$scope.dtInstance.reloadData(function(obj){}, false)
+
 					$('body').pgNotification({
 						style: 'flip',
 						message: 'Success Insert '+$scope.sr.code,
@@ -279,6 +280,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             },
             function (err){
 				$scope.disableAction = false;
+				console.log(JSON.stringify(err))
                 $('#form-input').pgNotification({
                     style: 'flip',
                     message: 'Error Insert: '+err.code,
@@ -300,7 +302,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 modified_by: $localStorage.currentUser.name.id,
                 modified_date: globalFunction.currentDate(),
             }
-            queryService.post('update inv_store_request set ? where id='+$scope.sr.id,param)
+			queryService.post('update inv_store_request set ? where id='+$scope.sr.id,param)
             .then(function (result){
                 var qstr = $scope.child.saveTable($scope.sr.id)
 				if(qstr.length>0){
@@ -335,6 +337,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 				}
             },
             function (err){
+				console.log(JSON.stringify(err))
 				$scope.disableAction = false;
                 $('#form-input').pgNotification({
                     style: 'flip',
