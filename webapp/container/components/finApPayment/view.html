@@ -551,11 +551,11 @@
                                                             <td><span>{{item.open_date}}</span></td>
                                                             <td><span>{{item.due_date}}</span></td>
                                                             <td><span>{{item.source}}</span></td>
-                                                            <td style="text-align: right;"><span>{{item.total_amount| number : fractionSize}}</span></td>
+                                                            <td style="text-align: right;"><span>{{item.current_due_amount| number : fractionSize}}</span></td>
                                                             <td style="text-align: right;"><span>{{item.paid_amount| number : fractionSize}}</span></td>
                                                             <td style="text-align: right;">
-                                                                <span editable-text="item.current_due_amount" e-form="tableform" data-e-ng-keyup="setPayment($event,item.id,$data)">
-                                                                    {{ item.current_due_amount | number : fractionSize}}
+                                                                <span editable-text="item.current_due_amount" format="number" e-form="tableform" data-e-ng-keyup="setPayment($event,item.id,$data)">
+                                                                    {{ item.total_amount | number : fractionSize}}
                                                                 </span>
                                                             </td>
 
@@ -566,9 +566,9 @@
 															<td></td>
                                                             <td></td>
 										                    <td width="10%" style="text-align: center;">Total</td>
-										                    <td width="10%" style="text-align: right;"><span >{{total_due| number : fractionSize}}</span></td>
-										                    <td width="10%" style="text-align: right;"><span >{{total_paid| number : fractionSize}}</span></td>
-										                    <td width="10%" style="text-align: right;"><span >{{total_payment| number : fractionSize}}</span></td>
+										                    <td width="10%" style="text-align: right;"><span >{{totalv.due| number : fractionSize}}</span></td>
+										                    <td width="10%" style="text-align: right;"><span >{{totalv.paid| number : fractionSize}}</span></td>
+										                    <td width="10%" style="text-align: right;"><span >{{totalv.payment| number : fractionSize}}</span></td>
 														</tr>
                                                         </tbody>
                                                     </table>
@@ -637,12 +637,12 @@
                                                             </td>
                                                             <td >
                                                                 <span editable-text="item.debit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')">
-                                                                    {{ item.debit }}
+                                                                    {{ item.debit| number : fractionSize }}
                                                                 </span>
                                                             </td>
                                                             <td >
                                                                 <span editable-text="item.credit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')">
-                                                                    {{ item.credit }}
+                                                                    {{ item.credit| number : fractionSize }}
                                                                 </span>
                                                             </td>
 
