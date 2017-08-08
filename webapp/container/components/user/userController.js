@@ -120,7 +120,16 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
 			for (var i=0;i<$scope.role.selected.length;i++){
 				rid.push($scope.role.selected[i].id)
 			}
-			var qStrModule = 'select e.id, e.name '+
+			var qStrModule = 'select e.id,e.name '+
+                'from role a, role_menu b, menu c, group_menu d, module e '+
+                'where a.id = b.role_id '+
+                'and b.menu_id = c.id '+
+                'and c.group_id = d.id '+
+                'and d.module_id = e.id '+
+                'and a.id in('+rid.join(',')+') '+
+                'group by e.id, e.name order by e.name asc';
+               /*var a =
+            'select e.id, e.name '+
 	            'from user a, role_user b, role_menu c, menu f, group_menu d, module e '+
 	            'where a.id = b.user_id '+
 	            'and b.role_id = c.role_id '+
@@ -129,13 +138,13 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
 	            'and d.module_id = e.id '+
 	            'and b.role_id in('+rid.join(',')+') '+
 	            //'and a.name = \''+$localStorage.currentUser.name.name+'\' '+
-	            'group by e.id, e.name order by e.name asc'
-			where=" and b.role_id in("+rid.join(',')+") "
-
+	            'group by e.id, e.name order by e.name asc'*/
+			//where=" and b.role_id in("+rid.join(',')+") "
+            
 			queryService.post(qStrModule,undefined)
 	        .then(function(result){
 				$scope.modules = result.data
-	            if ($scope.user.default_module == undefined || $scope.user.default_module.length==0){
+                if ($scope.user.default_module == undefined || $scope.user.default_module.length==0){
 	                $scope.selected.module['selected'] = $scope.modules[0]
 					//$scope.getMenu($scope.selected.module['selected'].id,$scope.user.default_menu)
 	            }
@@ -175,15 +184,15 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
             rid.push($scope.role.selected[i].id)
         }
         var qStrMenu = 'select f.id,concat(d.name,\' - \',f.name) as name '+
-            'from user a, role_user b, role_menu c, menu f, group_menu d, module e '+
-            'where a.id = b.user_id '+
-            'and b.role_id = c.role_id '+
+            'from role a, role_menu c, menu f, group_menu d, module e '+
+            'where a.id = c.role_id '+
+            //'and b.role_id = c.role_id '+
             'and c.menu_id = f.id '+
             'and f.group_id = d.id '+
             'and d.module_id = e.id '+
             'and parent > 0 '+
             'and e.id = '+ module_id + ' ' +
-            'and b.role_id in('+rid.join(',')+') '+
+            'and a.id in('+rid.join(',')+') '+
             //'and a.name = \''+$localStorage.currentUser.name.name+'\' '+
             'group by f.id, f.name,d.name order by d.name,f.name'
 
