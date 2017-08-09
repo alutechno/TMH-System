@@ -24,6 +24,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         debit:0,
         credit:0
     }
+    $scope.finalStatus = false;
     $scope.totalv = {due:0,payment:0,paid:0}
     var date = new Date();
 	date.setDate(date.getDate());
@@ -214,6 +215,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
             if ($scope.items.length==0){
                 if ($scope.selected.supplier.selected){
+                    console.log('setStatus',$scope.selected.supplier.selected)
                     $scope.items.push(
                         {
                             id:2,
@@ -230,6 +232,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                         }
                     )
                 }
+                console.log('setStatus2',$scope.selected.bank_account.selected)
                 $scope.items.push(
                     {
                         id:1,
@@ -602,7 +605,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     /*END AD ServerSide*/
 
     $scope.openQuickView = function(state){
-        $scope.clear()
+        $scope.clear();
+        $scope.finalStatus = false;
         $scope.statusShow.push($scope.status[0])
         $scope.selected.status['selected'] = $scope.status[0]
         $('#form-input').modal('show')
@@ -992,6 +996,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             $scope.ap.balance_home = result.data[0].home_balance_amount
             $scope.ap.balance_idr = result.data[0].tot_balance_amount
             $scope.statusShow = []
+            $scope.finalStatus = false;
             if (result.data[0].status=="0"){
                 $scope.statusShow.push($scope.status[1])
             }
@@ -1000,6 +1005,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             }
             else if(result.data[0].status=="2"){
                 $scope.statusShow.push($scope.status[3])
+            }
+            else if(result.data[0].status=="3"){
+                $scope.finalStatus = true;
             }
             /*else if(result.data[0].status=="3"){
                 $scope.statusShow.push($scope.status[4])
