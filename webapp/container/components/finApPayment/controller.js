@@ -1083,17 +1083,20 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             .then(function(result2){
                 var d = result2.data
                 for (var i=0;i<d.length;i++){
-                    $scope.items.push(
-                        {
-                            id:(i+1),
-                            p_id: d[i].id,
-                            account_id:d[i].account_id,
-                            account_code:d[i].account_code,
-                            account_name: d[i].account_name,
-                            debit: d[i].transc_type=='D'?d[i].amount:'',
-                            credit: d[i].transc_type=='C'?d[i].amount:''
-                        }
-                    )
+                    if (d[i].account_id!=null){
+                        $scope.items.push(
+                            {
+                                id:(i+1),
+                                p_id: d[i].id,
+                                account_id:d[i].account_id,
+                                account_code:d[i].account_code,
+                                account_name: d[i].account_name,
+                                debit: d[i].transc_type=='D'?d[i].amount:'',
+                                credit: d[i].transc_type=='C'?d[i].amount:''
+                            }
+                        )    
+                    }
+
                 }
                 $scope.itemsOri = angular.copy($scope.items)
             },
