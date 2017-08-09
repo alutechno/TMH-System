@@ -27,11 +27,11 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
         'and b.id = c.role_id ' +
         ' group by a.name ';
 
-        queryService.post('select username,fullname,roles from('+sqlstr+')aa',undefined)
+        queryService.post('select username,fullname,roles,password from('+sqlstr+')aa',undefined)
         .then(function(data){
             $scope.exportData = [];
             //Header
-            $scope.exportData.push(["User Name", "Full Name", "Roles"]);
+            $scope.exportData.push(["User Name", "Full Name", "Roles","Password"]);
             //Data
             for(var i=0;i<data.data.length;i++){
                 var arr = []
@@ -140,7 +140,7 @@ function($scope, $state, $sce, roleService, queryService,userService, DTOptionsB
 	            //'and a.name = \''+$localStorage.currentUser.name.name+'\' '+
 	            'group by e.id, e.name order by e.name asc'*/
 			//where=" and b.role_id in("+rid.join(',')+") "
-            
+
 			queryService.post(qStrModule,undefined)
 	        .then(function(result){
 				$scope.modules = result.data
