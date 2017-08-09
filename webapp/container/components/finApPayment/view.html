@@ -574,7 +574,7 @@
                                                     </table>
 
                                                     <!-- buttons -->
-                                                    <div class="btn-edit">
+                                                    <div class="btn-edit" ng-if="finalStatus==false">
                                                       <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()">
                                                         Modify Transaction List
                                                       </button>
@@ -635,12 +635,12 @@
                                                                     {{ item.notes }}
                                                                 </span>
                                                             </td>
-                                                            <td >
+                                                            <td style="text-align: right;">
                                                                 <span editable-text="item.debit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'debit')">
                                                                     {{ item.debit| number : fractionSize }}
                                                                 </span>
                                                             </td>
-                                                            <td >
+                                                            <td style="text-align: right;">
                                                                 <span editable-text="item.credit" format="number" e-form="tableform" data-e-ng-keyup="setValue($event,item.id,$data,'credit')">
                                                                     {{ item.credit| number : fractionSize }}
                                                                 </span>
@@ -658,7 +658,7 @@
                                                     </table>
 
                                                     <!-- buttons -->
-                                                    <div class="btn-edit">
+                                                    <div class="btn-edit" ng-if="finalStatus==false">
                                                       <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show()">
                                                         Modify Item List
                                                       </button>
@@ -680,9 +680,9 @@
               <br>
               <div class="clearfix"></div>
               <div class="divider"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction" ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction" ng-click="submit()" ng-if="finalStatus==false">Save</button>
 			  <button class="btn btn-primary" ng-click="test()" ng-print print-element-id="printSection"><i class="fa fa-print"></i> Print</button>
-              <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
+              <button class="btn btn-default" ng-if="finalStatus==false"><i class="pg-close" ></i> Clear</button>
           </form>
       </div>
       <!-- END FORM -->
