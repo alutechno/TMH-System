@@ -211,6 +211,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         $scope.source = data.data
     })*/
     $scope.setStatus = function(){
+        console.log('setStatus0',$scope.selected.status.selected)
         if ($scope.selected.status.selected.id==1){
 
             if ($scope.items.length==0){
