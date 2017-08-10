@@ -14,8 +14,8 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
         $scope[$scope.el[i]] = true;
     }
     $scope.users = []
-    var qstring = `select a.*,b.name customer_type_name
-		from mst_cust_company a,ref_customer_type b
+    var qstring = `select a.*,b.name company_type_name
+		from mst_cust_company a,ref_company_type b
 		where a.company_type_id=b.id`
     var qwhereobj = {
         text: ''
@@ -77,7 +77,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
         $scope.arr.country_id = data.data
     })
 
-    queryService.get('select id,name,code from ref_customer_type order by name',undefined)
+    queryService.get('select id,name,code from ref_company_type order by name',undefined)
     .then(function(data){
         $scope.arr.supplier_type = data.data
     })
@@ -147,7 +147,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
         DTColumnBuilder.newColumn('code').withTitle('Code').withOption('width', '5%'),
         DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '15%'),
         DTColumnBuilder.newColumn('short_name').withTitle('Short Name').withOption('width', '7%'),
-		DTColumnBuilder.newColumn('customer_type_name').withTitle('Type').withOption('width', '7%'),
+		DTColumnBuilder.newColumn('company_type_name').withTitle('Type').withOption('width', '7%'),
         DTColumnBuilder.newColumn('contact_person_name').withTitle('Contact Person').withOption('width', '7%'),
 		DTColumnBuilder.newColumn('contact_person_phone').withTitle('Telephone').withOption('width', '7%'),
         DTColumnBuilder.newColumn('address').withTitle('Address').withOption('width', '20%')
@@ -194,7 +194,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
     $scope.submit = function(){
 		$scope.disableAction = true;
         if ($scope.supplier.id.length==0){
-            //$scope.supplier.status = $scope.selected.status.selected.id;
+            $scope.supplier.status = $scope.selected.status.selected.id;
             $scope.supplier.country_id = $scope.selected.country_id.selected?$scope.selected.country_id.selected.id:null;
             $scope.supplier.company_type_id = $scope.selected.supplier_type.selected?$scope.selected.supplier_type.selected.id:null;
 			$scope.supplier['created_by'] = $localStorage.currentUser.name.id;
@@ -231,7 +231,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
 			})
         }
         else {
-            //$scope.supplier.status = $scope.selected.status.selected.id;
+            $scope.supplier.status = $scope.selected.status.selected.id;
             $scope.supplier.country_id = $scope.selected.country_id.selected?$scope.selected.country_id.selected.id:null;
 			$scope.supplier.company_type_id = $scope.selected.supplier_type.selected?$scope.selected.supplier_type.selected.id:null;
 			$scope.supplier['modified_by'] = $localStorage.currentUser.name.id;
