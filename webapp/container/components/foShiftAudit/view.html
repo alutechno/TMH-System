@@ -26,7 +26,7 @@
                         </li>
                     </ul>
                     <wizard on-finish="finished()" class="bg-white" hide-indicators="true">
-                        <wz-step title="Status">
+                        <wz-step wz-title="Status">
                             <div class="row row-same-height">
                                 <div class="col-md-5 b-r b-dashed b-grey sm-b-b">
                                     <div class="padding-30">
@@ -75,10 +75,6 @@
                                                 <div class="row">
                                                     <button class="btn btn-primary m-t-10" type="submit" >Close Shift</button>
                                                 </div>
-
-
-
-
                                             </div>
                                         </div>
                                         <br>
@@ -118,7 +114,7 @@
                             <div class="padding-20 bg-white">
                                 <ul class="pager wizard">
                                     <li class="next">
-                                        <button type="button" class="btn btn-primary btn-cons btn-animated from-left fa fa-arrow-right pull-right" wz-next ng-click="showClosedTransaction()">
+                                        <button type="button" class="btn btn-primary btn-cons btn-animated from-left fa fa-arrow-right pull-right" wz-next ng-click="execClosedTransaction();showClosedTransaction()">
                                             <span>Start Audit</span>
                                         </button>
                                     </li>
@@ -130,7 +126,7 @@
                                 </ul>
                             </div>
                         </wz-step>
-                        <wz-step title="Closed Transaction">
+                        <wz-step wz-title="Closed Transaction">
                             <div class="row row-same-height">
                                 <div class="padding-30">
                                     <h4>Closed Payment Transaction</h4>
@@ -254,19 +250,19 @@
                             <div class="padding-20 bg-white">
                                 <ul class="pager wizard">
                                     <li class="next">
-                                        <button type="button" class="btn btn-primary btn-cons btn-animated from-left fa fa-arrow-right pull-right" wz-next ng-click="showGuestDeposit()">
+                                        <button type="button" class="btn btn-primary btn-cons btn-animated from-left fa fa-arrow-right pull-right" wz-next ng-click="execGuestDeposit();showGuestDeposit()">
                                             <span>Next</span>
                                         </button>
                                     </li>
-                                    <li class="previous">
+                                    <!--<li class="previous">
                                         <button type="button" class="btn btn-default btn-cons pull-right" wz-previous>
                                             <span>Previous</span>
                                         </button>
-                                    </li>
+                                    </li>-->
                                 </ul>
                             </div>
                         </wz-step>
-                        <wz-step title="Guest Deposit">
+                        <wz-step wz-title="Guest Deposit">
                             <div class="row row-same-height">
                                 <div class="padding-30">
                                     <h4>Check Guest Deposit</h4>
@@ -306,19 +302,19 @@
                             <div class="padding-20 bg-white">
                                 <ul class="pager wizard">
                                     <li class="next">
-                                        <button type="button" class="btn btn-primary btn-cons btn-animated from-left fa fa-arrow-right pull-right" wz-next ng-click="showEnd()">
+                                        <button type="button" class="btn btn-primary btn-cons btn-animated from-left fa fa-arrow-right pull-right" wz-next ng-click="execEnd();showEnd()">
                                             <span>Next</span>
                                         </button>
                                     </li>
-                                    <li class="previous">
+                                    <!--<li class="previous">
                                         <button type="button" class="btn btn-default btn-cons pull-right" wz-previous>
                                             <span>Previous</span>
                                         </button>
-                                    </li>
+                                    </li>-->
                                 </ul>
                             </div>
                         </wz-step>
-                        <wz-step title="Summary">
+                        <wz-step wz-title="Summary">
                             <div class="padding-30">
                                 <h4 >Preview all Transactions</h4>
                             </div>
@@ -329,11 +325,11 @@
                                             <span>Finish</span>
                                         </button>
                                     </li>
-                                    <li class="previous">
+                                    <!--<li class="previous">
                                         <button type="button" class="btn btn-default btn-cons pull-right" wz-previous>
                                             <span>Previous</span>
                                         </button>
-                                    </li>
+                                    </li>-->
                                 </ul>
                             </div>
                         </wz-step>
