@@ -124,6 +124,7 @@ if (cluster.isMaster) {
         if (headers['authorization']) user = jwt.verify(headers['authorization'].split(' ')[1], 'smrai.inc');
 
         arr.push(dStr, user.username ? user.username : '', path ? path : '', headers.state ? headers.state : '', action ? action : '', query ? query : '', body ? body : '', others ? others : '', headers['user-agent'] ? headers['user-agent'] : '')
+        console.log(arr.join('|'))
     }
 
     app.use(function (req, res, next) {

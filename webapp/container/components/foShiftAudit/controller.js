@@ -12,6 +12,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         $scope[$scope.el[i]] = true;
     }
 
+
+
     $scope.finished = function() {
        console.log("Wizard finished :)");
    }
@@ -34,25 +36,46 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
    $scope.currentShift = {
        id:'',code:'',name:'',description:'',start_time:'',end_time:''
    };
-   queryService.post('select id,code,name,description,start_time,end_time from ref_hk_working_shift where is_current_shift = \'Y\' ',undefined)
-   .then(function(data){
-       $scope.currentShift = data.data[0]
-   });
    var dateIn = new Date();
    $scope.currentPeriod = dateIn.toISOString().split('T')[0];
    console.log('period',$scope.currentPeriod)
+   queryService.post('select id,code,name,description,start_time,end_time from ref_hk_working_shift where is_current_shift = \'Y\' ',undefined)
+   .then(function(data){
+       $scope.currentShift = data.data[0]
+       //Check Step
+       queryService.post('select max(step_id)as step,max(id) as currentId,max(parent_id) groupId from fo_audit_status where shift_id='+$scope.currentShift.id+' and period>=\''+$scope.currentPeriod+'\' and created_by=\''+$localStorage.currentUser.name.id+'\' ',undefined)
+       .then(function(data){
+           console.log('currentStep',data.data)
+           $scope.currentStep=data.data[0].step;
+           $scope.currentAuditId=data.data[0].currentId;
+           if (data.data[0].groupId==0) $scope.currentGroupId=data.data[0].currentId;
+           else $scope.currentGroupId=data.data[0].groupId;
+           WizardHandler.wizard().goTo($scope.currentStep);
+           if ($scope.currentStep==1){
+               $scope.showClosedTransaction();
+           }
+           else if($scope.currentStep == 2){
+               $scope.showGuestDeposit();
+           }
+           //WizardHandler.wizard().goTo(1);
+       });
+   });
+
    $scope.closedTransaction = [];
    $scope.currentAuditId = 0;
-   $scope.showClosedTransaction = function(){
-
-       // call begin_audit(p_period, 'NA', 0, 3, p_auditor, @out_id_audit);
-       queryService.post('SET @out_id_audit = 0;CALL `begin_audit`(\''+$scope.currentPeriod+'\',\'NA\','+$scope.currentShift.id+',3,'+$localStorage.currentUser.name.id+',@out_id_audit);SELECT @out_id_audit;', undefined)
+   $scope.currentStep=0;
+   $scope.execClosedTransaction = function(){
+       queryService.post('SET @out_id_audit = 0;CALL `begin_audit`(\''+$scope.currentPeriod+'\',\'SA\','+$scope.currentShift.id+',1,'+$localStorage.currentUser.name.id+',@out_id_audit);SELECT @out_id_audit;', undefined)
        .then(function (result2){
            $scope.currentAuditId = result2.data[2]['0']['@out_id_audit'];
+           $scope.currentGroupId=result2.data[2]['0']['@out_id_audit'];
        },
        function(err2){
            console.log(err2)
        })
+   }
+   $scope.showClosedTransaction = function(){
+       // call begin_audit(p_period, 'NA', 0, 3, p_auditor, @out_id_audit);
        queryService.post("select a.id, a.payment_type_id, a.home_payment_amount, c.category payment_cat, "+
         	"c.account_id cash_account_id, d.ar_account_id, d.fee_account_id,  "+
             "a.card_no, date_format(a.created_date,'%Y-%m-%d %H:%i:%s')created_date, a.folio_id,c.name payment_type_name, "+
@@ -95,15 +118,33 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
 
        });
    }
+   $scope.addStatus = function(step_id){
+       //queryService.post('SET @out_id_audit = 0;CALL `begin_audit`(\''+$scope.currentPeriod+'\',\'NA\','+$scope.currentShift.id+',1,'+$localStorage.currentUser.name.id+',@out_id_audit);SELECT @out_id_audit;', undefined)
+       var sql = "insert into fo_audit_status(period, audit_type, shift_id, step_id, parent_id,audit_started_at, created_by) "+
+    		"values ('"+$scope.currentPeriod+"', 'SA', "+$scope.currentShift.id+", "+step_id+","+$scope.currentGroupId+", current_timestamp(), "+$localStorage.currentUser.name.id+")"
+        console.log(sql,$scope.currentPeriod,$scope.currentShift,$scope.currentGroupId)
+        queryService.post(sql, undefined)
+        .then(function (result2){
+            console.log('addStatus',result2)
+        },
+        function(err2){
+            console.log(err2)
+        })
+   }
    $scope.guestDeposit = [];
-   $scope.showGuestDeposit = function(){
+   $scope.execGuestDeposit = function(){
+       console.log('execGuestDeposit')
        queryService.post('call sa_guest_payments(\''+$scope.currentPeriod+'\', '+$scope.currentShift.id+',  '+$localStorage.currentUser.name.id+');', undefined)
        .then(function (result2){
            console.log('sa_guest_payments',result2)
+           $scope.addStatus(2)
        },
        function(err2){
            console.log(err2)
        })
+   }
+   $scope.showGuestDeposit = function(){
+       console.log('showGuestDeposit')
        queryService.post("select b.id folio_id, b.code folio_code,d.name room_name, a.deposit_amount,b.check_in_date, "+
             	"concat(c.first_name , ' ',c.last_name) cust_name,date_format(a.created_date,'%Y-%m-%d %H:%i:%s') created_date "+
             "from fd_guest_deposit a "+
@@ -115,15 +156,39 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
            $scope.guestDeposit = data.data
        });
    }
-   $scope.showEnd = function(){
+   $scope.execEnd = function(){
+       console.log('execEnd')
        queryService.post('call sa_guest_deposit(\''+$scope.currentPeriod+'\', '+$scope.currentShift.id+',  '+$localStorage.currentUser.name.id+');', undefined)
        .then(function (result2){
            console.log('sa_guest_deposit',result2)
+           $scope.addStatus(3)
        },
        function(err2){
            console.log(err2)
        })
    }
+   $scope.showEnd = function(){
+       console.log('showEnd');
+       var sqlPayment = "select a.id, a.payment_type_id, a.payment_amount, c.category payment_cat,c.name payment_name, "+
+				"c.account_id cash_account_id, d.ar_account_id, d.fee_account_id,  "+
+                "a.card_no, a.created_date, a.folio_id "+
+		  "from fd_guest_payment a "+
+          "inner join fo_audited_payments bb on a.id = bb.fo_payment_id "+
+		  "left join fo_cashier_transaction b on b.id = a.cashier_transc_id "+
+		  "left join ref_payment_method c on c.id = a.payment_type_id "+
+		  "left join mst_credit_card d on d.id = c.credit_card_id)a "+
+          "group by payment_name ";
+        var sqlDeposit = "";
+        //console.log(sql,$scope.currentPeriod,$scope.currentShift,$scope.currentGroupId)
+        /*queryService.post(sql, undefined)
+        .then(function (result2){
+            console.log('addStatus',result2)
+        },
+        function(err2){
+            console.log(err2)
+        })*/
+   }
+
    $scope.finish = function(){
        queryService.post('call end_audit('+$scope.currentAuditId+');', undefined)
        .then(function (result2){

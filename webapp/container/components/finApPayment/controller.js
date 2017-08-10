@@ -237,9 +237,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 $scope.items.push(
                     {
                         id:1,
-                        account_id:$scope.selected.bank_account.selected.ap_clearance_account_id,
-                        account_code:$scope.selected.bank_account.selected.ap_clearance_account_code,
-                        account_name: $scope.selected.bank_account.selected.ap_clearance_account_name,
+                        //account_id:$scope.selected.bank_account.selected.ap_clearance_account_id,
+                        //account_code:$scope.selected.bank_account.selected.ap_clearance_account_code,
+                        //account_name: $scope.selected.bank_account.selected.ap_clearance_account_name,
+                        account_id:$scope.selected.bank_account.selected.gl_account_id,
+                        account_code:$scope.selected.bank_account.selected.gl_account_code,
+                        account_name: $scope.selected.bank_account.selected.gl_account_name,
                         notes: $scope.ap.notes,
                         debit: '',
                         credit: $scope.totalv.payment,
@@ -254,7 +257,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
 
         }
-        else if ($scope.selected.status.selected.id==3){
+        /*else if ($scope.selected.status.selected.id==3){
             var v = 0,v_gl_id=null;
 
             for (var i=0;i<$scope.items.length;i++){
@@ -294,7 +297,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
 
 
-        }
+        }*/
     }
     $scope.currency = []
     queryService.get('select  id currency_id,code currency_code,name currency_name,home_currency_exchange exchange from ref_currency order by id asc',undefined)
@@ -1094,7 +1097,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                                 debit: d[i].transc_type=='D'?d[i].amount:'',
                                 credit: d[i].transc_type=='C'?d[i].amount:''
                             }
-                        )    
+                        )
                     }
 
                 }

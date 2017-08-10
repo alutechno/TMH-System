@@ -15,8 +15,8 @@ module.exports = function (connection, jwt, log) {
             if (!err) {
                 log(req.headers, req.path, 'query-response', JSON.stringify(req.query), JSON.stringify(req.body), JSON.stringify({
                     err: err,
-                    rows: rows,
-                    fields: fields
+                    rows: rows.length,
+                    //fields: fields
                 }))
             }
             else {
@@ -33,8 +33,8 @@ module.exports = function (connection, jwt, log) {
             if (!err) {
                 log(req.headers, req.path, 'query-response', JSON.stringify(req.query), JSON.stringify(req.body), JSON.stringify({
                     err: err,
-                    rows: rows,
-                    fields: fields
+                    rows: rows.length,
+                    //fields: fields
                 }))
             }
             else {
@@ -70,7 +70,7 @@ module.exports = function (connection, jwt, log) {
                     if (!err2) {
                         dtParam['recordsTotal'] = rows2.length
                         dtParam['data'] = rows2
-                        log(req.headers, req.path, 'query-response', JSON.stringify(req.query), JSON.stringify(req.body), JSON.stringify(dtParam))
+                        log(req.headers, req.path, 'query-response', JSON.stringify(req.query), JSON.stringify(req.body), JSON.stringify(dtParam.recordsTotal))
                         res.send(dtParam)
                     }
                 });
@@ -110,7 +110,7 @@ module.exports = function (connection, jwt, log) {
                     if (!err2) {
                         dtParam['recordsTotal'] = rows2.length
                         dtParam['data'] = rows2
-                        log(req.headers, req.path, 'query-response', JSON.stringify(req.query), JSON.stringify(req.body), JSON.stringify(dtParam))
+                        log(req.headers, req.path, 'query-response', JSON.stringify(req.query), JSON.stringify(req.body), JSON.stringify(dtParam.recordsTotal))
                         res.send(dtParam)
                     } else {
                         console.error(req.path + '|' + JSON.stringify(err));
