@@ -24,13 +24,13 @@
                             <div class="col-sm-4">
                                 <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.name.$invalid && !user.name.$pristine }">
                                     <label>User Name</label>
-                                    <input type="text" class="form-control" name="username" ng-model="user.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                                    <input type="text" class="form-control" name="username" ng-model="user.name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-readonly="true">
                                 </div>
                             </div>
                             <div class="col-sm-8">
                                 <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.full_name.$invalid && !user.full_name.$pristine }">
                                     <label>Full Name</label>
-                                    <input type="text" class="form-control" name="fullname" ng-model="user.full_name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                                    <input type="text" class="form-control" name="fullname" ng-model="user.full_name" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required ng-readonly="true">
                                 </div>
                             </div>
                         </div>
@@ -38,7 +38,7 @@
                             <div class="col-sm-4">
                                 <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : user.password.$invalid && !user.password.$pristine }">
                                     <label>Password</label>
-                                    <input type="text" class="form-control" name="password" ng-model="user.password" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                                    <input type="password" class="form-control" name="password" ng-model="user.password" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
                                 </div>
                             </div>
                             <div class="col-sm-4">
@@ -56,9 +56,10 @@
                         </div>
                         <div class="row clearfix">
                             <div class="col-sm-4">
-                                <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : user.default_module.$invalid && !user.default_module.$pristine }">
+
+                                <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : user.default_module.$invalid && !user.default_module.$pristine }" ng-readonly="true">
                                     <label>Default Module</label>
-                                    <ui-select ng-model="selected.module.selected" theme="bootstrap" on-select="getMenu($item.id,undefined)">
+                                    <ui-select ng-model="selected.module.selected" theme="bootstrap" on-select="getMenu($item.id,undefined)" ng-disabled="true">
                                         <ui-select-match placeholder="Select Default Module">{{$select.selected.name}}</ui-select-match>
                                         <ui-select-choices repeat="item in modules | filter: $select.search">
                                             <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -69,9 +70,9 @@
                             <div class="col-sm-6">
                                 <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : user.default_menu.$invalid && !user.default_menu.$pristine }">
                                     <label>Default Menu</label>
-                                    <ui-select ng-model="selected.menu.selected" theme="bootstrap" >
+                                    <ui-select ng-model="selected.menu.selected" theme="bootstrap" ng-disabled="true">
                                         <ui-select-match placeholder="Select Default Menu">{{$select.selected.name}}</ui-select-match>
-                                        <ui-select-choices repeat="item in menus | filter: $select.search">
+                                        <ui-select-choices repeat="item in menus | filter: $select.search" ng-readonly="true">
                                             <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                                         </ui-select-choices>
                                     </ui-select>
