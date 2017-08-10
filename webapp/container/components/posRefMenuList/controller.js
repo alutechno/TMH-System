@@ -16,13 +16,14 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.role = {
         selected: []
     };
-
     $scope.table = 'inv_outlet_menus'
 
-    var qstring = "select a.*,b.status_name "+
+    var qstring = "select group_concat(a.id)id,group_concat(outlet_id)outlet_id,a.code,a.name,a.menu_price,a.status,a.product_id,a.menu_class_id,a.menu_group_id,a.meal_time_id,a.menu_type,a.recipe_id,recipe_qty"+
+					",a.is_promo_enabled,a.is_export_cost,a.is_print_after_total,a.is_disable_change_price,a.is_tax_included,a.is_sevice_included,a.print_kitchen_id"+
+					",a.print_kitchen_section_id,b.status_name "+
                     ",c.name as outlet_name,d.name as menu_class_name,e.name as menu_group_name,f.name as meal_time_name "+
                     ",g.name as product_name,h.name as recipe_name,i.name as print_kitchen_name,j.name as print_kitchen_section_name "+
-                    "from "+ $scope.table +" a "+
+                    "from inv_outlet_menus a "+
                     "left join mst_outlet c on a.outlet_id=c.id "+
                     "left join ref_outlet_menu_class d on a.menu_class_id=d.id "+
                     "left join ref_outlet_menu_group e on a.menu_group_id=e.id "+
@@ -35,6 +36,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     "where table_name = 'ref_product_category' and column_name='status' and value in (0,1)) b on a.status = b.status_value "+
                     "where a.status!=2 "
     var qwhere = ""
+	var group_by=" group by a.name"
 
     $scope.rowdata = {}
     $scope.field = {
@@ -108,9 +110,9 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         $scope.arr.status = data.data
     })
     $scope.arr.outlet_id = []
-    queryService.get('select id,name from mst_outlet where status!=2 order by name',undefined)
+    queryService.get('select id,name,false as checked from mst_outlet where status!=2 order by name',undefined)
     .then(function(data){
-        $scope.arr.outlet_id = data.data
+		$scope.arr.outlet_id_ori = data.data
     })
     $scope.arr.menu_class_id = []
     queryService.get('select id,name from ref_outlet_menu_class where status!=2 order by name',undefined)
@@ -205,6 +207,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.actionsHtml = function(data, type, full, meta) {
         $scope.rowdata[data] = {id:data};
         var html = ''
+		console.log(full)
         if ($scope.el.length>0){
             html = '<div class="btn-group btn-group-xs">'
             if ($scope.el.indexOf('update')>-1){
@@ -218,11 +221,11 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                 '</button>&nbsp;' ;
             }
 
-            if ($scope.el.indexOf('delete')>-1){
+            /*if ($scope.el.indexOf('delete')>-1){
                 html+='<button class="btn btn-default" title="Delete" ng-click="delete(rowdata[\'' + data + '\'])" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
-            }
+            }*/
             html += '</div>'
         }
         return html
@@ -241,7 +244,7 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.query = qstring + qwhere;
+            data.query = qstring + qwhere +group_by;
         }
     })
     .withDataProp('data')
@@ -262,11 +265,11 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.dtColumns.push(
         DTColumnBuilder.newColumn('code').withTitle('Code'),
         DTColumnBuilder.newColumn('name').withTitle('Name'),
-        DTColumnBuilder.newColumn('outlet_name').withTitle('Outlet'),
+        //DTColumnBuilder.newColumn('outlet_name').withTitle('Outlet'),
         DTColumnBuilder.newColumn('menu_class_name').withTitle('Class'),
         DTColumnBuilder.newColumn('menu_group_name').withTitle('Group'),
         DTColumnBuilder.newColumn('menu_price').withTitle('Price'),
-        DTColumnBuilder.newColumn('product_name').withTitle('Product'),
+        //DTColumnBuilder.newColumn('product_name').withTitle('Product'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status')
     );
 
@@ -298,32 +301,43 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.openQuickView = function(state){
         if (state == 'add'){
             $scope.clear()
+
         }
         $('#form-input').modal('show')
     }
 
-    $scope.submit = function(){
+	$scope.submit = function(){
 		$scope.disableAction = true;
         if ($scope.field.id.length==0){
             //exec creation
-            $scope.field.status = $scope.selected.status.selected ? $scope.selected.status.selected.id : null;
-            $scope.field.outlet_id = $scope.selected.outlet_id.selected ? $scope.selected.outlet_id.selected.id : null;
-            $scope.field.menu_class_id = $scope.selected.menu_class_id.selected ? $scope.selected.menu_class_id.selected.id : null;
-            $scope.field.menu_group_id = $scope.selected.menu_group_id.selected ? $scope.selected.menu_group_id.selected.id : null;
-            $scope.field.meal_time_id = $scope.selected.meal_time_id.selected ? $scope.selected.meal_time_id.selected.id : null;
-            $scope.field.product_id = $scope.selected.product_id.selected ? $scope.selected.product_id.selected.id : null;
-            $scope.field.recipe_id = $scope.selected.recipe_id.selected ? $scope.selected.recipe_id.selected.id : null;
-            $scope.field.print_kitchen_id = $scope.selected.print_kitchen_id.selected ? $scope.selected.print_kitchen_id.selected.id : null;
-            $scope.field.print_kitchen_section_id = $scope.selected.print_kitchen_section_id.selected ? $scope.selected.print_kitchen_section_id.selected.id : null;
-            $scope.field.is_promo_enabled = $scope.selected.is_promo_enabled.selected ? $scope.selected.is_promo_enabled.selected.id : null;
-            $scope.field.is_export_cost = $scope.selected.is_export_cost.selected ? $scope.selected.is_export_cost.selected.id : null;
-            $scope.field.is_print_after_total = $scope.selected.is_print_after_total.selected ? $scope.selected.is_print_after_total.selected.id : null;
-            $scope.field.is_disable_change_price = $scope.selected.is_disable_change_price.selected ? $scope.selected.is_disable_change_price.selected.id : null;
-            $scope.field.is_tax_included = $scope.selected.is_tax_included.selected ? $scope.selected.is_tax_included.selected.id : null;
-            $scope.field['created_by'] = $localStorage.currentUser.name.id;
-            $scope.field['created_date'] = globalFunction.currentDate();
-
-            queryService.post('insert into '+ $scope.table +' SET ?',$scope.field)
+			var param=[];
+			var sql=['start transaction'];
+			for(var i=0;i<$scope.arr.outlet_id.length;i++){
+				//$scope.field.outlet_id =0
+				if($scope.arr.outlet_id[i].checked==true){
+					$scope.field.status = $scope.selected.status.selected ? $scope.selected.status.selected.id : null;
+					$scope.field.outlet_id = $scope.arr.outlet_id[i].id;
+		            $scope.field.menu_class_id = $scope.selected.menu_class_id.selected ? $scope.selected.menu_class_id.selected.id : null;
+		            $scope.field.menu_group_id = $scope.selected.menu_group_id.selected ? $scope.selected.menu_group_id.selected.id : null;
+		            $scope.field.meal_time_id = $scope.selected.meal_time_id.selected ? $scope.selected.meal_time_id.selected.id : null;
+		            $scope.field.product_id = $scope.selected.product_id.selected ? $scope.selected.product_id.selected.id : null;
+		            $scope.field.recipe_id = $scope.selected.recipe_id.selected ? $scope.selected.recipe_id.selected.id : null;
+		            $scope.field.print_kitchen_id = $scope.selected.print_kitchen_id.selected ? $scope.selected.print_kitchen_id.selected.id : null;
+		            $scope.field.print_kitchen_section_id = $scope.selected.print_kitchen_section_id.selected ? $scope.selected.print_kitchen_section_id.selected.id : null;
+		            $scope.field.is_promo_enabled = $scope.selected.is_promo_enabled.selected ? $scope.selected.is_promo_enabled.selected.id : null;
+		            $scope.field.is_export_cost = $scope.selected.is_export_cost.selected ? $scope.selected.is_export_cost.selected.id : null;
+		            $scope.field.is_print_after_total = $scope.selected.is_print_after_total.selected ? $scope.selected.is_print_after_total.selected.id : null;
+		            $scope.field.is_disable_change_price = $scope.selected.is_disable_change_price.selected ? $scope.selected.is_disable_change_price.selected.id : null;
+		            $scope.field.is_tax_included = $scope.selected.is_tax_included.selected ? $scope.selected.is_tax_included.selected.id : null;
+		            $scope.field['created_by'] = $localStorage.currentUser.name.id;
+		            $scope.field['created_date'] = globalFunction.currentDate();
+					param.push(JSON.parse(JSON.stringify($scope.field)))
+					sql.push('insert into inv_outlet_menus set ?')
+				}
+			}
+			sql.push('commit')
+			queryService.post(sql.join(';'),param)
+            //queryService.post('insert into '+ $scope.table +' SET ?',$scope.field)
             .then(function (result){
 				$scope.disableAction = false;
                     $('#form-input').modal('hide')
@@ -352,24 +366,58 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         }
         else {
             //exec update
-            $scope.field.status = $scope.selected.status.selected ? $scope.selected.status.selected.id : null;
-			$scope.field.outlet_id = $scope.selected.outlet_id.selected ? $scope.selected.outlet_id.selected.id : null;
-            $scope.field.menu_class_id = $scope.selected.menu_class_id.selected ? $scope.selected.menu_class_id.selected.id : null;
-            $scope.field.menu_group_id = $scope.selected.menu_group_id.selected ? $scope.selected.menu_group_id.selected.id : null;
-            $scope.field.meal_time_id = $scope.selected.meal_time_id.selected ? $scope.selected.meal_time_id.selected.id : null;
-            $scope.field.product_id = $scope.selected.product_id.selected ? $scope.selected.product_id.selected.id : null;
-            $scope.field.recipe_id = $scope.selected.recipe_id.selected ? $scope.selected.recipe_id.selected.id : null;
-            $scope.field.print_kitchen_id = $scope.selected.print_kitchen_id.selected ? $scope.selected.print_kitchen_id.selected.id : null;
-            $scope.field.print_kitchen_section_id = $scope.selected.print_kitchen_section_id.selected ? $scope.selected.print_kitchen_section_id.selected.id : null;
-            $scope.field.is_promo_enabled = $scope.selected.is_promo_enabled.selected ? $scope.selected.is_promo_enabled.selected.id : null;
-            $scope.field.is_export_cost = $scope.selected.is_export_cost.selected ? $scope.selected.is_export_cost.selected.id : null;
-            $scope.field.is_print_after_total = $scope.selected.is_print_after_total.selected ? $scope.selected.is_print_after_total.selected.id : null;
-            $scope.field.is_disable_change_price = $scope.selected.is_disable_change_price.selected ? $scope.selected.is_disable_change_price.selected.id : null;
-            $scope.field.is_tax_included = $scope.selected.is_tax_included.selected ? $scope.selected.is_tax_included.selected.id : null;
-            $scope.field['modified_by'] = $localStorage.currentUser.name.id;
-            $scope.field['modified_date'] = globalFunction.currentDate();
+			var param=[];
+			var sql=['start transaction'];
 
-            queryService.post('update '+ $scope.table +' SET ? WHERE id='+$scope.field.id ,$scope.field)
+			for(var i=0;i<$scope.arr.outlet_id.length;i++){
+				$scope.field.outlet_id=0
+				if($scope.arr.outlet_id[i].checked==true && $scope.arr.outlet_id[i].menu!=undefined){
+					$scope.field.id=$scope.arr.outlet_id[i].menu_id
+					$scope.field.status = $scope.selected.status.selected ? $scope.selected.status.selected.id : null;
+					$scope.field.outlet_id = $scope.arr.outlet_id[i].id;
+		            $scope.field.menu_class_id = $scope.selected.menu_class_id.selected ? $scope.selected.menu_class_id.selected.id : null;
+		            $scope.field.menu_group_id = $scope.selected.menu_group_id.selected ? $scope.selected.menu_group_id.selected.id : null;
+		            $scope.field.meal_time_id = $scope.selected.meal_time_id.selected ? $scope.selected.meal_time_id.selected.id : null;
+		            $scope.field.product_id = $scope.selected.product_id.selected ? $scope.selected.product_id.selected.id : null;
+		            $scope.field.recipe_id = $scope.selected.recipe_id.selected ? $scope.selected.recipe_id.selected.id : null;
+		            $scope.field.print_kitchen_id = $scope.selected.print_kitchen_id.selected ? $scope.selected.print_kitchen_id.selected.id : null;
+		            $scope.field.print_kitchen_section_id = $scope.selected.print_kitchen_section_id.selected ? $scope.selected.print_kitchen_section_id.selected.id : null;
+		            $scope.field.is_promo_enabled = $scope.selected.is_promo_enabled.selected ? $scope.selected.is_promo_enabled.selected.id : null;
+		            $scope.field.is_export_cost = $scope.selected.is_export_cost.selected ? $scope.selected.is_export_cost.selected.id : null;
+		            $scope.field.is_print_after_total = $scope.selected.is_print_after_total.selected ? $scope.selected.is_print_after_total.selected.id : null;
+		            $scope.field.is_disable_change_price = $scope.selected.is_disable_change_price.selected ? $scope.selected.is_disable_change_price.selected.id : null;
+		            $scope.field.is_tax_included = $scope.selected.is_tax_included.selected ? $scope.selected.is_tax_included.selected.id : null;
+					$scope.field['modified_by'] = $localStorage.currentUser.name.id;
+		            $scope.field['modified_date'] = globalFunction.currentDate();
+					param.push(JSON.parse(JSON.stringify($scope.field)))
+					sql.push('update inv_outlet_menus set ? where id='+$scope.arr.outlet_id[i].menu_id)
+				}else if($scope.arr.outlet_id[i].checked==true && $scope.arr.outlet_id[i].menu==undefined){
+					$scope.field.id=$scope.arr.outlet_id[i].menu_id
+					$scope.field.status = $scope.selected.status.selected ? $scope.selected.status.selected.id : null;
+					$scope.field.outlet_id = $scope.arr.outlet_id[i].id;
+		            $scope.field.menu_class_id = $scope.selected.menu_class_id.selected ? $scope.selected.menu_class_id.selected.id : null;
+		            $scope.field.menu_group_id = $scope.selected.menu_group_id.selected ? $scope.selected.menu_group_id.selected.id : null;
+		            $scope.field.meal_time_id = $scope.selected.meal_time_id.selected ? $scope.selected.meal_time_id.selected.id : null;
+		            $scope.field.product_id = $scope.selected.product_id.selected ? $scope.selected.product_id.selected.id : null;
+		            $scope.field.recipe_id = $scope.selected.recipe_id.selected ? $scope.selected.recipe_id.selected.id : null;
+		            $scope.field.print_kitchen_id = $scope.selected.print_kitchen_id.selected ? $scope.selected.print_kitchen_id.selected.id : null;
+		            $scope.field.print_kitchen_section_id = $scope.selected.print_kitchen_section_id.selected ? $scope.selected.print_kitchen_section_id.selected.id : null;
+		            $scope.field.is_promo_enabled = $scope.selected.is_promo_enabled.selected ? $scope.selected.is_promo_enabled.selected.id : null;
+		            $scope.field.is_export_cost = $scope.selected.is_export_cost.selected ? $scope.selected.is_export_cost.selected.id : null;
+		            $scope.field.is_print_after_total = $scope.selected.is_print_after_total.selected ? $scope.selected.is_print_after_total.selected.id : null;
+		            $scope.field.is_disable_change_price = $scope.selected.is_disable_change_price.selected ? $scope.selected.is_disable_change_price.selected.id : null;
+		            $scope.field.is_tax_included = $scope.selected.is_tax_included.selected ? $scope.selected.is_tax_included.selected.id : null;
+					$scope.field['created_by'] = $localStorage.currentUser.name.id;
+		            $scope.field['created_date'] = globalFunction.currentDate();
+					param.push(JSON.parse(JSON.stringify($scope.field)))
+					sql.push('insert into inv_outlet_menus set ?')
+				}else if($scope.arr.outlet_id[i].checked==false && $scope.arr.outlet_id[i].menu!=undefined){
+					sql.push('delete from inv_outlet_menus where id='+$scope.arr.outlet_id[i].menu_id)
+				}
+			}
+			sql.push('commit')
+			queryService.post(sql.join(';'),param)
+            //queryService.post('update '+ $scope.table +' SET ? WHERE id='+$scope.field.id ,$scope.field)
             .then(function (result){
 				$scope.disableAction = false;
                     $('#form-input').modal('hide')
@@ -402,16 +450,19 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         $('#form-input').modal('show');
         $scope.clear()
         if(flag==undefined)
-			$scope.field.id = obj.id
+			$scope.field.id = obj.id.split(',')
 
-        queryService.get(qstring+ ' and a.id='+obj.id,undefined)
+        queryService.get(qstring+ ' and a.id in ('+obj.id+')',undefined)
         .then(function(result){
-
             $scope.field.code = result.data[0].code
             $scope.field.name = result.data[0].name
             $scope.field.short_name = result.data[0].short_name
             $scope.field.description = result.data[0].description
-            $scope.field.outlet_id = result.data[0].outlet_id
+			$scope.field.outlet_id={}
+			$scope.arr.outlet_id=angular.copy($scope.arr.outlet_id_ori)
+			var outletId=result.data[0].outlet_id.split(',')
+			for(var i=0;i<outletId.length;i++)
+				$scope.field.outlet_id[outletId[i]]=''
             $scope.field.status = result.data[0].status
 			$scope.field.image = result.data[0].image
 			$scope.field.menu_class_id = result.data[0].menu_class_id
@@ -435,11 +486,20 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     $scope.selected.status.selected = {name: $scope.arr.status[i].name, id: $scope.arr.status[i].id}
                 }
             }
-            for (var i = $scope.arr.outlet_id.length - 1; i >= 0; i--) {
+
+			for (var i=0;i< $scope.arr.outlet_id.length; i++) {
+				if($scope.field.outlet_id[$scope.arr.outlet_id[i].id]!=undefined){
+					$scope.arr.outlet_id[i].checked=true
+					$scope.arr.outlet_id[i].menu=$scope.field.name
+					$scope.arr.outlet_id[i].menu_id=$scope.field.id.pop()
+				}
+			}
+			$scope.field.id='aaaa'
+			/*for (var i = $scope.arr.outlet_id.length - 1; i >= 0; i--) {
                 if ($scope.arr.outlet_id[i].id == result.data[0].outlet_id){
                     $scope.selected.outlet_id.selected = {name: $scope.arr.outlet_id[i].name, id: $scope.arr.outlet_id[i].id}
                 }
-            }
+            }*/
             for (var i = $scope.arr.menu_class_id.length - 1; i >= 0; i--) {
                 if ($scope.arr.menu_class_id[i].id == result.data[0].menu_class_id){
                     $scope.selected.menu_class_id.selected = {name: $scope.arr.menu_class_id[i].name, id: $scope.arr.menu_class_id[i].id}
@@ -570,10 +630,9 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             print_kitchen_section_id: '', //mst_kitchen_section
             image: ''
         }
-
+		$scope.arr.outlet_id=angular.copy($scope.arr.outlet_id_ori)
         $scope.selected = {
             status: {},
-            outlet_id: {},
             menu_class_id: {},
             menu_group_id: {},
             meal_time_id: {},

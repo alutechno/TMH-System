@@ -64,13 +64,20 @@ if (cluster.isMaster) {
                     connection.release();
                 callback(err);
             } else {
+				var __con= function (err, rows, fields) {
+					if (err) {
+						connection.query("rollback", function (err, rows, fields) {});
+					} else {
+						connection.release();
+					}
+				}
                 if (typeof data === "undefined") {
                     connection.query(sql, function (err, rows, fields) {
                         if (err) {
 							var err2={
 								code:err.toString()
 							}
-							connection.query("rollback", function (err, rows, fields) {});
+							connection.query("rollback", __con);
                             callback(err2, rows, fields);
                         } else {
                             callback(err, rows, fields);
@@ -79,12 +86,11 @@ if (cluster.isMaster) {
                     });
                 } else {
                     connection.query(sql, data, function (err, rows, fields) {
-
                         if (err) {
 							var err2={
 								code:err.toString()
 							}
-							connection.query("rollback", function (err, rows, fields) {});
+							connection.query("rollback", __con);
                             callback(err2, rows, fields);
                         } else {
                             callback(err, rows, fields);

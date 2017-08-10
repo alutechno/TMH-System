@@ -84,12 +84,15 @@
                 <div class="col-sm-6">
                     <div pg-form-group class="form-group form-group-default form-group-default-select" ng-class="{ 'has-error' : field.outlet_id.$invalid && !field.outlet_id.$pristine }">
                         <label>Outlet</label>
-                        <ui-select ng-model="selected.outlet_id.selected" theme="bootstrap" >
+						<li ng-repeat="item in arr.outlet_id">
+						    <input type="checkbox" ng-model="item.checked" ng-checked="item.checked" > {{item.name}}
+						 </li>
+                        <!--<ui-select ng-model="selected.outlet_id.selected" theme="bootstrap" >
                             <ui-select-match placeholder="select">{{$select.selected.name}}</ui-select-match>
                             <ui-select-choices repeat="item in arr.outlet_id | filter: $select.search">
                                 <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
                             </ui-select-choices>
-                        </ui-select>
+                        </ui-select>-->
                     </div>
                 </div>
                 <div class="col-sm-6">
