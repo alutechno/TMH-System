@@ -15,7 +15,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
     }
     $scope.users = []
     var qstring = `select a.*,b.name company_type_name
-		from mst_cust_company a,ref_company_type b
+		from mst_cust_company a,ref_customer_type b
 		where a.company_type_id=b.id`
     var qwhereobj = {
         text: ''
@@ -77,7 +77,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
         $scope.arr.country_id = data.data
     })
 
-    queryService.get('select id,name,code from ref_company_type order by name',undefined)
+    queryService.get('select id,name,code from ref_customer_type order by name',undefined)
     .then(function(data){
         $scope.arr.supplier_type = data.data
     })

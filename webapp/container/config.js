@@ -727,29 +727,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
-		.state("app.fo.rCompanyType", {
-            url: "/foCompanyType",
-            templateUrl: "container/components/foCompanyType/view.html",
-            controller: "FoCompanyTypeCtrl",
-            resolve: {
-                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
-                    return $ocLazyLoad.load([
-                        "dataTables",
-                        "select",
-                        "datepicker",
-                        "daterangepicker",
-                        "tagsInput",
-                        "autonumeric"
-                    ], {
-                        insertBefore: "#lazyload_placeholder"
-                    })
-                    .then(function () {
-                        return $ocLazyLoad.load("container/components/foCompanyType/controller.js");
-                    });
-                }]
-            }
-        })
-        .state("app.fo.rCustCompany", {
+		.state("app.fo.rCustCompany", {
             url: "/foCustomerCompany",
             templateUrl: "container/components/foCustCompany/view.html",
             controller: "FoCustCompanyCtrl",
