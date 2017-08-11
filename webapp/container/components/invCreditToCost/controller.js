@@ -19,7 +19,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         'where a.request_status=b.value '+
         'and a.credit_to_cost_center_id=d.id '+
         'and a.debt_to_cost_center_id=e.id '
-    var qstringdetail = 'select a.id,a.product_id ,b.name product_name,d.stock_qty_l stock_in_hand,a.qty request_qty,e.name unit_name,b.unit_type_id unit_id,b.lowest_unit_type_id unit_id2,b.lowest_unit_conversion unit_conversion,d.id warehouse_item_id '+
+    var qstringdetail = 'select a.id,a.price price_per_unit,a.amount,a.product_id ,b.name product_name,d.stock_qty_l stock_in_hand,a.qty request_qty,e.name unit_name,b.unit_type_id unit_id,b.lowest_unit_type_id unit_id2,b.lowest_unit_conversion unit_conversion,d.id warehouse_item_id '+
         'from inv_ctc_line_item  a,mst_product b,inv_credit_to_cost c,inv_cost_center_stock d,ref_product_unit e '+
         'where a.product_id=b.id '+
         'and a.ctc_id=c.id '+
@@ -73,7 +73,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             'order by a.code asc limit 50',undefined)
         .then(function(data){
 			console.log(data)
-			if(type='ori')
+			if(type=='ori')
             	$scope.cc_origin = data.data
 			else
 				$scope.cc_dest = data.data
@@ -176,11 +176,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
     }
 
     /*END AD ServerSide*/
-
     $scope.openQuickView = function(state){
-        if (state == 'add'){
-            $scope.clear()
-        }
+        $scope.clear()
+        queryService.post('select curr_item_code("INV",concat("CTC",date_format(curdate(),"%y"))) as code',undefined)
+        .then(function(data){
+            $scope.it.code = data.data[0].code
+        })
         $('#form-input').modal('show')
     }
 
@@ -188,51 +189,56 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
 		$scope.disableAction = true;
         if ($scope.it.id.length==0){
             //exec creation
-            var param = {
-                code: $scope.it.code,
-                transc_date: $scope.it.date,
-                request_status: $scope.selected.request_status.selected.id,
-                transc_notes: $scope.it.request_notes,
-                credit_to_cost_center_id: $scope.selected.cc_origin.selected.id,
-                debt_to_cost_center_id: $scope.selected.cc_dest.selected.id,
-                created_by: $localStorage.currentUser.name.id,
-                created_date: globalFunction.currentDate(),
-            }
-            queryService.post('insert into inv_credit_to_cost set ?',param)
-            .then(function (result){
-                var qstr = $scope.child.saveTable(result.data.insertId)
-                queryService.post(qstr.join(';'),undefined)
-                .then(function (result2){
-					$scope.disableAction = false;
-                    $('#form-input').modal('hide')
-                    $scope.dtInstance.reloadData(function(obj){}, false)
-                    $('body').pgNotification({
-                        style: 'flip',
-                        message: 'Success Insert '+$scope.it.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'success'
-                    }).show();
-                },
-                function (err2){
-                    console.log(err2)
-					queryService.post('rollback')
-					.then(function(result9){
-					})
-					$scope.disableAction = false;
-                })
+			queryService.post('select next_item_code("INV",concat("CTC",date_format(curdate(),"%y"))) as code',undefined)
+	        .then(function(data){
+	            $scope.it.code = data.data[0].code
+				var param = {
+	                code: $scope.it.code,
+	                transc_date: $scope.it.date,
+	                request_status: $scope.selected.request_status.selected.id,
+	                transc_notes: $scope.it.request_notes,
+	                credit_to_cost_center_id: $scope.selected.cc_origin.selected.id,
+	                debt_to_cost_center_id: $scope.selected.cc_dest.selected.id,
+	                created_by: $localStorage.currentUser.name.id,
+	                created_date: globalFunction.currentDate(),
+	            }
+	            queryService.post('insert into inv_credit_to_cost set ?',param)
+	            .then(function (result){
+	                var qstr = $scope.child.saveTable(result.data.insertId)
+	                queryService.post(qstr.join(';'),undefined)
+	                .then(function (result2){
+						$scope.disableAction = false;
+	                    $('#form-input').modal('hide')
+	                    $scope.dtInstance.reloadData(function(obj){}, false)
+	                    $('body').pgNotification({
+	                        style: 'flip',
+	                        message: 'Success Insert '+$scope.it.code,
+	                        position: 'top-right',
+	                        timeout: 2000,
+	                        type: 'success'
+	                    }).show();
+	                },
+	                function (err2){
+	                    console.log(err2)
+						queryService.post('rollback')
+						.then(function(result9){
+						})
+						$scope.disableAction = false;
+	                })
 
-            },
-            function (err){
-				$scope.disableAction = false;
-                $('#form-input').pgNotification({
-                    style: 'flip',
-                    message: 'Error Insert: '+err.code,
-                    position: 'top-right',
-                    timeout: 2000,
-                    type: 'danger'
-                }).show();
-            })
+	            },
+	            function (err){
+					$scope.disableAction = false;
+	                $('#form-input').pgNotification({
+	                    style: 'flip',
+	                    message: 'Error Insert: '+err.code,
+	                    position: 'top-right',
+	                    timeout: 2000,
+	                    type: 'danger'
+	                }).show();
+	            })
+	        })
+
         }
         else {
             //exec update
@@ -246,11 +252,12 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 modified_by: $localStorage.currentUser.name.id,
                 modified_date: globalFunction.currentDate(),
             }
-            queryService.post('update inv_credit_to_cost set ? where id='+$scope.it.id,param)
-            .then(function (result){
+            //queryService.post('update inv_credit_to_cost set ? where id='+$scope.it.id,param)
+            //.then(function (result){
                 var qstr = $scope.child.saveTable($scope.it.id)
-                console.log(qstr)
-                queryService.post(qstr.join(';'),undefined)
+                console.log(qstr.join(';'))
+				qstr.splice(1, 0, 'update inv_credit_to_cost set ? where id='+$scope.it.id);
+                queryService.post(qstr.join(';'),param)
                 .then(function (result2){
 					$scope.disableAction = false;
                     $('#form-input').modal('hide')
@@ -263,14 +270,17 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                         type: 'success'
                     }).show();
                 },
-                function (err2){
-					queryService.post('rollback')
-					.then(function(result9){
-					})
-                    console.log(err2)
+                function (err){
+					$('#form-input').pgNotification({
+	                    style: 'flip',
+	                    message: 'Error Insert: '+err.code,
+	                    position: 'top-right',
+	                    timeout: 2000,
+	                    type: 'danger'
+	                }).show();
 					$scope.disableAction = false;
                 })
-            },
+            /*},
             function (err){
 				$scope.disableAction = false;
                 $('#form-input').pgNotification({
@@ -280,7 +290,7 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                     timeout: 2000,
                     type: 'danger'
                 }).show();
-            })
+            })*/
         }
     }
 
@@ -295,14 +305,17 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             $scope.selected.cc_origin['selected'] = {id:$scope.it.credit_to_cost_center_id,name:$scope.it.cost_orig_name}
             $scope.selected.cc_dest['selected'] = {id:$scope.it.debt_to_cost_center_id,name:$scope.it.cost_dest_name}
             $scope.selected.request_status['selected'] = {id:$scope.it.request_status,name:$scope.it.request_status_name}
-
+			if ($scope.it.request_status==1)
+				$scope.disableAction = true;
             queryService.post(qstringdetail+ ' and c.id='+ids,undefined)
             .then(function(result2){
                 $('#form-input').modal('show');
                 $scope.items = []
                 console.log(result2.data)
                 for (var i=0;i<result2.data.length;i++){
-                    result2.data[i]['id'] = i+1
+
+					result2.data[i]['p_id'] = result2.data[i]['id']
+					result2.data[i]['id'] = i+1
                     result2.data[i]['issued_qty_n'] = 0
                     $scope.items.push(result2.data[i])
                 }
@@ -327,8 +340,6 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
                 type: 'danger'
             }).show();
         })
-
-
     }
 
     $scope.delete = function(obj){
@@ -352,10 +363,8 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
             description: '',
             status: ''
         }
+		$scope.disableAction = false;
     }
-
-
-
 })
 
 .controller('EditableTableCcCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction) {
@@ -452,64 +461,61 @@ function($scope, $state, $sce, productCategoryService, queryService, DTOptionsBu
         var sqlitem = ['start transaction']
 		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
-            // actually delete user
-            /*if (user.isDeleted) {
-                $scope.items.splice(i, 1);
-            }*/
-            // mark as not new
-            /*if (user.isNew) {
-                user.isNew = false;
-            }*/
-
-            // send on server
-            //results.push($http.post('/saveUser', user));
+			console.log(user)
             if (user.isNew && !user.isDeleted){
                 sqlitem.push('insert into inv_ctc_line_item(ctc_id,product_id,price,amount,qty,unit_type_id,created_by) values '+
                     '( '+transfer_id+', '+user.product_id+','+user.price_per_unit+','+(user.price_per_unit*user.request_qty)+','+user.request_qty+','+user.unit_id+', '+$localStorage.currentUser.name.id+' )')
-                //sqlitem.push('insert into inv_pr_line_item (pr_id,product_id,'+(user.supplier_id.length>0?'supplier_id,':'')+'order_qty,net_price,order_amount,created_by,created_date) values('+
-                //pr_id+','+user.product_id+','+(user.supplier_id.length>0?user.supplier_id+',':'')+''+user.qty+','+user.price+','+user.amount+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
             }
             else if(!user.isNew && user.isDeleted){
-                sqlitem.push('delete from inv_inter_loc_trans_line_item where id='+user.p_id)
+                sqlitem.push('delete from inv_ctc_line_item where id='+user.p_id)
             }
             else if(!user.isNew){
-                console.log(user)
-                for (var j=0;j<$scope.itemsOri.length;j++){
-                    if ($scope.itemsOri[j].p_id==user.p_id){
-                        var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].product_id+$scope.itemsOri[j].request_qty+$scope.itemsOri[j].issued_qty_n
-                        var d2 = user.p_id+user.product_id+user.request_qty+user.issued_qty_n
-                        if(d1 != d2){
-                            var sql2 = 'insert into inv_cs_stock_move(transc_type,ctc_id,origin_cost_center_id,dest_cost_center_id,product_id,qty,unit_type_id,qty_l,lowest_unit_type_id,created_by) values '+
-                                '( \'CC\','+transfer_id+','+$scope.selected.cc_origin.selected.id+','+$scope.selected.cc_dest.selected.id+','+
-                                ' '+user.product_id+', '+(user.issued_qty_n*user.unit_conversion)+', '+user.unit_id+','+user.issued_qty_n+','+user.unit_id2+', '+$localStorage.currentUser.name.id+' )'
-                            var sql3 = 'update inv_cost_center_stock set '+
-                                'cost_center_id = '+$scope.selected.cc_origin.selected.id+','+
-                                'product_id = '+user.product_id+','+
-                                'stock_qty = stock_qty-'+(parseInt(user.issued_qty_n)*user.unit_conversion)+','+
-                                'stock_qty_l = stock_qty_l-'+(parseInt(user.issued_qty_n))+','+
-                                ' modified_by = '+$localStorage.currentUser.name.id+',' +
-                                ' modified_date = \''+globalFunction.currentDate()+'\'' +
-                                ' where id='+user.warehouse_item_id
-
-                            var sql4 = 'INSERT INTO inv_cost_center_stock(cost_center_id,product_id,stock_qty,stock_qty_l,created_by) '+
-                                ' values('+$scope.selected.cc_origin.selected.id+','+user.product_id+','+((parseInt(user.issued_qty_n)*user.unit_conversion))+
-                                ','+(parseInt(user.issued_qty_n))+', '+$localStorage.currentUser.name.id+') ' +
-                                'ON DUPLICATE KEY UPDATE '+
-                                ' stock_qty = stock_qty-'+(parseInt(user.issued_qty_n)*user.unit_conversion)+
-                                ' ,stock_qty_l = stock_qty_l-'+(parseInt(user.issued_qty_n))
-                                //' ,stock_qty_in_recipe_unit = '+(user.stock_qty_in_recipe_unit+(user.issued_qty_n*user.recipe_unit_conversion))
-                                ' ,modified_by = '+$localStorage.currentUser.name.id+',' +
-                                ' modified_date = \''+globalFunction.currentDate()+'\''
-
-                            sqlitem.push(sql2)
-                            sqlitem.push(sql3)
-                            sqlitem.push(sql4)
-                        }
-                    }
-                }
+				sqlitem.push('update inv_ctc_line_item '+
+                    'set product_id='+user.product_id+',price= '+user.price_per_unit+',amount='+(user.price_per_unit*user.request_qty)+',qty='+user.request_qty+',unit_type_id='+user.unit_id+', modified_date=curdate(),modified_by='+$localStorage.currentUser.name.id )
             }
-
         }
+		if($scope.selected.request_status.selected.id==1){
+			var amt=0;
+			for (var j=0;j<$scope.items.length;j++){
+				var user = $scope.items[j];
+				console.log(user)
+				if(user.isDeleted==undefined){
+					amt+=(user.price_per_unit*user.request_qty)
+					var sql2 = 'insert into inv_cs_stock_move(transc_type,ctc_id,origin_cost_center_id,dest_cost_center_id,product_id,qty,unit_type_id,qty_l,lowest_unit_type_id,created_by) values '+
+						'( \'CC\','+transfer_id+','+$scope.selected.cc_origin.selected.id+','+$scope.selected.cc_dest.selected.id+','+
+						' '+user.product_id+', '+(user.request_qty*user.unit_conversion)+', '+user.unit_id+','+user.request_qty+','+user.unit_id2+', '+$localStorage.currentUser.name.id+' )'
+					var sql3 = 'update inv_cost_center_stock set '+
+						'cost_center_id = '+$scope.selected.cc_origin.selected.id+','+
+						'product_id = '+user.product_id+','+
+						'stock_qty = stock_qty-'+(parseInt(user.request_qty)*user.unit_conversion)+','+
+						'stock_qty_l = stock_qty_l-'+(parseInt(user.request_qty))+','+
+						' modified_by = '+$localStorage.currentUser.name.id+',' +
+						' modified_date = \''+globalFunction.currentDate()+'\'' +
+						' where id='+user.warehouse_item_id
+
+					var sql4 = 'INSERT INTO inv_cost_center_stock(cost_center_id,product_id,stock_qty,stock_qty_l,created_by) '+
+						' values('+$scope.selected.cc_origin.selected.id+','+user.product_id+','+((parseInt(user.request_qty)*user.unit_conversion))+
+						','+(parseInt(user.request_qty))+', '+$localStorage.currentUser.name.id+') ' +
+						'ON DUPLICATE KEY UPDATE '+
+						' stock_qty = stock_qty-'+(parseInt(user.request_qty)*user.unit_conversion)+
+						' ,stock_qty_l = stock_qty_l-'+(parseInt(user.request_qty))
+						//' ,stock_qty_in_recipe_unit = '+(user.stock_qty_in_recipe_unit+(user.issued_qty_n*user.recipe_unit_conversion))
+						' ,modified_by = '+$localStorage.currentUser.name.id+',' +
+						' modified_date = \''+globalFunction.currentDate()+'\''
+					sqlitem.push(sql2)
+					sqlitem.push(sql3)
+					sqlitem.push(sql4)
+				}
+			}
+			sqlitem.push('insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes,bookkeeping_date,posted_by,posting_date,created_by)'+
+				' values ("'+$scope.it.code+'", 21, @id, 1, \''+$scope.it.request_notes+'\',"'+$scope.it.date+'",'+$localStorage.currentUser.name.id+',curdate(),'+$localStorage.currentUser.name.id+') on duplicate KEY UPDATE '+
+				'notes=\''+$scope.it.request_notes+'\'');
+			sqlitem.push("set @id=(select last_insert_id())");
+			sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,bookkeeping_date)'+
+			' values("'+$scope.it.request_notes+'",@id,(select case when is_has_store="Y" then inv_account_id else account_id end code from mst_cost_center where id='+$scope.selected.cc_origin.selected.id+'),\'C\','+amt+','+$localStorage.currentUser.name.id+',"'+$scope.it.date+'")')
+			sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,bookkeeping_date)'+
+			' values("'+$scope.it.request_notes+'",@id,(select case when is_has_store="Y" then inv_account_id else account_id end code from mst_cost_center where id='+$scope.selected.cc_dest.selected.id+'),\'D\','+amt+','+$localStorage.currentUser.name.id+',"'+$scope.it.date+'")')
+	    }
 		sqlitem.push('commit')
         return sqlitem
         //return $q.all(results);
