@@ -443,7 +443,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 param = {
                     code: $scope.pr.code,
                     purchase_notes: $scope.pr.purchase_notes,
-                    doc_status_id:1,
+					doc_status_id:1,
                     delivery_date: $scope.pr.delivery_date,
                     warehouse_id: $scope.selected.warehouse.selected?$scope.selected.warehouse.selected.id:null,
                     cost_center_id: $scope.selected.cost_center.selected?$scope.selected.cost_center.selected.id:null,
