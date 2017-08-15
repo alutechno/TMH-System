@@ -8,6 +8,65 @@
 
 <div id="printSection">
     <div class="row">
+    <h2 align="center">Payment Voucher</h2>
+    <br>
+      <table width="98%" align="center">
+          <tr>
+            <td style="text-align:left" width="20%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pay To</td>
+            <td style="text-align:left" width="1%">:</td>
+            <td style="text-align:left" width="29%">{{selected.supplier.selected.supplier_name}}</td>
+            <td style="text-align:left" width="20%">&nbsp;Document No</td>
+            <td style="text-align:left" width="1%">:</td>
+            <td style="text-align:left" width="29%">{{ap.code}}</td>
+          </tr>
+          <tr valign="top">
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Supplier Code</td>
+            <td>:</td>
+            <td>{{selected.supplier.selected.supplier_code}}</td>
+            <td>&nbsp;Cheque No</td>
+            <td>:</td>
+            <td>{{ap.check_no}}</td>
+          </tr>
+          <tr valign="top">
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address</td>
+            <td>:</td>
+            <td>{{selected.supplier.selected.supplier_address}}</td>
+            <td>&nbsp;Open Date</td>
+            <td>:</td>
+            <td>{{ap.open_date}}</td>
+          </tr>
+          <tr valign="top">
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bank</td>
+            <td>:</td>
+            <td>{{selected.supplier.selected.supplier_bank}}
+            <br>{{selected.supplier.selected.supplier_bank_address}}
+            </td>
+            <td>&nbsp;Cheque Due Date</td>
+            <td>:</td>
+            <td>{{ap.due_date}}</td>
+            </td>
+          </tr>
+          <tr>
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Acc. No</td>
+            <td>:</td>
+            <td>{{selected.supplier.selected.supplier_bank_acc_no}}</td>
+            <td>&nbsp;Bank Account</td>
+            <td>:</td>
+            <td>{{selected.bank_account.selected.name}}</td>
+            </td>
+          </tr>
+          <tr>
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Acc. Owner</td>
+            <td>:</td>
+            <td>{{selected.supplier.selected.supplier_bank_acc_owner}}</td>
+            <td>&nbsp;Bank Acc. No</td>
+            <td>:</td>
+            <td>{{selected.bank_account.selected.bank_account_no}}</td>
+            </td>
+          </tr>
+        </table>
+        <br>
+        <!--
         <table width="98%">
             <tr>
                 <td width="50%" align="center">
@@ -79,17 +138,21 @@
             </tr>
             <br>
 
-        </table>
+        </table> 
+        -->
 		<table width="89%" cellpadding="5" border="1" align="center">
             <thead>
             <tr>
-				<td align="center">Voucher</td>
-                <td align="center">Open Date</td>
-                <td align="center">Due Date</td>
-                <td align="center">Source</td>
+				<td align="center" width="20%">Voucher No.</td>
+                <td align="center" width="15%">Open Date</td>
+                <td align="center" width="15%">Due Date</td>
+                <td align="center" width="15%">RR No</td>
+                <td align="center" width="15%">Inv. No</td>
+                <!--
                 <td align="center">Total Due</td>
                 <td align="center">Paid</td>
-                <td align="center">Payment</td>
+                -->
+                <td align="center" width="20%">Payment</td>
             </tr>
             </thead>
             <tbody>
@@ -97,22 +160,24 @@
                 <td>{{item.code}}</td>
                 <td> {{item.open_date}}</td>
                 <td>{{ item.due_date}}</td>
-                <td>{{ item.source}}</td>
+                <td>{{ item.rr_no}}</td>
+                <td>{{ item.faktur_no}}</td>
+                <!--
                 <td style="text-align: right;">{{ item.total_amount| number : fractionSize}}</td>
 				<td style="text-align: right;">{{ item.paid_amount| number : fractionSize}}</td>
-				<td style="text-align: right;">{{ item.current_due_amount| number : fractionSize}}</td>
+        -->
+				<td style="text-align: right;">{{ item.payment_amount| number : fractionSize}}</td>
 
             </tr>
             </tbody>
             <tfooter width="80%" border="1" align="center">
                 <tr>
-					<td border="0"></td>
-					<td></td>
-					<td></td>
-                    <td width="10%" style="text-align: center;">Total</td>
-                    <td width="10%" style="text-align: right;"><span >{{total_due| number : fractionSize}}</span></td>
-                    <td width="10%" style="text-align: right;"><span >{{total_paid| number : fractionSize}}</span></td>
-                    <td width="10%" style="text-align: right;"><span >{{total_payment| number : fractionSize}}</span></td>
+                    <td colspan="5" width="10%" style="text-align: right;"><b>Total</b></td>
+                    <!--
+                    <td width="10%" style="text-align: right;"><span >{{totalv.due| number : fractionSize}}</span></td>
+                    <td width="10%" style="text-align: right;"><span >{{totalv.paid| number : fractionSize}}</span></td>
+                    -->
+                    <td width="10%" style="text-align: right;"><span ><b>{{totalv.payment| number : fractionSize}}</b></span></td>
                 </tr>
             </tfooter>
         </table>
@@ -512,13 +577,14 @@
                                                         <thead>
                                                         <tr>
                                                             <th width="10%"><span ng-show="tableform.$visible">Action</span></th>
-                                                            <th width="20%">Voucher No</th>
-                                                            <th width="10%">Open Date</th>
-                                                            <th width="10%">Due Date</th>
-                                                            <th width="10%">Source</th>
-                                                            <th width="15%">Total Due</th>
-                                                            <th width="10%">Paid</th>
-                                                            <th width="15%">Payment</th>
+                                                            <th style="text-align: left;" width="10%">Voucher No</th>
+                                                            <th style="text-align: left;" width="10%">Open Date</th>
+                                                            <th style="text-align: left;" width="10%">Due Date</th>
+                                                            <th style="text-align: left;" width="10%">RR. No.</th>      
+                                                            <th style="text-align: left;" width="10%">Inv. No.</th>
+                                                            <th style="text-align: right;" width="15%">Total Amount</th>
+                                                            <th style="text-align: right;" width="10%">Current Balance</th>
+                                                            <th style="text-align: right;" width="15%">Payment Amount</th>
 
 
                                                         </tr>
@@ -550,12 +616,13 @@
                                                             </td>
                                                             <td><span>{{item.open_date}}</span></td>
                                                             <td><span>{{item.due_date}}</span></td>
-                                                            <td><span>{{item.source}}</span></td>
+                                                            <td><span>{{item.rr_no}}</span></td>
+                                                            <td><span>{{item.faktur_no}}</span></td>
+                                                            <td style="text-align: right;"><span>{{item.total_amount| number : fractionSize}}</span></td>
                                                             <td style="text-align: right;"><span>{{item.current_due_amount| number : fractionSize}}</span></td>
-                                                            <td style="text-align: right;"><span>{{item.paid_amount| number : fractionSize}}</span></td>
                                                             <td style="text-align: right;">
-                                                                <span editable-text="item.current_due_amount" format="number" e-form="tableform" data-e-ng-keyup="setPayment($event,item.id,$data)">
-                                                                    {{ item.total_amount | number : fractionSize}}
+                                                                <span editable-text="item.payment_amount" format="number" e-form="tableform" data-e-ng-keyup="setPayment($event,item.id,$data)">
+                                                                    {{ item.payment_amount | number : fractionSize}}
                                                                 </span>
                                                             </td>
 
@@ -564,10 +631,11 @@
 															<td border="0"></td>
 															<td></td>
 															<td></td>
+                              <td></td>
                                                             <td></td>
 										                    <td width="10%" style="text-align: center;">Total</td>
-										                    <td width="10%" style="text-align: right;"><span >{{totalv.due| number : fractionSize}}</span></td>
-										                    <td width="10%" style="text-align: right;"><span >{{totalv.paid| number : fractionSize}}</span></td>
+										                    <td width="10%" style="text-align: right;"><span >{{totalv.total| number : fractionSize}}</span></td>
+										                    <td width="10%" style="text-align: right;"><span >{{totalv.current| number : fractionSize}}</span></td>
 										                    <td width="10%" style="text-align: right;"><span >{{totalv.payment| number : fractionSize}}</span></td>
 														</tr>
                                                         </tbody>
