@@ -32,7 +32,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     	"	select a.id,a.code,a.po_id,a.received_status status_id,c.name status_name,DATE_FORMAT(a.created_date,'%Y-%m-%d') as created_date, "+
     	"		a.currency_id,d.supplier_id,e.name supplier_name,f.code currency_code,format(a.total_amount,0)total_amount,a.total_amount TotalSum,a. "+
         "       receive_notes notes,d.warehouse_id,d.cost_center_id,DATE_FORMAT(d.delivery_date,'%Y-%m-%d') delivery_date,a.home_currency_exchange,  "+
-        "        d.code po_code,d.po_source,DATE_FORMAT(a.receive_date,'%Y-%m-%d')receive_date,a.receive_notes , "+
+        "        d.code po_code,d.po_source,DATE_FORMAT(a.receive_date,'%Y-%m-%d')receive_date,a.receive_notes ,d.due_days, "+
         "        date_format(d.created_date,'%Y-%m-%d') po_created_date, date_format( d.released_date,'%Y-%m-%d') po_released_date,a.inv_no,a.faktur_no, "+
         "        (select name from table_ref x where table_name='inv_purchase_order' and column_name='receive_status' and value in(3,4) and x.value = d.receive_status) as receive_status_name,d.pr_id,d.ml_id "+
     	"	from inv_po_receive a,table_ref c,inv_purchase_order d,mst_supplier e,ref_currency f  "+
@@ -1136,9 +1136,9 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 		if($scope.selected.delivery_status.selected.id==2){
 			var dt = new Date()
 			var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-	        sqlitem.push('insert into acc_ap_voucher(code,source,receive_id,supplier_id,currency_id,total_amount,home_total_amount,status,open_date,created_by,inv_no,faktur_no,total_due_amount,current_due_amount)'+
+	        sqlitem.push('insert into acc_ap_voucher(code,source,receive_id,supplier_id,currency_id,total_amount,home_total_amount,status,open_date,due_date,created_by,inv_no,faktur_no,total_due_amount,current_due_amount)'+
 		        'values(next_item_code("AP",concat("AP/RR",date_format(curdate(),"%y"))),\'RR\','+pr_id+','+$scope.selected.supplier.selected.id+','+$scope.po.currency_id+','+amt+
-		        ','+($scope.po.home_currency_exchange*amt)+',2,\''+globalFunction.currentDate()+'\','+$localStorage.currentUser.name.id+',"'+$scope.po.inv_no+'","'+$scope.po.faktur_no+'",'+amt+','+amt+')'
+		        ','+($scope.po.home_currency_exchange*amt)+',2,\''+$scope.po.delivery_date+'\',DATE_ADD("'+$scope.po.delivery_date+'", INTERVAL '+$scope.po.due_days+' DAY),'+$localStorage.currentUser.name.id+',"'+$scope.po.inv_no+'","'+$scope.po.faktur_no+'",'+amt+','+amt+')'
 			);
 
 			sqlitem.push("set @id=(select last_insert_id())");
