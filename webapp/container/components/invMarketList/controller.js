@@ -189,7 +189,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 '   <i class="fa fa-edit"></i>' +
                 '</button>&nbsp;' ;
             }
-            if ($scope.el.indexOf('buttonDelete')>-1){
+            if ($scope.el.indexOf('buttonDelete')>-1 && full.doc_status_id==1){
                 html+='<button class="btn btn-default" title="Delete" ng-click="delete(\'' + data + '\')" )"="">' +
                 '   <i class="fa fa-trash-o"></i>' +
                 '</button>';
@@ -928,47 +928,20 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
     $scope.execDelete = function(){
         console.log('Under Construction')
-        var param = [{
-            doc_status_id: 5,
-            approval_status: 0
-        },$scope.pr.id]
-        queryService.post('update market_list set ? where id=?',param)
+        var param = [$scope.pr.id,$scope.pr.id,$scope.pr.id]
+        queryService.post('start transaction;delete from inv_ml_doc_state where ml_id=?;delete from inv_ml_line_item where ml_id=?;delete from inv_market_list where id=?;commit;',param)
         .then(function (result){
-            var paramState = {
-                ml_id:$scope.pr.id,
-                doc_status_id:8,
-                created_by:$localStorage.currentUser.name.id,
-                created_date:globalFunction.currentDate(),
-                approval_status:0,
-                approval_notes: '',
-                denial_notes: ''
-            }
-            queryService.post('insert into inv_ml_doc_state set ?',paramState)
-            .then(function (result){
-                    $('#modalDelete').modal('hide')
-                    $scope.nested.dtInstance.reloadData(function(obj){
-                        console.log(obj)
-                    }, false)
-                    $('body').pgNotification({
-                        style: 'flip',
-                        message: 'Success Cancel Market List '+$scope.pr.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'success'
-                    }).show();
-                    $scope.clear();
-            },
-            function (err){
-                $('#modalDelete').modal('hide')
-                $('body').pgNotification({
-                    style: 'flip',
-                    message: 'Error Cancel Market List: '+err.code,
-                    position: 'top-right',
-                    timeout: 2000,
-                    type: 'danger'
-                }).show();
-                $scope.clear();
-            })
+			$('#modalDelete').modal('hide')
+			$scope.nested.dtInstance.reloadData(function(obj){
+				console.log(obj)
+			}, false)
+			$('body').pgNotification({
+				style: 'flip',
+				message: 'Success Cancel Market List '+$scope.pr.code,
+				position: 'top-right',
+				timeout: 2000,
+				type: 'success'
+			}).show();
         },
         function (err){
             $('#modalDelete').modal('hide')
