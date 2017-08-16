@@ -119,9 +119,15 @@
                           </div>
                       </div>
 					  <div class="col-md-4">
-                          <div pg-form-group class="form-group form-group-default" >
+                          <div pg-form-group class="form-group form-group-default form-group-default-select" >
                               <label>Def Payment</label>
-                              <input type="text" class="form-control" name="def_payment_type" ng-model="supplier.def_payment_type">
+							  <ui-select ng-model="selected.def_payment_type.selected" theme="bootstrap" >
+								  <ui-select-match placeholder="Pick Payment">{{$select.selected.name}}</ui-select-match>
+								  <ui-select-choices repeat="item in payment_type| filter: $select.search">
+									  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+								  </ui-select-choices>
+							  </ui-select>
+                              <!--<input type="text" class="form-control" name="def_payment_type" ng-model="supplier.def_payment_type">-->
                           </div>
                       </div>
                   </div>

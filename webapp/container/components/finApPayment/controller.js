@@ -1221,6 +1221,25 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             status: ''
         }
 		$scope.trans=[];
+		$scope.selected = {
+	        status: {},
+	        startperiod: {},
+	        endperiod : {},
+	        period: {},
+	        supplier: {},
+	        currency: {},
+	        bank: {},
+	        bank_account: {},
+	        payment_method: {},
+	        filter_status: [],
+	        filter_due_date: '',
+	        filter_month: {},
+	        filter_year: {},
+	        filter_supplier: {}
+	    }
+		$scope.totalv.total=0
+		$scope.totalv.current=0
+		$scope.totalv.payment=0
     }
 
 })

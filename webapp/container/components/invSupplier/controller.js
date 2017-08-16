@@ -64,8 +64,17 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
         kec_id: '',
         kel_id: ''
     }
+	$scope.payment_type = [{
+		id: 0,
+		name: 'Credit'
+	},
+	{
+		id: 1,
+		name: 'Cash'
 
-    $scope.selected = {
+	}]
+	$scope.selected = {
+		def_payment_type: {selected:{}},
         status: {selected:{}},
         country_id: {selected:{}},
         prov_id: {selected:{}},
@@ -252,6 +261,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
             //$scope.supplier.kab_id = $scope.selected.kab_id.selected?$scope.selected.kab_id.selected.id:null;
             //$scope.supplier.kec_id = $scope.selected.kec_id.selected?$scope.selected.kec_id.selected.id:null;
             //$scope.supplier.kel_id = $scope.selected.kel_id.selected?$scope.selected.kel_id.selected.id:null;
+			$scope.supplier.def_payment_type=$scope.selected.def_payment_type.selected?$scope.selected.def_payment_type.selected.id:null;
 			$scope.supplier.prov_id = $scope.selected.prov_id.selected?$scope.selected.prov_id.selected.id:null;
             $scope.supplier.used_currency = $scope.selected.used_currency.selected?$scope.selected.used_currency.selected.code:null;
             $scope.supplier.supplier_type_id = $scope.selected.supplier_type.selected?$scope.selected.supplier_type.selected.id:null;
@@ -300,6 +310,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
             //$scope.supplier.kab_id = $scope.selected.kab_id.selected?$scope.selected.kab_id.selected.id:null;
             //$scope.supplier.kec_id = $scope.selected.kec_id.selected?$scope.selected.kec_id.selected.id:null;
             //$scope.supplier.kel_id = $scope.selected.kel_id.selected?$scope.selected.kel_id.selected.id:null;
+			$scope.supplier.def_payment_type=$scope.selected.def_payment_type.selected?$scope.selected.def_payment_type.selected.id:null;
             $scope.supplier.used_currency = $scope.selected.used_currency.selected?$scope.selected.used_currency.selected.code:null;
             $scope.supplier.supplier_type_id = $scope.selected.supplier_type.selected?$scope.selected.supplier_type.selected.id:null;
 			$scope.supplier.bank1_currency_id = $scope.selected.bank_used_currency.selected?$scope.selected.bank_used_currency.selected.id:null;
@@ -399,6 +410,8 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
 			$scope.supplier.bank2_account_no=result.data[0].bank2_account_no
 			$scope.supplier.bank2_account_owner=result.data[0].bank2_account_owner
 			$scope.supplier.bank2_address=result.data[0].bank2_address
+			console.log($scope.payment_type[result.data[0].def_payment_type])
+			$scope.selected.def_payment_type.selected=$scope.payment_type[result.data[0].def_payment_type]
             for (var i=0;i<$scope.arr.status.length;i++){
                 if (result.data[0].status == $scope.arr.status[i].id){
                     $scope.selected.status.selected = $scope.arr.status[i]
@@ -503,6 +516,7 @@ function($scope, $state, $sce, queryService, supplierService, otherService, DTOp
             kel_id: ''
         }
         $scope.selected = {
+			def_payment_type: {},
             status: {},
             country_id: {},
             prov_id: {},
