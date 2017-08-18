@@ -276,8 +276,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                 if ($scope.filterVal.search.length>0) {
                     qwhere = ' and (lower(a.code) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
                              ' or lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
-                             ' or lower(a.menu_class_name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
-                             ' or lower(a.menu_group_name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                             ' or lower(d.name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                             ' or lower(e.name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
                              ' or lower(b.status_name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
                              ' or lower(a.description) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
                         ')'
