@@ -274,9 +274,12 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         if (type == 'search'){
             if (event.keyCode == 13){
                 if ($scope.filterVal.search.length>0) {
-                    qwhere = ' and (lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
-                        ' or lower(b.status_name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
-                        ' or lower(a.description) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                    qwhere = ' and (lower(a.code) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                             ' or lower(a.name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                             ' or lower(a.menu_class_name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                             ' or lower(a.menu_group_name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                             ' or lower(b.status_name) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
+                             ' or lower(a.description) like "%'+$scope.filterVal.search.toLowerCase()+'%" '+
                         ')'
                 }else{
                     qwhere = ''
