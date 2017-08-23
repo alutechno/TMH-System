@@ -465,9 +465,9 @@
                   </div>
 
                 <div class="col-sm-8">
-                    <div pg-form-group class="form-group form-group-default" >
+                    <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.notes.$invalid && !ap.notes.$pristine }" >
                         <label>Notes</label>
-                        <input type="text" class="form-control" name="notes" ng-model="ap.notes" >
+                        <input type="text" class="form-control" name="notes" ng-model="ap.notes" validate-attached-form-element required >
                     </div>
                 </div>
               </div>
@@ -558,13 +558,13 @@
 
                                             <!-- buttons -->
                                             <div class="btn-edit">
-                                              <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show();setStatus(0)">
+                                              <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-click="tableform.$show();setStatus(0)" ng-if="finalStatus==false">
                                                 Modify Item List
                                               </button>
                                             </div>
                                             <div class="btn-form" ng-show="tableform.$visible">
                                               <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
-                                              <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
+                                              <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary " > Add New Item</button>
                                               <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
                                             </div>
                       </div>
@@ -573,9 +573,9 @@
               <br>
               <div class="clearfix"></div>
               <div class="divider"></div>
-              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction||!(total.debit==total.credit)" ng-click="submit()" >Save</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction||!(total.debit==total.credit)" ng-click="submit()" ng-if="finalStatus==false">Save</button>
               <button class="btn btn-primary" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection2" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
-              <button class="btn btn-default"><i class="pg-close"></i> Clear</button>
+              <!--<button class="btn btn-default"><i class="pg-close"></i> Clear</button>-->
           </form>
       </div>
       <!-- END FORM -->

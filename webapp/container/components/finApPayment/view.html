@@ -508,9 +508,9 @@
               </div>
               <div class="row clearfix">
                   <div class="col-sm-4">
-                      <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.code.$invalid && !ap.code.$pristine }">
+                      <div pg-form-group class="form-group form-group-default" >
                           <label>Check No</label>
-                          <input type="text" class="form-control" name="name" ng-model="ap.check" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required>
+                          <input type="text" class="form-control" name="name" ng-model="ap.check" >
                       </div>
                   </div>
 
@@ -548,9 +548,9 @@
                   </div>
 
                 <div class="col-sm-8">
-                    <div pg-form-group class="form-group form-group-default " >
+                    <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : ap.notes.$invalid && !ap.notes.$pristine }">
                         <label>Notes</label>
-                        <input type="text" class="form-control" name="notes" ng-model="ap.notes" >
+                        <input type="text" class="form-control" name="notes" ng-model="ap.notes" validate-attached-form-element required>
                     </div>
                 </div>
               </div>
@@ -752,7 +752,7 @@
               <div class="divider"></div>
               <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid||disableAction" ng-click="submit()" ng-if="finalStatus==false">Save</button>
 			  <button class="btn btn-primary" ng-click="test()" ng-print print-element-id="printSection"><i class="fa fa-print"></i> Print</button>
-              <button class="btn btn-default" ng-if="finalStatus==false"><i class="pg-close" ></i> Clear</button>
+              <!--<button class="btn btn-default" ng-if="finalStatus==false"><i class="pg-close" ></i> Clear</button>-->
           </form>
       </div>
       <!-- END FORM -->

@@ -215,7 +215,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     })*/
     $scope.setStatus = function(){
         console.log('setStatus0',$scope.selected.status.selected,$scope.items)
-        if ($scope.selected.status.selected.id==1){
+        if ($scope.selected.status.selected.id==3){
 
             if ($scope.items.length==0){
                 if ($scope.selected.supplier.selected){
@@ -783,7 +783,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             queryService.post('update acc_cash_payment SET ? WHERE id='+$scope.ap.id ,param)
             .then(function (result){
 
-                if ($scope.selected.status.selected.id=='1'){
+                if ($scope.selected.status.selected.id=='3'){
                     queryService.get('select id from acc_gl_transaction where payment_id= '+$scope.ap.id,undefined)
                     .then(function(data){
                         var qq = ''
