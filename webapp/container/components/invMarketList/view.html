@@ -250,7 +250,7 @@
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default form-group-default-select " >
                                   <label>Warehouse</label>
-                                  <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode">
+                                  <ui-select ng-model="selected.warehouse.selected" theme="bootstrap"  ng-disabled="viewMode" on-select="selected.cost_center.selected={}">
                                       <ui-select-match placeholder="Select Location">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in warehouse | filter: $select.search">
                                           <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
@@ -261,7 +261,7 @@
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default form-group-default-select  ">
                                   <label>Cost Center</label>
-                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id" >
+                                  <ui-select ng-model="selected.cost_center.selected" theme="bootstrap" ng-keyup="costCenterUp($select.search)" ng-disabled="viewMode" on-select="pr.cost_center_id=selected.cost_center.selected.id;selected.warehouse.selected={}" >
                                       <ui-select-match placeholder="Pick Cost Center">{{$select.selected.name}}</ui-select-match>
                                       <ui-select-choices repeat="item in cost_center | filter: $select.search">
                                           <div ng-bind-html="trustAsHtml((item.name  | highlight: $select.search))"></div>
