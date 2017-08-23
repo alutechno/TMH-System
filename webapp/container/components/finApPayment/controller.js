@@ -788,8 +788,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     .then(function(data){
                         var qq = ''
                         if(data.data.length==0){
-                            qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes,posted_by,posting_date,created_by) '+
-                             'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+$scope.ap.id+',0,18,\''+$scope.ap.notes+'\','+$localStorage.currentUser.name.id+',curdate(),'+$localStorage.currentUser.name.id+');'
+                            qq = 'insert into acc_gl_transaction(gl_status,bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes,posted_by,posting_date,created_by) '+
+                             'values(1,\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+$scope.ap.id+',0,18,\''+$scope.ap.notes+'\','+$localStorage.currentUser.name.id+',curdate(),'+$localStorage.currentUser.name.id+');'
                         }
                         else {
                             qq = 'update acc_gl_transaction set '+
@@ -797,6 +797,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                                 'code = \''+$scope.ap.code+'\', '+
                                 //'journal_type_id = '+$scope.journal_type_id+','+
                                 'notes = \''+$scope.ap.notes+'\', '+
+                                'gl_status = 1, '+
 								'modified_by='+$localStorage.currentUser.name.id+','+
 								'modified_date=curdate() '+
                                 'where id='+data.data[0].id
