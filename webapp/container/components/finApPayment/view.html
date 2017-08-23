@@ -611,6 +611,8 @@
                                                                   </editable-ui-select-match>
                                                                   <editable-ui-select-choices repeat="d in voucher[item.id] | filter: $select.search" style="width: 300px">
                                                                       <div ng-bind-html="trustAsHtml((d.code | highlight: $select.search))"></div>
+                                                                      <small ng-bind-html="trustAsHtml((d.ff | highlight: $select.search))"></small><br />
+                                                                      <small ng-bind-html="trustAsHtml((d.rr | highlight: $select.search))"></small>
                                                                   </editable-ui-select-choices>
                                                                 </span>
                                                             </td>

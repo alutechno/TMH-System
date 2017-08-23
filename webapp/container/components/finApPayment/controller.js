@@ -404,8 +404,11 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.setSupplier = function(e){
         $scope.ap.supplier_id=$scope.selected.supplier.selected.supplier_id
         if ($scope.trans.length>0){
-            queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,paid_amount,current_due_amount '+
-                'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
+            queryService.post(
+                'select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,paid_amount,current_due_amount,concat(\'Faktur:\',a.faktur_no)ff,concat(\'RR Number: \',y.code)rr  '+
+                        'from acc_ap_voucher a '+
+                        'left join inv_po_receive y on a.receive_id = y.id,'+
+                        '(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
                 	'and column_name = \'status\')b '+
                 'where a.status=b.value '+
                 'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
@@ -1054,6 +1057,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                             p_id: d[i].id,
 							voucher_id: d[i].voucher_id,
                             code:d[i].code,
+                            faktur_no:d[i].faktur_no,
                             open_date:d[i].open_date,
                             due_date:d[i].due_date,
                             status_id: d[i].status,
@@ -1070,8 +1074,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 					$scope.totalv.total+=parseFloat(d[i].total_amount)
 					$scope.totalv.current+=parseFloat(d[i].current_due_amount)
 		            $scope.totalv.payment += parseFloat(d[i].payment_amount)
-                    queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,paid_amount,current_due_amount '+
-                        'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
+                    queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,paid_amount,current_due_amount,concat(\'Faktur:\',a.faktur_no)ff,concat(\'RR Number: \',y.code)rr  '+
+                            'from acc_ap_voucher a '+
+                            'left join inv_po_receive y on a.receive_id = y.id,'+
+                            '(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
                             'and column_name = \'status\')b '+
                         'where a.status=b.value '+
                         'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
@@ -1270,6 +1276,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             id:($scope.trans.length+1),
             p_id: '',
             code:'',
+            faktur_no: '',
             open_date:'',
             due_date: '',
             status: '',
@@ -1288,11 +1295,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         }
         var qss = "select a.id,a.code,date_format(a.open_date,'%Y-%m-%d')open_date,date_format(a.due_date,'%Y-%m-%d')due_date, "+
                "a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name, "+
-               "paid_amount,current_due_amount, d.voucher_id, c.status  "+
+               "paid_amount,current_due_amount, d.voucher_id, c.status,concat(\'Faktur:\',a.faktur_no)ff,concat('RR Number: ',e.code)rr  "+
           "from acc_ap_voucher a "+
           "join (select * from table_ref where table_name = 'acc_ap_voucher'  and column_name = 'status')b on b.value = a.status "+
           "left join acc_cash_payment c on c.supplier_id = a.supplier_id "+
           "left join acc_payment_line_item d on d.payment_id = c.id and d.voucher_id = a.id "+
+          "left join inv_po_receive e on a.receive_id = e.id "+
          "where a.supplier_id= "+$scope.selected.supplier.selected.supplier_id+
          " and a.current_due_amount>0 "+
           "and d.voucher_id is null";
@@ -1383,12 +1391,14 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.voucherUp = function(d,text) {
         //queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
 
-        queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,ifnull(paid_amount,0)paid_amount,current_due_amount '+
-                'from acc_ap_voucher a,(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
+        queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,ifnull(paid_amount,0)paid_amount,current_due_amount,concat(\'Faktur:\',a.faktur_no)ff,concat(\'RR Number: \',y.code)rr  '+
+                'from acc_ap_voucher a '+
+                'left join inv_po_receive y on a.receive_id = y.id,'+
+                '(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
                     'and column_name = \'status\')b '+
                 'where a.status=b.value '+
             'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
-            'and lower(code) like \''+text.toLowerCase()+'%\' '+
+            'and lower(a.code) like \''+text.toLowerCase()+'%\' '+
             'and current_due_amount>0 ' +
             'order by id limit 50 ',undefined)
         .then(function(data){
