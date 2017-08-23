@@ -786,7 +786,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                         var qq = ''
                         if(data.data.length==0){
                             qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes,posted_by,posting_date,created_by) '+
-                             'values(\''+$scope.ap.open_date+'\','+$scope.ap.code+','+$scope.ap.id+',0,18,\''+$scope.ap.notes+'\','+$localStorage.currentUser.name.id+',curdate(),'+$localStorage.currentUser.name.id+');'
+                             'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+$scope.ap.id+',0,18,\''+$scope.ap.notes+'\','+$localStorage.currentUser.name.id+',curdate(),'+$localStorage.currentUser.name.id+');'
                         }
                         else {
                             qq = 'update acc_gl_transaction set '+
