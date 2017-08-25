@@ -1151,7 +1151,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 			if($scope.po.po_source=='DP'){
 				for (var i =0; i<$scope.items.length; i++) {
 					sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,bookkeeping_date) values("receiving '+$scope.po.code+
-						'",@id,(select account_id from mst_cost_center where id='+$scope.items[i].cost_center_id+'),\'D\','+($scope.items[i].rcv_qty*$scope.items[i].rcv_price)+','+$localStorage.currentUser.name.id+',curdate())')
+						'",@id,(select account_id from mst_cost_center where id='+$scope.selected.cost_center.selected.id+'),\'D\','+($scope.items[i].rcv_qty*$scope.items[i].rcv_price)+','+$localStorage.currentUser.name.id+',curdate())')
 				}
 			}else{
 				sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,bookkeeping_date) values("receiving '+$scope.po.code+
