@@ -382,13 +382,13 @@
                                         <table class="table  table-hover itemtable">
                                             <thead>
                                             <tr>
-                                                <th width="1%"><span ng-show="tableform.$visible">Action</span></th>
-                                                <th width="1%" >Code</th>
+                                                <th width="5%"><span ng-show="tableform.$visible">Action</span></th>
+                                                <th width="10%" >Code</th>
                                                 <th width="15%" >Product</th>
-                                                <th width="1%" >Unit</th>
+                                                <th width="5%" >Unit</th>
                                                 <th width="15%">Supplier</th>
                                                 <th width="10%" >Notes</th>
-                                                <th width="3%" style="text-align:center">Qty</th>
+                                                <th width="10%" style="text-align:center">Qty</th>
                                                 <th width="15%" style="text-align:center">Price</th>
                                                 <th width="15%" style="text-align:center">Amount</th>
                                             </tr>
@@ -415,7 +415,12 @@
                                                               {{item.product_name || 'Empty'}}
                                                           </editable-ui-select-match>
                                                           <editable-ui-select-choices repeat="d in products | filter: $select.search" style="width: 250px" >
-                                                              <div ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></div>
+															  <div ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></div>
+				                                              <small class="m-l-10" ng-bind-html="trustAsHtml((d.cat_text | highlight: $select.search))"></small><br />
+				                                              <small class="m-l-10" ng-bind-html="trustAsHtml((d.cost_text | highlight: $select.search))"></small><br />
+				                                              <small class="m-l-10" ng-bind-html="trustAsHtml((d.lastp_text | highlight: $select.search))"></small><br />
+				                                              <small class="m-l-10" ng-bind-html="trustAsHtml((d.lastd_text | highlight: $select.search))"></small><br />
+				                                              <small class="m-l-10" ng-bind-html="trustAsHtml((d.lasts_text | highlight: $select.search))"></small>
                                                           </editable-ui-select-choices>
                                                     </span>
                                                 </td>

@@ -35,12 +35,12 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
          'sum(case when b.transc_type = \'D\' then b.amount else 0 end) as debit_amount, '+
          'sum(case when b.transc_type = \'C\' then b.amount else 0 end) as credit_amount, '+
          '(sum(case when b.transc_type = \'D\' then b.amount else 0 end) - sum(case when b.transc_type = \'C\' then b.amount else 0 end)) balance '+
-    'from acc_gl_transaction a '+
+    'from (select a.* from acc_gl_transaction a,ref_journal_type b where a.journal_type_id = b.id and b.status=\'1\' and b.is_allow_manual = \'Y\') a '+
     'left join acc_gl_journal b on b.gl_id = a.id '+
     'left join (select * from table_ref '+
                 'where table_name = \'acc_gl_transaction\'  '+
                   'and column_name = \'gl_status\') c on a.gl_status = c.value '+
-	'left join ref_journal_type d on a.journal_type_id = d.id  '
+	'left join (select * from ref_journal_type where status = \'1\' and is_allow_manual = \'Y\') d on a.journal_type_id = d.id  '
         //'where a.status in (:status1,:status2,:status3)  '+
         //'and a.open_date beetween :date1 and :date2  '+
         //'and a.due_date between :date1and :date2'
@@ -263,7 +263,7 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
     })*/
 
     $scope.journal_type = []
-    queryService.get('select * from ref_journal_type where status = \'1\' order by id ',undefined)
+    queryService.get('select * from ref_journal_type where status = \'1\' and is_allow_manual = \'Y\' order by id ',undefined)
     .then(function(data){
         $scope.journal_type = data.data
     })
@@ -401,6 +401,7 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
         qwhereobj.period = ' (a.bookkeeping_date between \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-01\' and '+
         ' \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-'+$scope.selected.filter_month.selected.last+'\') '
 		qwhere = setWhere()
+        console.log('setWhere',qwhere)
 		$scope.dtInstance.reloadData(function(obj){
             console.log(obj)
         }, false)

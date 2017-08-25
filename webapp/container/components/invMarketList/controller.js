@@ -1104,14 +1104,48 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 
     $scope.products = []
 
-    queryService.get('select a.id,a.name,a.last_order_price,a.code product_code,b.name unit_name '+
-        'from mst_product a left join ref_product_unit b on a.unit_type_id=b.id where a.status=1 and is_ml=\'Y\' order by id limit 50 ',undefined)
+    //queryService.get('select a.id,a.name,a.last_order_price,a.code product_code,b.name unit_name '+
+    //    'from mst_product a left join ref_product_unit b on a.unit_type_id=b.id where a.status=1 and is_ml=\'Y\' order by id limit 50 ',undefined)
+    queryService.post('select a.id,a.code as product_code, a.name, e.name unit_name, '+
+        'b.name as category, c.name as subcategory, a.price_per_unit as on_hand_cost, '+
+        'a.last_order_price, a.last_order_date, d.name as last_supplier_name, '+
+        'a.last_received_price, a.last_received_date, '+
+        'concat(\'Cat: \',b.name,\', Sub: \',c.name) cat_text, '+
+        'cast(concat(\'On Hand Cost: \',a.price_per_unit) as char) cost_text, '+
+        'cast(concat(\'Last order price: \',ifnull(a.last_order_price,\'-\'),\', rcv price: \',ifnull(a.last_received_price,\'-\')) as char) lastp_text, '+
+        'cast(concat(\'Last order date: \',ifnull(date_format(last_order_date,\'%Y-%m-%d\'),\'-\'),\', rcv date: \',ifnull(date_format(last_received_date,\'%Y-%m-%d\'),\'-\')) as char) lastd_text, '+
+        'cast(concat(\'Last order supplier: \',d.name) as char) lasts_text '+
+        'from mst_product a '+
+        'left join ref_product_category b on b.id = a.category_id '+
+        'left join ref_product_subcategory c on c.id = a.subcategory_id '+
+        'left join mst_supplier d on d.id = a.last_supplier '+
+        'left join ref_product_unit e on a.unit_type_id = e.id '+
+        'where a.is_ml = \'Y\' '+
+        'and a.status = \'1\' '+
+        'order by id limit 50 ',undefined)
     .then(function(data){
         $scope.products = data.data
     })
     $scope.productUp = function(text) {
-        queryService.post('select a.id,a.name,a.last_order_price,a.code product_code,b.name unit_name '+
-            'from mst_product a left join ref_product_unit b on a.unit_type_id=b.id where a.status=1 and is_ml=\'Y\' and lower(a.name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
+        //queryService.post('select a.id,a.name,a.last_order_price,a.code product_code,b.name unit_name '+
+        //    'from mst_product a left join ref_product_unit b on a.unit_type_id=b.id where a.status=1 and is_ml=\'Y\' and lower(a.name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
+        queryService.post('select a.id,a.code as product_code, a.name, e.name unit_name,'+
+            'b.name as category, c.name as subcategory, a.price_per_unit as on_hand_cost, '+
+            'a.last_order_price, a.last_order_date, d.name as last_supplier_name, '+
+            'a.last_received_price, a.last_received_date, '+
+            'concat(\'Cat: \',b.name,\', Sub: \',c.name) cat_text, '+
+            'cast(concat(\'On Hand Cost: \',a.price_per_unit) as char) cost_text, '+
+            'cast(concat(\'Last order price: \',ifnull(a.last_order_price,\'-\'),\', rcv price: \',ifnull(a.last_received_price,\'-\')) as char) lastp_text, '+
+            'cast(concat(\'Last order date: \',ifnull(date_format(last_order_date,\'%Y-%m-%d\'),\'-\'),\', rcv date: \',ifnull(date_format(last_received_date,\'%Y-%m-%d\'),\'-\')) as char) lastd_text, '+
+            'cast(concat(\'Last order supplier: \',d.name) as char) lasts_text '+
+            'from mst_product a '+
+            'left join ref_product_category b on b.id = a.category_id '+
+            'left join ref_product_subcategory c on c.id = a.subcategory_id '+
+            'left join mst_supplier d on d.id = a.last_supplier '+
+            'left join ref_product_unit e on a.unit_type_id = e.id '+
+            'where a.is_ml = \'Y\' '+
+            'and a.status = \'1\' '+
+            'and lower(a.name) like \''+text.toLowerCase()+'%\' order by id limit 50 ',undefined)
         .then(function(data){
             $scope.products = data.data
         })

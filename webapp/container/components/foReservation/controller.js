@@ -1868,8 +1868,9 @@ function($scope, $state, $sce,$q, queryService, departmentService, accountTypeSe
     }
 
     $scope.profile.form.getCustomer= function(){
-        queryService.get('select id,concat(first_name,\' \',last_name)as name, first_name, last_name,title,date_format(birth_date,\'%Y-%m-%d\') from mst_customer where id='+$scope.profile.form.selected.customer.selected.id,undefined)
+        queryService.post('select id,concat(first_name,\' \',last_name)as name, first_name, last_name,title,date_format(birth_date,\'%Y-%m-%d\') from mst_customer where id='+$scope.profile.form.selected.customer.selected.id,undefined)
         .then(function(data){
+            console.log(data)
             $scope.profile.form.gf.first_name = data.data[0].first_name
             $scope.profile.form.gf.last_name = data.data[0].last_name
             $scope.profile.form.selected.title['selected'] = {id:data.data[0].title,name:data.data[0].title}

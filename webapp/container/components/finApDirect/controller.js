@@ -525,7 +525,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             if (qwhereobj[key].length>0) arrWhere.push(qwhereobj[key])
         }
         if (arrWhere.length>0){
-            strWhere = ' where ' + arrWhere.join(' and ')
+            strWhere = ' and ' + arrWhere.join(' and ')
         }
         return strWhere
     }
