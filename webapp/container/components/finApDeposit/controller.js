@@ -29,6 +29,8 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
     $scope.sums2 = 0
     $scope.sums3 = 0
     $scope.sums4 = 0
+    $scope.totalv = {due:0,payment:0,paid:0};
+    $scope.total = {debit:0,credit:0,balance:0}
 	$scope.disableAction = false;
     var qstring = 'select a.id,a.code, a.home_currency_exchange,a.check_no, '+
                 'DATE_FORMAT(a.open_date,\'%Y-%m-%d\') as open_date, a.status, b.name as \'status_name\', '+
@@ -39,7 +41,9 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
                'format(a.home_deposit_amount,0)hda, format(a.home_applied_amount,0)haa, format(a.home_balance_amount,0)hba,  '+
                'format(a.tot_deposit_amount,0)tda, format(a.tot_applied_amount,0)taa, format(a.tot_balance_amount,0)tba, '+
                'd.id bank_id,d.name bank_name,if(a.used_currency_id=1,\'-\',format(home_deposit_amount,0))hda2, '+
-               'DATE_FORMAT(a.issued_date,\'%Y-%m-%d\')issued_date,g.name issued_by_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\')created_date,h.name created_by_name '+
+               'DATE_FORMAT(a.issued_date,\'%Y-%m-%d\')issued_date,g.name issued_by_name,DATE_FORMAT(a.created_date,\'%Y-%m-%d\')created_date,h.name created_by_name, '+
+               'i.id gl_account_id, i.name gl_account_name, i.code gl_account_code, '+
+               'k.id supplier_account_id, k.name supplier_account_name, k.code supplier_account_code '+
           'from acc_cash_deposit a '+
           'left join (select value, name from table_ref  '+
                      'where table_name = \'acc_cash_deposit\'  '+
@@ -49,7 +53,10 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
           'left join mst_supplier e on a.supplier_id = e.id '+
           'left join ref_currency f on a.used_currency_id = f.id  '+
           'left join user g on a.issued_by=g.id '+
-          'left join user h on a.created_by=h.id '
+          'left join user h on a.created_by=h.id '+
+          'left join mst_ledger_account i on c.gl_account_id = i.id '+
+          'left join ref_supplier_type j on e.supplier_type_id = j.id '+
+          'left join mst_ledger_account k on j.deposit_account_id = k.id '
         //'where a.status in (:status1,:status2,:status3)  '+
         //'and a.open_date beetween :date1 and :date2  '+
         //'and a.due_date between :date1and :date2'
@@ -124,6 +131,62 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
         $scope.status = data.data
     })*/
 
+    $scope.setStatus = function(){
+        console.log('setStatus0',$scope.selected.status.selected,$scope.items)
+        if ($scope.selected.status.selected.id==3){
+
+            if ($scope.items.length==0){
+                if ($scope.selected.supplier.selected){
+                    console.log('setStatus',$scope.selected.supplier.selected)
+                    $scope.items.push(
+                        {
+                            id:1,
+                            account_id:$scope.selected.supplier.selected.supplier_account_id,
+                            account_code:$scope.selected.supplier.selected.supplier_account_code,
+                            account_name: $scope.selected.supplier.selected.supplier_account_name,
+                            notes: $scope.ap.notes,
+                            debit: $scope.totalv.payment,
+                            credit: 0,
+                            debit_f: $scope.totalv.payment,
+                            credit_f: 0,
+                            balance: 0,
+                            isNew: true
+                        }
+                    )
+                }
+                console.log('setStatus2',$scope.selected.bank_account.selected)
+                $scope.items.push(
+                    {
+                        id:2,
+                        //account_id:$scope.selected.bank_account.selected.ap_clearance_account_id,
+                        //account_code:$scope.selected.bank_account.selected.ap_clearance_account_code,
+                        //account_name: $scope.selected.bank_account.selected.ap_clearance_account_name,
+                        account_id:$scope.selected.bank_account.selected.gl_account_id,
+                        account_code:$scope.selected.bank_account.selected.gl_account_code,
+                        account_name: $scope.selected.bank_account.selected.gl_account_name,
+                        notes: $scope.ap.notes,
+                        debit: 0,
+                        credit: $scope.totalv.payment,
+                        debit_f: 0,
+                        credit_f: $scope.totalv.payment,
+                        balance: 0,
+                        isNew: true
+                    }
+                )
+                $scope.total = {debit:0,credit:0,balance:0}
+                for (var i=0;i<$scope.items.length;i++){
+                    $scope.total.debit += $scope.items[i].debit;
+                    $scope.total.credit += $scope.items[i].credit;
+                }
+
+            }
+
+
+        }
+
+    }
+
+
     $scope.bank = []
     queryService.get('select id,code,name from mst_cash_bank where status = \'1\' order by name ',undefined)
     .then(function(data){
@@ -167,12 +230,22 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
 
     $scope.isReceiving = true
     $scope.supplier = []
-    queryService.post('select id supplier_id,name supplier_name from mst_supplier order by name limit 50',undefined)
+    queryService.post("select a.id supplier_id,a.name supplier_name,c.id supplier_account_id,c.code supplier_account_code,c.name supplier_account_name, "+
+        "a.address supplier_address, a.bank1_name supplier_bank, a.bank1_account_no supplier_bank_acc_no, a.bank1_address supplier_bank_address "+
+        "from mst_supplier a, ref_supplier_type b, mst_ledger_account c "+
+        "where a.supplier_type_id = b.id "+
+        "and b.deposit_account_id = c.id "+
+        "and a.status='1' order by a.name limit 50",undefined)
     .then(function(data){
         $scope.supplier = data.data
     })
     $scope.findSupplier = function(text){
-        queryService.post('select id supplier_id, name supplier_name from mst_supplier where lower(name) like \'%'+text.toLowerCase()+'%\' order by name asc limit 50',undefined)
+        queryService.post("select a.id supplier_id,a.name supplier_name,c.id supplier_account_id,c.code supplier_account_code,c.name supplier_account_name, "+
+            "a.address supplier_address, a.bank1_name supplier_bank, a.bank1_account_no supplier_bank_acc_no, a.bank1_address supplier_bank_address "+
+            "from mst_supplier a, ref_supplier_type b, mst_ledger_account c "+
+            "where a.supplier_type_id = b.id "+
+            "and b.deposit_account_id = c.id "+
+            "and a.status='1' and lower(a.name) like '%"+text.toLowerCase()+"%' order by a.name asc limit 50",undefined)
         .then(function(data){
             $scope.supplier = data.data
         })
@@ -563,13 +636,13 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
             	home_applied_amount: $scope.ap.applied_idr,
             	tot_balance_amount: $scope.ap.balance_idr,
             	home_balance_amount: $scope.ap.balance_home,
-                created_by: $localStorage.currentUser.name.id,
-                created_date: globalFunction.currentDate()
+                modified_by: $localStorage.currentUser.name.id,
+                modified_date: globalFunction.currentDate()
             }
 
             queryService.post('update acc_cash_deposit SET ? WHERE id='+$scope.ap.id ,param)
             .then(function (result){
-                if ($scope.selected.status.selected.id=='1'){
+                /*if ($scope.selected.status.selected.id=='1'){
                     var qq = 'insert into acc_gl_transaction(bookkeeping_date,code,deposit_id,gl_status,journal_type_id,notes) '+
                      'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+$scope.ap.id+',\'0\',null,\''+$scope.ap.notes+'\');'
                     var q1 = 'insert into acc_gl_transaction'
@@ -636,6 +709,102 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
                         }).show();
 						$scope.disableAction = false;
                     })
+                }*/
+                if ($scope.selected.status.selected.id==0){
+                    var qstr = $scope.child.saveTableT(0)
+                    console.log('0',qstr)
+                    if (qstr.length>0){
+                        qstr = $scope.child.saveTableT($scope.ap.id)
+                        queryService.post(qstr.join(';'),undefined)
+                        .then(function (result2){
+                                $('#form-input').modal('hide')
+                                $scope.dtInstance.reloadData(function(obj){}, false)
+                                $('body').pgNotification({
+                                    style: 'flip',
+                                    message: 'Success Insert '+$scope.ap.code,
+                                    position: 'top-right',
+                                    timeout: 2000,
+                                    type: 'success'
+                                }).show();
+                                $scope.clear();
+        						$scope.disableAction = false;
+                        },
+                        function (err2){
+        					$scope.disableAction = false;
+                            $('#form-input').pgNotification({
+                                style: 'flip',
+                                message: 'Error Insert: '+err2.code,
+                                position: 'top-right',
+                                timeout: 2000,
+                                type: 'danger'
+                            }).show();
+                        })
+                    }
+
+                }
+                else if ($scope.selected.status.selected.id=='3'){
+                    queryService.get('select id from acc_gl_transaction where deposit_id= '+$scope.ap.id,undefined)
+                    .then(function(data){
+                        var qq = ''
+                        if(data.data.length==0){
+                            qq = 'insert into acc_gl_transaction(gl_status,bookkeeping_date,code,deposit_id,journal_type_id,notes,posted_by,posting_date,created_by) '+
+                             'values(1,\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+$scope.ap.id+',18,\''+$scope.ap.notes+'\','+$localStorage.currentUser.name.id+',curdate(),'+$localStorage.currentUser.name.id+');'
+                        }
+                        else {
+                            qq = 'update acc_gl_transaction set '+
+                                'bookkeeping_date = \''+$scope.ap.open_date+'\', '+
+                                'code = \''+$scope.ap.code+'\', '+
+                                //'journal_type_id = '+$scope.journal_type_id+','+
+                                'notes = \''+$scope.ap.notes+'\', '+
+                                'gl_status = 1, '+
+								'modified_by='+$localStorage.currentUser.name.id+','+
+								'modified_date=curdate() '+
+                                'where id='+data.data[0].id
+                        }
+                        queryService.post(qq ,undefined)
+                        .then(function (result2){
+                            var ids = '';
+                            if (result2.data.insertId) ids = result2.data.insertId
+                            else ids = data.data[0].id
+							var q2 = $scope.child.saveTable(ids)
+                            if (q2.length>0){
+                                queryService.post(q2.join(';') ,undefined)
+                                .then(function (result3){
+                                    $('#form-input').modal('hide')
+        							$scope.disableAction = false;
+                                    $scope.dtInstance.reloadData(function(obj){}, false)
+                                    $('body').pgNotification({
+                                        style: 'flip',
+                                        message: 'Success Update '+$scope.ap.code,
+                                        position: 'top-right',
+                                        timeout: 2000,
+                                        type: 'success'
+                                    }).show();
+                                    $scope.clear();
+                                },
+                                function(err3){
+        							$scope.disableAction = false;
+                                    console.log(err3)
+                                })
+                            }
+                            else {
+                                $('#form-input').modal('hide')
+                                $scope.disableAction = false;
+                                $scope.dtInstance.reloadData(function(obj){}, false)
+                                $('body').pgNotification({
+                                    style: 'flip',
+                                    message: 'Success Update '+$scope.ap.code,
+                                    position: 'top-right',
+                                    timeout: 2000,
+                                    type: 'success'
+                                }).show();
+                            }
+                        },
+                        function(err2){
+                            console.log(err2)
+    						$scope.disableAction = false;
+                        })
+                    })
                 }
                 else {
                     $('#form-input').modal('hide')
@@ -669,6 +838,7 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
     $scope.update = function(obj){
         queryService.post(qstring+ ' where a.id='+obj.id,undefined)
         .then(function(result){
+            console.log(result)
             $('#form-input').modal('show');
             $scope.ap = result.data[0]
             $scope.selected.bank['selected']= {
@@ -677,11 +847,17 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
             }
             $scope.selected.bank_account['selected'] = {
                 id: result.data[0].bank_account_id,
-                name: result.data[0].bank_account
+                name: result.data[0].bank_account,
+                gl_account_id: result.data[0].gl_account_id,
+                gl_account_code: result.data[0].gl_account_code,
+                gl_account_name: result.data[0].gl_account_name
             }
             $scope.selected.supplier['selected'] = {
                 supplier_id: result.data[0].supplier_id,
-                supplier_name: result.data[0].supplier_name
+                supplier_name: result.data[0].supplier_name,
+                supplier_account_id: result.data[0].supplier_account_id,
+                supplier_account_code: result.data[0].supplier_account_code,
+                supplier_account_name: result.data[0].supplier_account_name
             }
             $scope.selected.status['selected'] = {
                 id: result.data[0].status,
@@ -707,9 +883,17 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
             else if(result.data[0].status=="1"){
                 $scope.statusShow.push($scope.status[2])
             }
+            else if(result.data[0].status=="2"){
+                $scope.statusShow.push($scope.status[3])
+            }
             queryService.post(qstringt+ ' where b.deposit_id='+obj.id,undefined)
             .then(function(result2){
                 var d = result2.data
+                $scope.trans = []
+                $scope.transOri = []
+                $scope.totalv.payment=0
+    			$scope.totalv.total=0
+    			$scope.totalv.current=0
                 for (var i=0;i<d.length;i++){
                     $scope.trans.push(
                         {
@@ -726,6 +910,10 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
                             current_due_amount: d[i].current_due_amount
                         }
                     )
+                    $scope.totalv.total+=parseFloat(d[i].total_amount)
+					$scope.totalv.current+=parseFloat(d[i].current_due_amount)
+		            $scope.totalv.payment += parseFloat(d[i].applied_amount)
+
                 }
 
 
@@ -1159,8 +1347,15 @@ function($scope, $state, $stateParams,$sce, $templateCache,productCategoryServic
         $scope.items[d-1].amount = q * $scope.items[d-1].price
     }
     $scope.setValue = function(e,d,p,t){
+        console.log(d)
         if (t=='debit') $scope.items[d-1].debit = p
         if (t=='credit') $scope.items[d-1].credit = p
+
+        $scope.total = {debit:0,credit:0,balance:0}
+        for (var i=0;i<$scope.items.length;i++){
+            $scope.total.debit += parseFloat($scope.items[i].debit);
+            $scope.total.credit += parseFloat($scope.items[i].credit);
+        }
     }
 
 });

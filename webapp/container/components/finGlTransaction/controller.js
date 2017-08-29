@@ -732,9 +732,11 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
 			}
 
 			$scope.selected.status.selected={id:$scope.ap.status,value:$scope.ap.status,name:$scope.ap.status_name}
-            var qd = 'select a.*, b.name account_name,b.code account_code '+
+            var qd = 'select a.*, b.name account_name,b.code account_code,c.name type_name,d.name dept_name '+
                   'from acc_gl_journal a '+
                   'left join mst_ledger_account b on a.account_id = b.id '+
+                  'left join ref_ledger_account_type c on b.account_type_id = c.id '+
+                  'left join mst_department d on b.dept_id = d.id '+
                   'where gl_id='+$scope.ap.id
             queryService.get(qd,undefined)
             .then(function(result2){
@@ -872,7 +874,13 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
             isNew: true
         };
         $scope.items.push($scope.item)
-        queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
+        //queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
+        queryService.post("select a.id,a.code,a.name, b.name type_name, c.name dept_name "+
+            "from mst_ledger_account a "+
+            "left join ref_ledger_account_type b on a.account_type_id = b.id "+
+            "left join mst_department c on a.dept_id = c.id "+
+            "where is_allow_journal_entry = 'Y' "+
+            "order by a.id limit 20 ",undefined)
         .then(function(data){
             $scope.account[$scope.item.id] = data.data
         })
@@ -978,8 +986,13 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
     $scope.products = []
 
     $scope.accountUp = function(d,text) {
-        //queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
-        queryService.post('select id,code,name from mst_ledger_account where lower(code) like \''+text.toLowerCase()+'%\' order by id limit 10 ',undefined)
+        //queryService.post('select id,code,name from mst_ledger_account where lower(code) like \''+text.toLowerCase()+'%\' order by id limit 10 ',undefined)
+        queryService.post("select a.id,a.code,a.name, b.name type_name, c.name dept_name "+
+            "from mst_ledger_account a "+
+            "left join ref_ledger_account_type b on a.account_type_id = b.id "+
+            "left join mst_department c on a.dept_id = c.id "+
+            "where is_allow_journal_entry = 'Y' "+
+            "and (lower(a.code) like '"+text.toLowerCase()+"%' or lower(b.name) like '"+text.toLowerCase()+"%' or lower(c.name) like '"+text.toLowerCase()+"%') order by id limit 10 ",undefined)
         .then(function(data){
             $scope.account[d] = data.data
         })

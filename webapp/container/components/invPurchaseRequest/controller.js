@@ -420,11 +420,31 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 		if ($scope.pr.id.length==0 ){
             //exec creation
             $scope.child.totalQty = 0
+
             for (var i=0;i<$scope.items.length;i++){
                 if ($scope.items[i].product_id.toString().length>0||$scope.items[i].product_name.length>0) $scope.child.totalQty += parseFloat($scope.items[i].qty)
             }
+            var statCostCenter = true
+            if ($scope.direct=='direct'){
+                for (var i=0;i<$scope.items.length;i++){
+                    console.log($scope.items[i])
+                    if ($scope.items[i].cost_center_id){
+                        if ($scope.items[i].cost_center_id.toString().length>0) statCostCenter = true
+                        else {
+                            statCostCenter = false
+                            break
+                        }
+                    }
+                    else {
+                        statCostCenter = false
+                        break
+                    }
 
-            if ($scope.items.length>0 && $scope.child.totalQty>0){
+                }
+            }
+
+
+            if ($scope.items.length>0 && $scope.child.totalQty>0 && statCostCenter){
                 var param = {}
 				if($scope.direct=='non'){
 	                //queryService.post('select next_document_no(\'PR\',\''+$scope.ym+'\') as code',undefined)
@@ -531,9 +551,16 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             }
             else {
 				$scope.disableAction = false;
+                var msgErr = ''
+                if (!statCostCenter){
+                    msgErr = 'Cannot Add PR, Cost Center is Empty !!'
+                }
+                else {
+                    msgErr = 'Cannot Add PR, Item list or QTY is Empty !!'
+                }
                 $('#form-input').pgNotification({
                     style: 'flip',
-                    message: 'Cannot Add PR, Item list or QTY is Empty !!',
+                    message: msgErr,
                     position: 'top-right',
                     timeout: 10000,
                     type: 'danger'

@@ -501,8 +501,11 @@
                                                           {{item.account_code || 'Empty'}}
                                                       </editable-ui-select-match>
                                                       <editable-ui-select-choices repeat="d in account[item.id] | filter: $select.search">
-                                                          <div ng-bind-html="trustAsHtml((d.code | highlight: $select.search))"></div>
-                                                          <small ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></small>
+                                                          <div ng-bind-html="trustAsHtml((d.code | highlight: $select.search))">asd</div>
+                                                          <small ng-bind-html="trustAsHtml((d.name | highlight: $select.search))"></small><br />
+
+                                                          <small ng-bind-html="trustAsHtml(('Type:'+d.type_name | highlight: $select.search))">asd</small><br />
+                                                          <small ng-bind-html="trustAsHtml(('Dept:'+d.dept_name | highlight: $select.search))"></small>
                                                       </editable-ui-select-choices>
                                                 </span>
                                             </td>

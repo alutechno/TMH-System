@@ -1136,14 +1136,22 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 		if($scope.selected.delivery_status.selected.id==2){
 			var dt = new Date()
 			var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
-	        sqlitem.push('insert into acc_ap_voucher(code,source,receive_id,supplier_id,currency_id,total_amount,home_total_amount,status,open_date,due_date,created_by,inv_no,faktur_no,total_due_amount,current_due_amount)'+
+            sqlitem.push("set @glCode=(select next_item_code('AP',concat('AP/RR',date_format(curdate(),'%y'))))");
+	        /*sqlitem.push('insert into acc_ap_voucher(code,source,receive_id,supplier_id,currency_id,total_amount,home_total_amount,status,open_date,due_date,created_by,inv_no,faktur_no,total_due_amount,current_due_amount)'+
 		        'values(next_item_code("AP",concat("AP/RR",date_format(curdate(),"%y"))),\'RR\','+pr_id+','+$scope.selected.supplier.selected.id+','+$scope.po.currency_id+','+amt+
+		        ','+($scope.po.home_currency_exchange*amt)+',2,\''+$scope.po.delivery_date+'\',DATE_ADD("'+$scope.po.delivery_date+'", INTERVAL '+$scope.po.due_days+' DAY),'+$localStorage.currentUser.name.id+',"'+$scope.po.inv_no+'","'+$scope.po.faktur_no+'",'+amt+','+amt+')'
+			);*/
+            sqlitem.push('insert into acc_ap_voucher(code,source,receive_id,supplier_id,currency_id,total_amount,home_total_amount,status,open_date,due_date,created_by,inv_no,faktur_no,total_due_amount,current_due_amount)'+
+		        'values(@glCode,\'RR\','+pr_id+','+$scope.selected.supplier.selected.id+','+$scope.po.currency_id+','+amt+
 		        ','+($scope.po.home_currency_exchange*amt)+',2,\''+$scope.po.delivery_date+'\',DATE_ADD("'+$scope.po.delivery_date+'", INTERVAL '+$scope.po.due_days+' DAY),'+$localStorage.currentUser.name.id+',"'+$scope.po.inv_no+'","'+$scope.po.faktur_no+'",'+amt+','+amt+')'
 			);
 
 			sqlitem.push("set @id=(select last_insert_id())");
-			 sqlitem.push('insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes,bookkeeping_date,posted_by,posting_date,created_by)'+
-				' values (next_item_code(\'GL\',concat("AP",date_format(curdate(),"%y"))), 1, @id, \'0\', \''+$scope.po.code+'\',curdate(),'+$localStorage.currentUser.name.id+',curdate(),'+$localStorage.currentUser.name.id+') on duplicate KEY UPDATE '+
+			/*sqlitem.push('insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes,bookkeeping_date,posted_by,posting_date,created_by)'+
+				' values (next_item_code(\'GL\',concat("AP",date_format(curdate(),"%y"))), 1, @id, \'1\', \''+$scope.po.code+'\',curdate(),'+$localStorage.currentUser.name.id+',curdate(),'+$localStorage.currentUser.name.id+') on duplicate KEY UPDATE '+
+				'notes=\''+$scope.po.notes+'\'');*/
+            sqlitem.push('insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes,bookkeeping_date,posted_by,posting_date,created_by)'+
+				' values (@glCode, 1, @id, \'1\', \''+$scope.po.code+'\',curdate(),'+$localStorage.currentUser.name.id+',curdate(),'+$localStorage.currentUser.name.id+') on duplicate KEY UPDATE '+
 				'notes=\''+$scope.po.notes+'\'');
 			sqlitem.push("set @id=(select last_insert_id())");
 			sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,bookkeeping_date) values("receiving '+$scope.po.code+
