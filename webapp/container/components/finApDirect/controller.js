@@ -580,40 +580,62 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 $scope.pr.code = data.data[0].code
 			})*/
             if (statDetail == true){
-                var param = {
-                    code: $scope.ap.code,
-                	check_no: $scope.ap.check,
-                	bank_account_id: $scope.selected.bank_account.selected.id,
-                    payment_method: 1,
-                	status: $scope.selected.status.selected.id,
-                	open_date: $scope.ap.open_date,
-                    check_due_date: $scope.ap.due_date,
-                	prepared_date:$scope.ap.prepared_date,
-                	supplier_id: ($scope.selected.supplier.selected?$scope.selected.supplier.selected.supplier_id:null),
-                	prepare_notes: $scope.ap.notes,
-                	currency_id: $scope.selected.currency.selected.currency_id,
-                	currency_exchange: $scope.ap.exchange,
-                	total_amount: $scope.total.debit,
-                	home_total_amount: $scope.total.debit,
-                	created_by: $localStorage.currentUser.name.id,
-                    created_date: globalFunction.currentDate()
-                }
+                queryService.post('select next_item_code("AP",concat("DMT",date_format(curdate(),"%y"))) as code',undefined)
+                .then(function(data){
+                    $scope.ap.code = data.data[0].code
+                    var param = {
+                        code: $scope.ap.code,
+                        check_no: $scope.ap.check,
+                        bank_account_id: $scope.selected.bank_account.selected.id,
+                        payment_method: 1,
+                        status: $scope.selected.status.selected.id,
+                        open_date: $scope.ap.open_date,
+                        check_due_date: $scope.ap.due_date,
+                        prepared_date:$scope.ap.prepared_date,
+                        supplier_id: ($scope.selected.supplier.selected?$scope.selected.supplier.selected.supplier_id:null),
+                        prepare_notes: $scope.ap.notes,
+                        currency_id: $scope.selected.currency.selected.currency_id,
+                        currency_exchange: $scope.ap.exchange,
+                        total_amount: $scope.total.debit,
+                        home_total_amount: $scope.total.debit,
+                        created_by: $localStorage.currentUser.name.id,
+                        created_date: globalFunction.currentDate()
+                    }
 
-                queryService.post('insert into acc_cash_payment SET ?',param)
-                .then(function (result){
-                    var q2 = $scope.child.saveTable(0)
-                    if (q2.length > 0){
-                            var qq = ''
-                            qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
-                             'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+result.data.insertId+',\'0\','+$scope.journal_type_id+',\''+($scope.ap.notes?$scope.ap.notes:'')+'\');'
-                            queryService.post(qq ,undefined)
-                            .then(function (result2){
-                                var ids = '';
-                                ids = result2.data.insertId
-                                var q2 = $scope.child.saveTable(ids)
-                                if (q2.length>0){
-                                    queryService.post(q2.join(';') ,undefined)
-                                    .then(function (result3){
+                    queryService.post('insert into acc_cash_payment SET ?',param)
+                    .then(function (result){
+                        var q2 = $scope.child.saveTable(0)
+                        if (q2.length > 0){
+                                var qq = ''
+                                qq = 'insert into acc_gl_transaction(bookkeeping_date,code,payment_id,gl_status,journal_type_id,notes) '+
+                                 'values(\''+$scope.ap.open_date+'\',\''+$scope.ap.code+'\','+result.data.insertId+',\'0\','+$scope.journal_type_id+',\''+($scope.ap.notes?$scope.ap.notes:'')+'\');'
+                                queryService.post(qq ,undefined)
+                                .then(function (result2){
+                                    var ids = '';
+                                    ids = result2.data.insertId
+                                    var q2 = $scope.child.saveTable(ids)
+                                    if (q2.length>0){
+                                        queryService.post(q2.join(';') ,undefined)
+                                        .then(function (result3){
+                                            $('#form-input').modal('hide')
+                                            $scope.dtInstance.reloadData(function(obj){
+                                                // console.log(obj)
+                                            }, false)
+                                            $('body').pgNotification({
+                                                style: 'flip',
+                                                message: 'Success Insert '+$scope.ap.code,
+                                                position: 'top-right',
+                                                timeout: 2000,
+                                                type: 'success'
+                                            }).show();
+                                            $scope.disableAction = false;
+                                        },
+                                        function(err3){
+                                            console.log(err3)
+                                            $scope.disableAction = false;
+                                        })
+                                    }
+                                    else {
                                         $('#form-input').modal('hide')
                                         $scope.dtInstance.reloadData(function(obj){
                                             // console.log(obj)
@@ -626,57 +648,39 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                                             type: 'success'
                                         }).show();
                                         $scope.disableAction = false;
-                                    },
-                                    function(err3){
-                                        console.log(err3)
-                                        $scope.disableAction = false;
-                                    })
-                                }
-                                else {
-                                    $('#form-input').modal('hide')
-                                    $scope.dtInstance.reloadData(function(obj){
-                                        // console.log(obj)
-                                    }, false)
-                                    $('body').pgNotification({
-                                        style: 'flip',
-                                        message: 'Success Insert '+$scope.ap.code,
-                                        position: 'top-right',
-                                        timeout: 2000,
-                                        type: 'success'
-                                    }).show();
+                                    }
+                                },
+                                function(err2){
+                                    console.log(err2)
                                     $scope.disableAction = false;
-                                }
-                            },
-                            function(err2){
-                                console.log(err2)
-                                $scope.disableAction = false;
-                            })
+                                })
 
-                    }
-                    else {
-                        $('#form-input').modal('hide')
-                        $scope.dtInstance.reloadData(function(obj){}, false)
-                        $('body').pgNotification({
+                        }
+                        else {
+                            $('#form-input').modal('hide')
+                            $scope.dtInstance.reloadData(function(obj){}, false)
+                            $('body').pgNotification({
+                                style: 'flip',
+                                message: 'Success Insert '+$scope.ap.code,
+                                position: 'top-right',
+                                timeout: 2000,
+                                type: 'success'
+                            }).show();
+                            $scope.disableAction = false;
+                            $scope.clear();
+                        }
+                    },
+                    function (err){
+                        $('#form-input').pgNotification({
                             style: 'flip',
-                            message: 'Success Insert '+$scope.ap.code,
+                            message: 'Error Insert: '+err.code,
                             position: 'top-right',
                             timeout: 2000,
-                            type: 'success'
+                            type: 'danger'
                         }).show();
                         $scope.disableAction = false;
-                        $scope.clear();
-                    }
-                },
-                function (err){
-                    $('#form-input').pgNotification({
-                        style: 'flip',
-                        message: 'Error Insert: '+err.code,
-                        position: 'top-right',
-                        timeout: 2000,
-                        type: 'danger'
-                    }).show();
-    				$scope.disableAction = false;
-                })
+                    })
+                });
             }
             else {
                 $('#form-input').pgNotification({
@@ -688,8 +692,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 }).show();
                 $scope.disableAction = false;
             }
-
-
         }
         else {
             //exec update
