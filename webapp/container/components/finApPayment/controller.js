@@ -529,8 +529,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         //DTColumnBuilder.newColumn('age').withTitle('Age'),
         DTColumnBuilder.newColumn('bank_account').withTitle('Bank Account').withOption('width', '7%'),
         DTColumnBuilder.newColumn('currency_code').withTitle('Currency').withOption('width', '4%'),
-        DTColumnBuilder.newColumn('ta').withTitle('Total amount (IDR)').withOption('width', '6%').withClass('text-right'),
-        DTColumnBuilder.newColumn('hta').withTitle('Total Amount').withOption('width', '5%').withClass('text-right'),
+        DTColumnBuilder.newColumn('hta').withTitle('Payment Amount').withOption('width', '5%').withClass('text-right'),
         DTColumnBuilder.newColumn('approved_date').withTitle('Approved Date').withOption('width', '5%'),
         DTColumnBuilder.newColumn('approved_by_name').withTitle('Approved By').withOption('width', '4%'),
         DTColumnBuilder.newColumn('prepared_date').withTitle('Prepared Date').withOption('width', '5%'),
@@ -623,7 +622,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         $scope.finalStatus = false;
         $scope.statusShow.push($scope.status[0])
         $scope.selected.status['selected'] = $scope.status[0]
-        $('#form-input').modal('show')
+        $('#form-input').modal('show');
+        $('#tab-fillup1').show();
+        $('#tab-fillup2').hide();
+
         //var dt = new Date()
         //var ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
         //queryService.post('select cast(concat(\'PMT/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(seq(\'PMT\',\''+ym+'\'),4,\'0\')) as char) as code ',undefined)
@@ -670,71 +672,75 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             var total_amount = 0
             var home_total_amount = 0
             for (var i=0;i<$scope.trans.length;i++){
-                total_amount += $scope.trans[i].total_amount
-                home_total_amount += $scope.trans[i].home_total_amount
+                //total_amount += $scope.trans[i].total_amount
+                //home_total_amount += $scope.trans[i].home_total_amount
+                total_amount += $scope.trans[i].payment_amount
+                home_total_amount += ($scope.trans[i].payment_amount*$scope.ap.exchange)
             }
-			var param = {
-                code: $scope.ap.code,
-            	check_no: $scope.ap.check,
-            	bank_account_id: $scope.selected.bank_account.selected.id,
-                payment_method: 0,
-            	status: $scope.selected.status.selected.id,
-            	open_date: $scope.ap.open_date,
-                check_due_date: $scope.ap.due_date,
-            	prepared_date:$scope.ap.prepared_date,
-            	supplier_id: $scope.selected.supplier.selected.supplier_id,
-            	prepare_notes: $scope.ap.notes,
-            	currency_id: $scope.selected.currency.selected.currency_id,
-            	currency_exchange: $scope.ap.exchange,
-            	total_amount: total_amount,
-            	home_total_amount: home_total_amount,
-            	created_by: $localStorage.currentUser.name.id,
-                created_date: globalFunction.currentDate()
-            }
+            queryService.post('select next_item_code("AP",concat("PMT",date_format(curdate(),"%y"))) as code',undefined)
+            .then(function(data){
+                $scope.ap.code = data.data[0].code
+                console.log('apcode',$scope.ap.code)
+                var param = {
+                    code: $scope.ap.code,
+                	check_no: $scope.ap.check,
+                	bank_account_id: $scope.selected.bank_account.selected.id,
+                    payment_method: 0,
+                	status: $scope.selected.status.selected.id,
+                	open_date: $scope.ap.open_date,
+                    check_due_date: $scope.ap.due_date,
+                	prepared_date:$scope.ap.prepared_date,
+                	supplier_id: $scope.selected.supplier.selected.supplier_id,
+                	prepare_notes: $scope.ap.notes,
+                	currency_id: $scope.selected.currency.selected.currency_id,
+                	currency_exchange: $scope.ap.exchange,
+                	total_amount: total_amount,
+                	home_total_amount: home_total_amount,
+                	created_by: $localStorage.currentUser.name.id,
+                    created_date: globalFunction.currentDate()
+                }
 
-            queryService.post('insert into acc_cash_payment SET ?',param)
-            .then(function (result){
-				//queryService.post('select next_document_no(\'PMT\',\''+$scope.ym+'\')',undefined)
-				queryService.post('select next_item_code("AP",concat("PMT",date_format(curdate(),"%y"))) as code',undefined)
-				.then(function(data){
-					$scope.ap.code = data.data[0].code
-				})
-                var qstr = $scope.child.saveTableT(result.data.insertId)
-                queryService.post(qstr.join(';'),undefined)
-                .then(function (result2){
-					$scope.disableAction = false;
-                        $('#form-input').modal('hide')
-                        $scope.dtInstance.reloadData(function(obj){}, false)
-                        $('body').pgNotification({
+                queryService.post('insert into acc_cash_payment SET ?',param)
+                .then(function (result){
+    				//queryService.post('select next_document_no(\'PMT\',\''+$scope.ym+'\')',undefined)
+    				var qstr = $scope.child.saveTableT(result.data.insertId)
+                    queryService.post(qstr.join(';'),undefined)
+                    .then(function (result2){
+    					$scope.disableAction = false;
+                            $('#form-input').modal('hide')
+                            $scope.dtInstance.reloadData(function(obj){}, false)
+                            $('body').pgNotification({
+                                style: 'flip',
+                                message: 'Success Insert '+$scope.ap.code,
+                                position: 'top-right',
+                                timeout: 2000,
+                                type: 'success'
+                            }).show();
+                            $scope.clear();
+                    },
+                    function (err2){
+    					$scope.disableAction = false;
+                        $('#form-input').pgNotification({
                             style: 'flip',
-                            message: 'Success Insert '+$scope.ap.code,
+                            message: 'Error Insert: '+err2.code,
                             position: 'top-right',
                             timeout: 2000,
-                            type: 'success'
+                            type: 'danger'
                         }).show();
-                        $scope.clear();
+                    })
                 },
-                function (err2){
-					$scope.disableAction = false;
+                function (err){
+    				$scope.disableAction = false;
                     $('#form-input').pgNotification({
                         style: 'flip',
-                        message: 'Error Insert: '+err2.code,
+                        message: 'Error Insert: '+err.code,
                         position: 'top-right',
                         timeout: 2000,
                         type: 'danger'
                     }).show();
                 })
-            },
-            function (err){
-				$scope.disableAction = false;
-                $('#form-input').pgNotification({
-                    style: 'flip',
-                    message: 'Error Insert: '+err.code,
-                    position: 'top-right',
-                    timeout: 2000,
-                    type: 'danger'
-                }).show();
             })
+
 
         }
         else {
@@ -742,8 +748,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             var total_amount = 0
             var home_total_amount = 0
             for (var i=0;i<$scope.trans.length;i++){
-                total_amount += $scope.trans[i].total_amount
-                home_total_amount += $scope.trans[i].home_total_amount
+                total_amount += $scope.trans[i].payment_amount
+                home_total_amount += ($scope.trans[i].payment_amount*$scope.ap.exchange)
             }
             var param = {
                 code: $scope.ap.code,
@@ -784,6 +790,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             .then(function (result){
 
                 if ($scope.selected.status.selected.id=='3'){
+                    $scope.updateVoucher();
                     queryService.get('select id from acc_gl_transaction where payment_id= '+$scope.ap.id,undefined)
                     .then(function(data){
                         var qq = ''
@@ -959,6 +966,38 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         }
     }
 
+    $scope.updateVoucher = function(){
+        var qstr = []
+        var ids = []
+
+        for (var i=0;i<$scope.trans.length; i++){
+            qstr.push('update acc_ap_voucher set paid_amount=paid_amount+'+$scope.trans[i].payment_amount+',current_due_amount=total_amount-(paid_amount) where id='+$scope.trans[i].voucher_id);
+            ids.push($scope.trans[i].voucher_id)
+        }
+        console.log('update acc_ap_voucher',qstr.join(';'))
+        queryService.post(qstr.join(';'),undefined)
+        .then(function(data){
+            queryService.post('select b.id p_id,a.id v_id, a.total_amount, a.paid_amount, b.payment_amount, a.current_due_amount as balance '+
+                'from acc_ap_voucher a, acc_payment_line_item b '+
+                'where a.id=b.voucher_id  '+
+                'and a.id in ('+ids.join(',')+') and b.payment_id='+$scope.ap.id,undefined)
+            .then(function(data2){
+                var qstr2 = []
+                console.log('hasil query',data2)
+                for (var i=0;i<data2.data.length;i++){
+                    qstr2.push('update acc_payment_line_item set last_current_due_amount='+data2.data[i].balance+' where id='+data2.data[i].p_id)
+                }
+                console.log('update acc_payment_line_item',qstr2.join(';'))
+                queryService.post(qstr2.join(';'),undefined)
+                .then(function(data3){
+                    console.log('data3status',data3)
+
+                })
+            })
+
+        })
+    }
+
     $scope.update = function(obj){
         console.log(qstring+ ' and a.id='+obj.id);
         queryService.post(qstring+ ' and a.id='+obj.id,undefined)
@@ -1072,6 +1111,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                             faktur_no: d[i].faktur_no
                         }
                     )
+                    console.log('transvoucher', $scope.trans)
 					$scope.totalv.total+=parseFloat(d[i].total_amount)
 					$scope.totalv.current+=parseFloat(d[i].current_due_amount)
 		            $scope.totalv.payment += parseFloat(d[i].payment_amount)
