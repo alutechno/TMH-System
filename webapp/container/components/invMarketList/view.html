@@ -314,26 +314,20 @@
 						  <div class="col-md-3">
                               <button id="show-modal" class="btn btn-primary btn-cons pull-right" data-toggle="modal" data-target="#myModal" ><i class="fa fa-history"></i>History</button>
                           </div>
-                          <div class="col-md-3">
+						  <div class="col-md-3">
 							  <label>
-								<input type="radio" ng-model="selected.approval" value="0">
+								<input type="radio" ng-model="selected.approval" ng-disabled="rl.none==false" value="0">
 								None&nbsp;
 							  </label>
 							  <label>
-								<input type="radio" ng-model="selected.approval" value="1">
+								<input type="radio" ng-model="selected.approval" ng-disabled="rl.approve==false" value="1">
 								Approve&nbsp;
 							  </label>
 							  <label>
-								<input type="radio" ng-model="selected.approval" value="2">
+								<input type="radio" ng-model="selected.approval" ng-disabled="rl.reject==false" value="2">
 								Reject&nbsp;
 							  </label>
-                              <!--<div class="checkbox check-primary" >
-                                  <input type="checkbox" id="cbApprove" ng-checked="selected.approval==1" ng-true-value="1" ng-model="selected.approval" ng-disabled="updateState || approveState ||viewMode">
-                                  <label for="cbApprove">Approve</label>
-                                  <input type="checkbox" id="cbReject" ng-checked="selected.approval==2" ng-true-value="2" ng-model="selected.approval" ng-disabled="updateState || rejectState || viewMode">
-                                  <label for="cbReject">Reject</label>
-                              </div>-->
-                          </div>
+						  </div>
                       </div>
                   </div>
               </div>

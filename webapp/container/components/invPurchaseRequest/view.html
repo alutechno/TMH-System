@@ -327,15 +327,15 @@
 	                          </div>
                               <div class="col-md-3">
 								  <label>
-									<input type="radio" ng-model="selected.approval" value="0">
+									<input type="radio" ng-model="selected.approval" ng-disabled="rl.none==true" value="0">
 									None&nbsp;
 								  </label>
 								  <label>
-									<input type="radio" ng-model="selected.approval" value="1">
+									<input type="radio" ng-model="selected.approval" ng-disabled="rl.approve==true" value="1">
 									Approve&nbsp;
 								  </label>
 								  <label>
-									<input type="radio" ng-model="selected.approval" value="2">
+									<input type="radio" ng-model="selected.approval" ng-disabled="rl.reject==true" value="2">
 									Reject&nbsp;
 								  </label>
                               </div>

@@ -17,6 +17,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 	$scope.supp={}
 	$scope.tot_amt={};
 	$scope.tot_qty={};
+    $scope.rl = {
+        approve: false,
+        reject: false,
+        none: false
+    }
 
     /*var qstring = 'select a.id,a.code,a.purchase_notes, '+
     	'a.doc_status_id,d.name as doc_status_name,  '+
@@ -50,40 +55,47 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         'left join ref_product_unit d on b.unit_type_id = d.id';
     $scope.users = []
     var statDept = true
+    console.log('roles',$scope.el)
     for (var i=0;i<$scope.el.length;i++){
 
         if ($scope.el[i]=='approvalDeptHead'){
             $scope.approveState = true;
             $scope.rejectState = true;
             $scope.seqState = 2;
+
         }
         else if ($scope.el[i]=='approvalPoManager'){
             $scope.approveState = true;
             $scope.rejectState = true;
             $scope.seqState = 4;
             statDept = false;
+
         }
         else if ($scope.el[i]=='approvalCostControl'){
             $scope.approveState = true;
             $scope.rejectState = true;
 			$scope.seqState = 3;
             statDept = false;
+
         }
         else if ($scope.el[i]=='approvalFinance'){
             $scope.approveState = true;
             $scope.rejectState = false;
             statDept = false;
+
         }
         else if ($scope.el[i]=='approvalGm'){
             $scope.approveState = true;
             $scope.rejectState = false;
             statDept = false;
+
         }
         else if ($scope.el[i]=='orderReleased'){
             $scope.approveState = true;
             $scope.rejectState = true;
             $scope.seqState = 5;
             statDept = false;
+
         }
         else $scope[$scope.el[i]] = true;
 
@@ -354,6 +366,13 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         $scope.approveState = false
         $scope.rejectState = true
         $scope.selected.approval = 0
+        if ($scope.el.indexOf('buttonCreate')>-1 ){
+            $scope.rl = {
+                approve: true,
+                reject: true,
+                none: true
+            }
+        }
         //var dt = new Date()
         //$scope.ym = dt.getFullYear() + '/' + (dt.getMonth()<9?'0':'') + (dt.getMonth()+1)
         //queryService.post('select cast(concat(\'ML/\',date_format(date(now()),\'%Y/%m/%d\'), \'/\', lpad(currval(\'ML'+ym+'\'),4,\'0\')) as char) as code ',undefined)
@@ -832,37 +851,82 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                 $scope.releaseState = false
             }
             else $scope.releaseState = true
+            $scope.rl = {
+                approve: false,
+                reject: false,
+                none: false
+            }
             if ($scope.el.indexOf('approvalDeptHead')>-1 && (result.data[0].doc_status_id == 1 && result.data[0].approval_status == 1)){
                 //$scope.doc_status.push($scope.doc_status_def[0])
                 $scope.doc_status.push($scope.doc_status_def[1])
+                $scope.rl = {
+                    approve: true,
+                    reject: true,
+                    none: true
+                }
             }
 			if ($scope.el.indexOf('approvalCostControl')>-1 && (result.data[0].doc_status_id == 2 && result.data[0].approval_status == 1)){
                 //$scope.doc_status.push($scope.doc_status_def[1])
                 $scope.doc_status.push($scope.doc_status_def[2])
+                $scope.rl = {
+                    approve: true,
+                    reject: true,
+                    none: true
+                }
             }
             if ($scope.el.indexOf('approvalPoManager')>-1 && (result.data[0].doc_status_id == 3 && result.data[0].approval_status == 1)){
                 //$scope.doc_status.push($scope.doc_status_def[1])
                 $scope.doc_status.push($scope.doc_status_def[3])
+                $scope.rl = {
+                    approve: true,
+                    reject: true,
+                    none: true
+                }
             }
             if ($scope.el.indexOf('orderReleased')>-1 && (result.data[0].doc_status_id == 4 && result.data[0].approval_status == 1)){
                 //$scope.doc_status.push($scope.doc_status_def[2])
                 $scope.doc_status.push($scope.doc_status_def[4])
+                $scope.rl = {
+                    approve: true,
+                    reject: true,
+                    none: true
+                }
             }
             if ($scope.el.indexOf('approvalFinance')>-1 && (result.data[0].doc_status_id == 5 && result.data[0].approval_status == 1)){
                 //$scope.doc_status.push($scope.doc_status_def[3])
                 $scope.doc_status.push($scope.doc_status_def[5])
+                $scope.rl = {
+                    approve: true,
+                    reject: true,
+                    none: true
+                }
             }
             if ($scope.el.indexOf('approvalGm')>-1 && (result.data[0].doc_status_id == 6 && result.data[0].approval_status == 1)){
                 //$scope.doc_status.push($scope.doc_status_def[4])
                 $scope.doc_status.push($scope.doc_status_def[6])
+                $scope.rl = {
+                    approve: true,
+                    reject: true,
+                    none: true
+                }
             }
             if ($scope.el.indexOf('orderReleased')>-1 && (result.data[0].doc_status_id == 7 && result.data[0].approval_status == 1)){
                 //$scope.doc_status.push($scope.doc_status_def[4])
                 $scope.doc_status.push($scope.doc_status_def[7])
+                $scope.rl = {
+                    approve: true,
+                    reject: true,
+                    none: true
+                }
             }
             if ($scope.el.indexOf('buttonCreate')>-1 && (result.data[0].doc_status_id == 0 && result.data[0].approval_status == 1)){
                 //$scope.doc_status.push($scope.doc_status_def[4])
                 $scope.doc_status.push($scope.doc_status_def[0])
+                $scope.rl = {
+                    approve: true,
+                    reject: true,
+                    none: true
+                }
             }
             //else $scope.doc_status.push($scope.doc_status_def[0])
 
