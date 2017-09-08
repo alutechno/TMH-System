@@ -316,7 +316,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             "from mst_supplier a, ref_supplier_type b, mst_ledger_account c "+
             "where a.supplier_type_id = b.id "+
             "and b.payable_account_id = c.id "+
-            "status='1' and lower(name) like '%"+text.toLowerCase()+"%' order by name asc limit 50",undefined)
+            "and status='1' and lower(name) like '%"+text.toLowerCase()+"%' order by name asc limit 50",undefined)
         .then(function(data){
             $scope.supplier = data.data
         })
