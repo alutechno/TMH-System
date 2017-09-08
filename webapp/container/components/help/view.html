@@ -1,0 +1,41 @@
+
+<div class="full-height m-t-40">
+    <!-- TABLES VIEW -->
+    <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">Help Center
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row clearfix">
+                    <div class="col-sm-4">
+                        &nbsp;
+                    </div>
+                    <div class="col-sm-4">
+                        <div pg-form-group class="form-group form-group-default form-group-default-select ">
+                            <label>Select Module</label>
+                            <ui-select ng-model="module.selected" theme="bootstrap"  on-select="showPdf()">
+                                <ui-select-match placeholder="please select module..">{{$select.selected.name}}</ui-select-match>
+                                <ui-select-choices repeat="item in arrModule | filter: $select.search">
+                                    <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        &nbsp;
+                    </div>
+                </div>
+                <div class="row clearfix" >
+                    <div class="text-center col-md-12" id="pdfFile">No module choosen..</div>
+                    <object ng-show="content" data="{{content}}" type="application/pdf" style="width: 100%; height: 700px;"></object>
+
+                </div>
+
+            </div>
+        </div>
+    <!-- END PANEL -->
+    </div>
+</div>

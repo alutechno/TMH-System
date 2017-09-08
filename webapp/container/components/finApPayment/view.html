@@ -314,6 +314,7 @@
                         </div>
                     </div>
                     <div class="panel-body" >
+                        <div class="row m-l-10">
                         <div class="btn-group form-group-default-select pull-left  m-r-5">
                             <label>Status:</label><br />
                             <ui-select multiple ng-model="selected.filter_status" theme="select2" ng-disabled="disabled" style="width: 300px;" >
@@ -359,10 +360,22 @@
                                 </ui-select>
                              </div>
 
-                         <div class="btn-group dropdown-default  m-r-5" >
-                             <label>&nbsp;</label><br />
-                             <button id="show-modal" class="btn btn-primary pull-right m-r-5" ng-click="applyFilter()" ><i class="fa fa-search"></i> Apply</button>
+
+                      </div>
+                      <div class="row m-l-10 m-t-10">
+                          <div class="btn-group form-group-default-select pull-left  m-r-5">
+                              <label>Notes:</label><br />
+                              <input type="text" class="form-control pull-right" placeholder="Search Notes.." ng-model="selected.filter_notes">
                           </div>
+                          <div class="btn-group form-group-default-select pull-left  m-r-5">
+                              <label>Check No:</label><br />
+                              <input type="text" class="form-control pull-right" placeholder="Search Check No.." ng-model="selected.filter_check_no">
+                          </div>
+                          <div class="btn-group dropdown-default  m-r-5" >
+                              <label>&nbsp;</label><br />
+                              <button id="show-modal" class="btn btn-primary pull-right m-r-5" ng-click="applyFilter()" ><i class="fa fa-search"></i> Apply</button>
+                           </div>
+                      </div>
                     </div>
                 </div>
             </div>

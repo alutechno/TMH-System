@@ -25,41 +25,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 	$scope.supp={};
 	$scope.tot_amt={};
 	$scope.tot_qty={};
-    for (var i=0;i<$scope.el.length;i++){
 
-        if ($scope.el[i]=='approvalDeptHead'){
-            $scope.approveState = true;
-            $scope.rejectState = true;
-            $scope.seqState = 2;
-        }
-        else if ($scope.el[i]=='approvalPoManager'){
-            $scope.approveState = true;
-            $scope.rejectState = true;
-            $scope.seqState = 3;
-        }
-        else if ($scope.el[i]=='approvalCostControl'){
-            $scope.approveState = true;
-            $scope.rejectState = true;
-            $scope.seqState = 4;
-        }
-        else if ($scope.el[i]=='approvalFinance'){
-            $scope.approveState = true;
-            $scope.rejectState = false;
-            $scope.seqState = 5;
-        }
-        else if ($scope.el[i]=='approvalGm'){
-            $scope.approveState = true;
-            $scope.rejectState = false;
-            $scope.seqState = 6;
-        }
-        else if ($scope.el[i]=='prReleased'){
-            $scope.approveState = true;
-            $scope.rejectState = true;
-            $scope.seqState = 7;
-        }
-        else $scope[$scope.el[i]] = true;
-
-    }
     var qstring = 'select a.id,a.code,a.purchase_notes,a.doc_status_id, a.approval_status,a.revision_counter, '+
     	'b.name as doc_status_name,date_format(a.created_date,\'%Y-%m-%d %H:%i:%s\') created_date, e.name created_by, e.department_name,'+
         'DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date, '+
@@ -76,6 +42,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         'on a.created_by = e.id '+
     'where a.doc_status_id=b.id '+
 	'and a.doc_status_id!=8 '
+
     var qwhere = '';
     var qstringdetail = 'select a.id as p_id,a.cost_center_id,e.name cost_center_name,concat(\'Department: \',f.name) dept_desc,a.product_id,b.code as product_code,d.name unit_name,b.name as product_name,a.order_qty,a.net_price,a.order_amount,a.supplier_id,c.name as supplier_name,a.order_notes '+
         'from inv_pr_line_item a '+
@@ -91,7 +58,52 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         'left join ref_product_unit d on b.unit_type_id=d.id '+
 		'left join mst_cost_center e on a.cost_center_id=e.id '+
 		'left join mst_department f on f.id=e.department_id '
-    $scope.users = []
+    $scope.users = [];
+    var statDept = true
+    for (var i=0;i<$scope.el.length;i++){
+
+        if ($scope.el[i]=='approvalDeptHead'){
+            $scope.approveState = true;
+            $scope.rejectState = true;
+            $scope.seqState = 2;
+        }
+        else if ($scope.el[i]=='approvalPoManager'){
+            $scope.approveState = true;
+            $scope.rejectState = true;
+            $scope.seqState = 3;
+            statDept = false;
+        }
+        else if ($scope.el[i]=='approvalCostControl'){
+            $scope.approveState = true;
+            $scope.rejectState = true;
+            $scope.seqState = 4;
+            statDept = false;
+        }
+        else if ($scope.el[i]=='approvalFinance'){
+            $scope.approveState = true;
+            $scope.rejectState = false;
+            $scope.seqState = 5;
+            statDept = false;
+        }
+        else if ($scope.el[i]=='approvalGm'){
+            $scope.approveState = true;
+            $scope.rejectState = false;
+            $scope.seqState = 6;
+            statDept = false;
+        }
+        else if ($scope.el[i]=='prReleased'){
+            $scope.approveState = true;
+            $scope.rejectState = true;
+            $scope.seqState = 7;
+            statDept = false;
+        }
+        else $scope[$scope.el[i]] = true;
+
+
+    }
+    if (statDept == true){
+        qstring += 'and e.department_id= '+$localStorage.currentUser.name.department+' '
+    }
 
     $scope.role = {
         selected: []

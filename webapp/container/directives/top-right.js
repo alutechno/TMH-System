@@ -11,9 +11,9 @@ angular.module('app')
         link: function(scope, element, attrs) {
             var template = '<li><a ui-sref="app.profile"><i class="pg-settings_small"></i> Setting</a>'+
                 '</li>'+
-                '<li><a href="#"><i class="pg-outdent"></i> Feedback</a>'+
-                '</li>'+
-                '<li><a href="#"><i class="pg-signals"></i> Help</a>'+
+                //'<li><a href="#"><i class="pg-outdent"></i> Feedback</a>'+
+                //'</li>'+
+                '<li><a ui-sref="app.help"><i class="pg-layouts3"></i> Help</a>'+
                 '</li>'+
                 '<li class="bg-master-lighter">'+
                     '<a ui-sref="logout" class="clearfix">'+

@@ -17,39 +17,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 	$scope.supp={}
 	$scope.tot_amt={};
 	$scope.tot_qty={};
-    for (var i=0;i<$scope.el.length;i++){
 
-        if ($scope.el[i]=='approvalDeptHead'){
-            $scope.approveState = true;
-            $scope.rejectState = true;
-            $scope.seqState = 2;
-        }
-        else if ($scope.el[i]=='approvalPoManager'){
-            $scope.approveState = true;
-            $scope.rejectState = true;
-            $scope.seqState = 4;
-        }
-        else if ($scope.el[i]=='approvalCostControl'){
-            $scope.approveState = true;
-            $scope.rejectState = true;
-			$scope.seqState = 3;
-        }
-        else if ($scope.el[i]=='approvalFinance'){
-            $scope.approveState = true;
-            $scope.rejectState = false;
-        }
-        else if ($scope.el[i]=='approvalGm'){
-            $scope.approveState = true;
-            $scope.rejectState = false;
-        }
-        else if ($scope.el[i]=='orderReleased'){
-            $scope.approveState = true;
-            $scope.rejectState = true;
-            $scope.seqState = 5;
-        }
-        else $scope[$scope.el[i]] = true;
-
-    }
     /*var qstring = 'select a.id,a.code,a.purchase_notes, '+
     	'a.doc_status_id,d.name as doc_status_name,  '+
     	'DATE_FORMAT(a.delivery_date,\'%Y-%m-%d\') as delivery_date, cost_center_id,c.name as cost_center_name, '+
@@ -81,6 +49,49 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
         'left join mst_supplier c on a.supplier_id = c.id '+
         'left join ref_product_unit d on b.unit_type_id = d.id';
     $scope.users = []
+    var statDept = true
+    for (var i=0;i<$scope.el.length;i++){
+
+        if ($scope.el[i]=='approvalDeptHead'){
+            $scope.approveState = true;
+            $scope.rejectState = true;
+            $scope.seqState = 2;
+        }
+        else if ($scope.el[i]=='approvalPoManager'){
+            $scope.approveState = true;
+            $scope.rejectState = true;
+            $scope.seqState = 4;
+            statDept = false;
+        }
+        else if ($scope.el[i]=='approvalCostControl'){
+            $scope.approveState = true;
+            $scope.rejectState = true;
+			$scope.seqState = 3;
+            statDept = false;
+        }
+        else if ($scope.el[i]=='approvalFinance'){
+            $scope.approveState = true;
+            $scope.rejectState = false;
+            statDept = false;
+        }
+        else if ($scope.el[i]=='approvalGm'){
+            $scope.approveState = true;
+            $scope.rejectState = false;
+            statDept = false;
+        }
+        else if ($scope.el[i]=='orderReleased'){
+            $scope.approveState = true;
+            $scope.rejectState = true;
+            $scope.seqState = 5;
+            statDept = false;
+        }
+        else $scope[$scope.el[i]] = true;
+
+
+    }
+    if (statDept == true){
+        qstring += ' and e.department_id= '+$localStorage.currentUser.name.department+' '
+    }
 
     $scope.role = {
         selected: []

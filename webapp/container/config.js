@@ -147,6 +147,25 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
+        .state('app.help', {
+            url: "/help",
+            templateUrl: "container/components/help/view.html",
+            controller: 'HelpCtrl',
+            resolve: {
+                deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        'dataTables',
+                        'select'
+                    ], {
+                        insertBefore: '#lazyload_placeholder'
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load('container/components/help/controller.js');
+                    });
+
+                }]
+            }
+        })
         .state('login', {
             url: '/login',
             templateUrl: 'container/components/login/loginView.html',

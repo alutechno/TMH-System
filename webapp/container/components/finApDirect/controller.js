@@ -184,7 +184,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         filter_due_date: '',
         filter_month: {},
         filter_year: {},
-        filter_supplier: {}
+        filter_supplier: {},
+        filter_notes: '',
+        filter_check_no: ''
     }
     $scope.selected.period = $scope.period[0]
     $scope.status = [
@@ -469,7 +471,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         status: '',
         due_date: '',
         period: '',
-        supplier: ''
+        supplier: '',
+        notes: '',
+        check_no: ''
     }
     $scope.filter = function(type,event) {
         if (type == 'search'){
@@ -493,6 +497,15 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     }
 
     $scope.applyFilter = function(){
+        qwhereobj = {
+            text: '',
+            status: '',
+            due_date: '',
+            period: '',
+            supplier: '',
+            notes: '',
+            check_no: ''
+        }
         if($scope.selected.filter_status.length>0){
             var ids = []
             for (var i=0;i<$scope.selected.filter_status.length;i++){
@@ -510,6 +523,12 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         }
         if ($scope.selected.filter_supplier.selected){
             qwhereobj.supplier = ' a.supplier_id= '+$scope.selected.filter_supplier.selected.supplier_id+' '
+        }
+        if ($scope.selected.filter_notes.length>0){
+            qwhereobj.notes = ' lower(a.prepare_notes) like \'%'+$scope.selected.filter_notes.toLowerCase()+'%\' '
+        }
+        if ($scope.selected.filter_check_no.length>0){
+            qwhereobj.check_no = ' lower(a.check_no) like \'%'+$scope.selected.filter_check_no.toLowerCase()+'%\' '
         }
 
         qwhere = setWhere()

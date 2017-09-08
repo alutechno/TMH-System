@@ -9,6 +9,10 @@
                 </div>
                 <div class="pull-right" style="width: 60%;">
                     <button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openInitial('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Initial</button>
+                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openTransaction('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Transaction</button>
+
+                    <!--<button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>-->
 
                     <div class="input-group date col-sm-4 pull-right m-r-10">
                         <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
@@ -137,6 +141,257 @@
   <!-- /.modal-dialog -->
 </div>
 <!--END FORM INPUT-->
+<div class="modal fade slide-right form-input-full" id="form-detail" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content-wrapper">
+      <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
+      <div class="panel-heading">
+       <div class="panel-title">Detail Transaction</div>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
+        </button>
+       </div>
+        <div class="container-xs-height full-height">
+          <div class="row-xs-height">
+            <div class="modal-body col-xs-height col-top">
+
+      <!-- START FORM -->
+      <div class="panel panel-transparent m-t-20">
+                <div class="row clearfix">
+                  <div class="col-sm-8">
+                      <div >
+
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Supplier</th>
+                                    <th>Check No</th>
+                                    <th>Ref No</th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="d in details">
+                                    <td>
+                                        <div class="btn-group btn-group-xs" >
+                                            <button type="button" class="btn btn-default" title="Edit" ng-click="editBbDetail(d.id)" ><i class="fa fa-edit"></i></button>
+                                            <!--<button type="button" class="btn btn-default" title="Delete" ng-click="deleteBbDetail(d.id)" ><i class="fa fa-trash-o"></i></button>-->
+                                        </div>
+                                    </td>
+                                    <td>{{d.supplier}}</td>
+                                    <td>{{d.check_no}}</td>
+                                    <td>{{d.reference_no}}</td>
+                                    <td>{{d.debit}}</td>
+                                    <td>{{d.credit}}</td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                  </div>
+                  <div class="col-md-4" id="div-detail-cash">
+                      <form id="form-detail-cash" role="form" autocomplete="off" name="dodol" novalidate>
+                          <div class="row">
+                              <div class="col-sm-6">
+                                  <h6>Bank: {{bbDetails.bank_name}}</h6>
+
+                              </div>
+                              <div class="col-sm-6">
+                                  <h6>Bank Account: {{bbDetails.bank_account_name}}</h6>
+
+                              </div>
+
+                          </div>
+                          <div class="row">
+                              <div class="col-sm-6">
+
+                                  <h6>Book Date: {{bbDetails.book_date}}</h6>
+                              </div>
+                              <div class="col-sm-6">
+
+                                  <h6>Supplier: {{bbDetails.supplier}}</h6>
+                              </div>
+
+                          </div>
+                          <div class="row">
+
+                              <div class="col-sm-4">
+                                  <div pg-form-group class="form-group form-group-default" >
+                                      <label>Check No</label>
+                                      <input type="text" class="form-control" name="name" ng-model="bbDetails.check_no" >
+                                  </div>
+                              </div>
+                              <div class="col-sm-4">
+                                  <div pg-form-group class="form-group form-group-default" >
+                                      <label>Reference No</label>
+                                      <input type="text" class="form-control" name="name" ng-model="bbDetails.reference_no" >
+                                  </div>
+                              </div>
+                              <div class="col-sm-4">
+                                  <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : bbDetails.amount.$invalid && !bbDetails.amount.$pristine }" >
+                                      <label>Amount</label>
+                                      <input type="text" format="number" class="form-control" name="name" ng-model="bbDetails.total_amount" >
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="row">
+                              <div class="col-sm-8">
+                                  <div pg-form-group class="form-group form-group-default ">
+                                      <label>Notes</label>
+                                      <input type="text" class="form-control" name="notes" ng-model="bbDetails.notes">
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="row">
+                              <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTableT(0)" class="btn btn-primary"> Save</button>
+                              <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTableT(0)" class="btn btn-primary"> Delete</button>
+                              <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
+                          </div>
+
+
+                      </form>
+
+                  </div>
+
+
+              </div>
+      </div>
+      <!-- END FORM -->
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<div class="modal fade slide-right form-input-full" id="form-detail-input" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content-wrapper">
+      <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
+      <div class="panel-heading">
+       <div class="panel-title">Entry Transaction</div>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
+        </button>
+       </div>
+        <div class="container-xs-height full-height">
+          <div class="row-xs-height">
+            <div class="modal-body col-xs-height col-top">
+
+      <!-- START FORM -->
+      <div class="panel panel-transparent m-t-20">
+              <div class="row clearfix" id="div-detail-cash">
+                  <form id="form-detail-cash" role="form" autocomplete="off" name="dodol" novalidate>
+                      <div class="row">
+                          <div class="col-sm-4">
+                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.bank.selected.$invalid && !selected.bank.selected.$pristine }">
+                                  <label>Bank</label>
+                                  <ui-select ng-model="selected.bank.selected" theme="bootstrap" on-select="setBankAccount($item)" validate-attached-form-element required >
+                                      <ui-select-match placeholder="select bank">{{$select.selected.name}}</ui-select-match>
+                                      <ui-select-choices repeat="item in bank | filter: $select.search">
+                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                      </ui-select-choices>
+                                  </ui-select>
+                              </div>
+                          </div>
+                          <div class="col-sm-4">
+                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.bank_account.selected.$invalid && !selected.bank_account.selected.$pristine }">
+                                  <label>Bank Account</label>
+                                  <ui-select ng-model="selected.bank_account.selected" theme="bootstrap" validate-attached-form-element required >
+                                      <ui-select-match placeholder="select bank account">{{$select.selected.name}}</ui-select-match>
+                                      <ui-select-choices repeat="item in bank_account | filter: $select.search">
+                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                      </ui-select-choices>
+                                  </ui-select>
+                              </div>
+                          </div>
+                          <div class="col-sm-4">
+                              <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : bb.date.$invalid && !bb.date.$pristine }">
+                                  <label>Open Date</label>
+                                  <input type="text" class="form-control" ng-model="bb.date" name="open_date" placeholder="Pick a date" id="openDate" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" validate-attached-form-element required >
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-sm-4">
+                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.supplier.selected.$invalid && !selected.supplier.selected.$pristine }">
+                                  <label>Supplier</label>
+                                  <ui-select ng-model="selected.supplier.selected" theme="bootstrap" on-select="setSupplier($item)" ng-keyup="findSupplier($select.search)" validate-attached-form-element required >
+                                      <ui-select-match placeholder="select supplier">{{$select.selected.supplier_name}}</ui-select-match>
+                                      <ui-select-choices repeat="item in supplier | filter: $select.search">
+                                          <span ng-bind-html="trustAsHtml((item.supplier_name | highlight: $select.search))"></span>
+                                      </ui-select-choices>
+                                  </ui-select>
+                              </div>
+                          </div>
+                          <div class="col-sm-4">
+                              <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : bb.check_no.$invalid && !bb.check_no.$pristine }" >
+                                  <label>Check No</label>
+                                  <input type="text" class="form-control" name="check_no" ng-model="bb.check_no" >
+                              </div>
+                          </div>
+                          <div class="col-sm-4">
+                              <div pg-form-group class="form-group form-group-default" >
+                                  <label>Reference No</label>
+                                  <input type="text" class="form-control" name="refno" ng-model="bb.reference_no" >
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <!--<div class="col-sm-3">
+                              <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.transc_type.selected.$invalid && !selected.transc_type.selected.$pristine }">
+                                  <label>Type</label>
+                                  <ui-select ng-model="selected.transc_type.selected" theme="bootstrap" validate-attached-form-element required >
+                                      <ui-select-match placeholder="add type">{{$select.selected.name}}</ui-select-match>
+                                      <ui-select-choices repeat="item in transc_type | filter: $select.search">
+                                          <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                      </ui-select-choices>
+                                  </ui-select>
+                              </div>
+                          </div>-->
+                          <div class="col-sm-3">
+                              <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : bb.amount.$invalid && !bb.amount.$pristine }" >
+                                  <label>Amount</label>
+                                  <input type="text" format="number" class="form-control" name="name" ng-model="bb.amount" >
+                              </div>
+                          </div>
+                          <div class="col-sm-8">
+                              <div pg-form-group class="form-group form-group-default " >
+                                  <label>Notes</label>
+                                  <input type="text" class="form-control" name="notes" ng-model="bb.notes" >
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="divider"></div>
+                          <button class="btn btn-primary" type="submit" ng-disabled="dodol.$invalid" ng-click="submit()">Save</button>
+
+                          <!--<button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTableT(0)" class="btn btn-primary"> Save Item</button>
+                          <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>-->
+                          <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
+                      </div>
+
+
+                  </form>
+
+              </div>
+      </div>
+      <!-- END FORM -->
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
 
 <!-- START MODAL CONTENT-->
 <div class="modal fade slide-up disable-scroll" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="false">
@@ -156,3 +411,56 @@
     </div>
 </div>
 <!-- END MODAL CONTENT-->
+<div class="modal fade slide-up disable-scroll" id="form-initial" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content-wrapper">
+            <div class="modal-content">
+                <div class="modal-body text-center m-t-20">
+                    <h4 class="no-margin p-b-10">Entry Initial Data</h4>
+                    <div class="col-sm-12">
+                        <div pg-form-group class="form-group form-group-default form-group-default-select " >
+                            <label>Bank</label>
+                            <ui-select ng-model="selected.bank.selected" theme="bootstrap" on-select="setBankAccount($item)" >
+                                <ui-select-match placeholder="select bank">{{$select.selected.name}}</ui-select-match>
+                                <ui-select-choices repeat="item in bank | filter: $select.search">
+                                    <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.bank_account.selected.$invalid && !selected.bank_account.selected.$pristine }">
+                            <label>Bank Account</label>
+                            <ui-select ng-model="selected.bank_account.selected" theme="bootstrap" validate-attached-form-element required >
+                                <ui-select-match placeholder="select bank account">{{$select.selected.name}}</ui-select-match>
+                                <ui-select-choices repeat="item in bank_account | filter: $select.search">
+                                    <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div pg-form-group class="form-group form-group-default ">
+                            <label>Date</label>
+                            <input type="text" class="form-control" ng-model="bb.date" name="bb_date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ui-jq="popover" data-container="body" data-placement="top" data-content="This field is required" data-trigger="manual" >
+                            <!--<input type="text" class="form-control" name="date" ng-model="ap.date" >-->
+
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div pg-form-group class="form-group form-group-default required" >
+                            <label>Opening/Closing Amt</label>
+                            <input type="text" class="form-control" format="number" name="name" ng-model="bb.amount" >
+                        </div>
+                    </div>
+
+                    <div >
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="execInitial()" ng-disabled="bb.amount==0||bb.date==''||!selected.bank_account.selected">Save</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
