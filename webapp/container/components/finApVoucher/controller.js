@@ -1324,7 +1324,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         //queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
         queryService.post('select id,code,name from mst_ledger_account where lower(code) like \''+text.toLowerCase()+'%\' order by id limit 10 ',undefined)
         .then(function(data){
-            $scope.account[d-1] = data.data
+            $scope.account[d] = data.data
         })
     }
     /*$scope.supplierUp = function(text,d) {
