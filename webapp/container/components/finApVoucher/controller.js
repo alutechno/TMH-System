@@ -1242,7 +1242,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             isNew: true
         };
         $scope.items.push($scope.item)
-        queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
+        queryService.get('select id,code,name from mst_ledger_account where is_allow_journal_entry=\'Y\' order by id limit 20 ',undefined)
         .then(function(data){
             $scope.account[$scope.item.id] = data.data
         })
@@ -1322,7 +1322,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 
     $scope.accountUp = function(d,text) {
         //queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
-        queryService.post('select id,code,name from mst_ledger_account where lower(code) like \''+text.toLowerCase()+'%\' order by id limit 10 ',undefined)
+        queryService.post('select id,code,name from mst_ledger_account where is_allow_journal_entry=\'Y\' and lower(code) like \''+text.toLowerCase()+'%\' order by id limit 10 ',undefined)
         .then(function(data){
             $scope.account[d] = data.data
         })
