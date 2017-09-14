@@ -9,6 +9,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.buttonUpdate = false;
     $scope.buttonDelete = false;
     $scope.addItem = false;
+    $scope.correction = false;
     $scope.child = {}
     $scope.items = []
     $scope.itemsOri = []
@@ -16,10 +17,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
     $scope.finalState = false;
 	$scope.rcv_qty=0;
 	$scope.amount=0;
+    $scope.closedTrans = false;
 	$scope.disableAction = false;
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
+
 	var date = new Date();
 	date.setDate(date.getDate());
 
@@ -432,6 +435,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             $scope.clear()
         }
         $scope.finalState = false;
+        $scope.closedTrans = false;
         $('#form-input').modal('show')
         $scope.addDetail(0)
         //var dt = new Date()
@@ -786,6 +790,12 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 			}else{
 				$scope.delivery_status = [$scope.delivery_status_all[0],$scope.delivery_status_all[1]]
 			}
+            if(result.data[0].status_id>=2){
+                $scope.closedTrans = true;
+            }
+            else {
+                $scope.closedTrans = false;
+            }
 			if(flag==undefined ){
 	            $scope.selected.delivery_status = {
 	                selected: {
@@ -802,6 +812,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                     name:result.data[0].supplier_name
                 }
             }
+
 
             $scope.items = []
             $scope.itemsOri = []
