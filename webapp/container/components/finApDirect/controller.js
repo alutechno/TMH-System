@@ -833,37 +833,96 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
 
                         }
-                        /*else if($scope.selected.status.selected.id=='3'){
-                            queryService.post('select id from acc_gl_transaction where payment_id='+$scope.ap.id ,undefined)
-                            .then(function (result2){
-                                var v_gl_id = result2.data[0].id
-                                var q2 = $scope.child.saveTable(v_gl_id)
-                                queryService.post(q2.join(';') ,undefined)
-                                .then(function (result3){
-                                    $('#form-input').modal('hide')
-                                    $scope.dtInstance.reloadData(function(obj){
-                                        // console.log(obj)
-                                    }, false)
-                                    $('body').pgNotification({
-                                        style: 'flip',
-                                        message: 'Success Update '+$scope.ap.code,
-                                        position: 'top-right',
-                                        timeout: 2000,
-                                        type: 'success'
-                                    }).show();
-        							$scope.disableAction = false;
+
+                        else {
+                            $('#form-input').modal('hide')
+        					$scope.disableAction = false;
+                            $scope.dtInstance.reloadData(function(obj){
+                                // console.log(obj)
+                            }, false)
+                            $('body').pgNotification({
+                                style: 'flip',
+                                message: 'Success Update '+$scope.ap.code,
+                                position: 'top-right',
+                                timeout: 2000,
+                                type: 'success'
+                            }).show();
+                        }
+                    }
+                    else if ($scope.selected.status.selected.id=='0'){
+                        var q2 = $scope.child.saveTable(0)
+                        console.log(q2)
+                        if ($scope.items.length > 0){
+                            queryService.get('select id from acc_gl_transaction where payment_id= '+$scope.ap.id,undefined)
+                            .then(function(data){
+                                console.log(data)
+                                var qq = ''
+                                if(data.data.length==0){
+                                    qq = 'insert into acc_gl_transaction(code,bookkeeping_date,payment_id,gl_status,journal_type_id,notes) '+
+                                     'values(\''+$scope.ap.code+'\',\''+$scope.ap.open_date+'\','+$scope.ap.id+',\'0\','+$scope.journal_type_id+',\''+$scope.ap.notes+'\');'
+                                }
+                                else {
+                                    qq = 'update acc_gl_transaction set '+
+                                        'bookkeeping_date = \''+$scope.ap.open_date+'\', '+
+                                        //'code = \''+$scope.ap.code+'\', '+
+                                        'gl_status = 0, '+
+                                        'journal_type_id = '+$scope.journal_type_id+','+
+                                        'notes = \''+$scope.ap.notes+'\' '+
+                                        'where id='+data.data[0].id
+                                }
+                                console.log(qq)
+                                queryService.post(qq ,undefined)
+                                .then(function (result2){
+                                    var ids = '';
+                                    if (result2.data.insertId) ids = result2.data.insertId
+                                    else ids = data.data[0].id
+                                    var q2 = $scope.child.saveTable(ids)
+                                    if (q2.length>0){
+                                        queryService.post(q2.join(';') ,undefined)
+                                        .then(function (result3){
+                                            $('#form-input').modal('hide')
+                                            $scope.dtInstance.reloadData(function(obj){
+                                                // console.log(obj)
+                                            }, false)
+                                            $('body').pgNotification({
+                                                style: 'flip',
+                                                message: 'Success Update '+$scope.ap.code,
+                                                position: 'top-right',
+                                                timeout: 2000,
+                                                type: 'success'
+                                            }).show();
+                							$scope.disableAction = false;
+                                        },
+                                        function(err3){
+                                            console.log(err3)
+                							$scope.disableAction = false;
+                                        })
+                                    }
+                                    else {
+                                        $('#form-input').modal('hide')
+                                        $scope.dtInstance.reloadData(function(obj){
+                                            // console.log(obj)
+                                        }, false)
+                                        $('body').pgNotification({
+                                            style: 'flip',
+                                            message: 'Success Update '+$scope.ap.code,
+                                            position: 'top-right',
+                                            timeout: 2000,
+                                            type: 'success'
+                                        }).show();
+                                        $scope.disableAction = false;
+                                    }
+
                                 },
-                                function(err3){
-                                    console.log(err3)
-        							$scope.disableAction = false;
+                                function(err2){
+                                    console.log(err2)
+            						$scope.disableAction = false;
                                 })
-                            },
-                            function(err2){
-                                console.log(err2)
-        						$scope.disableAction = false;
                             })
 
-                        }*/
+
+                        }
+
                         else {
                             $('#form-input').modal('hide')
         					$scope.disableAction = false;
