@@ -12,7 +12,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     for (var i=0;i<$scope.el.length;i++){
         $scope[$scope.el[i]] = true;
     }
-    var qstring = 'select a.id,a.bank_account_id,a.currency_id,date_format(a.book_date,\'%Y-%m-%d\')book_date,a.opening_amount,a.debit_amount,a.credit_amount, '+
+    var qstring =
+    'select a.id,a.bank_account_id,a.currency_id,date_format(a.book_date,\'%Y-%m-%d\')book_date,a.opening_amount,a.debit_amount,a.credit_amount, '+
     	'a.closing_amount,b.code bank_account_code, b.name bank_account_name,c.name bank_name,b.bank_id bank_id, '+
         'b.gl_account_id,b.ap_clearance_account_id, d.code gl_account_code, d.name gl_account_name, '+
         'e.code ap_account_code, e.name ap_account_name,f.home_currency_exchange '+
@@ -21,7 +22,29 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     'left join mst_cash_bank c on c.id = b.bank_id '+
     'left join mst_ledger_account d on b.gl_account_id = d.id '+
     'left join mst_ledger_account e on b.ap_clearance_account_id = e.id '+
-    'left join ref_currency f on a.currency_id = f.id '
+    'left join ref_currency f on a.currency_id = f.id ';
+    var qstring1 =
+    "select date_format(book_date,'%Y-%m-%d')book_date,date_format(book_date,'%Y%m%d')bd, ifnull(cast(previous_operation as decimal),0)opening_amount, "+
+        "total_debit debit_amount,total_credit credit_amount,total, "+
+    	"(total+ifnull(cast(previous_operation as decimal),0)) closing_amount, "+
+
+        "format(ifnull(cast(previous_operation as decimal),0),0)opening_amount_d, "+
+        "format(total_debit,0) debit_amount_d,format(total_credit,0) credit_amount_d, "+
+    	"format(total+ifnull(cast(previous_operation as decimal),0),0) closing_amount_d "+
+
+    "from ( "+
+    	"select "+
+    	"y.*, @prev AS previous_operation, @prev := (total+ifnull(cast(@prev as decimal),0)) "+
+    	"from "+
+    		"(select book_date,sum(if(transc_type='C',total_amount,0)*-1) total_credit,sum(if(transc_type='D',total_amount,0))total_debit, "+
+    			"sum(if(transc_type='D',total_amount,0)-if(transc_type='C',total_amount,0))total "+
+    		"from acc_cash_bank_book a ";
+
+    var qstring2 =
+        "group by book_date) y,  "+
+        "(select @prev:=NULL) vars "+
+    "order by book_date "+
+    ") a ";
     var qwhere = ''
 
     $scope.users = []
@@ -46,6 +69,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         opening: '',
         closing: '',
         amount: 0,
+        debit: 0,
+        credit: 0,
         check_no: '',
         reference_no:''
     }
@@ -118,6 +143,15 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.bank_account = data.data
         })
     }
+    $scope.bank_account_filter = []
+    queryService.get("select a.id, a.code,a.name from mst_cash_bank_account a, (select distinct bank_account_id from acc_cash_bank_book)b "+
+        "where a.id=b.bank_account_id "+
+        "and status=1 order by name",undefined)
+    .then(function(data){
+        $scope.bank_account_filter = data.data
+        $scope.selected.filter_bank_account.selected = data.data[0]
+        $scope.applyFilter();
+    })
     $scope.supplier = []
     queryService.post("select a.id supplier_id,a.name supplier_name,c.id supplier_account_id,c.code supplier_account_code,c.name supplier_account_name, "+
         "a.address supplier_address, a.bank1_name supplier_bank, a.bank1_account_no supplier_bank_acc_no, a.bank1_address supplier_bank_address "+
@@ -140,6 +174,12 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             $scope.supplier = data.data;
             console.log("$scope.supplier",$scope.supplier);
         })
+    }
+    $scope.setDebit = function(){
+        $scope.bb.credit = 0
+    }
+    $scope.setCredit = function(){
+        $scope.bb.debit = 0
     }
 
     $scope.arrActive = [
@@ -165,14 +205,15 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         }
     ]
     $scope.bank_account = []
-    queryService.get('select id,name from mst_cash_bank_account where status=1',undefined)
+    /*queryService.get('select id,name from mst_cash_bank_account where status=1',undefined)
     .then(function(data){
         console.log(data)
         $scope.bank_account = data.data
-    })
+    })*/
 
     $scope.filterVal = {
-        search: ''
+        search: '',
+        bank_account: ''
     }
     $scope.showAdvance = false
     $scope.openAdvancedFilter = function(val){
@@ -214,7 +255,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             "authorization":  'Basic ' + $localStorage.mediaToken
         },
         data: function (data) {
-            data.query = qstring + qwhere;
+            //data.query = qstring + qwhere;
+            data.query = qstring1 + qwhere + qstring2;
         }
     })
     .withDataProp('data')
@@ -223,25 +265,25 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     .withOption('bLengthChange', false)
     .withOption('bFilter', false)
     .withPaginationType('full_numbers')
-    .withOption('order', [0, 'desc'])
+    .withOption('order', [0, 'asc'])
     .withDisplayLength(10)
-    .withOption('scrollX',true)
+    //.withOption('scrollX',true)
     .withOption('createdRow', $scope.createdRow);
 
     $scope.nested.dtColumns = [];
     if ($scope.el.length>0){
-        $scope.nested.dtColumns.push(DTColumnBuilder.newColumn('id').withTitle('Action').notSortable()
-        .renderWith($scope.actionsHtml).withOption('width', '10%'))
+        $scope.nested.dtColumns.push(DTColumnBuilder.newColumn('bd').withTitle('Action').notSortable()
+        .renderWith($scope.actionsHtml).withOption('width', '8%'))
     }
     $scope.nested.dtColumns.push(
-        DTColumnBuilder.newColumn('bank_name').withTitle('Bank'),
-        DTColumnBuilder.newColumn('bank_account_name').withTitle('Bank Account').withOption('width','15%'),
+        //DTColumnBuilder.newColumn('bank_name').withTitle('Bank'),
+        //DTColumnBuilder.newColumn('bank_account_name').withTitle('Bank Account').withOption('width','15%'),
         DTColumnBuilder.newColumn('book_date').withTitle('Transc Date').withOption('width','15%'),
         //DTColumnBuilder.newColumn('home_currency_exchange').withTitle('exchange'),
-        DTColumnBuilder.newColumn('opening_amount').withTitle('opening'),
-        DTColumnBuilder.newColumn('debit_amount').withTitle('debit'),
-        DTColumnBuilder.newColumn('credit_amount').withTitle('credit'),
-        DTColumnBuilder.newColumn('closing_amount').withTitle('closing')
+        DTColumnBuilder.newColumn('opening_amount_d').withTitle('opening').withClass('text-right'),
+        DTColumnBuilder.newColumn('debit_amount_d').withTitle('debit').withClass('text-right'),
+        DTColumnBuilder.newColumn('credit_amount_d').withTitle('credit').withClass('text-right'),
+        DTColumnBuilder.newColumn('closing_amount_d').withTitle('closing').withClass('text-right')
     );
 
     $scope.filter = function(type,event) {
@@ -276,8 +318,9 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         }
         //console.log($scope.selected.filter_warehouse)
 
-        qwhereobj.period = ' (a.book_date between \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-01\' and '+
+        /*qwhereobj.period = ' (a.book_date between \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-01\' and '+
         ' \''+$scope.selected.filter_year.selected.id+'-'+$scope.selected.filter_month.selected.id+'-'+$scope.selected.filter_month.selected.last+'\') '
+        */
         //console.log(setWhere())
         qwhere = setWhere()
         console.log(qwhere)
@@ -321,6 +364,8 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         $scope.bb.reference_no = '';
         $scope.bb.notes = '';
         $scope.bb.amount = 0;
+        $scope.bb.debit = 0;
+        $scope.bb.credit = 0;
     }
     $scope.submit = function(){
         var param = {
@@ -330,15 +375,28 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             check_no:$scope.bb.check_no,
             reference_no:$scope.bb.reference_no,
             notes:$scope.bb.notes,
-            transc_type:'C',
-            total_amount: $scope.bb.amount,
+            transc_type:($scope.bb.debit==0?'C':'D'),
+            total_amount: ($scope.bb.debit==0?$scope.bb.credit:$scope.bb.debit),
             created_by:$localStorage.currentUser.name.id
         }
         console.log('insert', param);
         queryService.post('insert into acc_cash_bank_book SET ?',param)
         .then(function (result){
             console.log(result)
-            var qstr = 'insert into acc_cash_bank_closing (bank_account_id,book_date,opening_amount,debit_amount,credit_amount,closing_amount) values ('+
+            $('#form-detail-input').modal('hide')
+            $('body').pgNotification({
+                style: 'flip',
+                message: 'Success Entry to Bank Book ',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.clearBB();
+            $scope.nested.dtInstance.reloadData(function(obj){
+                console.log(obj)
+            }, false);
+
+            /*var qstr = 'insert into acc_cash_bank_closing (bank_account_id,book_date,opening_amount,debit_amount,credit_amount,closing_amount) values ('+
             $scope.selected.bank_account.selected.id+', \''+$scope.bb.date+'\', 0, 0,'+$scope.bb.amount+','+$scope.bb.amount+')'+
             'on duplicate key update debit_amount = debit_amount + 0, credit_amount = credit_amount + '+$scope.bb.amount+', closing_amount = opening_amount + debit_amount - '+$scope.bb.amount
 
@@ -353,6 +411,9 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     type: 'success'
                 }).show();
                 $scope.clearBB();
+                $scope.nested.dtInstance.reloadData(function(obj){
+                    console.log(obj)
+                }, false)
             },
             function (err2){
                 $('#form-input').pgNotification({
@@ -362,10 +423,17 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
                     timeout: 2000,
                     type: 'danger'
                 }).show();
-            })
+            })*/
         },
         function (err){
             console.log(err)
+            $('#form-input').pgNotification({
+                style: 'flip',
+                message: 'Error Insert: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
 
 
         })
@@ -411,13 +479,13 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.showDetail = function(){
         console.log('detail',$scope.id,$scope.deps)
         var q = "select a.id,a.bank_account_id,date_format(a.book_date,\'%Y-%m-%d\')book_date,a.supplier_id,b.name supplier,a.check_no,a.reference_no,transc_type,notes,total_amount, "+
-            "if(transc_type='D',total_amount,'-')debit,if(transc_type='C',total_amount,'-')credit,c.name bank_account_name, d.name bank_name "+
+            "if(transc_type='D',total_amount,'-')debit,if(transc_type='C',total_amount,'-')credit,c.name bank_account_name, d.name bank_name,if(transc_type='D','Debit','Credit')transc_type_name "+
             "from acc_cash_bank_book a "+
             "left join mst_supplier b on a.supplier_id=b.id "+
             "left join mst_cash_bank_account c on a.bank_account_id = c.id "+
             "left join mst_cash_bank d on c.bank_id = d.id "+
             "where a.book_date = '"+$scope.deps[$scope.id].book_date+"' "+
-            "and a.bank_account_id ="+$scope.deps[$scope.id].bank_account_id;
+            "and a.bank_account_id ="+$scope.selected.filter_bank_account.selected.id;
         console.log(q)
         queryService.post(q,undefined)
         .then(function (result){
@@ -429,7 +497,9 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             console.log('error',err)
         })
     }
-    $scope.bbDetails = {}
+    $scope.bbDetails = {
+        total_amount: 0
+    }
     $scope.editBbDetail = function(ids){
         console.log('editBbDetail',ids,$scope.details)
         for (var i=0;i<$scope.details.length;i++){
@@ -438,6 +508,66 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
             }
         }
 
+    }
+    $scope.saveDetail = function(){
+        var param = {
+            check_no: $scope.bbDetails.check_no,
+            reference_no:$scope.bbDetails.reference_no,
+            total_amount:$scope.bbDetails.total_amount,
+            notes:$scope.bbDetails.notes
+        }
+        queryService.post('update acc_cash_bank_book SET ? where id='+$scope.bbDetails.id,param)
+        .then(function (result){
+            $scope.nested.dtInstance.reloadData(function(obj){}, false)
+            $('#form-detail').pgNotification({
+                style: 'flip',
+                message: 'Success Updating Data',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.showDetail();
+            $scope.bbDetails = {
+                total_amount:0
+            };
+        },
+        function (err){
+            //$scope.disableAction = false;
+            $('#form-detail').pgNotification({
+                style: 'flip',
+                message: 'Error Update Data: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
+    }
+    $scope.deleteDetail = function(){
+        queryService.post('delete from acc_cash_bank_book where id='+$scope.bbDetails.id,undefined)
+        .then(function (result){
+            $scope.nested.dtInstance.reloadData(function(obj){}, false)
+            $('#form-detail').pgNotification({
+                style: 'flip',
+                message: 'Success Deleting Data',
+                position: 'top-right',
+                timeout: 2000,
+                type: 'success'
+            }).show();
+            $scope.showDetail();
+            $scope.bbDetails = {
+                total_amount:0
+            };
+        },
+        function (err){
+            //$scope.disableAction = false;
+            $('#form-detail').pgNotification({
+                style: 'flip',
+                message: 'Error Delete Data: '+err.code,
+                position: 'top-right',
+                timeout: 2000,
+                type: 'danger'
+            }).show();
+        })
     }
 
     $scope.clear = function(){
@@ -452,60 +582,3 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     }
 
 })
-.controller('DetailApraCtrl', function($scope, $filter, $http, $q, queryService,$sce,$localStorage,globalFunction,DTOptionsBuilder,DTColumnBuilder,DTColumnDefBuilder,API_URL) {
-    $scope.details = []
-    var qstringdetail = 'select a.id,a.bank_account_id,a.currency_id,a.book_date,a.opening_amount,a.debit_amount,a.credit_amount, '+
-    	'a.closing_amount,b.code bank_account_code, b.name bank_account_name,c.name bank_name,b.bank_id bank_id, '+
-        'b.gl_account_id,b.ap_clearance_account_id, d.code gl_account_code, d.name gl_account_name, '+
-        'e.code ap_account_code, e.name ap_account_name,f.home_currency_exchange, f.name currency_name '+
-     'from acc_cash_bank_closing a '+
-    'left join mst_cash_bank_account b on b.id = a.bank_account_id '+
-    'left join mst_cash_bank c on c.id = b.bank_id '+
-    'left join mst_ledger_account d on b.gl_account_id = d.id '+
-    'left join mst_ledger_account e on b.ap_clearance_account_id = e.id '+
-    'left join ref_currency f on a.currency_id = f.id '
-
-    var qwheredetail = ''
-    $scope.nested.runDetail = function(){
-        qwheredetail = ' where a.id = '+$scope.id
-        $scope.nested.dtDetailInstance.reloadData()
-    }
-    $scope.nested.dtDetailInstance = {}
-
-    $scope.nested.dtDetailOptions =DTOptionsBuilder.newOptions()
-    .withOption('ajax', {
-        url: API_URL+'/apisql/datatable',
-        type: 'POST',
-        headers: {
-            "authorization":  'Basic ' + $localStorage.mediaToken
-        },
-        data: function (data) {
-            data.query = qstringdetail + (qwheredetail.length==0?' where a.id=0':qwheredetail);
-        }
-    })
-    .withDataProp('data')
-    .withOption('processing', true)
-    .withOption('serverSide', true)
-    .withOption('bLengthChange', false)
-    .withOption('bFilter', false)
-    .withPaginationType('full_numbers')
-    .withOption('order', [0, 'desc'])
-    .withDisplayLength(10)
-    .withOption('scrollX',true)
-
-    $scope.nested.dtDetailColumns = []
-    $scope.nested.dtDetailColumns.push(
-        DTColumnBuilder.newColumn('bank_name').withTitle('Bank'),
-        DTColumnBuilder.newColumn('bank_account_name').withTitle('Bank Account'),
-        DTColumnBuilder.newColumn('book_date').withTitle('Transc Date'),
-        DTColumnBuilder.newColumn('gl_account_code').withTitle('gl'),
-        DTColumnBuilder.newColumn('ap_account_code').withTitle('ap clearance'),
-        DTColumnBuilder.newColumn('currency_name').withTitle('currency_name'),
-        DTColumnBuilder.newColumn('home_currency_exchange').withTitle('exchange'),
-        DTColumnBuilder.newColumn('opening_amount').withTitle('opening'),
-        DTColumnBuilder.newColumn('debit_amount').withTitle('debit'),
-        DTColumnBuilder.newColumn('credit_amount').withTitle('credit'),
-        DTColumnBuilder.newColumn('closing_amount').withTitle('closing')
-    );
-
-});

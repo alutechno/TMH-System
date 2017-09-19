@@ -8,15 +8,23 @@
                 <div class="panel-title">Bank Book
                 </div>
                 <div class="pull-right" style="width: 60%;">
-                    <button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>
-                    <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openInitial('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Initial</button>
+                    <!--<button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>-->
+
+                    <!--<button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openInitial('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Initial</button>-->
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openTransaction('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Transaction</button>
 
                     <!--<button id="show-modal2" class="btn btn-primary pull-right" ng-click="openAdvancedFilter(true)" ng-show="buttonCreate"><i class="fa fa-search"></i></button>-->
-
-                    <div class="input-group date col-sm-4 pull-right m-r-10">
-                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
+                    <div class="form-group pull-right m-r-5">
+                        <ui-select ng-model="selected.filter_bank_account.selected" theme="bootstrap" on-select="applyFilter()">
+                            <ui-select-match placeholder="Select Bank..">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="item in bank_account_filter | filter: $select.search">
+                                <div ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></div>
+                            </ui-select-choices>
+                        </ui-select>
                     </div>
+                    <!--<div class="input-group date col-sm-4 pull-right m-r-10">
+                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
+                    </div>-->
 
                 </div>
                 <div class="clearfix"></div>
@@ -89,7 +97,7 @@
             </div>
             <div class="panel-body">
                 <div class="table-responsive">
-                    <table class="table table-hover table-condensed " datatable="" dt-options="nested.dtOptions" dt-columns="nested.dtColumns" dt-instance="nested.dtInstance">
+                    <table class="table table-hover table-condensed " datatable="" dt-options="nested.dtOptions" dt-columns="nested.dtColumns" dt-instance="nested.dtInstance" width="96%">
                     </table>
             </div>
         </div>
@@ -98,48 +106,6 @@
 </div>
 
 <!--START FORM INPUT-->
-<div class="modal fade slide-right form-input-full" id="form-input" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content-wrapper">
-      <div class="modal-content" style="background-image: url('pages/mtbgform.png');">
-      <div class="panel-heading">
-       <div class="panel-title">Detail Cash Bank</div>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="pg-close fs-14"></i>
-        </button>
-       </div>
-        <div class="container-xs-height full-height">
-          <div class="row-xs-height">
-            <div class="modal-body col-xs-height col-top">
-
-      <!-- START FORM -->
-      <div class="panel panel-transparent m-t-20">
-          <form id="form-user" role="form" autocomplete="off" name="dodol" novalidate>
-              <div class="row clearfix">
-                  <div class="col-sm-12">
-                      <div ng-controller="DetailApraCtrl" >
-
-                        <table datatable=""  dt-options="nested.dtDetailOptions" class="table table-hover " dt-columns="nested.dtDetailColumns"  dt-instance="nested.dtDetailInstance">
-
-                        </table>
-
-                    </div>
-                  </div>
-
-              </div>
-
-          </form>
-      </div>
-      <!-- END FORM -->
-
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- /.modal-content -->
-  </div>
-  <!-- /.modal-dialog -->
-</div>
 <!--END FORM INPUT-->
 <div class="modal fade slide-right form-input-full" id="form-detail" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
@@ -163,12 +129,12 @@
                         <table class="table table-condensed">
                             <thead>
                                 <tr>
-                                    <th>Action</th>
-                                    <th>Supplier</th>
-                                    <th>Check No</th>
-                                    <th>Ref No</th>
-                                    <th>Debit</th>
-                                    <th>Credit</th>
+                                    <th style="text-align:center">Action</th>
+                                    <th style="text-align:center">Supplier</th>
+                                    <th style="text-align:center">Check No</th>
+                                    <th style="text-align:center">Ref No</th>
+                                    <th style="text-align:center">Debit</th>
+                                    <th style="text-align:center">Credit</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -182,8 +148,8 @@
                                     <td>{{d.supplier}}</td>
                                     <td>{{d.check_no}}</td>
                                     <td>{{d.reference_no}}</td>
-                                    <td>{{d.debit}}</td>
-                                    <td>{{d.credit}}</td>
+                                    <td style="text-align:right">{{d.debit| number:2}}</td>
+                                    <td style="text-align:right">{{d.credit| number:2}}</td>
                                 </tr>
 
                             </tbody>
@@ -197,27 +163,20 @@
                           <div class="row">
                               <div class="col-sm-6">
                                   <h6>Bank: {{bbDetails.bank_name}}</h6>
-
                               </div>
                               <div class="col-sm-6">
                                   <h6>Bank Account: {{bbDetails.bank_account_name}}</h6>
-
                               </div>
-
                           </div>
                           <div class="row">
                               <div class="col-sm-6">
-
                                   <h6>Book Date: {{bbDetails.book_date}}</h6>
                               </div>
                               <div class="col-sm-6">
-
                                   <h6>Supplier: {{bbDetails.supplier}}</h6>
                               </div>
-
                           </div>
                           <div class="row">
-
                               <div class="col-sm-4">
                                   <div pg-form-group class="form-group form-group-default" >
                                       <label>Check No</label>
@@ -231,13 +190,20 @@
                                   </div>
                               </div>
                               <div class="col-sm-4">
+                                  <div pg-form-group class="form-group form-group-default" >
+                                      <label>Transc Type</label>
+                                      <input type="text" class="form-control" name="name" ng-model="bbDetails.transc_type_name" disabled>
+                                  </div>
+                              </div>
+
+                          </div>
+                          <div class="row">
+                              <div class="col-sm-4">
                                   <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : bbDetails.amount.$invalid && !bbDetails.amount.$pristine }" >
                                       <label>Amount</label>
                                       <input type="text" format="number" class="form-control" name="name" ng-model="bbDetails.total_amount" >
                                   </div>
                               </div>
-                          </div>
-                          <div class="row">
                               <div class="col-sm-8">
                                   <div pg-form-group class="form-group form-group-default ">
                                       <label>Notes</label>
@@ -246,9 +212,9 @@
                               </div>
                           </div>
                           <div class="row">
-                              <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTableT(0)" class="btn btn-primary"> Save</button>
-                              <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTableT(0)" class="btn btn-primary"> Delete</button>
-                              <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
+                              <button type="submit" ng-disabled="!bbDetails.id" ng-click="saveDetail()" class="btn btn-primary"> Save</button>
+                              <button type="submit" ng-disabled="!bbDetails.id" ng-click="deleteDetail()" class="btn btn-primary"> Delete</button>
+                              <!--<button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>-->
                           </div>
 
 
@@ -354,10 +320,16 @@
                                   </ui-select>
                               </div>
                           </div>-->
-                          <div class="col-sm-3">
-                              <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : bb.amount.$invalid && !bb.amount.$pristine }" >
-                                  <label>Amount</label>
-                                  <input type="text" format="number" class="form-control" name="name" ng-model="bb.amount" >
+                          <div class="col-sm-2">
+                              <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : bb.debit.$invalid && !bb.debit.$pristine }" >
+                                  <label>Debit</label>
+                                  <input type="text" format="number" class="form-control" name="debit" ng-model="bb.debit" ng-change="setDebit()">
+                              </div>
+                          </div>
+                          <div class="col-sm-2">
+                              <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : bb.credit.$invalid && !bb.credit.$pristine }" >
+                                  <label>Credit</label>
+                                  <input type="text" format="number" class="form-control" name="credit" ng-model="bb.credit" ng-change="setCredit()">
                               </div>
                           </div>
                           <div class="col-sm-8">
