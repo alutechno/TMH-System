@@ -52,6 +52,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         cost_center: {},
         report_level: {},
         status: {},
+        is_allow: {},
         filter_department: {},
         filter_account_type: {},
         parent: {}
@@ -60,11 +61,13 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
     $scope.arrActive = [
         {
             id: 1,
-            name: 'Yes'
+            name: 'Yes',
+            code: 'Y'
         },
         {
             id: 0,
-            name: 'No'
+            name: 'No',
+            code: 'N'
         }
     ]
     $scope.arrReportLevel = [
@@ -194,8 +197,9 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
         //DTColumnBuilder.newColumn('code_header').withTitle('Code'),
         DTColumnBuilder.newColumn('name').withTitle('Name').withOption('width', '20%').renderWith($scope.nameHtml),
         DTColumnBuilder.newColumn('parent_name').withTitle('Parent Account').withOption('width', '15%'),
-        DTColumnBuilder.newColumn('account_type_name').withTitle('Account Type').withOption('width', '10%'),
+        DTColumnBuilder.newColumn('account_type_name').withTitle('Type').withOption('width', '10%'),
         DTColumnBuilder.newColumn('dept_name').withTitle('Deptartment').withOption('width', '15%'),
+        DTColumnBuilder.newColumn('is_allow_journal_entry').withTitle('Allow Journal').withOption('width', '7%'),
         DTColumnBuilder.newColumn('status_name').withTitle('Status').withOption('width', '7%'),
         DTColumnBuilder.newColumn('short_name').withTitle('Short Name'),
         DTColumnBuilder.newColumn('description').withTitle('Description')
@@ -295,6 +299,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 short_name: $scope.coa.short_name,
                 description: $scope.coa.description,
                 status: $scope.selected.status.selected.id,
+                is_allow_journal_entry: $scope.selected.is_allow.selected.code,
                 account_type_id: $scope.selected.account_type.selected.id,
                 report_level: $scope.selected.report_level.selected.id,
                 dept_id: ($scope.selected.dept.selected?$scope.selected.dept.selected.id:null),
@@ -348,6 +353,7 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
                 short_name: $scope.coa.short_name,
                 description: $scope.coa.description,
                 status: $scope.selected.status.selected.id,
+                is_allow_journal_entry: $scope.selected.is_allow.selected.code,
                 account_type_id: $scope.selected.account_type.selected.id,
                 report_level: $scope.selected.report_level.selected.id,
                 dept_id: ($scope.selected.dept.selected?$scope.selected.dept.selected.id:null),
@@ -400,8 +406,10 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             $scope.coa.account_type_id = result.data[0].account_type_id
             $scope.coa.dept_id = result.data[0].dept_id
             $scope.coa.status = result.data[0].status
+            $scope.coa.is_allow = result.data[0].is_allow_journal_entry
             $scope.coa.parent_id = result.data[0].parent_id
             $scope.selected.status.selected = {name: result.data[0].status == 1 ? 'Yes' : 'No' , id: result.data[0].status}
+            $scope.selected.is_allow.selected = {name: result.data[0].is_allow_journal_entry == 'Y' ? 'Yes' : 'No' , id: result.data[0].is_allow_journal_entry == 'Y' ? 0 : 1, code: result.data[0].is_allow_journal_entry}
 
             for (var i = $scope.departments.length - 1; i >= 0; i--) {
                 if ($scope.departments[i].id == result.data[0].dept_id){
@@ -474,7 +482,8 @@ function($scope, $state, $sce, queryService, departmentService, accountTypeServi
             report_level: '',
             account_type_id: '',
             dept_id: '',
-            parent_id: ''
+            parent_id: '',
+            is_allow: ''
         }
     }
 

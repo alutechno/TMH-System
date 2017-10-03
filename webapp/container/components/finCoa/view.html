@@ -186,6 +186,17 @@
                           <input type="text" class="form-control" name="name" ng-model="coa.description" >
                       </div>
                   </div>
+                  <div class="col-sm-12">
+                      <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.status.selected.$invalid && !selected.status.selected.$pristine }">
+                          <label>Allow Journal Entry</label>
+                          <ui-select ng-model="selected.is_allow.selected" theme="bootstrap" validate-attached-form-element required>
+                              <ui-select-match placeholder="select status">{{$select.selected.name}}</ui-select-match>
+                              <ui-select-choices repeat="item in arrActive | filter: $select.search">
+                                  <span ng-bind-html="trustAsHtml((item.name | highlight: $select.search))"></span>
+                              </ui-select-choices>
+                          </ui-select>
+                      </div>
+                  </div>
 
                 <div class="col-sm-12">
                     <div pg-form-group class="form-group form-group-default form-group-default-select  required" ng-class="{ 'has-error' : selected.status.selected.$invalid && !selected.status.selected.$pristine }">
