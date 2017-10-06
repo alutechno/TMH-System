@@ -326,7 +326,7 @@ function($scope, $state, $sce, globalFunction,queryService, $q,prService, DTOpti
         {id: '0',name: 'PR'},
         {id: '1',name: 'ML'}
     ]
-    $scope.f = {filter_date : ''}
+    $scope.f = {filter_date1 : '',filter_date2 : ''}
     $scope.applyFilter = function(){
         //console.log($scope.selected.filter_status)
         var status = []

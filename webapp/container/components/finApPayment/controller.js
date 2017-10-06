@@ -810,6 +810,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
                 if ($scope.selected.status.selected.id=='3'){
                     $scope.updateVoucher();
+                    $scope.insertBankBook();
                     queryService.get('select id from acc_gl_transaction where payment_id= '+$scope.ap.id,undefined)
                     .then(function(data){
                         var qq = ''
@@ -984,13 +985,41 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             })
         }
     }
+    $scope.insertBankBook = function(){
+        var total_amount = 0
+        for (var i=0;i<$scope.trans.length;i++){
+            //total_amount += $scope.trans[i].payment_amount
+            total_amount += ($scope.trans[i].payment_amount*$scope.ap.exchange)
+        }
+
+        var param = {
+            bank_account_id:$scope.selected.bank_account.selected.id,
+            book_date:globalFunction.currentDate(),
+            supplier_id:$scope.selected.supplier.selected.supplier_id,
+            check_no:$scope.ap.check,
+            source_code: $scope.ap.code,
+            reference_no:'',
+            notes:$scope.ap.notes,
+            transc_type:'C',
+            total_amount: total_amount,
+            created_by:$localStorage.currentUser.name.id
+        }
+        queryService.post('insert into acc_cash_bank_book SET ?',param)
+        .then(function (result){
+            console.log('success insert to bank book',result)
+
+        },
+        function (err){
+            console.log('error insert to bank book',err)
+        })
+    }
 
     $scope.updateVoucher = function(){
         var qstr = []
         var ids = []
 
         for (var i=0;i<$scope.trans.length; i++){
-            qstr.push('update acc_ap_voucher set paid_amount=paid_amount+'+$scope.trans[i].payment_amount+',current_due_amount=total_amount-(paid_amount) where id='+$scope.trans[i].voucher_id);
+            qstr.push('update acc_ap_voucher set paid_amount=ifnull(paid_amount,0)+'+$scope.trans[i].payment_amount+',current_due_amount=total_amount-(paid_amount) where id='+$scope.trans[i].voucher_id);
             ids.push($scope.trans[i].voucher_id)
         }
         console.log('update acc_ap_voucher',qstr.join(';'))
@@ -1341,6 +1370,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             due_date: '',
             status: '',
             source: '',
+            rr_no: '',
             home_total_amount: '',
             total_amount: '',
             applied_amount: '',
@@ -1355,7 +1385,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             if ($scope.trans[key].code) temp.push('\''+$scope.trans[key].code+'\'')
         }
         var qss = "select a.id,a.code,date_format(a.open_date,'%Y-%m-%d')open_date,date_format(a.due_date,'%Y-%m-%d')due_date, "+
-               "a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name, "+
+               "a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,e.code rr_no, "+
                "paid_amount,current_due_amount, d.voucher_id, c.status,concat(\'Faktur:\',a.faktur_no)ff,concat('RR Number: ',e.code)rr  "+
           "from acc_ap_voucher a "+
           "join (select * from table_ref where table_name = 'acc_ap_voucher'  and column_name = 'status')b on b.value = a.status "+
@@ -1452,14 +1482,16 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     $scope.voucherUp = function(d,text) {
         //queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
 
-        queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,ifnull(paid_amount,0)paid_amount,current_due_amount,concat(\'Faktur:\',a.faktur_no)ff,concat(\'RR Number: \',y.code)rr  '+
+        queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,'+
+                'a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,y.code rr_no,'+
+                'ifnull(paid_amount,0)paid_amount,current_due_amount,concat(\'Faktur:\',a.faktur_no)ff,concat(\'RR Number: \',y.code)rr  '+
                 'from acc_ap_voucher a '+
                 'left join inv_po_receive y on a.receive_id = y.id,'+
                 '(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
                     'and column_name = \'status\')b '+
                 'where a.status=b.value '+
             'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
-            'and lower(a.code) like \''+text.toLowerCase()+'%\' '+
+            'and (lower(a.code) like \''+text.toLowerCase()+'%\' or lower(e.code) like \''+text.toLowerCase()+'%\') '+
             'and current_due_amount>0 ' +
             'order by id limit 50 ',undefined)
         .then(function(data){
@@ -1484,7 +1516,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     }*/
 
     $scope.getVoucher = function(e,d){
+        console.log(e)
         $scope.trans[d-1].code = e.code
+        $scope.trans[d-1].rr_no = e.rr_no
 		$scope.trans[d-1].voucher_id = e.id
         $scope.trans[d-1].p_id = e.id
         $scope.trans[d-1].open_date = e.open_date

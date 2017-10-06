@@ -211,17 +211,22 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
     $scope.details = []
     var qstringdetail = 'select a.supplier_id, a.id, a.invoice_no, a.faktur_no, '+
        ' date_format(a.open_date,\'%d-%m-%Y\')open_date, date_format(a.due_date,\'%d-%m-%Y\')due_date, '+
-       ' a.source, b.name source_name, a.receive_id, c.code source_no, a.age,  '+
+       ' a.source, b.name source_name, a.receive_id, c.code source_no, a.age,if(b.name=\'Receiving\',c.code,\'Manual\')src,  '+
        ' case when a.status = \'1\' or (a.status = \'2\' and a.age <= 30) then amount else 0 end as current,  '+
 	   ' case when a.status = \'2\' and a.age between 31 and 60 then amount else 0 end as over30,  '+
 	   ' case when a.status = \'2\' and a.age between 61 and 90 then amount else 0 end as over60,  '+
 	   ' case when a.status = \'2\' and a.age between 91 and 120 then amount else 0 end as over90,  '+
        ' case when a.status = \'2\' and a.age > 120 then amount else 0 end as over120, '+
-       ' a.amount total '+
+       ' case when a.status = \'1\' or (a.status = \'2\' and a.age <= 30) then current_due_amount else 0 end as currents,  '+
+	   ' case when a.status = \'2\' and a.age between 31 and 60 then current_due_amount else 0 end as over30s,  '+
+	   ' case when a.status = \'2\' and a.age between 61 and 90 then current_due_amount else 0 end as over60s,  '+
+	   ' case when a.status = \'2\' and a.age between 91 and 120 then current_due_amount else 0 end as over90s,  '+
+       ' case when a.status = \'2\' and a.age > 120 then current_due_amount else 0 end as over120s, '+
+       ' a.amount total,current_due_amount '+
   ' from ( '+
 		' select a.id, a.code invoice_no, a.faktur_no, a.open_date, a.due_date, a.source,  '+
 			'    datediff(current_date(),a.open_date) as age, a.status, a.receive_id, '+
-			  '  a.supplier_id, format(a.current_due_amount,0)amount '+
+			  '  a.supplier_id, format(a.current_due_amount,0)amount, a.current_due_amount '+
 		  ' from acc_ap_voucher a '+
 		 ' where a.status in (\'1\',\'2\') '+
         '    and a.current_due_amount > 0 '+
@@ -239,6 +244,21 @@ function($scope, $state, $sce, queryService, DTOptionsBuilder, DTColumnBuilder, 
         .then(function (result3){
             $scope.detailData = result3.data
             $scope.x.detailData=result3.data
+            $scope.x['total'] = 0;
+            $scope.x['totalCurrent'] = 0;
+            $scope.x['total30'] = 0;
+            $scope.x['total60'] = 0;
+            $scope.x['total90'] = 0;
+            $scope.x['total120'] = 0;
+            for (var i=0;i<$scope.x.detailData.length;i++){
+                $scope.x['total'] += $scope.x.detailData[i].current_due_amount
+                $scope.x['totalCurrent'] += $scope.x.detailData[i].currents
+                $scope.x['total30'] += $scope.x.detailData[i].over30s
+                $scope.x['total60'] += $scope.x.detailData[i].over60s
+                $scope.x['total90'] += $scope.x.detailData[i].over90s
+                $scope.x['total120'] += $scope.x.detailData[i].over120s
+            }
+            console.log($scope.x['total'])
         },
         function(err3){
 
