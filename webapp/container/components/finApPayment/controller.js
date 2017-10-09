@@ -1384,6 +1384,18 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         for (var key in $scope.trans){
             if ($scope.trans[key].code) temp.push('\''+$scope.trans[key].code+'\'')
         }
+        var qss2='select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,'+
+                'a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,y.code rr_no,'+
+                'ifnull(paid_amount,0)paid_amount,current_due_amount,concat(\'Faktur:\',a.faktur_no)ff,concat(\'RR Number: \',y.code)rr  '+
+                'from acc_ap_voucher a '+
+                'left join inv_po_receive y on a.receive_id = y.id,'+
+                '(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
+                    'and column_name = \'status\')b '+
+                'where a.status=b.value '+
+            'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
+            'and current_due_amount>0 ' +
+            'order by id limit 50 '
+
         var qss = "select a.id,a.code,date_format(a.open_date,'%Y-%m-%d')open_date,date_format(a.due_date,'%Y-%m-%d')due_date, "+
                "a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,e.code rr_no, "+
                "paid_amount,current_due_amount, d.voucher_id, c.status,concat(\'Faktur:\',a.faktur_no)ff,concat('RR Number: ',e.code)rr  "+
@@ -1402,10 +1414,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             "and supplier_id="+$scope.selected.supplier.selected.supplier_id+
             " and current_due_amount>0 "+
             " and a.id not in(select voucher_id) ";*/
-        if (temp.length>0) qss += " and a.code not in ("+temp.join(',')+") "+
+        if (temp.length>0) qss2 += " and a.code not in ("+temp.join(',')+") "+
             "order by id limit 20 "
             console.log('qss',qss)
-        queryService.post(qss,undefined)
+        queryService.post(qss2,undefined)
         .then(function(data){
             $scope.voucher[$scope.item.id] = data.data
         })
