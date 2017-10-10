@@ -1414,8 +1414,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             "and supplier_id="+$scope.selected.supplier.selected.supplier_id+
             " and current_due_amount>0 "+
             " and a.id not in(select voucher_id) ";*/
-        if (temp.length>0) qss2 += " and y.code not in ("+temp.join(',')+") "+
-            "order by id limit 20 "
+        /*if (temp.length>0) qss2 += " and y.code not in ("+temp.join(',')+") "+
+            "order by id limit 20 "*/
+            if (temp.length>0) qss2 += 
+                "order by id limit 20 "
             console.log('qss',qss)
         queryService.post(qss2,undefined)
         .then(function(data){
@@ -1503,7 +1505,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     'and column_name = \'status\')b '+
                 'where a.status=b.value '+
             'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
-            'and (lower(a.code) like \''+text.toLowerCase()+'%\' or lower(e.code) like \''+text.toLowerCase()+'%\') '+
+            'and (lower(a.code) like \''+text.toLowerCase()+'%\' or lower(y.code) like \''+text.toLowerCase()+'%\') '+
             'and current_due_amount>0 ' +
             'order by id limit 50 ',undefined)
         .then(function(data){
