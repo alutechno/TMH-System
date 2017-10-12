@@ -33,23 +33,23 @@
     <div class="row">
         <table width="98%">
             <tr>
-                <td width="50%" align="center">
+                <td width="40%" align="center">
                     <div class="brand inline text-center center">
                         <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="200" height="40">
                     </div>
                     <br>
-                    <span class="text-center" style="align:center;">JL. GUNUNG SAHARI RAYA NO.3 JAKARTA 10720</span>
+                    <!--<span class="text-center" style="align:center;">JL. GUNUNG SAHARI RAYA NO.3 JAKARTA 10720</span>
                     <br>
                     <span class="text-center">PHONE : (62-21) 626 3001</span>&nbsp;&nbsp;
                     <span class="text-center">FAX : (62-21) 626 3024</span>
                     <br>
-                    <span class="text-center">NPWP. 01.573.522.8-026.000</span>
+                    <span class="text-center">NPWP. 01.573.522.8-026.000</span>-->
                 </td>
                 <td align="center">
 
                     <table border="0" width="80%" align="center">
                         <tr>
-                            <td align="left" style="background-color: #000000;color: white;"><h4>A/P Aging</h4></td>
+                            <td align="left" style="background-color: #000000;color: white;"><h4>A/P Aging by Vendor</h4></td>
                             <td>&nbsp;</td>
                         </tr>
                         <tr>
@@ -69,11 +69,11 @@
         <table width="89%" cellpadding="5" border="1" align="center">
             <thead>
                 <!--<th style="text-align:center;font-size:10px;">Vchr#</th>-->
-                <th style="text-align:center;font-size:10px;">Invoice#</th>
+                <th style="text-align:center;font-size:10px;">Source</th>
                 <th style="text-align:center;font-size:10px;">Open Date</th>
                 <th style="text-align:center;font-size:10px;">Due Date</th>
+                <th style="text-align:center;font-size:10px;">Invoice#</th>
                 <!--<th style="text-align:center;font-size:10px;">Age</th>-->
-                <th style="text-align:center;font-size:10px;">Source</th>
                 <!--<th style="text-align:center">Source No</th>-->
                 <th style="text-align:center;font-size:10px;">Current</th>
                 <th style="text-align:center;font-size:10px;">> 30 Days</th>
@@ -85,13 +85,13 @@
             <tbody>
                 <tr ng-repeat="item in x.detailData | filter:filterUser" >
                     <!--<td class="small-font">{{item.id}}</td>-->
-                    <td >{{item.invoice_no}}</td>
+                    <td class="small-font">{{item.src}}</td>
                     <td class="small-font">{{item.open_date}}</td>
                     <td class="small-font">{{item.due_date}}</td>
+                    <td >{{item.invoice_no}}</td>
                     <!--<td class="small-font">{{item.age}}</td>-->
                     <!--<td>{{item.source_name}}</td>
                     <td>{{item.source_no}}</td>-->
-                    <td class="small-font">{{item.src}}</td>
                     <td class="small-font" style="text-align:right;">{{item.current}}</td>
                     <td class="small-font" style="text-align:right;">{{item.over30}}</td>
                     <td class="small-font" style="text-align:right;">{{item.over60}}</td>

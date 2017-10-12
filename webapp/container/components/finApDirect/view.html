@@ -1,3 +1,9 @@
+<style>
+.small-font {
+    font-size: 8pt;
+}
+
+</style>
 <!--<div id="printSection">
     <div class="row">
         <table width="98%">
@@ -110,48 +116,48 @@
                 <td width="50%" align="center">
                     <table border="0" width="80%" align="center">
                         <tr>
-                            <td align="left" style="background-color: #000000;color: white;"><b>DOCUMENT#</b></td>
-                            <td>
+                            <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>DOCUMENT#</b></td>
+                            <td class="small-font">
                                 {{ap.code}}<br>
                             </td>
                         </tr>
 
                         <tr>
-                            <td align="left" style="background-color: #000000;color: white;"><b>BANK</b></td>
-                            <td>
+                            <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>BANK</b></td>
+                            <td class="small-font">
                                 {{selected.bank.selected.name}}<br>
                             </td>
                         </tr>
                         <tr>
-                            <td align="left" style="background-color: #000000;color: white;"><b>BANK ACCOUNT</b></td>
-                            <td>
+                            <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>BANK ACCOUNT</b></td>
+                            <td class="small-font">
                                 {{ap.bank_account}}<br>
                             </td>
                         </tr>
                         <tr>
-                            <td align="left" style="background-color: #000000;color: white;"><b>CHECK NO</b></td>
-                            <td>
+                            <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>CHECK NO</b></td>
+                            <td class="small-font">
                                 {{ap.check_no}}<br>
                             </td>
 
                         </tr>
                         <tr>
-                            <td align="left" style="background-color: #000000;color: white;"><b>OPEN DATE</b></td>
-                            <td>
+                            <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>OPEN DATE</b></td>
+                            <td class="small-font">
                                 {{ap.open_date}}<br>
                             </td>
 
                         </tr>
                         <tr>
-                            <td align="left" style="background-color: #000000;color: white;"><b>CHECK DUE DATE</b></td>
-                            <td>
+                            <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>CHECK DUE DATE</b></td>
+                            <td class="small-font">
                                 {{ap.due_date}}<br>
                             </td>
 
                         </tr>
                         <tr>
-                            <td align="left" style="background-color: #000000;color: white;"><b>PREPARE DATE</b></td>
-                            <td>
+                            <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>PREPARE DATE</b></td>
+                            <td class="small-font">
                                 {{ap.prepared_date}}<br>
                             </td>
 
@@ -168,29 +174,29 @@
 
         </table>
         <br>
-        <table width="89%" cellpadding="5" border="1" align="center">
+        <table width="95%" cellpadding="5" border="1" align="center">
             <thead>
             <tr>
-				<td align="center">ID</td>
-                <td align="center">Account Code</td>
-                <td align="center">Account Name</td>
-                <td align="center">Notes</td>
-                <td align="center">Debit (Foreign Currency)</td>
-                <td align="center">Credit (Foreign Currency)</td>
-                <td align="center">Debit</td>
-                <td align="center">Credit</td>
+				<td align="center" class="small-font" width="5%">ID</td>
+                <td align="center" class="small-font" width="10%">Account Code</td>
+                <td align="center" class="small-font" width="20%">Account Name</td>
+                <td align="center" class="small-font" width="30%">Notes</td>
+                <td align="center" class="small-font" width="10%">Debit (Foreign Currency)</td>
+                <td align="center" class="small-font" width="10%">Credit (Foreign Currency)</td>
+                <td align="center" class="small-font" width="10%">Debit</td>
+                <td align="center" class="small-font" width="10%">Credit</td>
             </tr>
             </thead>
             <tbody>
             <tr ng-repeat="item in items | filter:filterUser">
-                <td>{{item.id}}</td>
-                <td> {{item.account_code}}</td>
-                <td>{{ item.account_name}}</td>
-                <td>{{ item.notes}}</td>
-                <td style="text-align: right;">{{ item.debit_f| number : fractionSize}}</td>
-				<td style="text-align: right;">{{ item.credit_f| number : fractionSize}}</td>
-				<td style="text-align: right;">{{ item.debit| number : fractionSize}}</td>
-				<td style="text-align: right;">{{ item.credit| number : fractionSize}}</td>
+                <td class="small-font">{{item.id}}</td>
+                <td class="small-font"> {{item.account_code}}</td>
+                <td class="small-font">{{ item.account_name}}</td>
+                <td class="small-font">{{ item.notes}}</td>
+                <td style="text-align: right;" class="small-font">{{ item.debit_f| number : fractionSize}}</td>
+				<td style="text-align: right;" class="small-font">{{ item.credit_f| number : fractionSize}}</td>
+				<td style="text-align: right;" class="small-font">{{ item.debit| number : fractionSize}}</td>
+				<td style="text-align: right;" class="small-font">{{ item.credit| number : fractionSize}}</td>
 
             </tr>
             </tbody>
@@ -199,14 +205,63 @@
 					<td border="0"></td>
 					<td></td>
 					<td></td>
-                    <td width="10%" style="text-align: center;">Total</td>
-                    <td width="10%" style="text-align: right;"><span >{{total.debit_f| number : fractionSize}}</span></td>
-                    <td width="10%" style="text-align: right;"><span >{{total.credit_f| number : fractionSize}}</span></td>
-                    <td width="10%" style="text-align: right;"><span >{{total.debit| number : fractionSize}}</span></td>
-                    <td width="10%" style="text-align: right;"><span >{{total.credit| number : fractionSize}}</span></td>
+                    <td width="10%" style="text-align: center;" class="small-font">Total</td>
+                    <td width="10%" style="text-align: right;" class="small-font"><span >{{total.debit_f| number : fractionSize}}</span></td>
+                    <td width="10%" style="text-align: right;" class="small-font"><span >{{total.credit_f| number : fractionSize}}</span></td>
+                    <td width="10%" style="text-align: right;" class="small-font"><span >{{total.debit| number : fractionSize}}</span></td>
+                    <td width="10%" style="text-align: right;" class="small-font"><span >{{total.credit| number : fractionSize}}</span></td>
                 </tr>
             </tfooter>
         </table>
+        <br><br><br><br><br>
+        <table width="89%" cellpadding="5" align="center">
+            <tr>
+                <td style="text-align: center;">prepared by</td>
+                <td>&nbsp;</td>
+                <td style="text-align: center;">approved by</td>
+                <td>&nbsp;</td>
+                <td style="text-align: center;">approved by</td>
+                <td>&nbsp;</td>
+
+            </tr>
+            <tr><td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td></tr>
+            <tr><td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td></tr>
+            <tr><td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td></tr>
+
+            <tr>
+            <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+            </td>
+            <td>&nbsp;</td>
+            <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+            </td>
+            <td>&nbsp;</td>
+            <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
+            </td>
+            <td>&nbsp;</td>
+
+            <td valign="top">
+            </td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">AP Staff</td>
+                <td style="text-align: center;">&nbsp;</td>
+                <td style="text-align: center;">Finance Controller</td>
+                <td style="text-align: center;">&nbsp;</td>
+                <td style="text-align: center;">General Manager</td>
+                <td>&nbsp;</td>
+
+            </tr>
+        </table>
+
     </div>
 </div>
 <div class="full-height m-t-40">

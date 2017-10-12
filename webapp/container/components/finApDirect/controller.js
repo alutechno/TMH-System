@@ -761,6 +761,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 .then(function (result){
                     console.log('ids',$scope.selected.status.selected.id)
                     if ($scope.selected.status.selected.id=='3'){
+                        $scope.insertBankBook();
                         var q2 = $scope.child.saveTable(0)
                         console.log(q2)
                         if ($scope.items.length > 0){
@@ -978,6 +979,28 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             }
 
         }
+    }
+    $scope.insertBankBook = function(){
+        var param = {
+            bank_account_id:$scope.selected.bank_account.selected.id,
+            book_date:globalFunction.currentDate(),
+            supplier_id:$scope.selected.supplier.selected.supplier_id,
+            check_no:$scope.ap.check,
+            source_code: $scope.ap.code,
+            reference_no:'',
+            notes:$scope.ap.notes,
+            transc_type:'C',
+            total_amount: $scope.total.debit,
+            created_by:$localStorage.currentUser.name.id
+        }
+        queryService.post('insert into acc_cash_bank_book SET ?',param)
+        .then(function (result){
+            console.log('success insert to bank book',result)
+
+        },
+        function (err){
+            console.log('error insert to bank book',err)
+        })
     }
     $scope.setStatus = function(par){
         if ($scope.selected.status.selected.id<4){
