@@ -81,20 +81,20 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
         due_date: '',
         supplier: '',
         notes: '',
-        total_home: '',
-        total_idr: '',
+        total_home: 0,
+        total_idr: 0,
         deposit: '',
-        deposit_home: '',
-        deposit_idr: '',
+        deposit_home: 0,
+        deposit_idr: 0,
         tax: '',
-        tax_home: '',
-        tax_idr: '',
-        total_due_home: '',
-        total_due_idr: '',
-        payment_home: '',
-        payment_idr: '',
-        current_due_home: '',
-        current_due_idr: '',
+        tax_home: 0,
+        tax_idr: 0,
+        total_due_home: 0,
+        total_due_idr: 0,
+        payment_home: 0,
+        payment_idr: 0,
+        current_due_home: 0,
+        current_due_idr: 0,
         currency: '',
         exchange: '',
         adjustment_idr: '',
@@ -261,20 +261,20 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
                 due_date: '',
                 supplier: '',
                 notes: '',
-                total_home: '',
-                total_idr: '',
+                total_home: 0,
+                total_idr: 0,
                 deposit: '',
-                deposit_home: '',
-                deposit_idr: '',
+                deposit_home: 0,
+                deposit_idr: 0,
                 tax: '',
-                tax_home: '',
-                tax_idr: '',
-                total_due_home: '',
-                total_due_idr: '',
-                payment_home: '',
-                payment_idr: '',
-                current_due_home: '',
-                current_due_idr: '',
+                tax_home: 0,
+                tax_idr: 0,
+                total_due_home: 0,
+                total_due_idr: 0,
+                payment_home: 0,
+                payment_idr: 0,
+                current_due_home: 0,
+                current_due_idr: 0,
                 currency: '',
                 exchange: ''
             }
@@ -357,10 +357,10 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
     }
 
     $scope.setAmt = function(){
-        $scope.ap.total_home
+        /*$scope.ap.total_home
         $scope.ap.total_idr
         $scope.ap.deposit_home
-        $scope.ap.deposit_idr
+        $scope.ap.deposit_idr*/
 
         $scope.ap.total_due_home =
             parseInt($scope.ap.total_home) - parseInt($scope.ap.deposit_home)
@@ -619,6 +619,10 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             	currency_exchange: $scope.ap.exchange,
             	total_amount: $scope.ap.total_idr,
             	home_total_amount: $scope.ap.total_home,
+                current_due_amount: $scope.ap.current_due_idr,
+                home_current_due_amount: $scope.ap.current_due_home,
+                total_due_amount: $scope.ap.total_due_idr,
+                home_total_due_amount: $scope.ap.total_due_home,
 				faktur_no: $scope.ap.faktur_no
             }
 			queryService.post('select next_item_code("AP",concat("AP/MT",date_format(curdate(),"%y"))) as code',undefined)
@@ -760,8 +764,12 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             	voucher_notes: $scope.ap.notes,
             	currency_id: $scope.selected.currency.selected.id,
             	currency_exchange: $scope.ap.exchange,
-            	total_amount: $scope.ap.total_idr,
+                total_amount: $scope.ap.total_idr,
             	home_total_amount: $scope.ap.total_home,
+                current_due_amount: $scope.ap.current_due_idr,
+                home_current_due_amount: $scope.ap.current_due_home,
+                total_due_amount: $scope.ap.total_due_idr,
+                home_total_due_amount: $scope.ap.total_due_home,
 				faktur_no: $scope.ap.faktur_no
             }
             //queryService.post('insert into acc_ap_voucher SET ?',param)
@@ -1154,20 +1162,20 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             due_date: '',
             supplier: '',
             notes: '',
-            total_home: '',
-            total_idr: '',
+            total_home: 0,
+            total_idr: 0,
             deposit: '',
-            deposit_home: '',
-            deposit_idr: '',
+            deposit_home: 0,
+            deposit_idr: 0,
             tax: '',
-            tax_home: '',
-            tax_idr: '',
-            total_due_home: '',
-            total_due_idr: '',
-            payment_home: '',
-            payment_idr: '',
-            current_due_home: '',
-            current_due_idr: '',
+            tax_home: 0,
+            tax_idr: 0,
+            total_due_home: 0,
+            total_due_idr: 0,
+            payment_home: 0,
+            payment_idr: 0,
+            current_due_home: 0,
+            current_due_idr: 0,
             currency: '',
             exchange: '',
             adjustment_idr: '',
@@ -1386,6 +1394,23 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             $scope.total.debit += (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
             $scope.total.credit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
         }
+        $scope.ap.total_home = 0;
+        $scope.ap.total_idr = 0;
+        //31 agustus, dmt17-0584, dmt-0583, DMT17-0432
+        console.log($scope.total.credit,$scope.ap.total_due_home,$scope.ap.deposit_home)
+        $scope.ap.total_home =
+            parseInt($scope.total.credit) - parseInt($scope.ap.deposit_home)
+        $scope.ap.total_idr =
+            parseInt($scope.total.credit) - parseInt($scope.ap.deposit_idr)
+        $scope.ap.current_due_home =
+            parseInt($scope.ap.total_home) - parseInt($scope.ap.payment_home)
+        $scope.ap.current_due_idr =
+            parseInt($scope.ap.total_idr) - parseInt($scope.ap.payment_idr)
+        $scope.ap.total_due_home =
+            parseInt($scope.ap.total_home) - parseInt($scope.ap.current_due_home)
+        $scope.ap.total_due_idr =
+            parseInt($scope.ap.total_idr) - parseInt($scope.ap.current_due_idr)
+
     }
 	$scope.notes = function(e,d,p){
         $scope.items[d-1].notes = p
