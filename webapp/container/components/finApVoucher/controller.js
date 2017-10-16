@@ -627,6 +627,66 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
 			})
             queryService.post('insert into acc_ap_voucher SET ?',param)
             .then(function (result){
+                var qq = 'insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes,created_by)'+
+                    ' values (\''+$scope.ap.code+'\', 1, '+result.data.insertId+', \'0\', \''+$scope.ap.notes+'\','+$localStorage.currentUser.name.id+') on duplicate KEY UPDATE '+
+                    'notes=\''+$scope.ap.notes+'\''
+                queryService.post(qq ,undefined)
+                .then(function (result2){
+                    if(result2.data==undefined)
+                        var qd = $scope.child.saveTable($scope.ap.gl_id);
+                    else
+                        var qd = $scope.child.saveTable(result2.data.insertId);
+                    if(qd.length>0){
+                        console.log('query detail',qd)
+                        queryService.post(qd.join(';') ,undefined)
+                        .then(function (result3){
+                                /*$('#form-input').modal('hide')
+                                $scope.disableAction = false;
+                                $scope.dtInstance.reloadData(function(obj){
+
+                                }, false)
+                                $('body').pgNotification({
+                                    style: 'flip',
+                                    message: 'Success Update '+$scope.ap.code,
+                                    position: 'top-right',
+                                    timeout: 2000,
+                                    type: 'success'
+                                }).show();*/
+                        },
+                        function (err3){
+                            $scope.disableAction = false;
+                            /*$('#form-input').pgNotification({
+                                style: 'flip',
+                                message: 'Error Update: '+err3.code,
+                                position: 'top-right',
+                                timeout: 2000,
+                                type: 'danger'
+                            }).show();*/
+                        })
+                    }else{
+                        $('#form-input').modal('hide')
+                        $scope.disableAction = false;
+                        $scope.dtInstance.reloadData(function(obj){
+                        }, false)
+                        $('body').pgNotification({
+                            style: 'flip',
+                            message: 'Success Update '+$scope.ap.code,
+                            position: 'top-right',
+                            timeout: 2000,
+                            type: 'success'
+                        }).show();
+                    }
+                },
+                function (err2){
+                    $scope.disableAction = false;
+                    $('#form-input').pgNotification({
+                        style: 'flip',
+                        message: 'Error Update: '+err2.code,
+                        position: 'top-right',
+                        timeout: 2000,
+                        type: 'danger'
+                    }).show();
+                })
                 if ($scope.selected.deposit.selected){
                     var qdeposit = 'insert into acc_deposit_line_item (voucher_id,deposit_id,home_applied_amount,applied_amount)'+
                     'values ('+result.data.insertId+','+$scope.selected.deposit.selected.id+','+$scope.ap.deposit_home+','+$scope.ap.deposit_idr+')';
@@ -707,69 +767,7 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             //queryService.post('insert into acc_ap_voucher SET ?',param)
             queryService.post('update acc_ap_voucher SET ? WHERE id='+$scope.ap.id ,param)
             .then(function (result){
-                if ($scope.selected.status.selected.id=="1"){
-
-					var qq = 'insert into acc_gl_transaction(code,journal_type_id,voucher_id,gl_status,notes,created_by)'+
-                        ' values (next_item_code("GL",concat("AP",date_format(curdate(),"%y"))), 1, '+$scope.ap.id+', \'0\', \''+$scope.ap.notes+'\','+$localStorage.currentUser.name.id+') on duplicate KEY UPDATE '+
-						'notes=\''+$scope.ap.notes+'\''
-                    queryService.post(qq ,undefined)
-                    .then(function (result2){
-						if(result2.data==undefined)
-							var qd = $scope.child.saveTable($scope.ap.gl_id);
-						else
-                        	var qd = $scope.child.saveTable(result2.data.insertId);
-						if(qd.length>0){
-						    queryService.post(qd.join(';') ,undefined)
-	                        .then(function (result3){
-	                                $('#form-input').modal('hide')
-									$scope.disableAction = false;
-	                                $scope.dtInstance.reloadData(function(obj){
-
-	                                }, false)
-	                                $('body').pgNotification({
-	                                    style: 'flip',
-	                                    message: 'Success Update '+$scope.ap.code,
-	                                    position: 'top-right',
-	                                    timeout: 2000,
-	                                    type: 'success'
-	                                }).show();
-	                        },
-	                        function (err3){
-								$scope.disableAction = false;
-	                            $('#form-input').pgNotification({
-	                                style: 'flip',
-	                                message: 'Error Update: '+err3.code,
-	                                position: 'top-right',
-	                                timeout: 2000,
-	                                type: 'danger'
-	                            }).show();
-	                        })
-						}else{
-							$('#form-input').modal('hide')
-							$scope.disableAction = false;
-							$scope.dtInstance.reloadData(function(obj){
-							}, false)
-							$('body').pgNotification({
-								style: 'flip',
-								message: 'Success Update '+$scope.ap.code,
-								position: 'top-right',
-								timeout: 2000,
-								type: 'success'
-							}).show();
-						}
-                    },
-                    function (err2){
-						$scope.disableAction = false;
-                        $('#form-input').pgNotification({
-                            style: 'flip',
-                            message: 'Error Update: '+err2.code,
-                            position: 'top-right',
-                            timeout: 2000,
-                            type: 'danger'
-                        }).show();
-                    })
-                }
-                else if($scope.selected.status.selected.id=="2"){
+                if($scope.selected.status.selected.id=="2"){
 					var qs = 'update acc_ap_voucher set status ='+$scope.selected.status.selected.id+', open_date=\''+$scope.ap.open_date+'\' where id ='+$scope.ap.id+';'+
                     'update acc_gl_transaction set bookkeeping_date=\''+$scope.ap.open_date+'\', gl_status = \'1\',posted_by='+$localStorage.currentUser.name.id+' where voucher_id ='+$scope.ap.id
                     queryService.post(qs ,undefined)
@@ -1272,19 +1270,19 @@ function($scope, $state, $sce, $templateCache, productCategoryService, queryServ
             var user = $scope.items[i];
 			if (user.isNew && !user.isDeleted){
                 if (user.debit>0){
-                    sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date) values('+
+                    sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date) values(\''+user.notes+'\','+
                     pr_id+','+user.account_id+',\'D\','+user.debit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                     if ($scope.ap.is_adjusted=='Y'){
-                        sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date,notes) values('+
-                        user.notes+','+pr_id+','+user.account_id+',\'D\','+($scope.ap.adjustment_idr-$scope.ap.total_idr)+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\',\'Adjustment Entries\')')
+                        sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date,notes) values(\''+
+                        user.notes+'\','+pr_id+','+user.account_id+',\'D\','+($scope.ap.adjustment_idr-$scope.ap.total_idr)+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\',\'Adjustment Entries\')')
                     }
                 }
                 else if (user.credit>0){
-                    sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date) values('+
-                    user.notes+','+pr_id+','+user.account_id+',\'C\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
+                    sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date) values(\''+
+                    user.notes+'\','+pr_id+','+user.account_id+',\'C\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                     if ($scope.ap.is_adjusted=='Y'){
-                        sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date,notes) values('+
-                        user.notes+','+pr_id+','+user.account_id+',\'C\','+($scope.ap.adjustment_idr-$scope.ap.total_idr)+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\',\'Adjustment Entries\')')
+                        sqlitem.push('insert into acc_gl_journal (notes,gl_id,account_id,transc_type,amount,created_by,created_date,notes) values(\''+
+                        user.notes+'\','+pr_id+','+user.account_id+',\'C\','+($scope.ap.adjustment_idr-$scope.ap.total_idr)+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\',\'Adjustment Entries\')')
                     }
                 }
             }
