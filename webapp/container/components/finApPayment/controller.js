@@ -25,7 +25,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         credit:0
     }
     $scope.finalStatus = false;
-    $scope.totalv = {due:0,payment:0,paid:0}
+    $scope.totalv = {due:0,payment:0,paid:0,terbilang:''}
     var date = new Date();
 	date.setDate(date.getDate());
 
@@ -1133,6 +1133,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 			$scope.totalv.payment=0
 			$scope.totalv.total=0
 			$scope.totalv.current=0
+            $scope.totalv.terbilang = ''
 
             queryService.post(qstringt+ ' and c.payment_id='+obj.id,undefined)
             .then(function(result2){
@@ -1178,6 +1179,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     })
                     //$scope.updateVoucher();
                 }
+                $scope.totalv['terbilang'] = globalFunction.terbilang($scope.totalv.payment)
+
                 $scope.transOri = angular.copy($scope.trans)
 
 
@@ -1335,6 +1338,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 		$scope.totalv.total=0
 		$scope.totalv.current=0
 		$scope.totalv.payment=0
+        $scope.totalv.terbilang = ''
     }
 
 })
@@ -1416,7 +1420,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             " and a.id not in(select voucher_id) ";*/
         /*if (temp.length>0) qss2 += " and y.code not in ("+temp.join(',')+") "+
             "order by id limit 20 "*/
-            if (temp.length>0) qss2 += 
+            if (temp.length>0) qss2 +=
                 "order by id limit 20 "
             console.log('qss',qss)
         queryService.post(qss2,undefined)
@@ -1555,6 +1559,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             $scope.totalv.payment += parseFloat($scope.trans[key].payment_amount)
             $scope.totalv.total += parseFloat($scope.trans[key].total_amount)
         }
+        $scope.totalv['terbilang'] = globalFunction.terbilang($scope.totalv.payment)
 
     }
 
@@ -1587,6 +1592,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             //$scope.totalv.paid+=(parseFloat($scope.trans[key].current_due_amount)-parseFloat($scope.trans[key].total_amount))
             $scope.totalv.payment += parseFloat($scope.trans[key].payment_amount)
         }
+        $scope.totalv['terbilang'] = globalFunction.terbilang($scope.totalv.payment)
 		/*for (var i=0;i<$scope.trans.length;i++){
 			$scope.totalv.due+=parseFloat($scope.trans[i].current_due_amount)
 			$scope.totalv.paid+=parseFloat($scope.trans[i].paid_amount)

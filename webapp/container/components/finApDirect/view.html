@@ -103,7 +103,7 @@
                     <div class="brand inline text-center center">
                         <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="200" height="40">
                     </div>
-                    <br><br><br>
+                    <!--<br><br><br>
                     <span class="text-center" style="align:center;">JL. GUNUNG SAHARI RAYA NO.3 JAKARTA 10720</span>
                     <br>
                     <span class="text-center">PHONE : (62-21) 626 3001</span>&nbsp;&nbsp;
@@ -111,66 +111,61 @@
                     <br><br>
                     <span class="text-center">OWNED BY PT.GRAHASAHARI SURYAJAYA</span>
                     <br>
-                    <span class="text-center">NPWP. 01.573.522.8-026.000</span>
+                    <span class="text-center">NPWP. 01.573.522.8-026.000</span>-->
                 </td>
-                <td width="50%" align="center">
-                    <table border="0" width="80%" align="center">
-                        <tr>
-                            <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>DOCUMENT#</b></td>
-                            <td class="small-font">
-                                {{ap.code}}<br>
-                            </td>
-                        </tr>
+                <td align="center" width="50%">
 
-                        <tr>
-                            <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>BANK</b></td>
-                            <td class="small-font">
-                                {{selected.bank.selected.name}}<br>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>BANK ACCOUNT</b></td>
-                            <td class="small-font">
-                                {{ap.bank_account}}<br>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>CHECK NO</b></td>
-                            <td class="small-font">
-                                {{ap.check_no}}<br>
-                            </td>
-
-                        </tr>
-                        <tr>
-                            <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>OPEN DATE</b></td>
-                            <td class="small-font">
-                                {{ap.open_date}}<br>
-                            </td>
-
-                        </tr>
-                        <tr>
-                            <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>CHECK DUE DATE</b></td>
-                            <td class="small-font">
-                                {{ap.due_date}}<br>
-                            </td>
-
-                        </tr>
-                        <tr>
-                            <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>PREPARE DATE</b></td>
-                            <td class="small-font">
-                                {{ap.prepared_date}}<br>
-                            </td>
-
-                        </tr>
-                    </table>
-
+                    <h2 align="center">Payment Voucher</h2>
                 </td>
+
             </tr>
-            <br>
+        </table>
+        <table width="95%" style="margin-left:20px">
             <tr>
-                <td>&nbsp;</td>
-                <td align="center"> <b>Direct Payment</b> </td>
+                <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>DOCUMENT#</b></td>
+                <td class="small-font">
+                    {{ap.code}}<br>
+                </td>
+                <td width="10%">&nbsp;</td>
+                <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>CHECK NO</b></td>
+                <td class="small-font">
+                    {{ap.check_no}}<br>
+                </td>
             </tr>
+            <tr>
+                <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>BANK</b></td>
+                <td class="small-font">
+                    {{selected.bank.selected.name}}<br>
+                </td>
+                <td width="10%">&nbsp;</td>
+                <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>OPEN DATE</b></td>
+                <td class="small-font">
+                    {{ap.open_date}}<br>
+                </td>
+            </tr>
+            <tr>
+                <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>BANK ACCOUNT</b></td>
+                <td class="small-font">
+                    {{ap.bank_account}}<br>
+                </td>
+                <td width="10%">&nbsp;</td>
+                <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>CHECK DUE DATE</b></td>
+                <td class="small-font">
+                    {{ap.due_date}}<br>
+                </td>
+            </tr>
+            <tr>
+                <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>BANK ACCOUNT</b></td>
+                <td class="small-font">
+                    {{ap.bank_account}}<br>
+                </td>
+                <td width="10%">&nbsp;</td>
+                <td align="left" style="background-color: #000000;color: white;" class="small-font"><b>PREPARE DATE</b></td>
+                <td class="small-font">
+                    {{ap.prepared_date}}<br>
+                </td>
+            </tr>
+
 
         </table>
         <br>
@@ -178,11 +173,11 @@
             <thead>
             <tr>
 				<td align="center" class="small-font" width="5%">ID</td>
-                <td align="center" class="small-font" width="10%">Account Code</td>
-                <td align="center" class="small-font" width="20%">Account Name</td>
-                <td align="center" class="small-font" width="30%">Notes</td>
-                <td align="center" class="small-font" width="10%">Debit (Foreign Currency)</td>
-                <td align="center" class="small-font" width="10%">Credit (Foreign Currency)</td>
+                <td align="center" class="small-font" width="10%">Account</td>
+                <td align="center" class="small-font" width="30%">Account Name</td>
+                <td align="center" class="small-font" width="35%">Notes</td>
+                <!--<td align="center" class="small-font" width="10%">Debit (Foreign Currency)</td>
+                <td align="center" class="small-font" width="10%">Credit (Foreign Currency)</td>-->
                 <td align="center" class="small-font" width="10%">Debit</td>
                 <td align="center" class="small-font" width="10%">Credit</td>
             </tr>
@@ -193,8 +188,8 @@
                 <td class="small-font"> {{item.account_code}}</td>
                 <td class="small-font">{{ item.account_name}}</td>
                 <td class="small-font">{{ item.notes}}</td>
-                <td style="text-align: right;" class="small-font">{{ item.debit_f| number : fractionSize}}</td>
-				<td style="text-align: right;" class="small-font">{{ item.credit_f| number : fractionSize}}</td>
+                <!--<td style="text-align: right;" class="small-font">{{ item.debit_f| number : fractionSize}}</td>
+				<td style="text-align: right;" class="small-font">{{ item.credit_f| number : fractionSize}}</td>-->
 				<td style="text-align: right;" class="small-font">{{ item.debit| number : fractionSize}}</td>
 				<td style="text-align: right;" class="small-font">{{ item.credit| number : fractionSize}}</td>
 
@@ -205,16 +200,18 @@
 					<td border="0"></td>
 					<td></td>
 					<td></td>
-                    <td width="10%" style="text-align: center;" class="small-font">Total</td>
-                    <td width="10%" style="text-align: right;" class="small-font"><span >{{total.debit_f| number : fractionSize}}</span></td>
-                    <td width="10%" style="text-align: right;" class="small-font"><span >{{total.credit_f| number : fractionSize}}</span></td>
+                    <td width="10%" style="text-align: right;" class="small-font">Total&nbsp;</td>
+                    <!--<td width="10%" style="text-align: right;" class="small-font"><span >{{total.debit_f| number : fractionSize}}</span></td>
+                    <td width="10%" style="text-align: right;" class="small-font"><span >{{total.credit_f| number : fractionSize}}</span></td>-->
                     <td width="10%" style="text-align: right;" class="small-font"><span >{{total.debit| number : fractionSize}}</span></td>
                     <td width="10%" style="text-align: right;" class="small-font"><span >{{total.credit| number : fractionSize}}</span></td>
                 </tr>
             </tfooter>
         </table>
-        <br><br><br><br><br>
-        <table width="89%" cellpadding="5" align="center">
+        <span style="margin-left:20px"><i>Terbilang: {{total.terbilang}} Rupiah</i></span><br>
+
+        <br><br>
+        <table width="95%" cellpadding="5" align="center">
             <tr>
                 <td style="text-align: center;">prepared by</td>
                 <td>&nbsp;</td>
@@ -222,34 +219,39 @@
                 <td>&nbsp;</td>
                 <td style="text-align: center;">approved by</td>
                 <td>&nbsp;</td>
+                <td style="text-align: center;">received by</td>
+                <td>&nbsp;</td>
 
             </tr>
-            <tr><td>&nbsp;</td>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td></tr>
-            <tr><td>&nbsp;</td>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td></tr>
-            <tr><td>&nbsp;</td>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td></tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
 
             <tr>
-            <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
-            </td>
+            <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;"></td>
             <td>&nbsp;</td>
-            <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
-            </td>
+            <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;"></td>
             <td>&nbsp;</td>
-            <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;">
-            </td>
+            <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;"></td>
+            <td>&nbsp;</td>
+            <td style="border-bottom:1pt solid black;padding-right:20px;padding-left:20px;"></td>
             <td>&nbsp;</td>
 
-            <td valign="top">
-            </td>
             </tr>
             <tr>
                 <td style="text-align: center;">AP Staff</td>
@@ -257,6 +259,8 @@
                 <td style="text-align: center;">Finance Controller</td>
                 <td style="text-align: center;">&nbsp;</td>
                 <td style="text-align: center;">General Manager</td>
+                <td>&nbsp;</td>
+                <td style="text-align: center;">&nbsp;</td>
                 <td>&nbsp;</td>
 
             </tr>

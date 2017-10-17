@@ -42,7 +42,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         debit:0,
         credit:0,
         debit_f:0,
-        credit_f:0
+        credit_f:0,
+        terbilang: ''
     }
     $scope.total_balance = 0
     $scope.journal_type_id = null
@@ -287,6 +288,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             $scope.total.credit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
 
         }
+        $scope.total['terbilang'] = globalFunction.terbilang($scope.total.credit)
+
         //$scope.setDebit(1000)
         //$scope.$apply();
         /*$('#totalDebitF').html($scope.total.debit_f)
@@ -573,7 +576,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             debit:0,
             credit:0,
             debit_f:0,
-            credit_f:0
+            credit_f:0,
+            terbilang: ''
         }
     }
     $scope.setIdr = function(a,b){
@@ -1091,7 +1095,8 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             debit:0,
             credit:0,
             debit_f:0,
-            credit_f:0
+            credit_f:0,
+            terbilang: ''
         }
         queryService.post(qstring+ ' and a.id='+obj.id,undefined)
         .then(function(result){
@@ -1233,6 +1238,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                         item
                     )
                 }
+                $scope.total['terbilang'] = globalFunction.terbilang($scope.total.credit)
                 $scope.itemsOri = angular.copy($scope.items)
             },
             function(err2){
@@ -1547,6 +1553,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
             //$scope.total_balance += (parseInt($scope.items[i].balance).toString()=='NaN'?0:parseInt($scope.items[i].balance))
         }
+        $scope.total['terbilang'] = globalFunction.terbilang($scope.total.credit)
     };
 
     // add user
@@ -1598,6 +1605,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
         $scope.total.debit_f =0;
         $scope.total.credit_f =0;
+        $scope.total['terbilang'] = ''
 		for (var i =0;i< $scope.items.length; i++) {
             var user = $scope.items[i];
             // actually delete user
@@ -1655,6 +1663,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
 
         }
+        $scope.total['terbilang'] = globalFunction.terbilang($scope.total.credit)
         console.log(sqlitem)
         return sqlitem
     };
@@ -1741,6 +1750,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         $scope.total.credit = 0
         $scope.total.debit_f = 0
         $scope.total.credit_f = 0
+        $scope.total['terbilang'] = ''
         //$scope.total_balance = 0
         for (var i=0;i<$scope.items.length;i++){
             if (!$scope.items[i].isDeleted){
@@ -1752,6 +1762,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             }
             //$scope.total_balance += (parseInt($scope.items[i].balance).toString()=='NaN'?0:parseInt($scope.items[i].balance))
         }
+        $scope.total['terbilang'] = globalFunction.terbilang($scope.total.credit)
         /*$('#totalDebitF').html($scope.total.debit_f)
         $('#totalCreditF').html($scope.total.credit_f)
         $('#totalDebit').html($scope.total.debit)
