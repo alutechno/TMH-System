@@ -415,7 +415,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 'where a.status=b.value '+
                 'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
                 ' and current_due_amount>0 '+
-                'order by id limit 20 ',undefined)
+                'order by id ',undefined)
             .then(function(data){
                 for(var i=0;i<($scope.trans.length);i++){
                     $scope.voucher[$scope.trans[i].id] = data.data
@@ -1164,21 +1164,37 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 					$scope.totalv.total+=parseFloat(d[i].total_amount)
 					$scope.totalv.current+=parseFloat(d[i].current_due_amount)
 		            $scope.totalv.payment += parseFloat(d[i].payment_amount)
-                    queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,paid_amount,current_due_amount,concat(\'Faktur:\',a.faktur_no)ff,concat(\'RR Number: \',y.code)rr  '+
-                            'from acc_ap_voucher a '+
-                            'left join inv_po_receive y on a.receive_id = y.id,'+
-                            '(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
-                            'and column_name = \'status\')b '+
-                        'where a.status=b.value '+
-                        'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
-                        ' and current_due_amount>0 ' +
-                        'order by id limit 20 ',undefined)
-                    .then(function(data){
-                        $scope.voucher[ii] = data.data
 
-                    })
                     //$scope.updateVoucher();
                 }
+                queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,'+
+                        'a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,y.code rr_no,'+
+                        'ifnull(paid_amount,0)paid_amount,current_due_amount,concat(\'Faktur:\',a.faktur_no)ff,concat(\'RR Number: \',y.code)rr  '+
+                        'from acc_ap_voucher a '+
+                        'left join inv_po_receive y on a.receive_id = y.id,'+
+                        '(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
+                            'and column_name = \'status\')b '+
+                        'where a.status=b.value '+
+                    'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
+                    'and current_due_amount>0 ' +
+                    'order by id ',undefined)
+                /*queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,paid_amount,current_due_amount,concat(\'Faktur:\',a.faktur_no)ff,concat(\'RR Number: \',y.code)rr  '+
+                        'from acc_ap_voucher a '+
+                        'left join inv_po_receive y on a.receive_id = y.id,'+
+                        '(select * from table_ref where table_name = \'acc_ap_voucher\'  '+
+                        'and column_name = \'status\')b '+
+                    'where a.status=b.value '+
+                    'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
+                    ' and current_due_amount>0 ' +
+                    'order by id limit 20 ',undefined)*/
+                .then(function(data){
+                    for (var i=0;i<$scope.trans.length;i++){
+                        $scope.voucher[i+1] = data.data
+                    }
+
+                    console.log('vcrList', $scope.voucher[ii])
+
+                })
                 $scope.totalv['terbilang'] = globalFunction.terbilang($scope.totalv.payment)
 
                 $scope.transOri = angular.copy($scope.trans)
@@ -1499,7 +1515,6 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
 
     $scope.voucherUp = function(d,text) {
         //queryService.get('select id,code,name from mst_ledger_account order by id limit 20 ',undefined)
-
         queryService.post('select a.id,a.code,date_format(a.open_date,\'%Y-%m-%d\')open_date,date_format(a.due_date,\'%Y-%m-%d\')due_date,'+
                 'a.status,a.source,a.home_total_amount,a.total_amount,a.current_due_amount,b.name status_name,y.code rr_no,'+
                 'ifnull(paid_amount,0)paid_amount,current_due_amount,concat(\'Faktur:\',a.faktur_no)ff,concat(\'RR Number: \',y.code)rr  '+
@@ -1509,9 +1524,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     'and column_name = \'status\')b '+
                 'where a.status=b.value '+
             'and supplier_id='+$scope.selected.supplier.selected.supplier_id+' '+
-            'and (lower(a.code) like \''+text.toLowerCase()+'%\' or lower(y.code) like \''+text.toLowerCase()+'%\') '+
+            'and (lower(a.code) like \'%'+text.toLowerCase()+'%\' or lower(y.code) like \'%'+text.toLowerCase()+'%\') '+
             'and current_due_amount>0 ' +
-            'order by id limit 50 ',undefined)
+            'order by id ',undefined)
         .then(function(data){
             $scope.voucher[d] = data.data
         })
@@ -1547,7 +1562,7 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         $scope.trans[d-1].home_total_amount = e.home_total_amount
         $scope.trans[d-1].total_amount = e.total_amount
         $scope.trans[d-1].current_due_amount = e.current_due_amount
-        $scope.trans[d-1].payment_amount = e.payment_amount
+        $scope.trans[d-1].payment_amount = (e.payment_amount?e.payment_amount:e.current_due_amount)
         $scope.totalv.current=0;
         //$scope.totalv.paid=0;
         $scope.totalv.payment=0;

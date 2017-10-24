@@ -79,9 +79,9 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
     }
     var qstring = "select a.id, a.code, '-' as 'voucher_id', '-' as 'voucher_doc_no', "+
     	"DATE_FORMAT(a.open_date,'%Y-%m-%d')open_date, DATE_FORMAT(a.check_due_date,'%Y-%m-%d')due_date, a.check_no, a.status, e.name as status_name,  "+
-    	"DATE_FORMAT(a.prepared_date,'%Y-%m-%d') prepared_date,a.supplier_id, d.name as 'supplier_name', a.currency_id,a.currency_exchange,  "+
-    	"f.code as 'currency_code', f.name as currency_name, a.total_amount ,a.home_total_amount, g.bank_id,a.bank_account_id,  "+
-    	"g.name as 'bank_account', (select format(sum(x.amount),0) amount "+
+    	"DATE_FORMAT(a.prepared_date,'%Y-%m-%d') prepared_date,a.supplier_id, d.name as 'supplier_name',d.code supplier_code, d.address supplier_address,a.currency_id,a.currency_exchange,  "+
+    	"d.bank1_name supplier_bank, d.bank1_account_no supplier_bank_acc_no,d.bank1_account_owner supplier_bank_acc_owner,f.code as 'currency_code', f.name as currency_name, a.total_amount ,a.home_total_amount, g.bank_id,a.bank_account_id,  "+
+    	"g.name as 'bank_account',g.bank_account bank_account_no, (select format(sum(x.amount),0) amount "+
                  "from acc_gl_journal x, acc_gl_transaction y "+
 				"where x.gl_id = y.id "+
                   "and x.transc_type = 'C' "+
