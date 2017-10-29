@@ -95,7 +95,7 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
     }*/
     $scope.generateCode=function (a){
         $scope.change=true
-        queryService.post('select curr_item_code(\'GL\',concat("'+a.code+'",date_format(curdate(),"%y"))) as code',undefined)
+        queryService.post('select next_item_code(\'GL\',concat("'+a.code+'",date_format(curdate(),"%y"))) as code',undefined)
         .then(function(data){
             $scope.ap.code = data.data[0].code
         })
@@ -447,9 +447,9 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
                 ref_account: $scope.ap.ref_account,
                 created_by: $localStorage.currentUser.name.id
             }
-            queryService.post('select next_item_code(\'GL\',concat("'+$scope.selected.journal_type.selected.code+'",date_format(curdate(),"%y"))) as code',undefined)
+            /*queryService.post('select next_item_code(\'GL\',concat("'+$scope.selected.journal_type.selected.code+'",date_format(curdate(),"%y"))) as code',undefined)
             .then(function (data){
-            });
+            });*/
             queryService.post('insert into acc_gl_transaction SET ?',param)
             .then(function (result){
                 var qd = $scope.child.saveTable(result.data.insertId);
@@ -512,7 +512,7 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
         else {
             //exec update
             if($scope.change==true){
-                queryService.post('select next_item_code(\'GL\',concat("'+$scope.selected.journal_type.selected.code+'",date_format(curdate(),"%y"))) as code',undefined)
+                queryService.post('select curr_item_code(\'GL\',concat("'+$scope.selected.journal_type.selected.code+'",date_format(curdate(),"%y"))) as code',undefined)
                 .then(function (data){
                     var param = {
                         code: data.data[0].code,
@@ -594,7 +594,8 @@ function($scope,$stateParams, $state, $sce, queryService, DTOptionsBuilder, DTCo
                         type: 'danger'
                     }).show();
                 })
-            }else{
+            }
+            else{
                 var param = {
                     code: $scope.ap.code,
                     journal_type_id: $scope.selected.journal_type.selected.id,
