@@ -282,10 +282,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                 $scope.items[i].credit = ($scope.ap.exchange*$scope.items[i].credit_f)
             }
 
-            $scope.total.debit_f += (parseInt($scope.items[i].debit_f).toString()=='NaN'?0:parseInt($scope.items[i].debit_f))
-            $scope.total.credit_f += (parseInt($scope.items[i].credit_f).toString()=='NaN'?0:parseInt($scope.items[i].credit_f))
-            $scope.total.debit += (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
-            $scope.total.credit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
+            $scope.total.debit_f += (parseFloat($scope.items[i].debit_f).toString()=='NaN'?0:parseFloat($scope.items[i].debit_f))
+            $scope.total.credit_f += (parseFloat($scope.items[i].credit_f).toString()=='NaN'?0:parseFloat($scope.items[i].credit_f))
+            $scope.total.debit += (parseFloat($scope.items[i].debit).toString()=='NaN'?0:parseFloat($scope.items[i].debit))
+            $scope.total.credit += (parseFloat($scope.items[i].credit).toString()=='NaN'?0:parseFloat($scope.items[i].credit))
 
         }
         $scope.total['terbilang'] = globalFunction.terbilang($scope.total.credit)
@@ -1545,10 +1545,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         }
         for (var i=0;i<$scope.items.length;i++){
             if ($scope.items[i].id==id){
-                $scope.total.debit_f -= (parseInt($scope.items[i].debit_f).toString()=='NaN'?0:parseInt($scope.items[i].debit_f))
-                $scope.total.credit_f -= (parseInt($scope.items[i].credit_f).toString()=='NaN'?0:parseInt($scope.items[i].credit_f))
-                $scope.total.debit -= (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
-                $scope.total.credit -= (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
+                $scope.total.debit_f -= (parseFloat($scope.items[i].debit_f).toString()=='NaN'?0:parseFloat($scope.items[i].debit_f))
+                $scope.total.credit_f -= (parseFloat($scope.items[i].credit_f).toString()=='NaN'?0:parseFloat($scope.items[i].credit_f))
+                $scope.total.debit -= (parseFloat($scope.items[i].debit).toString()=='NaN'?0:parseFloat($scope.items[i].debit))
+                $scope.total.credit -= (parseFloat($scope.items[i].credit).toString()=='NaN'?0:parseFloat($scope.items[i].credit))
             }
 
             //$scope.total_balance += (parseInt($scope.items[i].balance).toString()=='NaN'?0:parseInt($scope.items[i].balance))
@@ -1629,20 +1629,20 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
                     sqlitem.push('insert into acc_gl_journal (gl_id,account_id,transc_type,notes,amount,created_by,created_date) values('+
                     pr_id+','+user.account_id+',\'C\',\''+user.notes+'\','+user.credit+','+$localStorage.currentUser.name.id+','+'\''+globalFunction.currentDate()+'\''+')')
                 }
-                $scope.total.debit += (!isNaN(parseInt(user.debit))?parseInt(user.debit):0)
-                $scope.total.credit += (!isNaN(parseInt(user.credit))?parseInt(user.credit):0)
-                $scope.total.debit_f += (user.transc_type=='D'?(parseInt(user.debit)/$scope.ap.exchange):0)
-                $scope.total.credit_f += (user.transc_type=='C'?(parseInt(user.credit)/$scope.ap.exchange):0)
+                $scope.total.debit += (!isNaN(parseFloat(user.debit))?parseFloat(user.debit):0)
+                $scope.total.credit += (!isNaN(parseFloat(user.credit))?parseFloat(user.credit):0)
+                $scope.total.debit_f += (user.transc_type=='D'?(parseFloat(user.debit)/$scope.ap.exchange):0)
+                $scope.total.credit_f += (user.transc_type=='C'?(parseFloat(user.credit)/$scope.ap.exchange):0)
 
             }
             else if(!user.isNew && user.isDeleted){
                 sqlitem.push('delete from acc_gl_journal where id='+user.p_id)
             }
             else if(!user.isNew){
-                $scope.total.debit += (!isNaN(parseInt(user.debit))?parseInt(user.debit):0)
-                $scope.total.credit += (!isNaN(parseInt(user.credit))?parseInt(user.credit):0)
-                $scope.total.debit_f += (user.transc_type=='D'?(parseInt(user.debit)/$scope.ap.exchange):0)
-                $scope.total.credit_f += (user.transc_type=='C'?(parseInt(user.credit)/$scope.ap.exchange):0)
+                $scope.total.debit += (!isNaN(parseFloat(user.debit))?parseFloat(user.debit):0)
+                $scope.total.credit += (!isNaN(parseFloat(user.credit))?parseFloat(user.credit):0)
+                $scope.total.debit_f += (user.transc_type=='D'?(parseFloat(user.debit)/$scope.ap.exchange):0)
+                $scope.total.credit_f += (user.transc_type=='C'?(parseFloat(user.credit)/$scope.ap.exchange):0)
                 for (var j=0;j<$scope.itemsOri.length;j++){
                     if ($scope.itemsOri[j].p_id==user.p_id){
                         var d1 = $scope.itemsOri[j].p_id+$scope.itemsOri[j].account_id+$scope.itemsOri[j].debit+$scope.itemsOri[j].credit+$scope.itemsOri[i].notes
@@ -1754,10 +1754,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
         //$scope.total_balance = 0
         for (var i=0;i<$scope.items.length;i++){
             if (!$scope.items[i].isDeleted){
-                $scope.total.debit_f += (parseInt($scope.items[i].debit_f).toString()=='NaN'?0:parseInt($scope.items[i].debit_f))
-                $scope.total.credit_f += (parseInt($scope.items[i].credit_f).toString()=='NaN'?0:parseInt($scope.items[i].credit_f))
-                $scope.total.debit += (parseInt($scope.items[i].debit).toString()=='NaN'?0:parseInt($scope.items[i].debit))
-                $scope.total.credit += (parseInt($scope.items[i].credit).toString()=='NaN'?0:parseInt($scope.items[i].credit))
+                $scope.total.debit_f += (parseFloat($scope.items[i].debit_f).toString()=='NaN'?0:parseFloat($scope.items[i].debit_f))
+                $scope.total.credit_f += (parseFloat($scope.items[i].credit_f).toString()=='NaN'?0:parseFloat($scope.items[i].credit_f))
+                $scope.total.debit += (parseFloat($scope.items[i].debit).toString()=='NaN'?0:parseFloat($scope.items[i].debit))
+                $scope.total.credit += (parseFloat($scope.items[i].credit).toString()=='NaN'?0:parseFloat($scope.items[i].credit))
 
             }
             //$scope.total_balance += (parseInt($scope.items[i].balance).toString()=='NaN'?0:parseInt($scope.items[i].balance))
