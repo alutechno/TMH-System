@@ -1104,11 +1104,11 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
 				}
 				else if ($scope.selected.warehouse.selected.id!=null){
 					sqlitem.push('INSERT INTO inv_warehouse_stock(warehouse_id,product_id,stock_qty,stock_qty_l,last_order_date,last_order_qty,last_order_supplier_id)'+
-					'values('+$scope.selected.warehouse.selected.id+','+user.product_id+',stock_qty+'+user.qty+',stock_qty_l+'+(user.rcv_qty*user.lowest_unit_conversion)+','+
+					'values('+$scope.selected.warehouse.selected.id+','+user.product_id+',ifnull(stock_qty,0)+'+user.qty+',ifnull(stock_qty_l,0)+'+(user.rcv_qty*user.lowest_unit_conversion)+','+
 					' \''+globalFunction.currentDate()+'\','+user.rcv_qty+','+$scope.selected.supplier.selected.id+')'+
 					' ON DUPLICATE KEY UPDATE '+
-					' stock_qty = stock_qty+'+user.rcv_qty+' ,'+
-					' stock_qty_l = stock_qty_l+'+(user.rcv_qty*user.lowest_unit_conversion)+' ,'+
+					' stock_qty = ifnull(stock_qty,0)+'+user.rcv_qty+' ,'+
+					' stock_qty_l = ifnull(stock_qty_l,0)+'+(user.rcv_qty*user.lowest_unit_conversion)+' ,'+
 					' last_order_date = \''+globalFunction.currentDate()+'\','+
 					' last_order_qty = '+user.rcv_qty+','+
 					' last_order_supplier_id = '+$scope.selected.supplier.selected.id+' '

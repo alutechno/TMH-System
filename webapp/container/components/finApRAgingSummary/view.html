@@ -1,0 +1,148 @@
+<style type="text/css" media="print">
+    body * {
+        visibility:hidden;
+    }
+    #printSection, #printSection * {
+        visibility:visible;
+    }
+    #printSection {
+        /*position:relative;*/
+        width: 100%;
+        left:0;
+        top:0;
+        margin-bottom:20px;
+    }
+    .center {
+        display: inline;
+        align-items: center;
+    }
+    td {
+        padding-left: 10px;
+        padding-right:10px;
+    }
+    .small-font {
+        font-size: 7pt;
+    }
+
+
+</style>
+<div id="printSection">
+    <div class="row">
+        <table width="98%">
+            <tr>
+                <td width="40%" align="center">
+                    <div class="brand inline text-center center">
+                        <img class="center text-center" src="container/img/app/mt_logo.png" alt="logo" data-src="container/img/app/mt_logo.png" data-src-retina="container/img/app/mt_logo.png" width="200" height="40">
+                    </div>
+                    <br>
+                    <!--<span class="text-center" style="align:center;">JL. GUNUNG SAHARI RAYA NO.3 JAKARTA 10720</span>
+                    <br>
+                    <span class="text-center">PHONE : (62-21) 626 3001</span>&nbsp;&nbsp;
+                    <span class="text-center">FAX : (62-21) 626 3024</span>
+                    <br>
+                    <span class="text-center">NPWP. 01.573.522.8-026.000</span>-->
+                </td>
+                <td align="center">
+
+                    <table border="0" width="80%" align="center">
+                        <tr>
+                            <td align="left" style="background-color: #000000;color: white;"><h4>A/P Aging Summary</h4></td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <!--<tr>
+                            <td align="left" style="background-color: #000000;color: white;"><b>SUPPLIER NAME:</b></td>
+                            <td>
+                                {{supp_name}}<br>
+                            </td>
+                        </tr>-->
+
+                    </table>
+                </td>
+
+            </tr>
+
+        </table>
+        <br>
+        <table width="95%" cellpadding="5" border="1" align="center" style="margin-left:20px;margin-right:30px">
+            <thead>
+                <!--<th style="text-align:center;font-size:10px;">Vchr#</th>-->
+                <!--<th style="text-align:center;font-size:10px;">Type</th>-->
+                <th style="text-align:center;font-size:10px;">#</th>
+                <th style="text-align:center;font-size:10px;">Code</th>
+                <th style="text-align:center;font-size:10px;">Supplier Name</th>
+                <th style="text-align:center;font-size:10px;">Current</th>
+                <th style="text-align:center;font-size:10px;">> 30 Days</th>
+                <th style="text-align:center;font-size:10px;">> 60 Days</th>
+                <th style="text-align:center;font-size:10px;">> 90 Days</th>
+                <th style="text-align:center;font-size:10px;">> 120 Days</th>
+                <th style="text-align:center;font-size:10px;">Total</th>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in exportData | filter:filterUser" >
+                    <!--<td class="small-font">{{item.id}}</td>-->
+                    <!--<td class="small-font">{{item.supplier_type}}</td>-->
+                    <td width="0%"  style="text-align:right;">{{item.no}}.</td>
+                    <td class="small-font" style="white-space:nowrap">{{item.supplier_code}}</td>
+                    <td class="small-font" style="white-space:nowrap;text-overflow:ellipsis;">{{item.supplier_name}}</td>
+                    <td class="small-font" style="text-align:right;">{{item.current}}</td>
+                    <td class="small-font" style="text-align:right;">{{item.over30}}</td>
+                    <td class="small-font" style="text-align:right;">{{item.over60}}</td>
+                    <td class="small-font" style="text-align:right;">{{item.over90}}</td>
+                    <td class="small-font" style="text-align:right;">{{item.over120}}</td>
+                    <td class="small-font" style="text-align:right">{{item.total}}</td>
+                </tr>
+                <tr>dodol</tr>
+                <!--<tr >
+                    <td >&nbsp;</td>
+                    <td class="small-font">&nbsp;</td>
+                    <td class="small-font">Total</td>
+                    <td class="small-font" style="text-align:right;">{{x.totalCurrent|number:fractionSize}}</td>
+                    <td class="small-font" style="text-align:right;">{{x.total30|number:fractionSize}}</td>
+                    <td class="small-font" style="text-align:right;">{{x.total60|number:fractionSize}}</td>
+                    <td class="small-font" style="text-align:right;">{{x.total90|number:fractionSize}}</td>
+                    <td class="small-font" style="text-align:right;">{{x.total120|number:fractionSize}}</td>
+                    <td class="small-font" style="text-align:right">{{x.total|number:fractionSize}}</td>
+                </tr>-->
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+<div class="full-height m-t-40">
+    <!-- TABLES VIEW -->
+    <div class="container-fluid container-fixed-lg">
+        <!-- START PANEL -->
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">AP Aging Summary
+                </div>
+                <div class="pull-right" style="width: 60%;">
+
+                    <div class="input-group date col-sm-4 pull-right m-r-10">
+                        <input type="text" id="search-table" class="form-control pull-right" placeholder="Search" ng-keyup="filter('search',$event)" ng-model="filterVal.search">
+                    </div>
+                    <button class="btn btn-primary pull-right" type="submit" ng-disabled="updateState" ng-print print-element-id="printSection" ng-click="printing=false"><i class="fa fa-print"></i> Print</button>
+                    <span ng-click="exportExcel()">
+                        <div excel-export export-data="exportData" file-name="{{fileName}}" class="pull-right m-r-5" control="focusinControl" ></div>
+                    </span>
+
+
+                </div>
+                <div class="clearfix"></div>
+                <div class="tools">
+                    <a class="collapse" href="javascript:;"></a>
+                    <a class="config" data-toggle="modal" href="#grid-config"></a>
+                    <a class="reload" href="javascript:;"></a>
+                    <a class="remove" href="javascript:;"></a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed " datatable="" dt-options="nested.dtOptions" dt-columns="nested.dtColumns" dt-instance="nested.dtInstance" width="100%">
+                    </table>
+            </div>
+        </div>
+    </div>
+    <!-- END PANEL -->
+</div>

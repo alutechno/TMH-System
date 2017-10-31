@@ -49,15 +49,15 @@
 
                     <table border="0" width="80%" align="center">
                         <tr>
-                            <td align="left" style="background-color: #000000;color: white;"><h4>A/P Aging by {{supp_name}}</h4></td>
+                            <td align="left" style="background-color: #000000;color: white;"><h4>A/P Aging by Vendor</h4></td>
                             <td>&nbsp;</td>
                         </tr>
-                        <!--<tr>
+                        <tr>
                             <td align="left" style="background-color: #000000;color: white;"><b>SUPPLIER NAME:</b></td>
                             <td>
                                 {{supp_name}}<br>
                             </td>
-                        </tr>-->
+                        </tr>
 
                     </table>
                 </td>
@@ -75,6 +75,7 @@
                 <th style="text-align:center;font-size:10px;">Invoice#</th>
                 <!--<th style="text-align:center;font-size:10px;">Age</th>-->
                 <!--<th style="text-align:center">Source No</th>-->
+                <th style="text-align:center;font-size:10px;">Paid</th>
                 <th style="text-align:center;font-size:10px;">Current</th>
                 <th style="text-align:center;font-size:10px;">> 30 Days</th>
                 <th style="text-align:center;font-size:10px;">> 60 Days</th>
@@ -92,6 +93,7 @@
                     <!--<td class="small-font">{{item.age}}</td>-->
                     <!--<td>{{item.source_name}}</td>
                     <td>{{item.source_no}}</td>-->
+                    <td class="small-font" style="text-align:right;">{{item.paid_amount|number:fractionSize}}</td>
                     <td class="small-font" style="text-align:right;">{{item.current}}</td>
                     <td class="small-font" style="text-align:right;">{{item.over30}}</td>
                     <td class="small-font" style="text-align:right;">{{item.over60}}</td>
@@ -108,6 +110,7 @@
                     <!--<td>{{item.source_name}}</td>
                     <td>{{item.source_no}}</td>-->
                     <td class="small-font">Total</td>
+                    <td class="small-font" style="text-align:right;">{{x.totalPaid|number:fractionSize}}</td>
                     <td class="small-font" style="text-align:right;">{{x.totalCurrent|number:fractionSize}}</td>
                     <td class="small-font" style="text-align:right;">{{x.total30|number:fractionSize}}</td>
                     <td class="small-font" style="text-align:right;">{{x.total60|number:fractionSize}}</td>
@@ -127,7 +130,7 @@
         <!-- START PANEL -->
         <div class="panel panel-transparent">
             <div class="panel-heading">
-                <div class="panel-title">Aging Report
+                <div class="panel-title">Aging Detail
                 </div>
                 <div class="pull-right" style="width: 60%;">
                     <button id="show-modal" class="btn btn-primary btn-cons pull-right" ng-click="openQuickView('add')" ng-show="buttonCreate"><i class="fa fa-plus"></i> Add Department</button>
@@ -197,6 +200,7 @@
                                   <!--<th style="text-align:center">Age</th>-->
                                   <th style="text-align:center">Source</th>
                                   <th style="text-align:center">Source No</th>
+                                  <th style="text-align:right">Paid</th>
                                   <th style="text-align:right">Current</th>
                                   <th>> 30 Days</th>
                                   <th>> 60 Days</th>
@@ -213,6 +217,7 @@
                                       <!--<td>{{item.age}}</td>-->
                                       <td>{{item.source_name}}</td>
                                       <td>{{item.source_no}}</td>
+                                      <td style="text-align:right">{{item.paid_amount|number:fractionSize}}</td>
                                       <td style="text-align:right">{{item.current}}</td>
                                       <td style="text-align:right">{{item.over30}}</td>
                                       <td style="text-align:right">{{item.over60}}</td>
@@ -228,6 +233,7 @@
                                       <!--<td>&nbsp;</td>-->
                                       <td>&nbsp;</td>
                                       <td >Total</td>
+                                      <td style="text-align:right;">{{x.totalPaid|number:fractionSize}}</td>
                                       <td style="text-align:right;">{{x.totalCurrent|number:fractionSize}}</td>
                                       <td  style="text-align:right;">{{x.total30|number:fractionSize}}</td>
                                       <td  style="text-align:right;">{{x.total60|number:fractionSize}}</td>
