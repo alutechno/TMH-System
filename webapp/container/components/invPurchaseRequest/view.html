@@ -540,7 +540,8 @@
                       </div>
                       <div class="btn-form" ng-show="tableform.$visible">
                         <button type="submit" ng-disabled="tableform.$waiting" ng-click="tableform.$hide();child.saveTable(0)" class="btn btn-primary"> Save Item</button>
-                        <button type="button" ng-disabled="tableform.$waiting||seqState>3" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
+                        <!--<button type="button" ng-disabled="tableform.$waiting||seqState>3" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>-->
+                        <button type="button" ng-disabled="tableform.$waiting" ng-click="addUser()" class="btn btn-primary "> Add New Item</button>
                         <button type="button" ng-disabled="tableform.$waiting" ng-click="tableform.$cancel()" class="btn btn-default">Cancel</button>
                       </div>
 				  </div>

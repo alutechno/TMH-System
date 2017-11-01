@@ -457,7 +457,7 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
             var statCostCenter = true
             if ($scope.direct=='direct'){
                 for (var i=0;i<$scope.items.length;i++){
-                    console.log($scope.items[i])
+                    //console.log($scope.items[i])
                     if ($scope.items[i].cost_center_id){
                         if ($scope.items[i].cost_center_id.toString().length>0) statCostCenter = true
                         else {
@@ -469,10 +469,13 @@ function($scope, $state, $sce, $templateCache,globalFunction,queryService, $q,pr
                         statCostCenter = false
                         break
                     }
-
                 }
             }
-
+            else {
+                if ($scope.selected.warehouse.selected == null || $scope.selected.cost_center.selected==null){
+                    statCostCenter = false
+                }
+            }
 
             if ($scope.items.length>0 && $scope.child.totalQty>0 && statCostCenter){
                 var param = {}
