@@ -30,7 +30,7 @@
 					</span>
 					<br>
                     <span>
-						<b>DUE DAYS :</b> {{po.due_days}}
+						<b>TERM OF PAYMENT :</b> {{po.due_days}}
 					</span>
 					<br>
 					<span>
@@ -420,7 +420,7 @@
                           </div>
                           <div class="col-md-3">
                               <div pg-form-group class="form-group form-group-default required" ng-class="{ 'has-error' : po.due_days.$invalid && !po.due_days.$pristine }" >
-                                  <label>Due Days</label>
+                                  <label>Term of Payment</label>
                                   <input type="number" min="0" class="form-control" name="notes" ng-model="po.due_days" validate-attached-form-element required >
                               </div>
                           </div>
