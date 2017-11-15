@@ -1,3 +1,8 @@
+<style type="text/css" media="print">
+    .small-font {
+        font-size: 11pt;
+    }
+</style>
 <div id="printSection">
     <div class="row">
         <table width="98%">
@@ -52,48 +57,48 @@
         <table width="89%" cellpadding="5" border="1" align="center">
             <thead>
             <tr>
-				<th style="text-align: center;" width="15%">Product</th>
-				<th style="text-align: center;" width="15%">Notes</th>
-				<th style="text-align: center;" width="5%">Order Qty</th>
-				<th style="text-align: center;" width="5%">Remaining</th>
-				<th style="text-align: center;" width="10%">Rcv Qty</th>
-				<th style="text-align: center;" width="15%">Price</th>
-				<th style="text-align: center;" width="15%">Rcv Price</th>
-				<th style="text-align: center;" width="15%">Amount</th>
+				<th class="small-font" style="text-align: center;" width="30%">Product</th>
+				<th class="small-font" style="text-align: center;" width="25%">Notes</th>
+				<th class="small-font" style="text-align: center;" width="5%">Order Qty</th>
+				<!--<th style="text-align: center;" width="5%">Remaining</th>-->
+				<th class="small-font" style="text-align: center;" width="10%">Rcv Qty</th>
+				<th class="small-font" style="text-align: center;" width="15%">Price</th>
+				<!--<th style="text-align: center;" width="15%">Rcv Price</th>-->
+				<th class="small-font" style="text-align: center;" width="15%">Amount</th>
             </tr>
             </thead>
             <tbody>
             <tr ng-repeat="item in items | filter:filterUser">
-                <td>{{item.product_name}}</td>
-				<td>{{item.order_notes}}</td>
-                <td style="text-align: right;"> {{item.qty| number : fractionSize}}</td>
-                <td>
+                <td class="small-font" >{{item.product_name}}</td>
+				<td class="small-font" >{{item.order_notes}}</td>
+                <td class="small-font" style="text-align: right;"> {{item.qty| number : fractionSize}}</td>
+                <!--<td>
                         {{ item.remaining_qty | number : fractionSize}}
-                </td>
-                <td style="text-align: right;">
+                </td>-->
+                <td class="small-font" style="text-align: right;">
                         {{ item.rcv_qty | number : fractionSize}}
                 </td>
-                <td style="text-align: right;">
+                <td class="small-font" style="text-align: right;">
                         {{ item.price | number : fractionSize}}
                 </td>
-				<td style="text-align: right;">
+				<!--<td style="text-align: right;">
                         {{ item.rcv_price | number : fractionSize}}
-                </td>
-				<td style="text-align: right;">
+                </td>-->
+				<td class="small-font" style="text-align: right;">
                         {{ item.amount | number : fractionSize}}
                 </td>
             </tr>
             </tbody>
             <tfooter width="80%" border="1" align="center">
 		        <tr>
-					<td></td>
-					<td style="text-align: right;">Total</td>
-					<td style="text-align: right;">{{order}}</td>
-					<td></td>
-					<td style="text-align: right;">{{rcv_qty}}</td>
-					<td></td>
-					<td></td>
-					<td style="text-align: right;">{{amount| number : fractionSize}}</td>
+					<td class="small-font" ></td>
+					<td class="small-font" style="text-align: right;">Total</td>
+					<td class="small-font" style="text-align: right;">{{order}}</td>
+					<!--<td></td>-->
+					<td class="small-font" style="text-align: right;">{{rcv_qty}}</td>
+					<!--<td></td>-->
+					<td class="small-font" ></td>
+					<td class="small-font" style="text-align: right;">{{amount| number : fractionSize}}</td>
                 </tr>
             </tfooter>
         </table>
@@ -103,8 +108,6 @@
 
         <table width="89%" cellpadding="5" border="0" align="center">
             <tr>
-                <td style="border-bottom:1pt solid black;padding-right:10px;padding-left:10px;">
-                </td>
                 <td>&nbsp;</td>
                 <td style="border-bottom:1pt solid black;padding-right:10px;padding-left:10px;">
                 </td>
@@ -112,25 +115,26 @@
                 <td style="border-bottom:1pt solid black;padding-right:10px;padding-left:10px;">
                 </td>
                 <td>&nbsp;</td>
-                <td valign="top">
+                <td style="border-bottom:1pt solid black;padding-right:10px;padding-left:10px;">
                 </td>
+                <td>&nbsp;</td>
+
             </tr>
             <tr>
-                <td align="center">
+                <td class="small-font" >&nbsp;</td>
+                <td align="center" class="small-font" >
                     Receiving Clerk
                 </td>
-                <td>&nbsp;</td>
-                <td align="center">
+                <td class="small-font" >&nbsp;</td>
+                <td align="center" class="small-font" >
                     Supplier
                 </td>
-                <td>&nbsp;</td>
-                <td align="center">
+                <td class="small-font" >&nbsp;</td>
+                <td align="center" class="small-font" >
                     Department Concern
                 </td>
-                <td>&nbsp;</td>
-                <td>
-                    &nbsp;
-                </td>
+                <td class="small-font" >&nbsp;</td>
+
             </tr>
         </table>
     </div>
@@ -421,7 +425,7 @@
                                         </table>
                                         <div class="btn-edit">
                                           <button type="button" class="btn btn-primary" ng-show="!tableform.$visible" ng-disabled="(selected.delivery_status.selected.id!=0&&correction==false)||closedTrans==true" ng-click="tableform.$show()">
-                                            Modify Item List 
+                                            Modify Item List
                                           </button>
                                         </div>
                                         <div class="btn-form" ng-show="tableform.$visible">

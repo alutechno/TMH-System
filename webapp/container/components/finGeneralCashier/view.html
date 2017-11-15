@@ -1,50 +1,58 @@
+<style type="text/css" media="print">
+
+    .small-font {
+        font-size: 8pt;
+    }
+
+
+</style>
 <div id="printSection">
     <div class="row">
-        <h3 align="center"> General Cashier </h3>
+        <h4 align="center"> General Cashier </h4>
         <table width="98%" align="center">
           <tr>
-            <td style="text-align:left" width="15%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Journal Code</td>
-            <td style="text-align:left" width="1%">:</td>
-            <td style="text-align:left" width="25%">{{selected.journal_type.selected.name}}</td>
-            <td style="text-align:left" width="15%">Document No</td>
-            <td style="text-align:left" width="1%">:</td>
-            <td style="text-align:left" width="25%">{{ap.code}}</td>
+            <td class="small-font" style="text-align:left" width="15%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Journal Code</td>
+            <td class="small-font" style="text-align:left" width="1%">:</td>
+            <td class="small-font" style="text-align:left" width="25%">{{selected.journal_type.selected.name}}</td>
+            <td class="small-font" style="text-align:left" width="15%">Document No</td>
+            <td class="small-font" style="text-align:left" width="1%">:</td>
+            <td class="small-font" style="text-align:left" width="25%">{{ap.code}}</td>
           </tr>
           <tr>
-            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date</td>
-            <td>:</td>
-            <td>{{ap.bookkeeping_date}}</td>
-            <td>Status</td>
-            <td>:</td>
-            <td>{{selected.status.selected.name}}</td>
+            <td class="small-font">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date</td>
+            <td class="small-font">:</td>
+            <td class="small-font">{{ap.bookkeeping_date}}</td>
+            <td class="small-font">Status</td>
+            <td class="small-font">:</td>
+            <td class="small-font">{{selected.status.selected.name}}</td>
           </tr>
           <tr>
-            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ref Account</td>
-            <td>:</td>
-            <td>{{ap.ref_account}}</td>
-  					<td>Notes</td>
-            <td>:</td>
-            <td>{{ap.notes}}</td>
-            </td>
+            <td class="small-font">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ref Account</td>
+            <td class="small-font">:</td>
+            <td class="small-font">{{ap.ref_account}}</td>
+  					<td class="small-font">Notes</td>
+            <td class="small-font">:</td>
+            <td class="small-font">{{ap.notes}}</td>
+
           </tr>
           <tr>
-            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Debit</td>
-            <td>:</td>
-            <td>{{ap.debit|number: fractionSize}}</td>
-            <td>Credit</td>
-            <td>:</td>
-            <td>{{ap.credit|number: fractionSize}}</td>
-            </td>
+            <td class="small-font">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Debit</td>
+            <td class="small-font">:</td>
+            <td class="small-font">{{ap.debit|number: fractionSize}}</td>
+            <td class="small-font">Credit</td>
+            <td class="small-font">:</td>
+            <td class="small-font">{{ap.credit|number: fractionSize}}</td>
+
           </tr>
         </table>
         <br>
         <table width="89%" border="1" align="center">
             <thead>
-                <th style="text-align:center" width="10%">Account ID</th>
-                <th style="text-align:center" width="20%">Account Name</th>
-                <th style="text-align:center" width="30%">Notes</th>
-                <th style="text-align:center" width="10%">Debit</th>
-                <th style="text-align:center" width="10%">Credit</th>
+                <th style="text-align:center;font-size:10px;" width="10%">Account ID</th>
+                <th style="text-align:center;font-size:10px;" width="30%">Account Name</th>
+                <th style="text-align:center;font-size:10px;" width="35%">Notes</th>
+                <th style="text-align:center;font-size:10px;" width="12%">Debit</th>
+                <th style="text-align:center;font-size:10px;" width="12%">Credit</th>
                 <!--<th style="text-align:center">Vchr#</th>
                 <th style="text-align:center">Invoice#</th>
                 <th style="text-align:center">Open Date</th>
@@ -54,11 +62,11 @@
             </thead>
             <tbody>
                 <tr ng-repeat="item in items | filter:filterUser">
-                    <td>{{item.account_code}}</td>
-                    <td>{{item.account_name}}</td>
-                    <td>{{item.notes}}</td>
-                    <td style="text-align:right">{{item.debit|number: fractionSize}}</td>
-                    <td style="text-align:right">{{item.credit|number: fractionSize}}</td>
+                    <td class="small-font">{{item.account_code}}</td>
+                    <td class="small-font">{{item.account_name}}</td>
+                    <td class="small-font">{{item.notes}}</td>
+                    <td class="small-font" style="text-align:right">{{item.debit|number: fractionSize}}</td>
+                    <td class="small-font" style="text-align:right">{{item.credit|number: fractionSize}}</td>
 
                 </tr>
                 <tr>
@@ -74,38 +82,38 @@
         <table width="89%" border="0" align="center">
             <br>
             <tr>
-                <td align="center">
+                <td align="center" class="small-font">
                     Prepared by
                 </td>
                 <td>&nbsp;</td>
-                <td align="center">
+                <td align="center" class="small-font">
                     Reviewed by
                 </td>
                 <td>&nbsp;</td>
-                <td align="center">
+                <td align="center" class="small-font">
                     Approved by
                 </td>
             </tr>
             <tr height="100px">
-                <td style="border-bottom:1pt solid black;padding-right:15px;padding-left:15px;">
+                <td class="small-font" style="border-bottom:1pt solid black;padding-right:15px;padding-left:15px;">
                 </td>
                 <td>&nbsp;</td>
-                <td style="border-bottom:1pt solid black;padding-right:15px;padding-left:15px;">
+                <td class="small-font" style="border-bottom:1pt solid black;padding-right:15px;padding-left:15px;">
                 </td>
                 <td>&nbsp;</td>
-                <td style="border-bottom:1pt solid black;padding-right:15px;padding-left:15px;">
+                <td class="small-font" style="border-bottom:1pt solid black;padding-right:15px;padding-left:15px;">
                 </td>
             </tr>
             <tr>
-                <td align="center">
+                <td align="center" class="small-font">
                     General Cashier
                 </td>
                 <td>&nbsp;</td>
-                <td align="center">
+                <td align="center" class="small-font">
                     Chief Accountant
                 </td>
                 <td>&nbsp;</td>
-                <td align="center">
+                <td align="center" class="small-font">
                     Fincancial Controller
                 </td>
             </tr>
