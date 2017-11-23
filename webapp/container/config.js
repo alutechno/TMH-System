@@ -2427,6 +2427,50 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
+        .state('app.fin.ap_r_aging_summary', {
+            url: "/apraging-summary",
+            templateUrl: "container/components/finApRAgingSummary/view.html",
+            controller: 'FinApRAgingSummaryCtrl',
+            resolve: {
+                deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        'dataTables',
+                        'select',
+                        'datepicker',
+                        'daterangepicker',
+                        'tagsInput'
+                    ], {
+                        insertBefore: '#lazyload_placeholder'
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load('container/components/finApRAgingSummary/controller.js');
+                    });
+
+                }]
+            }
+        })
+        .state('app.fin.ap_r_aging_detail', {
+            url: "/apraging-detail",
+            templateUrl: "container/components/finApRAgingDetail/view.html",
+            controller: 'FinApRAgingDetailCtrl',
+            resolve: {
+                deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        'dataTables',
+                        'select',
+                        'datepicker',
+                        'daterangepicker',
+                        'tagsInput'
+                    ], {
+                        insertBefore: '#lazyload_placeholder'
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load('container/components/finApRAgingDetail/controller.js');
+                    });
+
+                }]
+            }
+        })
         .state('app.fin.ap_r_glledger', {
             url: "/aprglledger",
             templateUrl: "container/components/finApRGLLedger/view.html",
@@ -2784,6 +2828,50 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
+        .state('app.fin.bankBook', {
+            url: "/bank-book",
+            templateUrl: "container/components/finGlBankBook/view.html",
+            controller: 'FinGlBankBookCtrl',
+            resolve: {
+                deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        'dataTables',
+                        'select',
+                        'datepicker',
+                        'daterangepicker',
+                        'tagsInput'
+                    ], {
+                        insertBefore: '#lazyload_placeholder'
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load('container/components/finGlBankBook/controller.js');
+                    });
+
+                }]
+            }
+        })
+        .state('app.fin.cashBook', {
+            url: "/cash-book",
+            templateUrl: "container/components/finGlCashBook/view.html",
+            controller: 'FinGlCashBookCtrl',
+            resolve: {
+                deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        'dataTables',
+                        'select',
+                        'datepicker',
+                        'daterangepicker',
+                        'tagsInput'
+                    ], {
+                        insertBefore: '#lazyload_placeholder'
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load('container/components/finGlCashBook/controller.js');
+                    });
+
+                }]
+            }
+        })
         .state("app.fin.rptTrialBalance", {
             url: "/finRptTrialBalance",
             templateUrl: "container/components/finRptTrialBalance/view.html",
@@ -2940,7 +3028,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
-        .state("app.fin.cashBook", {
+        /*.state("app.fin.cashBook", {
             url: "/finCashBook",
             templateUrl: "container/components/finCashBook/view.html",
             params: {'currentPeriod': null},
@@ -2962,7 +3050,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                     });
                 }]
             }
-        })
+        })*/
 		.state("app.fin.ARCC", {
             url: "/finARCC",
             templateUrl: "container/components/finARCreditCard/view.html",
@@ -3170,7 +3258,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                 }]
             }
         })
-		.state("app.inv.stockOnHand", {
+        .state("app.inv.stockOnHand", {
             url: "/invStockOnHand",
             templateUrl: "container/components/invRptStockOnHand/view.html",
             controller: "InvRptStockOnHand",
@@ -3188,6 +3276,94 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$ocLazyLo
                     })
                     .then(function () {
                         return $ocLazyLoad.load("container/components/invRptStockOnHand/controller.js");
+                    });
+                }]
+            }
+        })
+        .state("app.inv.stockOnHandCategory", {
+            url: "/invStockOnHandCategory",
+            templateUrl: "container/components/invRptStockOnHandCategory/view.html",
+            controller: "InvRptStockOnHandCategory",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/invRptStockOnHandCategory/controller.js");
+                    });
+                }]
+            }
+        })
+        .state("app.inv.stockOnHandStore", {
+            url: "/invStockOnHandStore",
+            templateUrl: "container/components/invRptStockOnHandStore/view.html",
+            controller: "InvRptStockOnHandStore",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/invRptStockOnHandStore/controller.js");
+                    });
+                }]
+            }
+        })
+        .state("app.inv.stockOnHandWarehouse", {
+            url: "/invStockOnHandStore",
+            templateUrl: "container/components/invRptStockOnHandWarehouse/view.html",
+            controller: "InvRptStockOnHandWarehouse",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/invRptStockOnHandWarehouse/controller.js");
+                    });
+                }]
+            }
+        })
+        .state("app.inv.stockOnHandItem", {
+            url: "/invStockOnHandItem",
+            templateUrl: "container/components/invRptStockOnHandItem/view.html",
+            controller: "InvRptStockOnHandItem",
+            resolve: {
+                deps: ["$ocLazyLoad", function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        "dataTables",
+                        "select",
+                        "datepicker",
+                        "daterangepicker",
+                        "tagsInput",
+                        "autonumeric"
+                    ], {
+                        insertBefore: "#lazyload_placeholder"
+                    })
+                    .then(function () {
+                        return $ocLazyLoad.load("container/components/invRptStockOnHandItem/controller.js");
                     });
                 }]
             }

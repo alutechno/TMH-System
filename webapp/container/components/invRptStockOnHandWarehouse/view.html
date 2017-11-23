@@ -1,0 +1,28 @@
+<div class="full-height m-t-40">
+    <div class="container-fluid container-fixed-lg">
+        <div class="panel panel-transparent">
+            <div class="panel-heading">
+                <div class="panel-title">Stock On Hand by Warehouse
+                </div>
+                <div class="pull-right" style="width: 60%;">
+                    <!--
+                    <div class="btn-group pull-right m-r-5">
+                        <div class="btn-group form-group-default-select pull-left  m-r-5">
+                            <label class="m-t-5 m-r-5 m-l-5"><b>Period:</b></label>&nbsp;
+                        </div>
+                        <div class="btn-group form-group-default-select pull-left  m-r-5">
+                            <input type="text" class="form-control" ng-model="filter.period" name="date" placeholder="Pick a date" id="startDate" ui-jq="datepicker" data-date-format="yyyy-mm-dd" ng-change="setFilter()">
+                        </div>
+                     </div>
+                   -->
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+                <iframe ng-src="{{urlReport}}" align="middle" width="100%" height="800" frameborder="1">
+                    <p>Your browser does not support iframes.</p>
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
