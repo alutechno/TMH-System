@@ -594,8 +594,10 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             var home_total_amount = 0
             var statDetail = true
             for (var i=0;i<$scope.items.length;i++){
-                if($scope.items[i].account_id.length==0) statDetail = false
-                if(($scope.items[i].debit+$scope.items[i].credit)==0) statDetail = false
+                if (!$scope.items[i].isDeleted){
+                    if($scope.items[i].account_id.length==0) statDetail = false
+                    if(($scope.items[i].debit+$scope.items[i].credit)==0) statDetail = false
+                }
             }
 			//queryService.post('select next_document_no(\'DP\',\''+$scope.ym+'\')',undefined)
 			/*queryService.post('select next_item_code("AP",concat("DMT",date_format(curdate(),"%y"))) as code',undefined)
@@ -722,8 +724,11 @@ function($scope, $state, $stateParams,$sce,$templateCache, productCategoryServic
             var home_total_amount = 0
             var statDetail = true
             for (var i=0;i<$scope.items.length;i++){
-                if($scope.items[i].account_id.length==0) statDetail = false
-                if(($scope.items[i].debit+$scope.items[i].credit)==0) statDetail = false
+                console.log('submit-'+i,$scope.items[i])
+                if (!$scope.items[i].isDeleted){
+                    if($scope.items[i].account_id.length==0) statDetail = false
+                    if(($scope.items[i].debit+$scope.items[i].credit)==0) statDetail = false
+                }
             }
             if (statDetail == true){
                 var param = {
